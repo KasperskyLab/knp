@@ -23,7 +23,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Required for the linters.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(knp-devices VERSION "${KNP_VERSION}" LANGUAGES C CXX
+project(knp-cpu-devices VERSION "${KNP_VERSION}" LANGUAGES C CXX
         DESCRIPTION "Kaspersky Neuromorphic Platform device parameters library"
         HOMEPAGE_URL "https://neuro.kaspersky.ru/neyromorfnye-tekhnologii/")
 
@@ -41,7 +41,7 @@ else()
     set(${PROJECT_NAME}_CPU_SOURCE impl/unknown_cpu.cpp)
 endif()
 
-knp_add_library("${PROJECT_NAME}-cpu"
+knp_add_library("${PROJECT_NAME}"
     STATIC
 
     ${${PROJECT_NAME}_CPU_SOURCE}
@@ -54,41 +54,17 @@ knp_add_library("${PROJECT_NAME}-cpu"
 )
 
 set_target_properties(
-        "${PROJECT_NAME}-cpu"
+        "${PROJECT_NAME}"
         PROPERTIES
         VERSION "${CMAKE_PROJECT_VERSION}"
         SOVERSION "${CMAKE_PROJECT_VERSION_MAJOR}")
 
-knp_add_library("${PROJECT_NAME}-altai"
-    STATIC
-    impl/altai.cpp
-
-    include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/altai.h
-
-    LINK_PRIVATE
-        spdlog::spdlog_header_only
-        KNP::Core
-    ALIAS KNP::Devices::AltAI
-)
-
-set_target_properties(
-    "${PROJECT_NAME}-altai"
-    PROPERTIES
-    VERSION "${CMAKE_PROJECT_VERSION}"
-    SOVERSION "${CMAKE_PROJECT_VERSION_MAJOR}"
-)
 
 if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")
 
-    install(TARGETS "${PROJECT_NAME}-cpu"
-            EXPORT "${PROJECT_NAME}-cpu"
-            COMPONENT "${COMPONENT_NAME}-dev"
-            ARCHIVE)
-
-    # Install for AltAI
-    install(TARGETS "${PROJECT_NAME}-altai"
-            EXPORT "${PROJECT_NAME}-altai"
+    install(TARGETS "${PROJECT_NAME}"
+            EXPORT "${PROJECT_NAME}"
             COMPONENT "${COMPONENT_NAME}-dev"
             ARCHIVE)
 

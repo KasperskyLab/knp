@@ -204,23 +204,23 @@
  */
 
 /**
- * @dir /knp/devices-library
- * @brief Device library directory.
+ * @dir /knp/backends/cpu/cpu-devices
+ * @brief CPU device library directory.
  */
 
 /**
- * @dir /knp/devices-library/include
- * @brief Include directory for devices library.
+ * @dir /knp/backends/cpu/cpu-devices/include
+ * @brief Include directory for CPU devices library.
  */
 
 /**
- * @dir /knp/devices-library/include/knp
- * @brief Include directory for devices library.
+ * @dir /knp/backends/cpu/cpu-devices/include/knp
+ * @brief Include directory for CPU devices library.
  */
 
 /**
- * @dir /knp/devices-library/include/knp/devices
- * @brief Include directory for devices library.
+ * @dir /knp/backends/cpu/cpu-devices/include/knp/devices
+ * @brief Include directory for CPU devices library.
  */
 
 /**
