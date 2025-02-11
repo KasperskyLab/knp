@@ -118,12 +118,12 @@ public:
     }
 
     /**
-     * @brief Return all input channels.
+     * @brief Return all input channels UIDs.
      * @return map of input channels to projections.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_input_channels() const;
     /**
-     * @brief Return all output channels.
+     * @brief Return all output channels UIDs.
      * @return map of output channels to populations.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_output_channels() const;
@@ -131,9 +131,7 @@ public:
 private:
     knp::core::BaseData base_;
     knp::framework::Network network_;
-    // cppcheck-suppress unusedStructMember
     std::unordered_multimap<core::UID, core::UID, core::uid_hash> in_channels_;
-    // cppcheck-suppress unusedStructMember
     std::unordered_multimap<core::UID, core::UID, core::uid_hash> out_channels_;
 };
 

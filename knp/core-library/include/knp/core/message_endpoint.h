@@ -197,7 +197,7 @@ public:
     const SubscriptionContainer &get_endpoint_subscriptions() const { return subscriptions_; }
 
     /**
-     * @brief Get weak ptr to senders list.
+     * @brief Get senders list.
      * @return weak pointer to unordered set of sender UIDs.
      */
     auto get_senders_ptr()

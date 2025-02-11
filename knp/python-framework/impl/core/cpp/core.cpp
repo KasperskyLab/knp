@@ -31,7 +31,7 @@
 #include "projection.h"
 #include "spike_message.h"
 #include "tuple_converter.h"
-#include "uid.h"
+#include "uid_utilities.h"
 
 // knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron>
 

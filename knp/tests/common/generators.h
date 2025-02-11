@@ -46,7 +46,7 @@ inline std::optional<DeltaProjection::Synapse> input_projection_gen(size_t /*ind
 // Create a loop projection.
 inline std::optional<DeltaProjection::Synapse> synapse_generator(size_t /*index*/)  // NOLINT
 {
-    return DeltaProjection::Synapse{{1.0, 6, knp::synapse_traits::OutputType::EXCITATORY}, 0, 0};
+    return DeltaProjection::Synapse{{1.1, 6, knp::synapse_traits::OutputType::EXCITATORY}, 0, 0};
 }
 
 

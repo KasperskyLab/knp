@@ -32,3 +32,13 @@ std::shared_ptr<knp::framework::io::output::OutputChannel> construct_output_chan
 {
     return std::make_shared<knp::framework::io::output::OutputChannel>(uid, std::move(endpoint));
 }
+
+
+auto read_from_buffer(
+    knp::framework::io::output::OutputChannel &self, knp::core::Step start_step, knp::core::Step end_step)
+{
+    py::list result;
+    auto data = self.read_some_from_buffer(start_step, end_step);
+    for (auto &v : data) result.append(v);
+    return result;
+}
