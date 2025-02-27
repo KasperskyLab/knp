@@ -30,7 +30,7 @@ py::class_<knp::framework::io::output::OutputChannel, boost::noncopyable>(
         "update", &knp::framework::io::output::OutputChannel::update,
         "Unload spike messages from the endpoint into the message buffer.")
     .def(
-        "read_some_from_buffer", &knp::framework::io::output::OutputChannel::read_some_from_buffer,
+        "read_some_from_buffer", &read_from_buffer,
         "Read a specified interval of messages from sorted internal message buffer.")
     .def("__init__", &construct_output_channel, "Initialize output channel attributes.");
 #endif  // KNP_IN_BASE_FW

@@ -52,6 +52,13 @@ TEST(FrameworkSuite, BackendLoaderCheck)
 }
 
 
+TEST(FrameworkSuite, BackendLoaderExceptionCheck)
+{
+    knp::framework::BackendLoader backend_loader;
+    ASSERT_ANY_THROW(backend_loader.load("Almost certainly a wrong path"));
+}
+
+
 TEST(FrameworkSuite, BackendGetDevices)  //!OCLINT(False positive)
 {
     knp::framework::BackendLoader backend_loader;

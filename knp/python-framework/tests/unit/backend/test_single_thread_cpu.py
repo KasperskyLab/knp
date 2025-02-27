@@ -48,7 +48,7 @@ def test_smallest_network(pytestconfig):  # type: ignore[no-untyped-def]
 
     input_uid = input_projection.uid
 
-    backend = BackendLoader().load(f'{pytestconfig.rootdir}/../bin/libknp-cpu-single-threaded-backend')
+    backend = BackendLoader().load(f'{pytestconfig.rootdir}/../bin/knp-cpu-single-threaded-backend')
 
     backend.load_all_populations([population])
     backend.load_all_projections([input_projection, loop_projection])

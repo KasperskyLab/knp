@@ -58,7 +58,13 @@ std::shared_ptr<core::Backend> BackendLoader::load(const std::filesystem::path &
 {
     auto creator = make_creator(backend_path);
     SPDLOG_INFO("Created backend instance.");
-    return creator();
+    std::shared_ptr<core::Backend> result = creator();
+    if (!result)
+    {
+        SPDLOG_ERROR("Unable to load backend from " + backend_path.string());
+        throw std::runtime_error("Couldn't load backend from path \"" + backend_path.string() + "\"");
+    }
+    return result;
 }
 
 

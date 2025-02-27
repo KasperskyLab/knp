@@ -84,6 +84,9 @@ jobs:
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V
         timeout-minutes: 180
 
+      - name: Python Test
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework kasperskydh/knp-build-image pytest
+
       - name: Create deb packages
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} kasperskydh/knp-build-image cpack -G DEB
         timeout-minutes: 180

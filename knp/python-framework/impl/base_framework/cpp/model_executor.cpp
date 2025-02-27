@@ -28,7 +28,7 @@ py::class_<knp::framework::ModelExecutor, boost::noncopyable>(
     "ModelExecutor",
     "The ModelExecutor class is a definition of an executor that runs the uploaded model on the specified backend.",
     py::no_init)
-    .def("__init__", &create_model_executor, "Construct model executor.")
+    .def("__init__", py::make_constructor(&create_model_executor), "Construct model executor.")
     .def("start", &start_model_executor, "Start model execution.")
     .def("start", &start_model_executor_predicate, "Start model execution with a predicate.")
     .def("stop", &knp::framework::ModelExecutor::stop, "Stop model execution.")
@@ -36,6 +36,9 @@ py::class_<knp::framework::ModelExecutor, boost::noncopyable>(
     .def("add_impact_observer", &add_executor_impact_observer, "Add impact message observer to model executor.")
     .def("start_learning", &knp::framework::ModelExecutor::start_learning, "Unlock synapse weights.")
     .def("stop_learning", &knp::framework::ModelExecutor::stop_learning, "Lock synapse weights.")
-    .def("get_backend", &knp::framework::ModelExecutor::get_backend, "Get reference of backend object.");
+    .def("get_backend", &knp::framework::ModelExecutor::get_backend, "Get reference of backend object.")
+    .def(
+        "get_output_channel", &get_output_channel, py::return_value_policy<py::reference_existing_object>(),
+        "Get output channel reference.");
 
 #endif  // KNP_IN_BASE_FW

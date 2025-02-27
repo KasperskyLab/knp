@@ -56,3 +56,10 @@ struct uid_from_python
         data->convertible = storage;
     }
 };
+
+
+auto get_py_hash(const knp::core::UID& uid)
+{
+    const knp::core::uid_hash hash;
+    return hash(uid);
+}
