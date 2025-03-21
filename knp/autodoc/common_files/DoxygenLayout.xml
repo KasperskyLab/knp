@@ -87,7 +87,6 @@ limitations under the License.
       <packagestaticmethods title=""/>
       <packageattributes title=""/>
       <packagestaticattributes title=""/>
-      <properties title=""/>
       <events title=""/>
       <privatetypes title=""/>
       <privateslots title=""/>
@@ -110,7 +109,6 @@ limitations under the License.
       <functions title=""/>
       <related title=""/>
       <variables title=""/>
-      <properties title=""/>
       <events title=""/>
     </memberdef>
     <allmemberslink visible="yes"/>
@@ -135,7 +133,6 @@ limitations under the License.
       <enums visible="no" title=""/>
       <functions visible="no" title=""/>
       <variables visible="no" title=""/>
-      <properties title=""/>
       <membergroups visible="yes"/>
     </memberdecl>
     <detaileddescription title=""/>
@@ -147,7 +144,6 @@ limitations under the License.
       <enums title=""/>
       <functions title=""/>
       <variables title=""/>
-      <properties title=""/>
     </memberdef>
     <authorsection visible="yes"/>
   </namespace>
@@ -183,7 +179,6 @@ limitations under the License.
       <enums title=""/>
       <functions title=""/>
       <variables title=""/>
-      <properties title=""/>
       <membergroups visible="yes"/>
     </memberdecl>
     <detaileddescription title=""/>
@@ -196,7 +191,6 @@ limitations under the License.
       <enums title=""/>
       <functions title=""/>
       <variables title=""/>
-      <properties title=""/>
     </memberdef>
     <authorsection/>
   </file>
@@ -226,7 +220,6 @@ limitations under the License.
       <protectedslots title=""/>
       <privateslots title=""/>
       <events title=""/>
-      <properties title=""/>
       <friends title=""/>
       <membergroups visible="yes"/>
     </memberdecl>
@@ -247,7 +240,6 @@ limitations under the License.
       <protectedslots title=""/>
       <privateslots title=""/>
       <events title=""/>
-      <properties title=""/>
       <friends title=""/>
     </memberdef>
     <authorsection visible="yes"/>

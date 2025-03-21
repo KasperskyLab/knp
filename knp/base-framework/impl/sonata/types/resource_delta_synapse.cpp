@@ -118,6 +118,7 @@ void add_projection_to_h5<core::Projection<ResourceDeltaSynapse>>(
     HighFive::Group syn_group = proj_group.createGroup("0");
     PUT_SYNAPSE_RULE_TO_DATASET(projection, d_u_, syn_group);
     PUT_SYNAPSE_RULE_TO_DATASET(projection, had_hebbian_update_, syn_group);
+    PUT_SYNAPSE_RULE_TO_DATASET(projection, has_contributed_, syn_group);
     PUT_SYNAPSE_RULE_TO_DATASET(projection, synaptic_resource_, syn_group);
     PUT_SYNAPSE_RULE_TO_DATASET(projection, last_spike_step_, syn_group);
     PUT_SYNAPSE_RULE_TO_DATASET(projection, dopamine_plasticity_period_, syn_group);
@@ -175,6 +176,7 @@ core::Projection<ResourceDeltaSynapse> load_projection(
 
     READ_SYNAPSE_RULE_PARAMETER(synapses, d_u_, group, group_size, def_params.rule_.d_u_);
     READ_SYNAPSE_RULE_PARAMETER(synapses, had_hebbian_update_, group, group_size, def_params.rule_.had_hebbian_update_);
+    READ_SYNAPSE_RULE_PARAMETER(synapses, has_contributed_, group, group_size, def_params.rule_.has_contributed_);
     READ_SYNAPSE_RULE_PARAMETER(synapses, synaptic_resource_, group, group_size, def_params.rule_.synaptic_resource_);
     READ_SYNAPSE_RULE_PARAMETER(synapses, last_spike_step_, group, group_size, def_params.rule_.last_spike_step_);
     READ_SYNAPSE_RULE_PARAMETER(

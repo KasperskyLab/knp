@@ -206,12 +206,26 @@ void process_spiking_neurons(
     {
         auto synapse_params = get_all_connected_synapses<SynapseType>(working_projections, spiked_neuron_index);
         auto &neuron = population[spiked_neuron_index];
+        neuron.last_spike_step_ = step;
         // Calculate neuron ISI status.
         update_isi<neuron_traits::BLIFATNeuron>(neuron, step);
         if (neuron_traits::ISIPeriodType::period_started == neuron.isi_status_)
         {
             neuron.stability_ -= neuron.stability_change_at_isi_;
         }
+        neuron.additional_threshold_ = 0.0;
+        // Mark contributed synapses
+        for (auto *synapse : synapse_params)
+        {
+            neuron.additional_threshold_ += synapse->weight_ * (synapse->weight_ > 0);
+            const bool had_spike = is_point_in_interval(
+                step - synapse->rule_.dopamine_plasticity_period_, step,
+                synapse->rule_.last_spike_step_ + synapse->delay_ - 1);
+            // While period continues we don't change has_contributed from true to false.
+            if (neuron_traits::ISIPeriodType::period_continued != neuron.isi_status_ || had_spike)
+                synapse->rule_.has_contributed_ = had_spike;
+        }
+        neuron.additional_threshold_ *= neuron.synapse_sum_threshold_coefficient_;
 
         // This is a new spiking sequence, we can update synapses now.
         if (neuron.isi_status_ != neuron_traits::ISIPeriodType::period_continued)
@@ -234,14 +248,13 @@ void process_spiking_neurons(
                 // Hebbian plasticity.
                 // 1. Check if synapse ever got a spike in the current ISI period.
 
-                if (is_point_in_interval(
-                        neuron.first_isi_spike_ - neuron.isi_max_, step, synapse->rule_.last_spike_step_) &&
-                    !synapse->rule_.had_hebbian_update_)
+                if (synapse->rule_.has_contributed_ && !synapse->rule_.had_hebbian_update_)
                 {
                     // 2. If it did, then update synaptic resource value.
                     const float d_h = neuron.d_h_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
                     synapse->rule_.synaptic_resource_ += d_h;
                     neuron.free_synaptic_resource_ -= d_h;
+                    synapse->rule_.had_hebbian_update_ = true;
                 }
             }
         }
@@ -317,11 +330,13 @@ void do_dopamine_plasticity(
             // Change synapse values for both `D > 0` and `D < 0`.
             for (auto *synapse : synapse_params)
             {
-                if (step - synapse->rule_.last_spike_step_ < synapse->rule_.dopamine_plasticity_period_)
+                // if ((step - synapse->rule_.last_spike_step_ < synapse->rule_.dopamine_plasticity_period_)
+                if (step - neuron.last_spike_step_ <= neuron.dopamine_plasticity_time_ &&
+                    synapse->rule_.has_contributed_)
                 {
                     // Change synapse resource.
-                    float d_r = neuron.dopamine_value_ *
-                                std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F) / 1000.F;
+                    float d_r =
+                        neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;
                 }

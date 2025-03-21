@@ -38,7 +38,10 @@ py::class_<rds_rule>(
     .add_property("last_spike_step", &rds_rule::last_spike_step_, "Step number of when the synapse got a spike last.")
     .add_property(
         "had_hebbian_update", &rds_rule::had_hebbian_update_,
-        "True if the synapse was updated during the current spike sequence.");
+        "True if the synapse was updated during the current spike sequence.")
+    .add_property(
+        "had_contributed", &rds_rule::has_contributed_,
+        "True if a postsynaptic neuron had a spike recently after this synapse got one.");
 
 
 py::class_<rds_params, py::bases<ds_params>>(

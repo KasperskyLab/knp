@@ -78,6 +78,11 @@ struct STDPSynapticResourceRule
      * @brief `true` if the synapse was updated during the current spike sequence.
      */
     bool had_hebbian_update_ = false;
+
+    /**
+     * @brief 'true' if a synapse got a spike during current period.
+     */
+    bool has_contributed_ = false;
 };
 
 

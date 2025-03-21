@@ -24,6 +24,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(save-load-networks)
 add_subdirectory(simple-network)
 add_subdirectory(mnist-client)
+add_subdirectory(mnist-learn)
 
 if (KNP_INSTALL)
     install(DIRECTORY "."

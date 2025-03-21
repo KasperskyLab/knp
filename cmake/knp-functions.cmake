@@ -66,7 +66,8 @@ function(knp_set_target_parameters target visibility)
 
     target_compile_definitions("${target}" ${visibility}
             #                                $<$<CONFIG:Debug>:_FORTIFY_SOURCE=2>
-            $<$<CONFIG:Release>:_FORTIFY_SOURCE=1>)
+            # $<$<CONFIG:Release>:_FORTIFY_SOURCE=1>
+            )
 
     target_compile_definitions("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:C,MSVC>:NOMINMAX>)
     target_compile_definitions("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:NOMINMAX>)

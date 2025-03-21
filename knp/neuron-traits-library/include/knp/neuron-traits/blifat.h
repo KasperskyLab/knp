@@ -62,7 +62,7 @@ struct default_values<BLIFATNeuron>
     constexpr static double min_potential_ = -1.0e9;
 
     /**
-     * @brief The parameter defines a threshold for membrane potential.
+     * @brief The parameter defines a constant part of the threshold for membrane potential.
      */
     constexpr static double activation_threshold_ = 1.0;
 
@@ -70,8 +70,13 @@ struct default_values<BLIFATNeuron>
      * @brief The parameter defines a dynamic threshold for membrane potential after reaching which a neuron generates a
      * spike.
      */
-
     constexpr static double dynamic_threshold_ = 0.;
+
+    /**
+     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
+     */
+    constexpr static double additional_threshold_ = 0.;
+
     /**
      * @brief The parameter defines a time constant during which the `dynamic_threshold_` parameter tends to its base
      * value if nothing happens.
@@ -178,9 +183,13 @@ struct neuron_parameters<BLIFATNeuron>
     std::size_t n_time_steps_since_last_firing_ = default_values<BLIFATNeuron>::n_time_steps_since_last_firing_;
 
     /**
-     * @brief The parameter defines a threshold for membrane potential.
+     * @brief The parameter defines a constant part of a threshold for membrane potential.
      */
     double activation_threshold_ = default_values<BLIFATNeuron>::activation_threshold_;
+    /**
+     * @brief The parameter is used for threshold mechanisms that are implemented in specific neuron types.
+     */
+    double additional_threshold_ = default_values<BLIFATNeuron>::additional_threshold_;
     /**
      * @brief The parameter defines a dynamic threshold for membrane potential after reaching which a neuron generates a
      * spike.
