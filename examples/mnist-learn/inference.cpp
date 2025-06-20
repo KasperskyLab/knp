@@ -23,6 +23,7 @@
 
 #include <knp/framework/model.h>
 #include <knp/framework/model_executor.h>
+#include <knp/framework/monitoring/model_monitoring.h>
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/sonata/network_io.h>
@@ -34,7 +35,7 @@
 
 #include "construct_network.h"
 #include "data_read.h"
-#include "logging.h"
+#include "time_string.h"
 #include "wta.h"
 
 
@@ -66,13 +67,22 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     auto &out_channel = model_executor.get_loader().get_output_channel(o_channel_uid);
 
     model_executor.get_backend()->stop_learning();
-    std::vector<InferenceResult> result;
 
     // Add observer.
     model_executor.add_observer<knp::core::messaging::SpikeMessage>(
-        make_observer_function(result), described_network.data_.output_uids_);
+        [](const std::vector<knp::core::messaging::SpikeMessage> &messages)
+        {
+            if (messages.empty() || messages[0].neuron_indexes_.empty()) return;
+            for (auto index : messages[0].neuron_indexes_)
+            {
+                std::cout << index << " ";
+            }
+            std::cout << std::endl;
+        },
+        described_network.data_.output_uids_);
     std::ofstream log_stream;
     // These two variables should have the same lifetime as model_executor, or else UB.
+    // cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
     // cppcheck-suppress variableScope
     size_t current_index = 0;
@@ -91,7 +101,8 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     }
     if (log_stream.is_open())
     {
-        add_aggregate_logger(model, all_senders_names, model_executor, current_index, spike_accumulator, log_stream);
+        knp::framework::monitoring::model_monitoring::add_aggregated_spikes_logger(
+            model, all_senders_names, model_executor, current_index, spike_accumulator, log_stream, 4000);
     }
 
     // Start model.

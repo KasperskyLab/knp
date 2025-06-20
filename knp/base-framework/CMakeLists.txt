@@ -63,6 +63,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/input_converter.cpp
     impl/output_channel.cpp
     impl/synchronization.cpp
+    impl/model_monitoring.cpp
     impl/sonata/save_network.cpp
     impl/sonata/load_network.cpp
     impl/sonata/csv_content.cpp

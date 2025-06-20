@@ -27,5 +27,5 @@ if (NOT TARGET KNP::BaseFramework::Core)
     find_package(knp-base-framework REQUIRED)
 endif()
 
-add_executable(mnist_learn_example main.cpp data_read.cpp construct_network.cpp evaluation.cpp logging.cpp train.cpp inference.cpp wta.cpp)
+add_executable(mnist_learn_example main.cpp data_read.cpp construct_network.cpp evaluation.cpp train.cpp inference.cpp wta.cpp time_string.cpp)
 target_link_libraries(mnist_learn_example PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES})
