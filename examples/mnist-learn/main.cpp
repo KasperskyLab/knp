@@ -26,7 +26,7 @@
 #include "data_read.h"
 #include "evaluation.h"
 #include "inference.h"
-#include "logging.h"
+#include "time_string.h"
 #include "train.h"
 
 

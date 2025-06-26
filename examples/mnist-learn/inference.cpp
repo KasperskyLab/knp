@@ -23,6 +23,7 @@
 
 #include <knp/framework/model.h>
 #include <knp/framework/model_executor.h>
+#include <knp/framework/monitoring/model.h>
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/sonata/network_io.h>
@@ -34,9 +35,10 @@
 
 #include "construct_network.h"
 #include "data_read.h"
-#include "logging.h"
+#include "time_string.h"
 #include "wta.h"
 
+constexpr size_t aggregated_spikes_logging_period = 4e3;
 
 namespace fs = std::filesystem;
 
@@ -66,16 +68,15 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     auto &out_channel = model_executor.get_loader().get_output_channel(o_channel_uid);
 
     model_executor.get_backend()->stop_learning();
-    std::vector<InferenceResult> result;
 
-    // Add observer.
-    model_executor.add_observer<knp::core::messaging::SpikeMessage>(
-        make_observer_function(result), described_network.data_.output_uids_);
+    knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
+
     std::ofstream log_stream;
-    // These two variables should have the same lifetime as model_executor, or else UB.
+
+    // This variable should have the same lifetime as model_executor, or else UB.
+    //  cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
-    // cppcheck-suppress variableScope
-    size_t current_index = 0;
+
     auto wta_uids = add_wta_handlers(described_network, model_executor);
     auto all_senders_names = described_network.data_.population_names_;
     for (const auto &uid : wta_uids)
@@ -91,7 +92,8 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     }
     if (log_stream.is_open())
     {
-        add_aggregate_logger(model, all_senders_names, model_executor, current_index, spike_accumulator, log_stream);
+        knp::framework::monitoring::model::add_aggregated_spikes_logger(
+            model, all_senders_names, model_executor, spike_accumulator, log_stream, aggregated_spikes_logging_period);
     }
 
     // Start model.
