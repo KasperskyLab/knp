@@ -57,8 +57,8 @@ TEST(OutputSuite, ConverterTest)
 
 TEST(OutputSuite, ChannelTest)
 {
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_bus();
-    auto endpoint = bus.create_endpoint();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_bus();
+    auto endpoint = bus->create_endpoint();
     // New random UID.
     knp::core::UID sender_uid;
 
@@ -73,19 +73,19 @@ TEST(OutputSuite, ChannelTest)
     };
 
     // Initialize counting channel.
-    auto endpoint_1 = bus.create_endpoint();
+    auto endpoint_1 = bus->create_endpoint();
     auto c1_uid = knp::core::UID();
     endpoint_1.subscribe<knp::core::messaging::SpikeMessage>(c1_uid, {sender_uid});
     knp::framework::io::output::OutputChannel channel_count{c1_uid, std::move(endpoint_1)};
 
     // Initialize neuron set channel.
-    auto endpoint_2 = bus.create_endpoint();
+    auto endpoint_2 = bus->create_endpoint();
     auto c2_uid = knp::core::UID();
     endpoint_2.subscribe<knp::core::messaging::SpikeMessage>(c2_uid, {sender_uid});
     knp::framework::io::output::OutputChannel channel_set{c2_uid, std::move(endpoint_2)};
 
     // Create a custom "max activations by neuron" channel.
-    auto endpoint_3 = bus.create_endpoint();
+    auto endpoint_3 = bus->create_endpoint();
     auto c3_uid = knp::core::UID();
     endpoint_3.subscribe<knp::core::messaging::SpikeMessage>(c3_uid, {sender_uid});
     knp::framework::io::output::OutputChannel channel_max{c3_uid, std::move(endpoint_3)};
@@ -99,7 +99,7 @@ TEST(OutputSuite, ChannelTest)
     endpoint.send_message(knp::core::messaging::SpikeMessage{{sender_uid, 1}, {1, 3, 8}});
     endpoint.send_message(knp::core::messaging::SpikeMessage{{sender_uid, 3}, {1, 4, 10}});
     endpoint.send_message(knp::core::messaging::SpikeMessage{{sender_uid, 5}, {1, 4, 7, 12}});
-    bus.route_messages();
+    bus->route_messages();
     endpoint.receive_all_messages();
 
     // Use channels.

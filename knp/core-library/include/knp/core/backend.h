@@ -195,13 +195,13 @@ public:
      * @brief Get message bus used by backend.
      * @return reference to message bus.
      */
-    [[nodiscard]] MessageBus &get_message_bus() { return message_bus_; }
+    [[nodiscard]] MessageBus &get_message_bus() { return *message_bus_; }
     /**
      * @brief Get message bus used by backend.
      * @note Constant method.
      * @return reference to message bus.
      */
-    [[nodiscard]] const MessageBus &get_message_bus() const { return message_bus_; }
+    [[nodiscard]] const MessageBus &get_message_bus() const { return *message_bus_; }
 
     /**
      * @brief Get message endpoint.
@@ -368,10 +368,16 @@ protected:
 
     /**
      * @brief Backend constructor with custom message bus implementation.
-     * @param message_bus message bus.
+     * @param message_bus message bus shared pointer.
      */
     explicit Backend(MessageBus &&message_bus);
 
+    /**
+     * @brief Backend constructor with custom message bus implementation.
+     * @param message_bus message bus.
+     */
+
+    explicit Backend(std::shared_ptr<MessageBus> message_bus);
     /**
      * @brief Get the current step and increase the step number.
      * @return step number.
@@ -386,7 +392,7 @@ private:
     std::atomic<bool> initialized_ = false;
     volatile std::atomic<bool> started_ = false;
     std::vector<std::unique_ptr<Device>> devices_;
-    MessageBus message_bus_;
+    std::shared_ptr<MessageBus> message_bus_;
     MessageEndpoint message_endpoint_;
     core::Step step_ = 0;
 };

@@ -45,9 +45,10 @@ TEST(MessageBusSuite, AddSubscriptionMessage)
 TEST(MessageBusSuite, SubscribeUnsubscribe)
 {
     // Test that adding and removing subscriptions works correctly.
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_bus();
-    auto entry_point{bus.create_endpoint()};
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_bus();
+    auto entry_point{bus->create_endpoint()};
     const knp::core::UID sender{true}, receiver{true}, false_uid{true};
+
     // Add subscription for spike messages.
     entry_point.subscribe<knp::core::messaging::SpikeMessage>(receiver, {sender});
     // Try removing subscription with a wrong ID. This should return false.
@@ -64,10 +65,10 @@ TEST(MessageBusSuite, SubscribeUnsubscribe)
 TEST(MessageBusSuite, CreateBusAndEndpointZMQ)
 {
     using SpikeMessage = knp::core::messaging::SpikeMessage;
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_zmq_bus();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_zmq_bus();
 
-    auto ep1{bus.create_endpoint()};
-    auto ep2{bus.create_endpoint()};
+    auto ep1{bus->create_endpoint()};
+    auto ep2{bus->create_endpoint()};
 
     SpikeMessage msg{{knp::core::UID{}}, {1, 2, 3, 4, 5}};
 
@@ -75,7 +76,7 @@ TEST(MessageBusSuite, CreateBusAndEndpointZMQ)
 
     ep1.send_message(msg);
     // Message ID and message data.
-    EXPECT_EQ(bus.route_messages(), 2);
+    EXPECT_EQ(bus->route_messages(), 2);
     ep2.receive_all_messages();
 
     const auto &msgs = subscription.get_messages();
@@ -89,10 +90,10 @@ TEST(MessageBusSuite, CreateBusAndEndpointZMQ)
 TEST(MessageBusSuite, CreateBusAndEndpointCPU)
 {
     using SpikeMessage = knp::core::messaging::SpikeMessage;
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_cpu_bus();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_cpu_bus();
 
-    auto ep1{bus.create_endpoint()};
-    auto ep2{bus.create_endpoint()};
+    auto ep1{bus->create_endpoint()};
+    auto ep2{bus->create_endpoint()};
 
     SpikeMessage msg{{knp::core::UID{}}, {1, 2, 3, 4, 5}};
 
@@ -100,7 +101,7 @@ TEST(MessageBusSuite, CreateBusAndEndpointCPU)
 
     ep1.send_message(msg);
     // Message ID and message data.
-    EXPECT_EQ(bus.route_messages(), 1);
+    EXPECT_EQ(bus->route_messages(), 1);
     ep2.receive_all_messages();
 
     const auto &msgs = subscription.get_messages();
@@ -114,9 +115,9 @@ TEST(MessageBusSuite, CreateBusAndEndpointCPU)
 TEST(MessageBusSuite, SynapticImpactMessageSendZMQ)
 {
     using SynapticImpactMessage = knp::core::messaging::SynapticImpactMessage;
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_zmq_bus();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_zmq_bus();
 
-    auto ep1{bus.create_endpoint()};
+    auto ep1{bus->create_endpoint()};
     knp::synapse_traits::OutputType synapse_type = knp::synapse_traits::OutputType::EXCITATORY;
     SynapticImpactMessage msg{
         {knp::core::UID{}},
@@ -129,7 +130,7 @@ TEST(MessageBusSuite, SynapticImpactMessageSendZMQ)
 
     ep1.send_message(msg);
     // Message ID and message data.
-    EXPECT_EQ(bus.route_messages(), 2);
+    EXPECT_EQ(bus->route_messages(), 2);
     ep1.receive_all_messages();
 
     const auto &msgs = subscription.get_messages();
@@ -146,9 +147,9 @@ TEST(MessageBusSuite, SynapticImpactMessageSendZMQ)
 TEST(MessageBusSuite, SynapticImpactMessageSendCPU)
 {
     using SynapticImpactMessage = knp::core::messaging::SynapticImpactMessage;
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_cpu_bus();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_cpu_bus();
 
-    auto ep1{bus.create_endpoint()};
+    auto ep1{bus->create_endpoint()};
     knp::synapse_traits::OutputType synapse_type = knp::synapse_traits::OutputType::EXCITATORY;
     SynapticImpactMessage msg{
         {knp::core::UID{}},
@@ -161,7 +162,7 @@ TEST(MessageBusSuite, SynapticImpactMessageSendCPU)
 
     ep1.send_message(msg);
     // Message ID and message data.
-    EXPECT_EQ(bus.route_messages(), 1);
+    EXPECT_EQ(bus->route_messages(), 1);
     ep1.receive_all_messages();
 
     const auto &msgs = subscription.get_messages();

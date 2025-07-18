@@ -53,19 +53,19 @@ public:
      * @brief Create a CPU-based message bus.
      * @return message bus.
      */
-    static MessageBus construct_cpu_bus();
+    static std::shared_ptr<MessageBus> construct_cpu_bus();
 
     /**
      * @brief Create a ZMQ-based message bus.
      * @return message bus.
      */
-    static MessageBus construct_zmq_bus();
+    static std::shared_ptr<MessageBus> construct_zmq_bus();
 
     /**
      * @brief Create a message bus with default implementation.
      * @return message bus.
      */
-    static MessageBus construct_bus() { return construct_cpu_bus(); }
+    static std::shared_ptr<MessageBus> construct_bus() { return construct_cpu_bus(); }
 
     /**
      * @brief Default message bus constructor is deleted.

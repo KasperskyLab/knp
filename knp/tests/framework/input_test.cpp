@@ -63,13 +63,13 @@ TEST(InputSuite, IndexConverterTest)
 
 TEST(InputSuite, ChannelTest)
 {
-    knp::core::MessageBus bus = knp::core::MessageBus::construct_bus();
-    auto endpoint = bus.create_endpoint();
+    std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_bus();
+    auto endpoint = bus->create_endpoint();
 
     auto converter = knp::framework::io::input::SequenceConverter<int>{
         std::make_unique<std::stringstream>(), knp::framework::io::input::interpret_as_bool<int>, 10};
     knp::framework::io::input::InputChannel channel{
-        knp::core::UID(), bus.create_endpoint(), [&converter](auto size) { return converter(); }};
+        knp::core::UID(), bus->create_endpoint(), [&converter](auto size) { return converter(); }};
 
     auto &stream = dynamic_cast<std::stringstream &>(converter.get_stream());
 
@@ -86,7 +86,7 @@ TEST(InputSuite, ChannelTest)
     channel.send(send_time);
 
     // Process messages.
-    bus.route_messages();
+    bus->route_messages();
     endpoint.receive_all_messages();
 
     auto messages = endpoint.unload_messages<knp::core::messaging::SpikeMessage>(output_uid);

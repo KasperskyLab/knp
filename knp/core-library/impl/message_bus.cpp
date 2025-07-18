@@ -36,15 +36,15 @@ MessageBus::~MessageBus() = default;
 
 MessageBus::MessageBus(MessageBus &&) noexcept = default;
 
-MessageBus MessageBus::construct_cpu_bus()
+std::shared_ptr<MessageBus> MessageBus::construct_cpu_bus()
 {
-    return MessageBus(std::make_unique<messaging::impl::MessageBusCPUImpl>());
+    return std::shared_ptr<MessageBus>(new MessageBus(std::make_unique<messaging::impl::MessageBusCPUImpl>()));
 }
 
 
-MessageBus MessageBus::construct_zmq_bus()
+std::shared_ptr<MessageBus> MessageBus::construct_zmq_bus()
 {
-    return MessageBus(std::make_unique<messaging::impl::MessageBusZMQImpl>());
+    return std::shared_ptr<MessageBus>(new MessageBus(std::make_unique<messaging::impl::MessageBusZMQImpl>()));
 }
 
 
