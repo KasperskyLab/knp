@@ -29,28 +29,73 @@
 
 TEST(ProjectionConnectors, AllToAll)
 {
-    constexpr size_t src_pop_size = 3;
-    constexpr size_t dest_pop_size = 3;
+    constexpr size_t src_pop_size = 2;
+    constexpr size_t dest_pop_size = 4;
 
     auto proj = knp::framework::projection::creators::all_to_all<typename knp::synapse_traits::DeltaSynapse>(
         knp::core::UID(), knp::core::UID(), src_pop_size, dest_pop_size);
 
     ASSERT_EQ(proj.size(), src_pop_size * dest_pop_size);
 
-    std::map<int, std::vector<int>> conn_count;
-
+    size_t index = 0;
     for (const auto& synapse : proj)
     {
-        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
         const auto source_syn_index = std::get<knp::core::source_neuron_id>(synapse);
+        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
 
-        SPDLOG_DEBUG("Synapse: {} -> {}.", target_syn_index, source_syn_index);
-        conn_count[target_syn_index].push_back(source_syn_index);
+        SPDLOG_DEBUG("Synapse: {} -> {}.", source_syn_index, target_syn_index);
+        ASSERT_EQ(source_syn_index, index % src_pop_size);
+        ASSERT_EQ(target_syn_index, index / src_pop_size);
+        ++index;
     }
+}
 
-    for (const auto& [key, value] : conn_count)
+
+TEST(ProjectionConnectors, Aligned)
+{
+    constexpr size_t src_pop_size = 3;
+    constexpr size_t dest_pop_size = 6;
+
+    auto proj = knp::framework::projection::creators::aligned<typename knp::synapse_traits::DeltaSynapse>(
+        knp::core::UID(), knp::core::UID(), src_pop_size, dest_pop_size);
+
+    ASSERT_EQ(proj.size(), std::max(src_pop_size, dest_pop_size));
+
+    size_t index = 0;
+    for (const auto& synapse : proj)
     {
-        ASSERT_EQ(value.size(), dest_pop_size);
+        const auto source_syn_index = std::get<knp::core::source_neuron_id>(synapse);
+        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
+
+        SPDLOG_DEBUG("Synapse: {} -> {}.", source_syn_index, target_syn_index);
+        ASSERT_EQ(target_syn_index, index);
+        ASSERT_EQ(source_syn_index, index / 2);
+        ++index;
+    }
+}
+
+
+TEST(ProjectionConnectors, Exclusive)
+{
+    constexpr size_t pops_size = 3;
+
+    auto proj = knp::framework::projection::creators::exclusive<typename knp::synapse_traits::DeltaSynapse>(
+        knp::core::UID(), knp::core::UID(), pops_size);
+
+    ASSERT_EQ(proj.size(), pops_size * (pops_size - 1));
+
+    constexpr std::array<size_t, 6> correct_target{1, 2, 0, 2, 0, 1};
+
+    size_t index = 0;
+    for (const auto& synapse : proj)
+    {
+        const auto source_syn_index = std::get<knp::core::source_neuron_id>(synapse);
+        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
+
+        SPDLOG_DEBUG("Synapse: {} -> {}.", source_syn_index, target_syn_index);
+        ASSERT_EQ(source_syn_index, index / 2);
+        ASSERT_EQ(target_syn_index, correct_target[index]);
+        ++index;
     }
 }
 
@@ -64,21 +109,13 @@ TEST(ProjectionConnectors, OneToOne)
 
     ASSERT_EQ(proj.size(), pop_size);
 
-    std::map<int, std::vector<int>> conn_count;
-
     for (const auto& synapse : proj)
     {
-        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
         const auto source_syn_index = std::get<knp::core::source_neuron_id>(synapse);
+        const auto target_syn_index = std::get<knp::core::target_neuron_id>(synapse);
 
-        SPDLOG_DEBUG("Synapse: {} -> {}.", target_syn_index, source_syn_index);
-        conn_count[target_syn_index].push_back(source_syn_index);
-    }
-
-    for (const auto& [key, value] : conn_count)
-    {
-        ASSERT_EQ(value.size(), 1);
-        ASSERT_EQ(key, value[0]);
+        SPDLOG_DEBUG("Synapse: {} -> {}.", source_syn_index, target_syn_index);
+        ASSERT_EQ(source_syn_index, target_syn_index);
     }
 }
 

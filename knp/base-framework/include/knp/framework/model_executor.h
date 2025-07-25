@@ -129,6 +129,12 @@ public:
     std::shared_ptr<core::Backend> get_backend() { return loader_.get_backend(); }
 
     /**
+     * @brief Get message handlers vector.
+     * @return Message handlers vector.
+     */
+    [[nodiscard]] auto const &get_message_handlers() const { return message_handlers_; }
+
+    /**
      * @brief Get model loader object.
      * @return reference to `ModelLoader` object.
      */

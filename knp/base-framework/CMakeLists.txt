@@ -64,6 +64,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/output_channel.cpp
     impl/synchronization.cpp
     impl/monitoring/model.cpp
+    impl/projection/wta.cpp
     impl/sonata/save_network.cpp
     impl/sonata/load_network.cpp
     impl/sonata/csv_content.cpp
@@ -73,6 +74,9 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/sonata/types/altai_lif_neuron.cpp
     impl/sonata/types/resource_delta_synapse.cpp
     impl/sonata/types/additive_delta_synapse.cpp
+    impl/data_processing/image_classification.cpp
+    impl/inference_evaluation/classification.cpp
+    impl/inference_evaluation/perfomance_metrics.cpp
     impl/observer.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core

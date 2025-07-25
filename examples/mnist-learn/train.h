@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <knp/framework/data_processing/image_classification.h>
+
 #include <filesystem>
 #include <set>
 #include <string>
@@ -42,5 +44,6 @@ constexpr int num_subnetworks = 5;
  * @note the returned network is configured for inference.
  */
 AnnotatedNetwork train_mnist_network(
-    const std::filesystem::path &path_to_backend, const std::vector<std::vector<bool>> &spike_frames,
-    const std::vector<std::vector<bool>> &spike_classes, const std::filesystem::path &log_path = "");
+    const std::filesystem::path &path_to_backend,
+    const knp::framework::data_processing::classification::images::Dataset &dataset,
+    const std::filesystem::path &log_path = "");

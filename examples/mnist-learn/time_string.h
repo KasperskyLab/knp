@@ -1,6 +1,6 @@
 /**
  * @file time_string.h
- * @brief Functions for network training.
+ * @brief Function for converting time to string.
  * @kaspersky_support D. Postnikov
  * @date 28.03.2025
  * @license Apache 2.0

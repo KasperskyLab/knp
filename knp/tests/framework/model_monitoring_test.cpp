@@ -1,8 +1,8 @@
 /**
  * @file model_monitoring_test.cpp
- * @brief Single-threaded backend test.
+ * @brief Model monitoring test.
  * @kaspersky_support D. Postnikov
- * @date 07.04.2023
+ * @date 10.08.2025
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
@@ -31,14 +31,12 @@ TEST(ModelMonitoring, AggregatedSpikesLogger)
     knp::testing::BLIFATPopulation population{knp::testing::neuron_generator, 1};
 
     {  //stop spikes from happening
-        const auto& params = population.get_neurons_parameters();
-        for (size_t i = 0; i < params.size(); i++)
+        auto params = population.get_neurons_parameters();
+        for (auto& param : params)
         {
-            auto param = params[i];
             param.activation_threshold_ = std::numeric_limits<double>::max();
-            //todo change this to set_neuron_parameters when #69 gets fixed
-            population.set_neurons_parameters(i, param);
         }
+        population.set_neurons_parameters(params);
     }
 
     knp::testing::DeltaProjection input_projection = knp::testing::DeltaProjection{
@@ -136,14 +134,12 @@ TEST(ModelMonitoring, SpikesLogger)
     knp::testing::BLIFATPopulation population{knp::testing::neuron_generator, 1};
 
     {  //stop spikes from happening
-        const auto& params = population.get_neurons_parameters();
-        for (size_t i = 0; i < params.size(); i++)
+        auto params = population.get_neurons_parameters();
+        for (auto& param : params)
         {
-            auto param = params[i];
             param.activation_threshold_ = std::numeric_limits<double>::max();
-            //todo change this to set_neuron_parameters when #69 gets fixed
-            population.set_neurons_parameters(i, param);
         }
+        population.set_neurons_parameters(params);
     }
 
     knp::testing::DeltaProjection input_projection = knp::testing::DeltaProjection{

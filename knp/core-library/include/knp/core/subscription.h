@@ -23,8 +23,8 @@
 #include <knp/core/uid.h>
 
 #include <algorithm>
-#include <string>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <boost/functional/hash.hpp>
@@ -115,11 +115,13 @@ public:
     /**
      * @brief Add a message to the subscription.
      * @param message message to add.
+     * @note move
      */
-    void add_message(MessageType &&message) { messages_.push_back(message); }
+    void add_message(MessageType &&message) { messages_.push_back(std::move(message)); }
     /**
      * @brief Add a message to the subscription.
      * @param message constant message to add.
+     * @note copy
      */
     void add_message(const MessageType &message) { messages_.push_back(message); }
 

@@ -1,8 +1,8 @@
 /**
  * @file wta.cpp
  * @brief Functions for Winner Takes All implementation.
- * @kaspersky_support A. Vartenkov
- * @date 28.03.2025
+ * @kaspersky_support D. Postnikov
+ * @date 03.07.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -19,30 +19,34 @@
  * limitations under the License.
  */
 
-#include "wta.h"
-
 #include <knp/framework/monitoring/observer.h>
+#include <knp/framework/projection/wta.h>
 #include <knp/framework/sonata/network_io.h>
 #include <knp/synapse-traits/all_traits.h>
 
-#include <utility>
-
-std::vector<knp::core::UID> add_wta_handlers(const AnnotatedNetwork &network, knp::framework::ModelExecutor &executor)
+namespace knp::framework::projection
 {
-    std::vector<size_t> borders;
+
+
+std::vector<knp::core::UID> add_wta_handlers(
+    knp::framework::ModelExecutor& executor, size_t winners_amount, std::vector<size_t> const& borders,
+    std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>> const& wta_data)
+{
     std::vector<knp::core::UID> result;
 
-    for (size_t i = 0; i < 10; ++i) borders.push_back(15 * i);
-    // std::random_device rnd_device;
-    int seed = 0;  // rnd_device();
-    std::cout << "Seed " << seed << std::endl;
-    for (const auto &senders_receivers : network.data_.wta_data_)
+    // Generating seed for WTA randomness
+    std::mt19937 rand_gen(std::random_device{}());
+    std::uniform_int_distribution<int> distr(-std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
+
+    for (const auto& senders_receivers : wta_data)
     {
         knp::core::UID handler_uid;
         executor.add_spike_message_handler(
-            knp::framework::modifier::KWtaPerGroup{borders, 1, seed++}, senders_receivers.first,
+            knp::framework::modifier::KWtaPerGroup{borders, winners_amount, distr(rand_gen)}, senders_receivers.first,
             senders_receivers.second, handler_uid);
         result.push_back(handler_uid);
     }
     return result;
 }
+
+}  // namespace knp::framework::projection
