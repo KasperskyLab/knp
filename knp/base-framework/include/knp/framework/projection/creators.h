@@ -22,6 +22,7 @@
 
 #include <knp/core/projection.h>
 
+#include <algorithm>
 #include <exception>
 #include <functional>
 #include <optional>
@@ -31,25 +32,17 @@
 #include "synapse_generators.h"
 #include "synapse_parameters_generators.h"
 
-/**
- * @brief Projection namespace.
- */
-namespace knp::framework::projection
-{
 
 /**
  * @brief Namespace for framework projection creators.
+ * @detail Creators make generators
  */
-namespace creators
+namespace knp::framework::projection::creators
 {
 
 /**
- * @brief Make connections between each presynaptic population (source) neuron to each postsynaptic population
- * (destination) neuron.
- * @details Simple connector that generates connections from source neuron index to all destination indexes and
- * otherwise. For populations of size `N x M` the connector generates connections such as: `0 -> 0`, `0 -> 1`, `0 -> 2`,
- * ..., `0 -> M`, `1 -> 0`, `1 -> 1`, ..., `1 -> M`, ..., `N -> M`.
- * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @brief For populations of size `N x M` generates connections such as: `0 ->
+ * 0`, `0 -> 1`, `0 -> 2`, ..., `0 -> M`, `1 -> 0`, `1 -> 1`, ..., `1 -> M`, ..., `N -> M`.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
  * @param presynaptic_pop_size presynaptic population neuron count.
@@ -73,12 +66,59 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make one-to-one connections between neurons of presynaptic and postsynaptic populations.
- * @details Simple connector that generates connections from source neuron index to the same destination index.
- * For the populations of size `N x N` the connector generates connections such as: `0 -> 0`, `1 -> 1`, `2 -> 2`, ...,
- * `N -> N`.
+ * @brief For example if population0_size is 2 and population1_size is 4, then synapses amount
+ * must be 4, and generator will create synapses as follows: 0-0, 0-1, 1-2, 1-3. So generator will distribute
+ * connections evenly.
+ * @param presynaptic_uid presynaptic population UID.
+ * @param postsynaptic_uid postsynaptic population UID.
+ * @param presynaptic_pop_size size of first population
+ * @param postsynaptic_pop_size size of second population
+ * @param syn_gen generator of synapse parameters
+ * @return projection
+ * tparam SynapseType projection synapse type
+ */
+template <typename SynapseType>
+[[nodiscard]] knp::core::Projection<SynapseType> aligned(
+    const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
+    size_t postsynaptic_pop_size,
+    parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
+        parameters_generators::default_synapse_gen<SynapseType>)
+{
+    return knp::core::Projection<SynapseType>(
+        presynaptic_uid, postsynaptic_uid,
+        synapse_generators::aligned<SynapseType>(presynaptic_pop_size, postsynaptic_pop_size, syn_gen),
+        std::max(presynaptic_pop_size, postsynaptic_pop_size));
+}
+
+
+/**
+ * @brief For example if populations size is 3, then synapses amount is 6,
+ * and generator will generate synapses as follows: 0-1, 0-2, 1-0, 1-2, 2-0, 2-1. So it excludes one synapse at a time.
  * @pre Population sizes must be equal.
  * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @param presynaptic_uid presynaptic population UID.
+ * @param postsynaptic_uid postsynaptic population UID.
+ * @param pops_size size of populations, they are supposed to be the same
+ * @param syn_gen generator of synapse parameters
+ * @return projection
+ * tparam SynapseType projection synapse type
+ */
+template <typename SynapseType>
+[[nodiscard]] knp::core::Projection<SynapseType> exclusive(
+    const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t pops_size,
+    parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
+        parameters_generators::default_synapse_gen<SynapseType>)
+{
+    return knp::core::Projection<SynapseType>(
+        presynaptic_uid, postsynaptic_uid, synapse_generators::exclusive<SynapseType>(pops_size, syn_gen),
+        pops_size * (pops_size - 1));
+}
+
+
+/**
+ * @brief For the populations of size `N x N` generates connections such as: `0 -> 0`,
+ * `1 -> 1`, `2 -> 2`, ..., `N -> N`.
+ * @pre Population sizes must be equal.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
  * @param population_size neuron count in populations.
@@ -281,6 +321,4 @@ template <typename DestinationSynapseType, typename SourceSynapseType>
         source_proj.size());
 }
 
-}  // namespace creators
-
-}  // namespace knp::framework::projection
+}  // namespace knp::framework::projection::creators

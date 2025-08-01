@@ -1,6 +1,6 @@
 /**
  * @file model.cpp
- * @brief Functions for network construction.
+ * @brief Functions for network monitoring.
  * @kaspersky_support D. Postnikov
  * @date 24.03.2025
  * @license Apache 2.0

@@ -26,26 +26,27 @@
 #include <knp/framework/monitoring/model.h>
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
+#include <knp/framework/projection/wta.h>
 #include <knp/framework/sonata/network_io.h>
-#include <knp/synapse-traits/all_traits.h>
 
 #include <filesystem>
 #include <map>
 #include <utility>
 
 #include "construct_network.h"
-#include "data_read.h"
+#include "shared_network.h"
 #include "time_string.h"
-#include "wta.h"
 
 constexpr size_t aggregated_spikes_logging_period = 4e3;
+
+constexpr size_t wta_winners_amount = 1;
 
 namespace fs = std::filesystem;
 
 
 std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     const fs::path &path_to_backend, AnnotatedNetwork &described_network,
-    const std::vector<std::vector<bool>> &spike_frames, const fs::path &log_path)
+    knp::framework::data_processing::classification::images::Dataset const &dataset, const fs::path &log_path)
 {
     knp::framework::BackendLoader backend_loader;
     knp::framework::Model model(std::move(described_network.network_));
@@ -56,7 +57,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     // and the population IDs.
     knp::framework::ModelLoader::InputChannelMap channel_map;
     knp::core::UID input_image_channel_uid;
-    channel_map.insert({input_image_channel_uid, make_input_generator(spike_frames, learning_period)});
+    channel_map.insert({input_image_channel_uid, dataset.make_inference_images_spikes_generator()});
 
     for (auto i : described_network.data_.output_uids_) model.add_output_channel(o_channel_uid, i);
     for (auto image_proj_uid : described_network.data_.projections_from_raster_)
@@ -77,7 +78,14 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     //  cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
 
-    auto wta_uids = add_wta_handlers(described_network, model_executor);
+    std::vector<knp::core::UID> wta_uids;
+    {
+        std::vector<size_t> wta_borders;
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * i);
+        wta_uids = knp::framework::projection::add_wta_handlers(
+            model_executor, wta_winners_amount, wta_borders, described_network.data_.wta_data_);
+    }
+
     auto all_senders_names = described_network.data_.population_names_;
     for (const auto &uid : wta_uids)
     {
@@ -99,10 +107,10 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     // Start model.
     std::cout << get_time_string() << ": inference started\n";
     model_executor.start(
-        [](size_t step)
+        [&dataset](size_t step)
         {
             if (step % 20 == 0) std::cout << "Inference step: " << step << std::endl;
-            return step != testing_period;
+            return step != dataset.get_steps_required_for_inference();
         });
     // Updates the output channel.
     auto spikes = out_channel.update();

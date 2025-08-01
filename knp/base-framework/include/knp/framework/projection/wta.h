@@ -1,8 +1,8 @@
 /**
  * @file wta.h
  * @brief Functions for Winner Takes All.
- * @kaspersky_support A. Vartenkov
- * @date 28.03.2025
+ * @kaspersky_support D. Postnikov
+ * @date 03.07.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -24,9 +24,24 @@
 #include <knp/framework/model_executor.h>
 #include <knp/framework/network.h>
 
+#include <utility>
 #include <vector>
 
-#include "construct_network.h"
 
+namespace knp::framework::projection
+{
 
-std::vector<knp::core::UID> add_wta_handlers(const AnnotatedNetwork &network, knp::framework::ModelExecutor &executor);
+/**
+ * @brief add WTA handlers to network.
+ * @details WTA stands for winner takes all.
+ * @param executor model executor.
+ * @param winners_amount amount of winners.
+ * @param borders borders for wta.
+ * @param wta_data for each compound network: a vector of senders and a vector of receivers.
+ * @return vector with uids of handlers.
+ */
+KNP_DECLSPEC std::vector<knp::core::UID> add_wta_handlers(
+    knp::framework::ModelExecutor& executor, size_t winners_amount, const std::vector<size_t>& borders,
+    const std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>>& wta_data);
+
+}  // namespace knp::framework::projection

@@ -26,33 +26,35 @@
 #include <knp/framework/monitoring/model.h>
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
+#include <knp/framework/projection/wta.h>
 #include <knp/framework/sonata/network_io.h>
-#include <knp/synapse-traits/all_traits.h>
 
 #include <filesystem>
 #include <map>
 #include <utility>
 
 #include "construct_network.h"
-#include "data_read.h"
+#include "shared_network.h"
 #include "time_string.h"
-#include "wta.h"
 
 constexpr size_t aggregated_spikes_logging_period = 4e3;
 
 constexpr size_t projection_weights_logging_period = 1e5;
 
+constexpr size_t wta_winners_amount = 1;
+
 namespace fs = std::filesystem;
+
+namespace images_classification = knp::framework::data_processing::classification::images;
 
 
 // Create channel map for training.
 auto build_channel_map_train(
-    const AnnotatedNetwork &network, knp::framework::Model &model, const std::vector<std::vector<bool>> &spike_frames,
-    const std::vector<std::vector<bool>> &spike_classes)
+    const AnnotatedNetwork &network, knp::framework::Model &model, const images_classification::Dataset &dataset)
 {
     // Create future channels uids randomly.
     knp::core::UID input_image_channel_raster;
-    knp::core::UID input_image_channel_classses;
+    knp::core::UID input_image_channel_classes;
 
     // Add input channel for each image input projection.
     for (auto image_proj_uid : network.data_.projections_from_raster_)
@@ -60,12 +62,12 @@ auto build_channel_map_train(
 
     // Add input channel for data labels.
     for (auto target_proj_uid : network.data_.projections_from_classes_)
-        model.add_input_channel(input_image_channel_classses, target_proj_uid);
+        model.add_input_channel(input_image_channel_classes, target_proj_uid);
 
     // Create and fill a channel map.
     knp::framework::ModelLoader::InputChannelMap channel_map;
-    channel_map.insert({input_image_channel_raster, make_input_generator(spike_frames, 0)});
-    channel_map.insert({input_image_channel_classses, make_input_generator(spike_classes, 0)});
+    channel_map.insert({input_image_channel_raster, dataset.make_training_images_spikes_generator()});
+    channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
 
     return channel_map;
 }
@@ -97,16 +99,14 @@ knp::framework::Network get_network_for_inference(
 
 
 AnnotatedNetwork train_mnist_network(
-    const fs::path &path_to_backend, const std::vector<std::vector<bool>> &spike_frames,
-    const std::vector<std::vector<bool>> &spike_classes, const fs::path &log_path)
+    const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
     AnnotatedNetwork example_network = create_example_network(num_subnetworks);
     std::filesystem::create_directory("mnist_network");
     knp::framework::sonata::save_network(example_network.network_, "mnist_network");
     knp::framework::Model model(std::move(example_network.network_));
 
-    knp::framework::ModelLoader::InputChannelMap channel_map =
-        build_channel_map_train(example_network, model, spike_frames, spike_classes);
+    knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train(example_network, model, dataset);
 
     knp::framework::BackendLoader backend_loader;
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
@@ -119,7 +119,13 @@ AnnotatedNetwork train_mnist_network(
     // cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
 
-    add_wta_handlers(example_network, model_executor);
+    {
+        std::vector<size_t> wta_borders;
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * i);
+        knp::framework::projection::add_wta_handlers(
+            model_executor, wta_winners_amount, wta_borders, example_network.data_.wta_data_);
+    }
+
     // All loggers go here
     if (!log_path.empty())
     {
@@ -144,10 +150,10 @@ AnnotatedNetwork train_mnist_network(
     std::cout << get_time_string() << ": learning started\n";
 
     model_executor.start(
-        [](size_t step)
+        [&dataset](size_t step)
         {
             if (step % 20 == 0) std::cout << "Step: " << step << std::endl;
-            return step != learning_period;
+            return step != dataset.get_steps_required_for_training();
         });
 
     std::cout << get_time_string() << ": learning finished\n";

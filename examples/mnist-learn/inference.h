@@ -21,16 +21,14 @@
 
 #pragma once
 
+#include <knp/framework/data_processing/classification/image.h>
+
 #include <filesystem>
 #include <set>
 #include <string>
 #include <vector>
 
 #include "construct_network.h"
-
-
-/// How many steps to use for testing.
-constexpr int testing_period = 10000;
 
 
 /**
@@ -43,4 +41,5 @@ constexpr int testing_period = 10000;
  */
 std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     const std::filesystem::path &path_to_backend, AnnotatedNetwork &described_network,
-    const std::vector<std::vector<bool>> &spike_frames, const std::filesystem::path &log_path = "");
+    const knp::framework::data_processing::classification::images::Dataset &dataset,
+    const std::filesystem::path &log_path);

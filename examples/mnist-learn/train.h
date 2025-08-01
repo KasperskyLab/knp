@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <knp/framework/data_processing/classification/image.h>
+
 #include <filesystem>
 #include <set>
 #include <string>
@@ -37,10 +39,11 @@ constexpr int num_subnetworks = 5;
  * @param path_to_backend path to backend.
  * @param spike_frames images file.
  * @param spike_classes labels file.
- * @param log_path path to log folder.
+ * @param log_path path to log folder. If its empty, then no logging will be done.
  * @return trained network with added descriptions.
  * @note the returned network is configured for inference.
  */
 AnnotatedNetwork train_mnist_network(
-    const std::filesystem::path &path_to_backend, const std::vector<std::vector<bool>> &spike_frames,
-    const std::vector<std::vector<bool>> &spike_classes, const std::filesystem::path &log_path = "");
+    const std::filesystem::path &path_to_backend,
+    const knp::framework::data_processing::classification::images::Dataset &dataset,
+    const std::filesystem::path &log_path);
