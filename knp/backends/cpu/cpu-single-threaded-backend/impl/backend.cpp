@@ -236,8 +236,18 @@ std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate
     knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population)
 {
     SPDLOG_TRACE("Calculate resource-based STDP-compatible BLIFAT population {}.", std::string(population.get_uid()));
-    return knp::backends::cpu::calculate_resource_stdp_population<
+    return knp::backends::cpu::calculate_resource_stdp_blifat_population<
         neuron_traits::BLIFATNeuron, synapse_traits::DeltaSynapse, ProjectionContainer>(
+        population, projections_, get_message_endpoint(), get_step());
+}
+
+
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &population)
+{
+    SPDLOG_TRACE("Calculate resource-based STDP-compatible AltAILIF population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_resource_stdp_lif_population<
+        neuron_traits::AltAILIF, synapse_traits::DeltaSynapse, ProjectionContainer>(
         population, projections_, get_message_endpoint(), get_step());
 }
 

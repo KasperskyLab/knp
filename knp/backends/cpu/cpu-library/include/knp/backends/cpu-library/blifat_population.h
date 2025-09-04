@@ -20,7 +20,6 @@
  */
 #pragma once
 #include <knp/backends/cpu-library/impl/blifat_population_impl.h>
-#include <knp/backends/cpu-library/impl/synaptic_resource_stdp_impl.h>
 
 /**
  * @brief Namespace for CPU backends.
@@ -55,7 +54,7 @@ std::optional<core::messaging::SpikeMessage> calculate_blifat_population(
  * @return message containing indexes of spiked neurons.
  */
 template <class BlifatLikeNeuron, class BaseSynapseType, class ProjectionContainer>
-std::optional<core::messaging::SpikeMessage> calculate_resource_stdp_population(
+std::optional<core::messaging::SpikeMessage> calculate_resource_stdp_blifat_population(
     knp::core::Population<neuron_traits::SynapticResourceSTDPNeuron<BlifatLikeNeuron>> &population,
     ProjectionContainer &container, knp::core::MessageEndpoint &endpoint, size_t step_n)
 {

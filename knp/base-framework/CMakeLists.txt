@@ -69,6 +69,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/sonata/types/delta_synapse.cpp
     impl/sonata/types/resource_blifat_neuron.cpp
     impl/sonata/types/altai_lif_neuron.cpp
+    impl/sonata/types/resource_altai_lif_neuron.cpp
     impl/sonata/types/resource_delta_synapse.cpp
     impl/sonata/types/additive_delta_synapse.cpp
     impl/data_processing/classification/dataset.cpp
