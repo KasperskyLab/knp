@@ -55,7 +55,7 @@ float get_accuracy(size_t true_positives, size_t false_negatives, size_t false_p
 }
 
 
-float get_f_measure(float precision, float recall)
+float get_f_score(float precision, float recall)
 {
     if (precision * recall == 0) return 0.F;
     return 2.F * precision * recall / (precision + recall);

@@ -151,12 +151,12 @@ void InferenceResultsProcessor::write_inference_results_to_stream_as_csv(std::os
         const float accuracy = get_accuracy(
             prediction.true_positives_, prediction.false_negatives_, prediction.false_positives_,
             prediction.true_negatives_);
-        const float f_measure = get_f_measure(precision, recall);
+        const float f_score = get_f_score(precision, recall);
 
         results_stream << label << ',' << prediction.get_total_votes() << ',' << prediction.true_positives_ << ','
                        << prediction.false_negatives_ << ',' << prediction.false_positives_ << ','
                        << prediction.true_negatives_ << ',' << precision << ',' << recall << ',' << prevalence << ','
-                       << accuracy << ',' << f_measure << std::endl;
+                       << accuracy << ',' << f_score << std::endl;
     }
 }
 
