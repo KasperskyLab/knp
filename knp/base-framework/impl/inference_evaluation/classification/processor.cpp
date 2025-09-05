@@ -20,7 +20,7 @@
  */
 
 #include <knp/core/messaging/messaging.h>
-#include <knp/framework/inference_evaluation/classification.h>
+#include <knp/framework/inference_evaluation/classification/processor.h>
 #include <knp/framework/inference_evaluation/perfomance_metrics.h>
 
 #include <algorithm>
@@ -30,14 +30,14 @@
 namespace knp::framework::inference_evaluation::classification
 {
 
-class InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper
+class InferenceResultsProcessor::EvaluationHelper
 {
 public:
     explicit EvaluationHelper(const knp::framework::data_processing::classification::Dataset &dataset);
 
     void process_spikes(const knp::core::messaging::SpikeData &firing_neuron_indices, size_t step);
 
-    [[nodiscard]] std::vector<InferenceResultForClass> process_inference_predictions() const;
+    [[nodiscard]] std::vector<InferenceResult> process_inference_predictions() const;
 
 private:
     struct Prediction
@@ -56,14 +56,14 @@ private:
 };
 
 
-InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper::EvaluationHelper(
+InferenceResultsProcessor::EvaluationHelper::EvaluationHelper(
     const knp::framework::data_processing::classification::Dataset &dataset)
     : class_votes_(dataset.get_amount_of_classes(), 0), dataset_(dataset)
 {
 }
 
 
-void InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper::process_spikes(
+void InferenceResultsProcessor::EvaluationHelper::process_spikes(
     const knp::core::messaging::SpikeData &firing_neuron_indices, size_t step)
 {
     for (auto i : firing_neuron_indices) ++class_votes_[i % dataset_.get_amount_of_classes()];
@@ -86,10 +86,9 @@ void InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper::proce
 }
 
 
-std::vector<InferenceResultForClass>
-InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper::process_inference_predictions() const
+std::vector<InferenceResult> InferenceResultsProcessor::EvaluationHelper::process_inference_predictions() const
 {
-    std::vector<InferenceResultForClass> prediction_results(dataset_.get_amount_of_classes());
+    std::vector<InferenceResult> prediction_results(dataset_.get_amount_of_classes());
     for (size_t i = 0; i < predictions_.size(); ++i)
     {
         auto const &prediction = predictions_[i];
@@ -113,7 +112,7 @@ InferenceResultForClass::InferenceResultsProcessor::EvaluationHelper::process_in
 }
 
 
-void InferenceResultForClass::InferenceResultsProcessor::process_inference_results(
+void InferenceResultsProcessor::process_inference_results(
     const std::vector<knp::core::messaging::SpikeMessage> &spikes,
     knp::framework::data_processing::classification::Dataset const &dataset)
 {
@@ -137,8 +136,7 @@ void InferenceResultForClass::InferenceResultsProcessor::process_inference_resul
 }
 
 
-void InferenceResultForClass::InferenceResultsProcessor::write_inference_results_to_stream_as_csv(
-    std::ostream &results_stream)
+void InferenceResultsProcessor::write_inference_results_to_stream_as_csv(std::ostream &results_stream)
 {
     results_stream << "CLASS,TOTAL_VOTES,TRUE_POSITIVES,FALSE_NEGATIVES,FALSE_POSITIVES,TRUE_NEGATIVES,PRECISION,"
                       "RECALL,PREVALENCE,ACCURACY,F_MEASURE\n";

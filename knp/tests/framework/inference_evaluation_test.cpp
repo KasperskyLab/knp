@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include <knp/framework/inference_evaluation/classification.h>
+#include <knp/framework/inference_evaluation/classification/processor.h>
 
 #include <tests_common.h>
 
@@ -46,21 +46,21 @@ TEST(InferenceEvaluation, Classification)
     spikes.push_back({{knp::core::UID(false), 2}, {2, 0}});
     spikes.push_back({{knp::core::UID(false), 3}, {3, 1}});
 
-    knp::framework::inference_evaluation::classification::InferenceResultForClass::InferenceResultsProcessor processor;
+    knp::framework::inference_evaluation::classification::InferenceResultsProcessor processor;
     processor.process_inference_results(spikes, dataset);
 
     auto const& res = processor.get_inference_results();
 
     ASSERT_EQ(res[0].get_total_votes(), 2);
-    ASSERT_EQ(res[0].get_true_positives(), 1);
-    ASSERT_EQ(res[0].get_false_negatives(), 0);
-    ASSERT_EQ(res[0].get_false_positives(), 1);
-    ASSERT_EQ(res[0].get_true_negatives(), 2);
+    ASSERT_EQ(res[0].true_positives_, 1);
+    ASSERT_EQ(res[0].false_negatives_, 0);
+    ASSERT_EQ(res[0].false_positives_, 1);
+    ASSERT_EQ(res[0].true_negatives_, 2);
     ASSERT_EQ(res[1].get_total_votes(), 2);
-    ASSERT_EQ(res[1].get_true_positives(), 2);
-    ASSERT_EQ(res[1].get_false_negatives(), 0);
-    ASSERT_EQ(res[1].get_false_positives(), 0);
-    ASSERT_EQ(res[1].get_true_negatives(), 2);
+    ASSERT_EQ(res[1].true_positives_, 2);
+    ASSERT_EQ(res[1].false_negatives_, 0);
+    ASSERT_EQ(res[1].false_positives_, 0);
+    ASSERT_EQ(res[1].true_negatives_, 2);
 
     std::stringstream csv_res;
     processor.write_inference_results_to_stream_as_csv(csv_res);

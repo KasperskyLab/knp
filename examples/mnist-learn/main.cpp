@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include <knp/framework/inference_evaluation/classification.h>
+#include <knp/framework/inference_evaluation/classification/processor.h>
 
 #include <filesystem>
 #include <fstream>
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     std::cout << get_time_string() << ": inference finished  -- output spike count is " << spikes.size() << std::endl;
 
     // Evaluate results.
-    inference_evaluation::InferenceResultForClass::InferenceResultsProcessor inference_processor;
+    inference_evaluation::InferenceResultsProcessor inference_processor;
     inference_processor.process_inference_results(spikes, dataset);
 
     inference_processor.write_inference_results_to_stream_as_csv(std::cout);
