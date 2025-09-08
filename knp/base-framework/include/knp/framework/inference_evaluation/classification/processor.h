@@ -28,6 +28,7 @@
 
 #include "result.h"
 
+
 namespace knp::framework::inference_evaluation::classification
 {
 
@@ -58,17 +59,12 @@ public:
      */
     [[nodiscard]] const std::vector<InferenceResult> &get_inference_results() const { return inference_results_; }
 
-
 private:
     /**
      * @brief Processed inference results.
      */
     std::vector<InferenceResult> inference_results_;
-
-    /**
-     * @brief An internal class to help with evaluation.
-     */
-    class EvaluationHelper;
 };
 
-}  //namespace knp::framework::inference_evaluation::classification
+}  // namespace knp::framework::inference_evaluation::classification
+   //

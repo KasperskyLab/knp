@@ -58,4 +58,4 @@ struct KNP_DECLSPEC InferenceResult
     [[nodiscard]] size_t get_total_votes() const { return true_positives_ + false_negatives_ + false_positives_; }
 };
 
-}  //namespace knp::framework::inference_evaluation::classification
+}  // namespace knp::framework::inference_evaluation::classification
