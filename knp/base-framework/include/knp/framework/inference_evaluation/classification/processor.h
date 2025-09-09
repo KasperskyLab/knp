@@ -67,4 +67,3 @@ private:
 };
 
 }  // namespace knp::framework::inference_evaluation::classification
-   //
