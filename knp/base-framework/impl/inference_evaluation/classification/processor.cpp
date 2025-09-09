@@ -142,7 +142,7 @@ void InferenceResultsProcessor::process_inference_results(
 void InferenceResultsProcessor::write_inference_results_to_stream_as_csv(std::ostream &results_stream)
 {
     results_stream << "CLASS,TOTAL_VOTES,TRUE_POSITIVES,FALSE_NEGATIVES,FALSE_POSITIVES,TRUE_NEGATIVES,PRECISION,"
-                      "RECALL,PREVALENCE,ACCURACY,F_MEASURE\n";
+                      "RECALL,PREVALENCE,ACCURACY,F_SCORE\n";
     for (size_t label = 0; label < inference_results_.size(); ++label)
     {
         auto const &prediction = inference_results_[label];
