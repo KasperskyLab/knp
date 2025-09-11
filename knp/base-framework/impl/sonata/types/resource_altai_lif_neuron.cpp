@@ -103,6 +103,12 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
             [](const auto &neuron) { return static_cast<int>(neuron.isi_status_); });
         group.createDataSet("isi_status_", data);
     }
+
+    // Dynamic parameters.
+    // They describe the current neuron state. They can change at inference.
+    auto dynamic_group = group.createGroup("dynamics_params");
+    PUT_NEURON_TO_DATASET(population, dopamine_value_, dynamic_group);
+    PUT_NEURON_TO_DATASET(population, additional_threshold_, dynamic_group);
 }
 
 
@@ -162,6 +168,11 @@ load_population<neuron_traits::SynapticResourceSTDPAltAILIFNeuron>(
             target[i].isi_status_ = static_cast<neuron_traits::ISIPeriodType>(values[i]);
         }
     }
+
+    // Dynamic parameters.
+    auto dyn_group = group.getGroup("dynamics_params");
+    LOAD_NEURONS_PARAMETER(target, neuron_traits::AltAILIF, dopamine_value_, dyn_group, group_size);
+    LOAD_NEURONS_PARAMETER(target, neuron_traits::AltAILIF, additional_threshold_, dyn_group, group_size);
 
     const knp::core::UID uid{boost::lexical_cast<boost::uuids::uuid>(population_name)};
     return core::Population<ResourceNeuron>(
