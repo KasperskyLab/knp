@@ -379,7 +379,7 @@ inline void process_spiking_neurons<knp::neuron_traits::BLIFATNeuron>(
     std::vector<StdpProjection<synapse_traits::DeltaSynapse> *> &working_projections,
     knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, uint64_t step)
 {
-    using SynapseType = synapse_traits::STDP<synapse_traits::STDPSynapticResourceRule, synapse_traits::DeltaSynapse>;
+    using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     // It's very important that during this function no projection invalidates iterators.
     // Loop over neurons.
     for (const auto &spiked_neuron_index : msg.neuron_indexes_)
@@ -449,8 +449,7 @@ inline void do_dopamine_plasticity(
     std::vector<StdpProjection<synapse_traits::DeltaSynapse> *> &working_projections,
     knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, uint64_t step)
 {
-    using SynapseType =
-        knp::synapse_traits::STDP<knp::synapse_traits::STDPSynapticResourceRule, synapse_traits::DeltaSynapse>;
+    using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     using SynapseParamType = knp::synapse_traits::synapse_parameters<SynapseType>;
     for (size_t neuron_index = 0; neuron_index < population.size(); ++neuron_index)
     {

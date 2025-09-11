@@ -113,6 +113,18 @@ struct default_values<AltAILIF>
      * @brief The parameter defines the default value for `potential_reset_value_` of AltAILIF neuron.
      */
     constexpr static uint16_t potential_reset_value_ = 0;
+
+    /**
+     * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
+     */
+    constexpr static double dopamine_value_ = 0.0;
+
+    /**
+     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value is composed from three parameters: static value, dynamic with a common algorithm
+     * and dynamic that is based on a specific neuron implementation. This is the third one.
+     */
+    constexpr static double additional_threshold_ = 0.;
 };
 
 
@@ -266,6 +278,18 @@ struct neuron_parameters<AltAILIF>
      * @endcode
      */
     uint16_t potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
+
+    /**
+     * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
+     */
+    double dopamine_value_ = default_values<AltAILIF>::dopamine_value_;
+
+    /**
+     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value is composed from three parameters: static value, dynamic with a common algorithm
+     * and dynamic that is based on a specific neuron implementation. This is the third one.
+     */
+    double additional_threshold_ = default_values<AltAILIF>::additional_threshold_;
 };
 
 }  // namespace knp::neuron_traits
