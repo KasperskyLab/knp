@@ -105,10 +105,10 @@ knp::core::messaging::SpikeData GroupWtaRandomHandler::operator()(
     auto group_interval = std::equal_range(
         spikes_per_group.begin(), spikes_per_group.end(), last_group,
         [](const auto &el1, const auto &el2) { return el1.size() > el2.size(); });
-    
+
     assert(group_interval.first - spikes_per_group.begin() + 1 >= 0);
     assert(static_cast<size_t>(group_interval.first - spikes_per_group.begin() + 1) <= num_winners_);
-    
+
     // The approach could be more efficient, but I don't think it's necessary.
     std::shuffle(group_interval.first, group_interval.second, random_engine_);
     knp::core::messaging::SpikeData result;
@@ -131,16 +131,20 @@ knp::core::messaging::SpikeData KWtaPerGroup::operator()(
     auto spikes = messages[0].neuron_indexes_;
     if (spikes.empty()) return {};
 
-    std::vector<knp::core::messaging::SpikeData> spikes_per_group(group_borders_.size() + 1);
-    for (const auto &spike : spikes)
+    knp::core::messaging::SpikeData result;
+    result.reserve(spikes.size());
+
+    std::vector<knp::core::messaging::SpikeData> spikes_per_group(group_borders_.size());
+    for (core::messaging::SpikeIndex spike : spikes)
     {
-        const size_t group_index =
-            std::upper_bound(group_borders_.begin(), group_borders_.end(), spike) - group_borders_.begin();
-        spikes_per_group[group_index].push_back(spike);
+        const auto group_iter = std::lower_bound(
+            group_borders_.begin(), group_borders_.end(), spike, std::less_equal<core::messaging::SpikeIndex>());
+        if (group_iter != group_borders_.end())
+            spikes_per_group[std::distance(group_borders_.begin(), group_iter)].push_back(spike);
+        else
+            result.push_back(spike);
     }
 
-    knp::core::messaging::SpikeData result;
-    result.reserve(group_borders_.size() * winners_per_group_);
     for (auto &spike_group : spikes_per_group)
     {
         knp::core::messaging::SpikeData result_buf = select_random_n(spike_group, winners_per_group_, random_engine_);

@@ -44,13 +44,13 @@
 namespace knp::backends::cpu
 {
 template <class Neuron>
-constexpr bool has_dopamine_plasticity()
+constexpr bool has_dopamine_plasticity_blifat()
 {
     return false;
 }
 
 template <>
-constexpr bool has_dopamine_plasticity<neuron_traits::SynapticResourceSTDPBLIFATNeuron>()
+constexpr bool has_dopamine_plasticity_blifat<neuron_traits::SynapticResourceSTDPBLIFATNeuron>()
 {
     return true;
 }
@@ -108,7 +108,7 @@ void process_inputs(
         {
             auto &neuron = population[impact.postsynaptic_neuron_index_];
             impact_blifat_like_neuron<BlifatLikeNeuron>(neuron, impact.synapse_type_, impact.impact_value_);
-            if constexpr (has_dopamine_plasticity<BlifatLikeNeuron>())
+            if constexpr (has_dopamine_plasticity_blifat<BlifatLikeNeuron>())
             {
                 if (impact.synapse_type_ == synapse_traits::OutputType::EXCITATORY)
                 {
@@ -131,7 +131,7 @@ void calculate_single_neuron_state(typename knp::core::Population<BlifatLikeNeur
     neuron.dynamic_threshold_ *= neuron.threshold_decay_;
     neuron.postsynaptic_trace_ *= neuron.postsynaptic_trace_decay_;
     neuron.inhibitory_conductance_ *= neuron.inhibitory_conductance_decay_;
-    if constexpr (has_dopamine_plasticity<BlifatLikeNeuron>())
+    if constexpr (has_dopamine_plasticity_blifat<BlifatLikeNeuron>())
     {
         neuron.dopamine_value_ = 0.0;
         neuron.is_being_forced_ = false;

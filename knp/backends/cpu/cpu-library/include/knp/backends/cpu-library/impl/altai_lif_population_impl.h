@@ -55,12 +55,28 @@ void impact_neuron(
         case knp::synapse_traits::OutputType::INHIBITORY_CURRENT:
             neuron.potential_ -= impact_value;
             break;
+        case knp::synapse_traits::OutputType::DOPAMINE:
+            neuron.dopamine_value_ += impact_value;
+            break;
+        case knp::synapse_traits::OutputType::BLOCKING:
+            neuron.total_blocking_period_ = static_cast<unsigned int>(impact_value);
+            break;
         default:
             break;
     }
 }
 
+template <class Neuron>
+constexpr bool has_dopamine_plasticity_altai()
+{
+    return false;
+}
 
+template <>
+constexpr bool has_dopamine_plasticity_altai<neuron_traits::SynapticResourceSTDPAltAILIFNeuron>()
+{
+    return true;
+}
 /**
  * @brief Calculate neuron state before it starts accepting inputs.
  * @tparam BasicLifNeuron LIF neuron type.
@@ -74,6 +90,15 @@ void calculate_pre_input_state_lif(knp::core::Population<BasicLifNeuron> &popula
         neuron.potential_ = std::round(neuron.potential_);
 
         neuron.potential_ = neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : neuron.potential_;
+
+        if constexpr (has_dopamine_plasticity_altai<BasicLifNeuron>())
+        {
+            neuron.dopamine_value_ = 0.0;
+            //not sure
+            //neuron.free_synaptic_resource_ = 0.0;
+            neuron.is_being_forced_ = false;
+        }
+        neuron.pre_impact_potential_ = neuron.potential_;
     }
 }
 
@@ -104,7 +129,18 @@ void process_inputs_lif(
     {
         for (const auto &impact : msg.impacts_)
         {
-            population[impact.postsynaptic_neuron_index_].potential_ += impact.impact_value_;
+            auto &neuron = population[impact.postsynaptic_neuron_index_];
+            impact_neuron(neuron, impact.synapse_type_, impact.impact_value_);
+            //population[impact.postsynaptic_neuron_index_].potential_ += impact.impact_value_;
+
+            //not sure if we need this, just pasted this from blifat.
+            if constexpr (has_dopamine_plasticity_altai<BasicLifNeuron>())
+            {
+                if (impact.synapse_type_ == synapse_traits::OutputType::EXCITATORY)
+                {
+                    neuron.is_being_forced_ |= msg.is_forcing_;
+                }
+            }
         }
     }
     leak_potential(population);
@@ -122,12 +158,35 @@ knp::core::messaging::SpikeData calculate_spikes_lif(knp::core::Population<Basic
     knp::core::messaging::SpikeData spikes;
     for (knp::core::messaging::SpikeIndex i = 0; i < population.size(); ++i)
     {
-        bool was_reset = false;
         auto &neuron = population[i];
-        if (neuron.potential_ >= neuron.activation_threshold_)
+
+        //PASTED FROM BLIFAT
+        if (neuron.total_blocking_period_ <= 0)
+        {
+            // Restore potential that the neuron had before impacts.
+            neuron.potential_ = neuron.pre_impact_potential_;
+            bool was_negative = neuron.total_blocking_period_ < 0;
+            // If it is negative, increase by 1.
+            neuron.total_blocking_period_ += was_negative;
+            // If it is now zero, but was negative before, increase it to max, else leave it as is.
+            neuron.total_blocking_period_ +=
+                std::numeric_limits<int64_t>::max() * ((neuron.total_blocking_period_ == 0) && was_negative);
+        }
+        else
+        {
+            neuron.total_blocking_period_ -= 1;
+        }
+
+        bool was_reset = false;
+
+        if (neuron.potential_ >= neuron.activation_threshold_ + neuron.additional_threshold_)
         {
             spikes.push_back(i);
-            if (neuron.is_diff_) neuron.potential_ -= neuron.activation_threshold_;
+            if (spikes.size() > 20)
+            {
+                std::cout << "aaa" << std::endl;
+            }
+            if (neuron.is_diff_) neuron.potential_ -= neuron.activation_threshold_ + neuron.additional_threshold_;
             if (neuron.is_reset_)
             {
                 neuron.potential_ = neuron.potential_reset_value_;
@@ -149,6 +208,7 @@ knp::core::messaging::SpikeData calculate_spikes_lif(knp::core::Population<Basic
                 neuron.potential_ += neuron.negative_activation_threshold_;
         }
     }
+
     return spikes;
 }
 
