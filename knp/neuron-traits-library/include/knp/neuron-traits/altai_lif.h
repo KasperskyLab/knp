@@ -92,6 +92,11 @@ struct default_values<AltAILIF>
     constexpr static float potential_ = 0;
 
     /**
+     * @brief The parameter defines the neuron potential value.
+     */
+    constexpr static float pre_impact_potential_ = 0;
+
+    /**
      * @brief The parameter defines the default value for `activation_threshold_` of AltAILIF neuron.
      */
     constexpr static uint16_t activation_threshold_ = 1;
@@ -121,8 +126,7 @@ struct default_values<AltAILIF>
 
     /**
      * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
-     * @note Current threshold value is composed from three parameters: static value, dynamic with a common algorithm
-     * and dynamic that is based on a specific neuron implementation. This is the third one.
+     * @note Current threshold value is composed from two parameters: static value, and dynamic value.
      */
     constexpr static double additional_threshold_ = 0.;
 };
@@ -230,6 +234,12 @@ struct neuron_parameters<AltAILIF>
     float potential_ = default_values<AltAILIF>::potential_;
 
     /**
+     * @brief The parameter defines the neuron potential value.
+     */
+    float pre_impact_potential_ = default_values<AltAILIF>::pre_impact_potential_;
+
+
+    /**
      * @brief The parameter defines the threshold value of neuron potential, after exceeding which a positive spike can
      * be emitted.
      * @details Positive spike is emitted if `potential_` >= `activation_threshold_`
@@ -290,6 +300,12 @@ struct neuron_parameters<AltAILIF>
      * and dynamic that is based on a specific neuron implementation. This is the third one.
      */
     double additional_threshold_ = default_values<AltAILIF>::additional_threshold_;
+
+    /**
+     * @brief The parameter defines the number of network execution steps, during which the neuron activity is totally
+     * blocked.
+     */
+    int64_t total_blocking_period_ = std::numeric_limits<int64_t>::max();
 };
 
 }  // namespace knp::neuron_traits

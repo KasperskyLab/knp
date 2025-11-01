@@ -42,23 +42,28 @@ struct WeightByReceiverSender
     size_t receiver_, sender_;
     //cppcheck-suppress unusedStructMember
     float weight_;
+    float resource_, wmin_, wmax_;
+
     //cppcheck-suppress unusedStructMember
-    knp::core::Step update_step_;
+    knp::core::Step last_spike_step_;
 };
 
 
 auto process_projection_weights(const knp::core::AllProjectionsVariant &proj_variant)
-{
+{  //45
     const auto &proj = std::get<ResourceDeltaProjection>(proj_variant);
     std::vector<WeightByReceiverSender> weights_by_receiver_sender;
     for (const auto &synapse_data : proj)
     {
-        float weight = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.synaptic_resource_;
-        knp::core::Step update_step =
+        float weight = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).weight_;
+        float resource = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.synaptic_resource_;
+        float wmin = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.w_min_;
+        float wmax = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.w_max_;
+        knp::core::Step last_spike_step =
             std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.last_spike_step_;
         size_t sender = std::get<knp::core::SynapseElementAccess::source_neuron_id>(synapse_data);
         size_t receiver = std::get<knp::core::SynapseElementAccess::target_neuron_id>(synapse_data);
-        weights_by_receiver_sender.push_back({receiver, sender, weight, update_step});
+        weights_by_receiver_sender.push_back({receiver, sender, weight, resource, wmin, wmax, last_spike_step});
     }
     std::sort(
         weights_by_receiver_sender.begin(), weights_by_receiver_sender.end(),
@@ -95,7 +100,8 @@ SpikeProcessor make_projection_weights_observer_function(
                     neuron = new_neuron;
                     weights_log << std::endl << "Neuron " << neuron << std::endl;
                 }
-                weights_log << syn_data.weight_ << "|" << syn_data.update_step_ << " ";
+                weights_log << syn_data.weight_ << "|" << syn_data.resource_ << "|" << syn_data.wmin_ << "|"
+                            << syn_data.wmax_ << "|" << syn_data.last_spike_step_ << " ";
             }
             weights_log << std::endl;
             return;
@@ -169,7 +175,8 @@ SpikeProcessor make_spikes_observer_function(
     {
         for (const auto &msg : messages)
         {
-            const std::string name = senders_names.find(msg.header_.sender_uid_)->second;
+            auto found_name_pair = senders_names.find(msg.header_.sender_uid_);
+            const std::string name = (found_name_pair == senders_names.end()) ? "UNKNOWN" : found_name_pair->second;
             log_stream << "Step: " << msg.header_.send_time_ << "\nSender: " << name << std::endl;
             for (auto spike : msg.neuron_indexes_)
             {
@@ -228,7 +235,13 @@ void add_status_logger(
     std::vector<knp::core::UID> populations_uids;
     for (auto const &neuron : model.get_network().get_populations())
     {
-        std::visit([&populations_uids](auto const &neuron) { populations_uids.push_back(neuron.get_uid()); }, neuron);
+        std::visit(
+            [&populations_uids](auto const &neuron)
+            {
+                std::cout << neuron.get_uid() << std::endl;
+                populations_uids.push_back(neuron.get_uid());
+            },
+            neuron);
     }
     model_executor.add_observer<knp::core::messaging::SpikeMessage>(
         [&log_stream](const std::vector<knp::core::messaging::SpikeMessage> &messages)

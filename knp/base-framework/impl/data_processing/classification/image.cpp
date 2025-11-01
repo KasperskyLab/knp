@@ -62,6 +62,7 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         const size_t looped_frame_index = frame_index % data_for_training_.size();
 
         message.push_back(data_for_training_[looped_frame_index].first);
+        std::cout << "huh?" << std::endl;
         return message;
     };
 }
@@ -85,6 +86,7 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         {
             if (data[i]) message.push_back(i - frame_start);
         }
+
         return message;
     };
 }

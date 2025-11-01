@@ -25,6 +25,7 @@ add_subdirectory(save-load-networks)
 add_subdirectory(simple-network)
 add_subdirectory(mnist-client)
 add_subdirectory(mnist-learn)
+add_subdirectory(mnist-learn-altai)
 
 if (KNP_INSTALL)
     install(DIRECTORY "."
