@@ -31,7 +31,7 @@
 #include "construct_network.h"
 
 /// How many subnetworks to use.
-constexpr int num_subnetworks = 10;
+constexpr int num_subnetworks = 15;
 
 
 /**
