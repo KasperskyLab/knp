@@ -84,7 +84,7 @@ void impact_blifat_like_neuron(
             neuron.dopamine_value_ += impact_value;
             break;
         case knp::synapse_traits::OutputType::BLOCKING:
-            neuron.total_blocking_period_ = static_cast<unsigned int>(impact_value);
+            neuron.total_blocking_period_ = static_cast<decltype(neuron.total_blocking_period_)>(impact_value);
             break;
     }
 }
@@ -419,6 +419,7 @@ inline void process_spiking_neurons<knp::neuron_traits::BLIFATNeuron>(
         // Update synapse-only data.
         if (neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced)
         {
+            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // Unconditional decreasing synaptic resource.
@@ -432,10 +433,14 @@ inline void process_spiking_neurons<knp::neuron_traits::BLIFATNeuron>(
                 {
                     // 2. If it did, then update synaptic resource value.
                     const float d_h = neuron.d_h_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+                    std::cout << "ch 1 " << synapse->rule_.synaptic_resource_ << ' ' << d_h << ' '
+                              << spiked_neuron_index << ' ' << synapse_ind << std::endl;
+
                     synapse->rule_.synaptic_resource_ += d_h;
                     neuron.free_synaptic_resource_ -= d_h;
                     synapse->rule_.had_hebbian_update_ = true;
                 }
+                synapse_ind++;
             }
         }
         // Recalculating synapse weights. Sometimes it probably doesn't need to happen, check it later.
@@ -461,6 +466,7 @@ inline void do_dopamine_plasticity(
             std::vector<SynapseParamType *> synapse_params =
                 get_all_connected_synapses<SynapseType>(working_projections, neuron_index);
             // Change synapse values for both `D > 0` and `D < 0`.
+            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // if ((step - synapse->rule_.last_spike_step_ < synapse->rule_.dopamine_plasticity_period_)
@@ -470,9 +476,13 @@ inline void do_dopamine_plasticity(
                     // Change synapse resource.
                     float d_r =
                         neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+                    std::cout << "ch 2 " << synapse->rule_.synaptic_resource_ << ' ' << d_r << ' ' << neuron_index
+                              << ' ' << synapse_ind << std::endl;
+
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;
                 }
+                synapse_ind++;
             }
             // Stability changes.
             if (neuron.is_being_forced_ || neuron.dopamine_value_ < 0)

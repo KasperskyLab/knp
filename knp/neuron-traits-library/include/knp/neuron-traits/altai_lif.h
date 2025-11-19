@@ -99,7 +99,7 @@ struct default_values<AltAILIF>
     /**
      * @brief The parameter defines the default value for `activation_threshold_` of AltAILIF neuron.
      */
-    constexpr static uint16_t activation_threshold_ = 1;
+    constexpr static /*uint16_t*/ float activation_threshold_ = 1;
 
     /**
      * @brief The parameter defines the default value for `negative_activation_threshold_` of AltAILIF neuron.
@@ -107,17 +107,17 @@ struct default_values<AltAILIF>
      * `negative_activation_threshold_` with `saturate_` set to `true` are used to protect against `potential_` negative
      * overflow.
      */
-    constexpr static uint16_t negative_activation_threshold_ = 30000;
+    constexpr static /*uint16_t*/ float negative_activation_threshold_ = 30000;
 
     /**
      * @brief The parameter defines the default value for `potential_leak_` of AltAILIF neuron.
      */
-    constexpr static int16_t potential_leak_ = 0;
+    constexpr static /*int16_t*/ float potential_leak_ = 0;
 
     /**
      * @brief The parameter defines the default value for `potential_reset_value_` of AltAILIF neuron.
      */
-    constexpr static uint16_t potential_reset_value_ = 0;
+    constexpr static /*uint16_t*/ float potential_reset_value_ = 0;
 
     /**
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
@@ -245,7 +245,7 @@ struct neuron_parameters<AltAILIF>
      * @details Positive spike is emitted if `potential_` >= `activation_threshold_`
      * and the neuron has a target for positive spike.
      */
-    uint16_t activation_threshold_ = default_values<AltAILIF>::activation_threshold_;
+    /*uint16_t*/ float activation_threshold_ = default_values<AltAILIF>::activation_threshold_;
 
     /**
      * @brief The parameter defines the threshold value of neuron potential, below which a negative spike can be
@@ -253,7 +253,7 @@ struct neuron_parameters<AltAILIF>
      * @details Negative spike is emitted if `potential_` < -`negative_activation_threshold_`
      * and the neuron has a target for negative spike.
      */
-    uint16_t negative_activation_threshold_ = default_values<AltAILIF>::negative_activation_threshold_;
+    /*uint16_t*/ float negative_activation_threshold_ = default_values<AltAILIF>::negative_activation_threshold_;
 
     /**
      * @brief The parameter defines the constant leakage of the neuron potential.
@@ -265,7 +265,7 @@ struct neuron_parameters<AltAILIF>
      *  potential_ += potential_leak_;
      * @endcode
      */
-    int16_t potential_leak_ = default_values<AltAILIF>::potential_leak_;
+    /*int16_t*/ float potential_leak_ = default_values<AltAILIF>::potential_leak_;
 
     /**
      * @brief The parameter defines a reset value of the neuron potential after one of the thresholds has been exceeded.
@@ -287,7 +287,7 @@ struct neuron_parameters<AltAILIF>
      * }
      * @endcode
      */
-    uint16_t potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
+    /*uint16_t*/ float potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
 
     /**
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
@@ -302,10 +302,14 @@ struct neuron_parameters<AltAILIF>
     double additional_threshold_ = default_values<AltAILIF>::additional_threshold_;
 
     /**
-     * @brief The parameter defines the number of network execution steps, during which the neuron activity is totally
-     * blocked.
+     * @brief TODO add description, this is taken from neuron description
      */
-    int64_t total_blocking_period_ = std::numeric_limits<int64_t>::max();
+    int64_t activity_time_ = 0;
+
+    /**
+     * @brief TODO add description
+     */
+    float stochastic_stimulation_ = 0.f;
 };
 
 }  // namespace knp::neuron_traits

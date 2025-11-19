@@ -24,6 +24,7 @@
 #include <knp/core/population.h>
 
 #include <algorithm>
+#include <random>
 #include <vector>
 
 #include "synaptic_resource_stdp_impl.h"
@@ -59,7 +60,11 @@ void impact_neuron(
             neuron.dopamine_value_ += impact_value;
             break;
         case knp::synapse_traits::OutputType::BLOCKING:
-            neuron.total_blocking_period_ = static_cast<unsigned int>(impact_value);
+            if (((neuron.activity_time_ < 0 && impact_value < 0) || (neuron.activity_time_ > 0 && impact_value > 0)) &&
+                std::abs(neuron.activity_time_) > std::abs(impact_value))
+                ;
+            else
+                neuron.activity_time_ = static_cast<decltype(neuron.activity_time_)>(impact_value);
             break;
         default:
             break;
@@ -77,6 +82,10 @@ constexpr bool has_dopamine_plasticity_altai<neuron_traits::SynapticResourceSTDP
 {
     return true;
 }
+
+//TODO this is a TEMPORARY decision, just to make everything work.
+static std::mt19937 rand_engine(std::random_device{}());
+
 /**
  * @brief Calculate neuron state before it starts accepting inputs.
  * @tparam BasicLifNeuron LIF neuron type.
@@ -90,6 +99,9 @@ void calculate_pre_input_state_lif(knp::core::Population<BasicLifNeuron> &popula
         neuron.potential_ = std::round(neuron.potential_);
 
         neuron.potential_ = neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : neuron.potential_;
+
+        std::uniform_real_distribution<float> distr(0, neuron.stochastic_stimulation_);
+        neuron.potential_ += distr(rand_engine);
 
         if constexpr (has_dopamine_plasticity_altai<BasicLifNeuron>())
         {
@@ -160,28 +172,25 @@ knp::core::messaging::SpikeData calculate_spikes_lif(knp::core::Population<Basic
     {
         auto &neuron = population[i];
 
-        //PASTED FROM BLIFAT
-        if (neuron.total_blocking_period_ <= 0)
+        if (neuron.activity_time_ > 0)
         {
-            // Restore potential that the neuron had before impacts.
-            neuron.potential_ = neuron.pre_impact_potential_;
-            bool was_negative = neuron.total_blocking_period_ < 0;
-            // If it is negative, increase by 1.
-            neuron.total_blocking_period_ += was_negative;
-            // If it is now zero, but was negative before, increase it to max, else leave it as is.
-            neuron.total_blocking_period_ +=
-                std::numeric_limits<int64_t>::max() * ((neuron.total_blocking_period_ == 0) && was_negative);
+            neuron.activity_time_--;
         }
-        else
+        else if (neuron.activity_time_ < 0)
         {
-            neuron.total_blocking_period_ -= 1;
+            neuron.activity_time_++;
+        }
+
+        if (neuron.activity_time_ == 0)
+        {
+            neuron.activity_time_ = std::numeric_limits<decltype(neuron.activity_time_)>::max();
         }
 
         bool was_reset = false;
 
         if (neuron.potential_ >= neuron.activation_threshold_ + neuron.additional_threshold_)
         {
-            spikes.push_back(i);
+            if (neuron.activity_time_ > 0) spikes.push_back(i);
             if (spikes.size() > 20)
             {
                 std::cout << "aaa" << std::endl;
@@ -282,6 +291,7 @@ inline void process_spiking_neurons<knp::neuron_traits::AltAILIF>(
         for (auto *synapse : synapse_params)
         {
             neuron.additional_threshold_ += synapse->weight_ * (synapse->weight_ > 0);
+            //TODO point of concern, what if step < dopamine_plasticity_period_ ?
             const bool had_spike = is_point_in_interval(
                 step - synapse->rule_.dopamine_plasticity_period_, step,
                 synapse->rule_.last_spike_step_ + synapse->delay_ - 1);
@@ -303,6 +313,7 @@ inline void process_spiking_neurons<knp::neuron_traits::AltAILIF>(
         // Update synapse-only data.
         if (neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced)
         {
+            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // Unconditional decreasing synaptic resource.
@@ -316,10 +327,13 @@ inline void process_spiking_neurons<knp::neuron_traits::AltAILIF>(
                 {
                     // 2. If it did, then update synaptic resource value.
                     const float d_h = neuron.d_h_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+                    //std::cout << "ch 1 " << synapse->rule_.synaptic_resource_ << ' ' << d_h << ' '
+                     //         << spiked_neuron_index << ' ' << synapse_ind << std::endl;
                     synapse->rule_.synaptic_resource_ += d_h;
                     neuron.free_synaptic_resource_ -= d_h;
                     synapse->rule_.had_hebbian_update_ = true;
                 }
+                synapse_ind++;
             }
         }
         // Recalculating synapse weights. Sometimes it probably doesn't need to happen, check it later.
@@ -344,6 +358,7 @@ inline void do_dopamine_plasticity<knp::neuron_traits::AltAILIF>(
             std::vector<SynapseParamType *> synapse_params =
                 get_all_connected_synapses<SynapseType>(working_projections, neuron_index);
             // Change synapse values for both `D > 0` and `D < 0`.
+            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // if ((step - synapse->rule_.last_spike_step_ < synapse->rule_.dopamine_plasticity_period_)
@@ -353,9 +368,12 @@ inline void do_dopamine_plasticity<knp::neuron_traits::AltAILIF>(
                     // Change synapse resource.
                     float d_r =
                         neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+                    //std::cout << "ch 2 " << synapse->rule_.synaptic_resource_ << ' ' << d_r << ' ' << neuron_index
+                     //         << ' ' << synapse_ind << std::endl;
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;
                 }
+                synapse_ind++;
             }
             // Stability changes.
             if (neuron.is_being_forced_ || neuron.dopamine_value_ < 0)
