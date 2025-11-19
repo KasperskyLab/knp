@@ -165,9 +165,9 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         R_to_L_synapse.rule_.w_min_ = -1.02827 * 1000.f;
         // R_to_L_synapse.rule_.synaptic_resource_ = 4.263f * 1000.f;
 
-        //R_to_L_synapse.rule_.w_max_ = 320.f;
-        //R_to_L_synapse.rule_.synaptic_resource_ =
-        //    resource_from_weight(0, R_to_L_synapse.rule_.w_min_, R_to_L_synapse.rule_.w_max_);
+        // R_to_L_synapse.rule_.w_max_ = 320.f;
+        // R_to_L_synapse.rule_.synaptic_resource_ =
+        //     resource_from_weight(0, R_to_L_synapse.rule_.w_min_, R_to_L_synapse.rule_.w_max_);
 
 
         std::mt19937 rand_engine((std::random_device())());
@@ -284,6 +284,9 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams TARGET_to_BIASGATE_synapse;
         TARGET_to_BIASGATE_synapse.weight_ = 20.f * 1000.f;
+        //TARGET_to_BIASGATE_synapse.delay_ = 10;
+        
+        TARGET_to_BIASGATE_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
 
         DeltaProjection TARGET_to_BIASGATE_projection =
             knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
@@ -292,6 +295,19 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         result.data_.projections_from_classes_.push_back(TARGET_to_BIASGATE_projection.get_uid());
         result.network_.add_projection(TARGET_to_BIASGATE_projection);
         result.data_.inference_internal_projection_.insert(TARGET_to_BIASGATE_projection.get_uid());
+
+        /*DeltaSynapseParams TARGET_to_BIASGATE_synapse2;
+        TARGET_to_BIASGATE_synapse2.weight_ = -30.f*1000.f;
+        TARGET_to_BIASGATE_synapse2.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
+
+        DeltaProjection TARGET_to_BIASGATE_projection2 =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                knp::core::UID(false), population_uids[BIASGATE], 10, pop_data[BIASGATE].pd_.size_,
+                [&TARGET_to_BIASGATE_synapse2](size_t, size_t) { return TARGET_to_BIASGATE_synapse2; });
+        result.data_.projections_from_classes_.push_back(TARGET_to_BIASGATE_projection2.get_uid());
+        result.network_.add_projection(TARGET_to_BIASGATE_projection2);
+        result.data_.inference_internal_projection_.insert(TARGET_to_BIASGATE_projection2.get_uid());*/
+
 
 
         DeltaSynapseParams BIASGATE_to_L_synapse;
