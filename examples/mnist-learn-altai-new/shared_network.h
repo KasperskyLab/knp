@@ -44,13 +44,13 @@ constexpr float threshold_weight_coeff = 0.023817F;
 //
 
 // Number of neurons reserved per a single digit.
-//constexpr size_t neurons_per_column = 15;
+// constexpr size_t neurons_per_column = 15;
 
 // Ten possible digits, one column per each.
 constexpr size_t num_possible_labels = 10;
 
 // All columns are a part of the same population.
-//constexpr size_t num_input_neurons = neurons_per_column * num_possible_labels;
+// constexpr size_t num_input_neurons = neurons_per_column * num_possible_labels;
 
 // Number of pixels in width for a single MNIST image.
 constexpr size_t input_size_width = 28;
@@ -59,12 +59,18 @@ constexpr size_t input_size_width = 28;
 constexpr size_t input_size_height = 28;
 
 constexpr size_t images_amount_to_train = 10000;  // 1000;
+constexpr size_t images_amount_for_inference = 1000;
 
 constexpr size_t active_steps = 10;
 constexpr size_t steps_per_image = 15;
+
+/// How many subnetworks to use.
+constexpr size_t num_subnetworks = 1;
+
+constexpr size_t neurons_per_column = 20;
 
 // Number of pixels for a single MNIST image.
 constexpr size_t input_size = input_size_width * input_size_height;
 
 // Dense input projection from 28 * 28 image to population of 150 neurons.
-//constexpr size_t input_projection_size = input_size * num_input_neurons;
+// constexpr size_t input_projection_size = input_size * num_input_neurons;

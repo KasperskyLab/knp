@@ -83,7 +83,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     std::vector<knp::core::UID> wta_uids;
     {
         std::vector<size_t> wta_borders;
-        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(20 * (i + 1));
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * (i + 1));
         wta_uids = knp::framework::projection::add_wta_handlers(
             model_executor, wta_winners_amount, wta_borders, described_network.data_.wta_data_);
     }

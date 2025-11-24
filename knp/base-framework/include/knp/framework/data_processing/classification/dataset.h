@@ -80,6 +80,13 @@ protected:
 
 public:
     /**
+     * @brief TODO
+     * @param training_images_amount Amount of images for training.
+     * @param inference_images_amount Amount of images for inference.
+     */
+    void split(size_t training_images_amount, size_t inference_images_amount);
+
+    /**
      * @brief Split dataset on train/inference.
      * @param split_percent Percentage that shows how to split dataset.
      * @pre Must be from 0 to 1.
@@ -92,47 +99,48 @@ public:
      */
     virtual void split(float split_percent);
 
+
     /**
      * @brief Get data for training.
      * @return Data for training.
      */
-    [[nodiscard]] auto const& get_data_for_training() const { return data_for_training_; }
+    [[nodiscard]] inline auto const& get_data_for_training() const { return data_for_training_; }
 
     /**
      * @brief Get data for inference.
      * @return Data for inference.
      */
-    [[nodiscard]] auto const& get_data_for_inference() const { return data_for_inference_; }
+    [[nodiscard]] inline auto const& get_data_for_inference() const { return data_for_inference_; }
 
     /**
      * @brief Get steps amount per frame.
      * @return Steps amount per frame.
      */
-    [[nodiscard]] size_t get_steps_per_frame() const { return steps_per_frame_; }
+    [[nodiscard]] inline size_t get_steps_per_frame() const { return steps_per_frame_; }
 
     /**
      * @brief Get amount of steps required for training.
      * @return Amount of steps required for training.
      */
-    [[nodiscard]] size_t get_steps_required_for_training() const { return steps_required_for_training_; }
+    [[nodiscard]] inline size_t get_steps_required_for_training() const { return steps_required_for_training_; }
 
     /**
      * @brief Get steps amount required for inference.
      * @return Steps amount required for inference.
      */
-    [[nodiscard]] size_t get_steps_required_for_inference() const { return steps_required_for_inference_; }
+    [[nodiscard]] inline size_t get_steps_required_for_inference() const { return steps_required_for_inference_; }
 
     /**
      * @brief Get required training amount.
      * @return Required training amount.
      */
-    [[nodiscard]] size_t get_required_training_amount() const { return required_training_amount_; }
+    [[nodiscard]] inline size_t get_required_training_amount() const { return required_training_amount_; }
 
     /**
      * @brief Get amount of classes..
      * @return Amount of classes.
      */
-    [[nodiscard]] size_t get_amount_of_classes() const { return classes_amount_; }
+    [[nodiscard]] inline size_t get_amount_of_classes() const { return classes_amount_; }
 
     /**
      * @brief A struct that represents a class instance in form of spikes.

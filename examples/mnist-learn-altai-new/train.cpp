@@ -76,7 +76,7 @@ auto build_channel_map_train(
              knp::core::Step local_step = step % steps_per_image;
              if (local_step == 11) message.push_back(dataset.get_data_for_training()[step / steps_per_image].first);
              std::cout << "image label: step " << step << '\n'
-                       << (message.size() ? (int)*message.rbegin() : -1) << std::endl;
+                       << (message.size() ? static_cast<int>(*message.rbegin()) : -1) << std::endl;
              return message;
          }});
 
@@ -112,7 +112,7 @@ knp::framework::Network get_network_for_inference(
 AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
-    AnnotatedNetwork example_network = create_example_network(15);  // num_subnetworks);
+    AnnotatedNetwork example_network = create_example_network(num_subnetworks);
     std::filesystem::create_directory("mnist_network");
     knp::framework::sonata::save_network(example_network.network_, "mnist_network");
     knp::framework::Model model(std::move(example_network.network_));
@@ -131,7 +131,7 @@ AnnotatedNetwork train_mnist_network(
     std::vector<knp::core::UID> wta_uids;
     {
         std::vector<size_t> wta_borders;
-        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(1 * (i + 1));
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * (i + 1));
         wta_uids = knp::framework::projection::add_wta_handlers(
             model_executor, wta_winners_amount, wta_borders, example_network.data_.wta_data_);
     }
