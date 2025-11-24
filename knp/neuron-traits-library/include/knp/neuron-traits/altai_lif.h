@@ -245,7 +245,7 @@ struct neuron_parameters<AltAILIF>
      * @details Positive spike is emitted if `potential_` >= `activation_threshold_`
      * and the neuron has a target for positive spike.
      */
-    /*uint16_t*/ float activation_threshold_ = default_values<AltAILIF>::activation_threshold_;
+    uint16_t activation_threshold_ = default_values<AltAILIF>::activation_threshold_;
 
     /**
      * @brief The parameter defines the threshold value of neuron potential, below which a negative spike can be
@@ -253,7 +253,7 @@ struct neuron_parameters<AltAILIF>
      * @details Negative spike is emitted if `potential_` < -`negative_activation_threshold_`
      * and the neuron has a target for negative spike.
      */
-    /*uint16_t*/ float negative_activation_threshold_ = default_values<AltAILIF>::negative_activation_threshold_;
+    uint16_t negative_activation_threshold_ = default_values<AltAILIF>::negative_activation_threshold_;
 
     /**
      * @brief The parameter defines the constant leakage of the neuron potential.
@@ -265,7 +265,7 @@ struct neuron_parameters<AltAILIF>
      *  potential_ += potential_leak_;
      * @endcode
      */
-    /*int16_t*/ float potential_leak_ = default_values<AltAILIF>::potential_leak_;
+    int16_t potential_leak_ = default_values<AltAILIF>::potential_leak_;
 
     /**
      * @brief The parameter defines a reset value of the neuron potential after one of the thresholds has been exceeded.
@@ -287,7 +287,7 @@ struct neuron_parameters<AltAILIF>
      * }
      * @endcode
      */
-    /*uint16_t*/ float potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
+    uint16_t potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
 
     /**
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
@@ -310,6 +310,11 @@ struct neuron_parameters<AltAILIF>
      * @brief TODO add description
      */
     float stochastic_stimulation_ = 0.f;
+
+    /**
+     * @brief Seed for stochastic stimulation.
+     */
+    size_t stochastic_stimulation_seed_ = 0;
 };
 
 }  // namespace knp::neuron_traits
