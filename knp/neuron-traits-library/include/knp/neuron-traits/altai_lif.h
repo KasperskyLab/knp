@@ -305,16 +305,6 @@ struct neuron_parameters<AltAILIF>
      * @brief TODO add description, this is taken from neuron description
      */
     int64_t activity_time_ = 0;
-
-    /**
-     * @brief TODO add description
-     */
-    float stochastic_stimulation_ = 0.f;
-
-    /**
-     * @brief Seed for stochastic stimulation.
-     */
-    size_t stochastic_stimulation_seed_ = 0;
 };
 
 }  // namespace knp::neuron_traits
