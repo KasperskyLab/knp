@@ -38,7 +38,7 @@ constexpr size_t classes_amount = 10;
 namespace data_processing = knp::framework::data_processing::classification::images;
 namespace inference_evaluation = knp::framework::inference_evaluation::classification;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     if (argc < 3 || argc > 4)
     {

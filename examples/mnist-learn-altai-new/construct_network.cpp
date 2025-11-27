@@ -166,7 +166,6 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
             knp::core::UID(false), population_uids[L], 10, pop_data[L].pd_.size_,
             [&TARGET_to_L_synapse](size_t, size_t) { return TARGET_to_L_synapse; });
         result.network_.add_projection(TARGET_to_L_projection);
-        result.data_.inference_internal_projection_.insert(TARGET_to_L_projection.get_uid());
         result.data_.projections_from_classes_.push_back(TARGET_to_L_projection.get_uid());
 
 
@@ -179,7 +178,6 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
             knp::core::UID(false), population_uids[L], 10, pop_data[L].pd_.size_,
             [&TARGET_to_L_synapse2](size_t, size_t) { return TARGET_to_L_synapse2; });
         result.network_.add_projection(TARGET_to_L_projection2);
-        result.data_.inference_internal_projection_.insert(TARGET_to_L_projection2.get_uid());
         result.data_.projections_from_classes_.push_back(TARGET_to_L_projection2.get_uid());
 
 
@@ -191,7 +189,6 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
             knp::core::UID(false), population_uids[BIAS], 10, pop_data[BIAS].pd_.size_,
             [&TARGET_to_BIAS_synapse](size_t, size_t) { return TARGET_to_BIAS_synapse; });
         result.network_.add_projection(TARGET_to_BIAS_projection);
-        result.data_.inference_internal_projection_.insert(TARGET_to_BIAS_projection.get_uid());
         result.data_.projections_from_classes_.push_back(TARGET_to_BIAS_projection.get_uid());
 
 
@@ -217,7 +214,6 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
                 population_uids[OUT], population_uids[BIAS], pop_data[OUT].pd_.size_, pop_data[BIAS].pd_.size_,
                 [&OUT_to_BIAS_synapse](size_t, size_t) { return OUT_to_BIAS_synapse; });
         result.network_.add_projection(OUT_to_BIAS_projection);
-        result.data_.inference_internal_projection_.insert(OUT_to_BIAS_projection.get_uid());
 
 
         DeltaSynapseParams BIAS_to_L_synapse;
@@ -229,7 +225,6 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
                 population_uids[BIAS], population_uids[L], pop_data[BIAS].pd_.size_, pop_data[L].pd_.size_,
                 [&BIAS_to_L_synapse](size_t, size_t) { return BIAS_to_L_synapse; });
         result.network_.add_projection(BIAS_to_L_projection);
-        result.data_.inference_internal_projection_.insert(BIAS_to_L_projection.get_uid());
     }
 
     // Return created network.

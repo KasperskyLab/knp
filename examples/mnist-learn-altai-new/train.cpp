@@ -54,6 +54,7 @@ auto build_channel_map_train(
     // Create future channels uids randomly.
     knp::core::UID input_image_channel_raster;
     knp::core::UID input_image_channel_classes;
+    knp::core::UID output_channel;
 
     // Add input channel for each image input projection.
     for (auto image_proj_uid : network.data_.projections_from_raster_)
@@ -62,6 +63,9 @@ auto build_channel_map_train(
     // Add input channel for data labels.
     for (auto target_proj_uid : network.data_.projections_from_classes_)
         model.add_input_channel(input_image_channel_classes, target_proj_uid);
+
+    // Add output channel.
+    for (auto out_pop : network.data_.output_uids_) model.add_output_channel(output_channel, out_pop);
 
     // Create and fill a channel map.
     knp::framework::ModelLoader::InputChannelMap channel_map;
@@ -107,7 +111,6 @@ knp::framework::Network get_network_for_inference(
     return res_network;
 }
 
-
 AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
@@ -115,6 +118,7 @@ AnnotatedNetwork train_mnist_network(
     knp::framework::Model model(std::move(example_network.network_));
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train(example_network, model, dataset);
+
 
     knp::framework::BackendLoader backend_loader;
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
