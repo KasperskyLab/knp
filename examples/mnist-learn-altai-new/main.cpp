@@ -20,6 +20,7 @@
  */
 
 #include <knp/framework/inference_evaluation/classification/processor.h>
+#include <knp/framework/sonata/network_io.h>
 
 #include <filesystem>
 #include <fstream>
@@ -71,6 +72,9 @@ int main(int argc, char** argv)
 
     // Construct network and run training.
     AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);
+
+    std::filesystem::create_directory("mnist_network");
+    knp::framework::sonata::save_network(trained_network.network_, "mnist_network");
 
     // Run inference for the same network.
     auto spikes = run_mnist_inference(path_to_backend, trained_network, dataset, log_path);

@@ -27,7 +27,6 @@
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/projection/wta.h>
-#include <knp/framework/sonata/network_io.h>
 
 #include <filesystem>
 #include <map>
@@ -113,8 +112,6 @@ AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
     AnnotatedNetwork example_network = create_example_network(num_subnetworks);
-    std::filesystem::create_directory("mnist_network");
-    knp::framework::sonata::save_network(example_network.network_, "mnist_network");
     knp::framework::Model model(std::move(example_network.network_));
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train(example_network, model, dataset);
@@ -180,5 +177,6 @@ AnnotatedNetwork train_mnist_network(
     example_network.network_ = get_network_for_inference(
         *model_executor.get_backend(), example_network.data_.inference_population_uids_,
         example_network.data_.inference_internal_projection_);
+
     return example_network;
 }

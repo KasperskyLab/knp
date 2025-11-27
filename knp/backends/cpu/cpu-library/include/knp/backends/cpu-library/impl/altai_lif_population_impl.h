@@ -99,17 +99,6 @@ void calculate_pre_input_state_lif(knp::core::Population<BasicLifNeuron> &popula
 
         neuron.potential_ = neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : neuron.potential_;
 
-        if (neuron.stochastic_stimulation_)
-        {
-            std::minstd_rand rand_engine(neuron.stochastic_stimulation_seed_);
-            std::uniform_real_distribution<float> distr(0, neuron.stochastic_stimulation_);
-            //neuron.potential_ += distr(rand_engine);
-
-            //Update the seed.
-            std::uniform_int_distribution<size_t> distr_seed(0, std::numeric_limits<size_t>::max());
-            //neuron.stochastic_stimulation_seed_ = distr_seed(rand_engine);
-        }
-
         if constexpr (has_dopamine_plasticity_altai<BasicLifNeuron>())
         {
             neuron.dopamine_value_ = 0.0;

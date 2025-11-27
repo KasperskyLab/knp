@@ -80,11 +80,8 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
     default_neuron.activation_threshold_ = threshold_idk_constant;
     ResourceNeuronData l_neuron = default_neuron;
     l_neuron.potential_leak_ = static_cast<uint16_t>(-(1.f - 1.f / 3.f) * scale);
-    l_neuron.stochastic_stimulation_ = 2.21207f * scale;
     l_neuron.negative_activation_threshold_ = 0;
     l_neuron.potential_reset_value_ = 0;
-
-    l_neuron.stochastic_stimulation_seed_ = std::random_device{}();
 
     l_neuron.dopamine_plasticity_time_ = 10;
     l_neuron.isi_max_ = 10;
@@ -113,7 +110,7 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
     std::vector<PopulationRole> pop_data{
         {{10 * neurons_per_column, l_neuron}, true, false, "L"},
         {{10, default_neuron}, true, true, "OUT"},
-        {{10, default_neuron}, true, false, "BIAS"}};
+        {{10, default_neuron}, false, false, "BIAS"}};
 
     std::vector<knp::core::UID> population_uids;
     for (auto &pop_init_data : pop_data)
