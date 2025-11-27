@@ -58,7 +58,7 @@ constexpr size_t input_size_width = 28;
 // Number of pixels in height for a single MNIST image.
 constexpr size_t input_size_height = 28;
 
-constexpr size_t images_amount_to_train = 10000;  // 1000;
+constexpr size_t images_amount_to_train = 10000;
 constexpr size_t images_amount_for_inference = 1000;
 
 constexpr size_t active_steps = 10;
