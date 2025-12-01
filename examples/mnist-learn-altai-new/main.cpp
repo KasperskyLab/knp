@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 
+#include <knp/core/projection.h>
 #include <knp/framework/inference_evaluation/classification/processor.h>
 #include <knp/framework/sonata/network_io.h>
 
@@ -38,7 +39,7 @@ constexpr size_t classes_amount = 10;
 namespace data_processing = knp::framework::data_processing::classification::images;
 namespace inference_evaluation = knp::framework::inference_evaluation::classification;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     if (argc < 3 || argc > 4)
     {
@@ -72,6 +73,52 @@ int main(int argc, char **argv)
 
     // Construct network and run training.
     AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);
+
+    {  // Quantisize weights.
+        for (auto proj = trained_network.network_.begin_projections();
+             proj != trained_network.network_.end_projections(); ++proj)
+        {
+            std::visit(
+                [&trained_network](auto&& proj)
+                {
+                    float max_weight = 0, min_weight = 0;
+                    for (auto& synapse : proj)
+                    {
+                        auto const& params = std::get<knp::core::synapse_data>(synapse);
+                        if (max_weight < params.weight_) max_weight = params.weight_;
+                        if (min_weight > params.weight_) min_weight = params.weight_;
+                    }
+
+                    knp::core::UID post_pop_uid = proj.get_postsynaptic();
+                    auto& pop = std::get<knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>>(
+                        trained_network.network_.get_population(post_pop_uid));
+
+                    uint16_t max_threshold = 0;
+                    for (auto const& neuron : pop)
+                        max_threshold = std::max<uint16_t>(
+                            max_threshold, neuron.activation_threshold_ + neuron.additional_threshold_);
+
+                    float total_max =
+                        std::max({std::abs(max_weight), std::abs(min_weight), std::abs<float>(max_threshold)});
+                    float scale = 255.f / total_max;
+                    std::cout << scale << std::endl;
+
+                    for (auto& synapse : proj)
+                    {
+                        auto& params = std::get<knp::core::synapse_data>(synapse);
+                        params.weight_ *= scale;
+                        params.weight_ = std::round(params.weight_);
+                    }
+
+                    for (auto& neuron : pop)
+                    {
+                        neuron.activation_threshold_ *= scale;
+                        neuron.additional_threshold_ *= scale;
+                    }
+                },
+                *proj);
+        }
+    }
 
     std::filesystem::create_directory("mnist_network");
     knp::framework::sonata::save_network(trained_network.network_, "mnist_network");
