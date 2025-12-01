@@ -60,6 +60,19 @@ public:
     }
 
     /**
+     * @brief Get tag value by tag name and value type.
+     * @tparam T tag value type.
+     * @param name tag name.
+     * @return tag value.
+     */
+    template <typename T>
+    [[nodiscard]] const std::decay_t<T> &get_tag(const std::string &name) const
+    {
+        return std::any_cast<const std::decay_t<T> &>(tags_.at(name));
+    }
+
+
+    /**
      * @brief Return tag value.
      * @param name tag name.
      * @return tag value.
