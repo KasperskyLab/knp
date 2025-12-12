@@ -433,8 +433,6 @@ inline void process_spiking_neurons<knp::neuron_traits::BLIFATNeuron>(
                 {
                     // 2. If it did, then update synaptic resource value.
                     const float d_h = neuron.d_h_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
-                    std::cout << "ch 1 " << synapse->rule_.synaptic_resource_ << ' ' << d_h << ' '
-                              << spiked_neuron_index << ' ' << synapse_ind << std::endl;
 
                     synapse->rule_.synaptic_resource_ += d_h;
                     neuron.free_synaptic_resource_ -= d_h;
@@ -476,8 +474,6 @@ inline void do_dopamine_plasticity(
                     // Change synapse resource.
                     float d_r =
                         neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
-                    std::cout << "ch 2 " << synapse->rule_.synaptic_resource_ << ' ' << d_r << ' ' << neuron_index
-                              << ' ' << synapse_ind << std::endl;
 
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;

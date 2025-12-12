@@ -20,6 +20,7 @@
  */
 #pragma once
 #include <knp/backends/cpu-library/impl/base_stdp_impl.h>
+#include <knp/backends/cpu-library/impl/synaptic_resource_stdp_impl.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/messaging/messaging.h>
 #include <knp/core/messaging/synaptic_impact_message.h>

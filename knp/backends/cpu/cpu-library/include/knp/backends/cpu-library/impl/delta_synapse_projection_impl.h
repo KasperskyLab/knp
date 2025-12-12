@@ -34,7 +34,7 @@
 #include <utility>
 #include <vector>
 
-#include "additive_stdp_impl.h"
+#include "synaptic_resource_stdp_impl.h"
 
 
 /**
