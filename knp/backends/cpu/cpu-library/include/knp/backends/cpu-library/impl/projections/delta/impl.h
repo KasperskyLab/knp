@@ -31,7 +31,7 @@
 
 #include "shared.h"
 
-namespace knp::backends::cpu::projections::delta
+namespace knp::backends::cpu::projections::impl::delta
 {
 
 template <typename DeltaLikeSynapse>
@@ -152,4 +152,4 @@ void calculate_projection_multithreaded_impl(
 }
 
 
-}  //namespace knp::backends::cpu::projections::delta
+}  //namespace knp::backends::cpu::projections::impl::delta
