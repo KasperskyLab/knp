@@ -22,4 +22,4 @@ set(CMAKE_CXX_STANDARD 20)
 #find_package(Boost COMPONENTS program_options REQUIRED )
 
 add_executable(mnist_learn_altai_example main.cpp construct_network.cpp train.cpp inference.cpp time_string.cpp)
-target_link_libraries(mnist_learn_altai_example PRIVATE KNP::BaseFramework::Core )#${Boost_LIBRARIES})
+target_link_libraries(mnist_learn_altai_example PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES})

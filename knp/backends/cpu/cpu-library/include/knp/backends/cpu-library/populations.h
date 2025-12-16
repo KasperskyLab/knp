@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include "temp_impl/populations/interface.h"
+#include "impl/populations/interface.h"
 
 /**
  * @brief Namespace for CPU backend's populations.
@@ -49,7 +49,7 @@ void calculate_pre_impact_population_state(knp::core::Population<Neuron> &popula
     SPDLOG_TRACE("Calculate pre impact state of [{},{}] neurons.", start, end);
     for (size_t i = start; i < end; ++i)
     {
-        calculate_pre_impact_single_neuron_state_interface(population[i]);
+        impl::calculate_pre_impact_single_neuron_state_interface(population[i]);
     }
 }
 
@@ -67,7 +67,7 @@ void impact_population(
     {
         for (const auto &impact : message.impacts_)
         {
-            impact_neuron_interface(population[impact.postsynaptic_neuron_index_], impact, message.is_forcing_);
+            impl::impact_neuron_interface(population[impact.postsynaptic_neuron_index_], impact, message.is_forcing_);
         }
     }
 }
@@ -87,7 +87,7 @@ void calculate_post_impact_population_state(
     SPDLOG_TRACE("Calculate post impact state of [{},{}] neurons.", start, end);
     for (size_t i = start; i < end; ++i)
     {
-        if (calculate_post_impact_single_neuron_state_interface(population[i]))
+        if (impl::calculate_post_impact_single_neuron_state_interface(population[i]))
         {
             message.neuron_indexes_.push_back(i);
         }
@@ -107,7 +107,7 @@ void teach_population(
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
     SPDLOG_TRACE("Teaching population.");
-    teach_population_interface(population, projections, message, step);
+    impl::teach_population_interface(population, projections, message, step);
 }
 
 

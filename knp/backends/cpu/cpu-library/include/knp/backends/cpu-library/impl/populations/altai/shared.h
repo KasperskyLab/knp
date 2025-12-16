@@ -21,7 +21,7 @@
 
 #include <knp/core/population.h>
 
-namespace knp::backends::cpu::populations::altai
+namespace knp::backends::cpu::populations::impl::altai
 {
 
 /**
@@ -34,4 +34,4 @@ using AltaiNeuron = knp::neuron_traits::AltAILIF;
  */
 using STDPAltaiNeuron = knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron;
 
-}  //namespace knp::backends::cpu::populations::altai
+}  //namespace knp::backends::cpu::populations::impl::altai

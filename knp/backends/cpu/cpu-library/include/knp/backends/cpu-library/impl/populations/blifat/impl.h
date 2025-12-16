@@ -23,7 +23,7 @@
 
 #include "stdp.h"
 
-namespace knp::backends::cpu::populations::blifat
+namespace knp::backends::cpu::populations::impl::blifat
 {
 
 inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron)
@@ -151,4 +151,4 @@ inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::n
 
     return spike;
 }
-}  //namespace knp::backends::cpu::populations::blifat
+}  //namespace knp::backends::cpu::populations::impl::blifat

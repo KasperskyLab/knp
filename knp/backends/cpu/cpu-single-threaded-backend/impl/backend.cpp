@@ -20,7 +20,6 @@
  */
 
 
-#include <knp/backends/cpu-library/delta_synapse_projection.h>
 #include <knp/backends/cpu-library/init.h>
 #include <knp/backends/cpu-library/populations.h>
 #include <knp/backends/cpu-library/projections.h>
@@ -92,7 +91,8 @@ std::vector<knp::core::Projection<SynapseType> *> find_projection_by_type_and_po
 {
     using ProjectionType = knp::core::Projection<SynapseType>;
     std::vector<knp::core::Projection<SynapseType> *> result;
-    constexpr auto type_index = boost::mp11::mp_find<synapse_traits::AllSynapses, SynapseType>();
+    constexpr auto type_index =
+        boost::mp11::mp_find<backends::single_threaded_cpu::SingleThreadedCPUBackend::SupportedSynapses, SynapseType>();
     for (auto &projection : projections)
     {
         if (projection.arg_.index() != type_index)
@@ -154,14 +154,6 @@ void SingleThreadedCPUBackend::_step()
         std::visit(
             [this, &projection](auto &proj)
             {
-                using T = std::decay_t<decltype(proj)>;
-                if constexpr (
-                    boost::mp11::mp_find<SupportedProjections, T>{} == boost::mp11::mp_size<SupportedProjections>{})
-                {
-                    static_assert(
-                        knp::meta::always_false_v<T>,
-                        "Projection is not supported by the single-threaded CPU backend.");
-                }
                 knp::backends::cpu::projections::calculate_projection(
                     proj, get_message_endpoint(), projection.messages_, get_step());
             },
@@ -248,36 +240,6 @@ void SingleThreadedCPUBackend::_init()
 
     SPDLOG_DEBUG("Initialization finished.");
 }
-
-
-/*
-void SingleThreadedCPUBackend::calculate_projection(
-    knp::core::Projection<knp::synapse_traits::DeltaSynapse> &projection, SynapticMessageQueue &message_queue)
-{
-    SPDLOG_TRACE("Calculate delta synapse projection {}.", std::string(projection.get_uid()));
-    knp::backends::cpu::calculate_delta_synapse_projection(
-        projection, get_message_endpoint(), message_queue, get_step());
-}
-
-
-void SingleThreadedCPUBackend::calculate_projection(
-    knp::core::Projection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
-    SynapticMessageQueue &message_queue)
-{
-    SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(projection.get_uid()));
-    knp::backends::cpu::calculate_delta_synapse_projection(
-        projection, get_message_endpoint(), message_queue, get_step());
-}
-
-
-void SingleThreadedCPUBackend::calculate_projection(
-    knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
-    SynapticMessageQueue &message_queue)
-{
-    SPDLOG_TRACE("Calculate STDPSynapticResource synapse projection {}.", std::string(projection.get_uid()));
-    knp::backends::cpu::calculate_delta_synapse_projection(
-        projection, get_message_endpoint(), message_queue, get_step());
-}*/
 
 
 SingleThreadedCPUBackend::PopulationIterator SingleThreadedCPUBackend::begin_populations()

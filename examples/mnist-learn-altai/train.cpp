@@ -27,7 +27,6 @@
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/projection/wta.h>
-#include <knp/framework/sonata/network_io.h>
 
 #include <filesystem>
 #include <map>
@@ -55,6 +54,7 @@ auto build_channel_map_train(
     // Create future channels uids randomly.
     knp::core::UID input_image_channel_raster;
     knp::core::UID input_image_channel_classes;
+    knp::core::UID output_channel;
 
     // Add input channel for each image input projection.
     for (auto image_proj_uid : network.data_.projections_from_raster_)
@@ -64,10 +64,24 @@ auto build_channel_map_train(
     for (auto target_proj_uid : network.data_.projections_from_classes_)
         model.add_input_channel(input_image_channel_classes, target_proj_uid);
 
+    // Add output channel.
+    for (auto out_pop : network.data_.output_uids_) model.add_output_channel(output_channel, out_pop);
+
     // Create and fill a channel map.
     knp::framework::ModelLoader::InputChannelMap channel_map;
     channel_map.insert({input_image_channel_raster, dataset.make_training_images_spikes_generator()});
-    channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
+    // channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
+    channel_map.insert(
+        {input_image_channel_classes, [&dataset](knp::core::Step step)
+         {
+             knp::core::messaging::SpikeData message;
+
+             knp::core::Step local_step = step % steps_per_image;
+             if (local_step == 11) message.push_back(dataset.get_data_for_training()[step / steps_per_image].first);
+             std::cout << "image label: step " << step << '\n'
+                       << (message.size() ? static_cast<int>(*message.rbegin()) : -1) << std::endl;
+             return message;
+         }});
 
     return channel_map;
 }
@@ -97,77 +111,17 @@ knp::framework::Network get_network_for_inference(
     return res_network;
 }
 
-
 AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
-    /*
-     * 1 network
-0,21,21,0,0,229,1,1,0.084,1,1
-1,26,19,6,1,224,0.95,0.95,0.1,0.972,0.95
-2,23,8,0,15,227,0.347826,0.347826,0.032,0.94,0.347826
-3,23,6,0,17,227,0.26087,0.26087,0.024,0.932,0.26087
-4,23,13,1,9,227,0.590909,0.590909,0.056,0.96,0.590909
-5,29,0,0,29,221,0,0,0,0.884,0
-6,24,13,0,11,226,0.541667,0.541667,0.052,0.956,0.541667
-7,30,23,1,6,220,0.793103,0.793103,0.096,0.972,0.793104
-8,22,4,0,18,228,0.181818,0.181818,0.016,0.928,0.181818
-9,29,1,0,28,221,0.0344828,0.0344828,0.004,0.888,0.0344828
-*average 0.46
-
-     * 3 networks
-CLASS,TOTAL_VOTES,TRUE_POSITIVES,FALSE_NEGATIVES,FALSE_POSITIVES,TRUE_NEGA
-TIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
-0,21,21,0,0,229,1,1,0.084,1,1
-1,26,12,13,1,224,0.923077,0.923077,0.1,0.944,0.923077
-2,23,15,0,8,227,0.652174,0.652174,0.06,0.968,0.652174
-3,23,10,0,13,227,0.434783,0.434783,0.04,0.948,0.434783
-4,23,18,1,4,227,0.818182,0.818182,0.076,0.98,0.818182
-5,29,0,1,28,221,0,0,0.004,0.884,0
-6,24,13,0,11,226,0.541667,0.541667,0.052,0.956,0.541667
-7,30,23,2,5,220,0.821429,0.821429,0.1,0.972,0.821429
-8,22,6,0,16,228,0.272727,0.272727,0.024,0.936,0.272727
-9,29,3,1,25,221,0.107143,0.107143,0.016,0.896,0.107143
-*average 0.62
-
-* 6 networks
-CLASS,TOTAL_VOTES,TRUE_POSITIVES,FALSE_NEGATIVES,FALSE_POSITIVES,TRUE_NEGA
-TIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
-0,21,21,0,0,229,1,1,0.084,1,1
-1,26,21,4,1,224,0.954545,0.954545,0.1,0.98,0.954545
-2,23,15,0,8,227,0.652174,0.652174,0.06,0.968,0.652174
-3,23,14,0,9,227,0.608696,0.608696,0.056,0.964,0.608696
-4,23,18,1,4,227,0.818182,0.818182,0.076,0.98,0.818182
-5,29,0,0,29,221,0,0,0,0.884,0
-6,24,15,0,9,226,0.625,0.625,0.06,0.964,0.625
-7,30,26,1,3,220,0.896552,0.896552,0.108,0.984,0.896552
-8,22,13,0,9,228,0.590909,0.590909,0.052,0.964,0.590909
-9,29,4,0,25,221,0.137931,0.137931,0.016,0.9,0.137931
-*average 0.65
-
-     */
-    AnnotatedNetwork example_network = create_example_network(1);  // num_subnetworks);
-    std::filesystem::create_directory("mnist_network");
-    knp::framework::sonata::save_network(example_network.network_, "mnist_network");
+    AnnotatedNetwork example_network = create_example_network(num_subnetworks);
     knp::framework::Model model(std::move(example_network.network_));
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train(example_network, model, dataset);
 
+
     knp::framework::BackendLoader backend_loader;
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
-
-    /*
-     как михаил подает картинку?
-
-    что за комент про reset potential?
-    наш gating синапс просто не дает выдавать спайки
-
-    у нас цифры перемешанны,
-    у таргета задержка 11, и тогда он блокирует слудющие 10 тактов у следующего числа,
-    если два одинаковых числа идут подряд, то может быть проблемой?
-
-    спросить логи у михаила
-     */
 
     // Add all spikes observer.
     // All these variables should have the same lifetime as model_executor, or else UB.
@@ -178,21 +132,18 @@ TIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
     std::vector<knp::core::UID> wta_uids;
     {
         std::vector<size_t> wta_borders;
-        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(3 * (i + 1));
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * (i + 1));
         wta_uids = knp::framework::projection::add_wta_handlers(
             model_executor, wta_winners_amount, wta_borders, example_network.data_.wta_data_);
     }
 
     auto pop_names = example_network.data_.population_names_;
 
-    // Change uid for WTA population.
+    // Change names for WTA populations.
     {
-        for (auto pop = pop_names.begin(); pop != pop_names.end();)
-            if (pop->second == "WTA")
-                pop = pop_names.erase(pop);
-            else
-                ++pop;
-        for (auto const &uid : wta_uids) pop_names[uid] = "WTA";
+        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
+            if (pop->second == "L") pop->second = "L[NO WTA]";
+        for (auto const &uid : wta_uids) pop_names[uid] = "L[WTA]";
     }
 
     knp::framework::monitoring::model::add_spikes_logger(model_executor, pop_names, std::cout);
@@ -211,7 +162,7 @@ TIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
         if (weight_stream.is_open())
             knp::framework::monitoring::model::add_projection_weights_logger(
                 weight_stream, model_executor, example_network.data_.projections_from_raster_[0],
-                20000);  // projection_weights_logging_period);
+                steps_per_image * images_amount_to_train);
         else
             std::cout << "Couldn't open weights.csv at " << log_path << std::endl;
     }
@@ -230,5 +181,6 @@ TIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
     example_network.network_ = get_network_for_inference(
         *model_executor.get_backend(), example_network.data_.inference_population_uids_,
         example_network.data_.inference_internal_projection_);
+
     return example_network;
 }

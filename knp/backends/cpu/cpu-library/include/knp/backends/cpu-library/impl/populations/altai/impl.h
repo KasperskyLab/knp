@@ -23,7 +23,7 @@
 
 #include "stdp.h"
 
-namespace knp::backends::cpu::populations::altai
+namespace knp::backends::cpu::populations::impl::altai
 {
 
 inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
@@ -137,4 +137,4 @@ inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::n
     return spiked;
 }
 
-}  //namespace knp::backends::cpu::populations::altai
+}  //namespace knp::backends::cpu::populations::impl::altai

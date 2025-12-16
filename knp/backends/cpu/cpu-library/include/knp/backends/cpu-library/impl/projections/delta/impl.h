@@ -19,10 +19,13 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/temp_impl/projections/shared/def.h>
+#include <knp/backends/cpu-library/impl/projections/shared/def.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>
 
+#include <algorithm>
+#include <mutex>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -84,6 +87,68 @@ inline MessageQueue::const_iterator calculate_projection_impl(
         }
     }
     return future_messages.find(step_n);
+}
+
+
+template <class DeltaLikeSynapse>
+void calculate_projection_multithreaded_impl(
+    knp::core::Projection<DeltaLikeSynapse> &projection,
+    const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
+    uint64_t part_start, uint64_t part_size, std::mutex &mutex)
+{
+    size_t part_end = std::min(part_start + part_size, static_cast<uint64_t>(projection.size()));
+    std::vector<std::pair<uint64_t, knp::core::messaging::SynapticImpact>> container;
+    for (size_t synapse_index = part_start; synapse_index < part_end; ++synapse_index)
+    {
+        auto &synapse = projection[synapse_index];
+        // update_step(synapse.params_, step_n);
+        auto iter = message_in_data.find(std::get<core::source_neuron_id>(synapse));
+        if (iter == message_in_data.end())
+        {
+            continue;
+        }
+
+        // Add new impact.
+        // The message is sent on step N - 1, received on step N.
+        uint64_t key = std::get<core::synapse_data>(synapse).delay_ + step_n - 1;
+        if constexpr (std::is_same_v<DeltaLikeSynapse, STDPDeltaSynapse>)
+        {
+            std::get<core::synapse_data>(synapse).rule_.last_spike_step_ = step_n;
+        }
+
+        knp::core::messaging::SynapticImpact impact{
+            synapse_index, std::get<core::synapse_data>(synapse).weight_ * iter->second,
+            std::get<core::synapse_data>(synapse).output_type_,
+            static_cast<uint32_t>(std::get<core::source_neuron_id>(synapse)),
+            static_cast<uint32_t>(std::get<core::target_neuron_id>(synapse))};
+
+        container.emplace_back(key, impact);
+    }
+    // Add impacts to future messages queue, it is a shared resource.
+    const std::lock_guard lock_guard(mutex);
+    const auto &projection_uid = projection.get_uid();
+    const auto &presynaptic_uid = projection.get_presynaptic();
+    const auto &postsynaptic_uid = projection.get_postsynaptic();
+
+    for (auto value : container)
+    {
+        auto iter = future_messages.find(value.first);
+        if (iter != future_messages.end())
+        {
+            iter->second.impacts_.push_back(value.second);
+        }
+        else
+        {
+            bool is_forced = false;
+            if constexpr (std::is_same_v<DeltaLikeSynapse, DeltaSynapse>)
+            {
+                is_forced = true;
+            }
+            knp::core::messaging::SynapticImpactMessage message_out{
+                {projection_uid, step_n}, postsynaptic_uid, presynaptic_uid, is_forced, {value.second}};
+            future_messages.insert(std::make_pair(value.first, message_out));
+        }
+    }
 }
 
 

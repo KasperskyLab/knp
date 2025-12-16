@@ -20,13 +20,13 @@
 #pragma once
 
 // This include does not work at the end of the day. But its here so code analyzer will work properly.
-#include <knp/backends/cpu-library/temp_impl/populations/interface.h>
+#include <knp/backends/cpu-library/impl/populations/interface.h>
 
 #include <vector>
 
 #include "impl.h"
 
-namespace knp::backends::cpu::populations
+namespace knp::backends::cpu::populations::impl
 {
 
 /**
@@ -135,4 +135,4 @@ inline void teach_population_interface<altai::STDPAltaiNeuron, knp::synapse_trai
 }
 
 
-}  //namespace knp::backends::cpu::populations
+}  //namespace knp::backends::cpu::populations::impl

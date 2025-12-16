@@ -1,10 +1,9 @@
 /**
- * @file time_string.cpp
- * @brief Function for converting time to string.
- * @kaspersky_support D. Postnikov
- * @date 28.03.2025
+ * @file shared.h
+ * @kaspersky_support Postnikov D.
+ * @date 10.12.2025
  * @license Apache 2.0
- * @copyright © 2025 AO Kaspersky Lab
+ * @copyright © 2024 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma once
 
-#include "time_string.h"
+#include <knp/core/projection.h>
 
-#include <chrono>
-
-
-std::string get_time_string()
+namespace knp::backends::cpu::projections::impl::delta
 {
-    auto time_now = std::chrono::system_clock::now();
-    std::time_t c_time = std::chrono::system_clock::to_time_t(time_now);
-    std::string result(std::ctime(&c_time));
-    return result;
-}
+
+/**
+ * @brief Delta synapse shortcut.
+ */
+using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
+
+/**
+ * @brief STDP Delta synapse shortcut.
+ */
+using STDPDeltaSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+
+}  //namespace knp::backends::cpu::projections::impl::delta

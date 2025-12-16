@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 
-namespace knp::backends::cpu::populations::shared::stdp
+namespace knp::backends::cpu::populations::impl::shared::stdp
 {
 
 /**
@@ -185,4 +185,4 @@ inline void renormalize_resource(
 }
 
 
-}  //namespace knp::backends::cpu::populations::shared::stdp
+}  //namespace knp::backends::cpu::populations::impl::shared::stdp

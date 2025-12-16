@@ -21,7 +21,7 @@
 
 #include <knp/core/population.h>
 
-namespace knp::backends::cpu::populations::blifat
+namespace knp::backends::cpu::populations::impl::blifat
 {
 
 /**
@@ -34,4 +34,4 @@ using BlifatNeuron = knp::neuron_traits::BLIFATNeuron;
  */
 using STDPBlifatNeuron = knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron;
 
-}  //namespace knp::backends::cpu::populations::blifat
+}  //namespace knp::backends::cpu::populations::impl::blifat

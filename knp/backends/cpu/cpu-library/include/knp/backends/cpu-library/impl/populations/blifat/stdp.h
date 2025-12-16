@@ -1,7 +1,7 @@
 /**
  * @file stdp.h
  * @kaspersky_support Postnikov D.
- * @date 08.12.2025
+ * @date 12.12.2025
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
@@ -19,7 +19,7 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/temp_impl/populations/shared/stdp.h>
+#include <knp/backends/cpu-library/impl/populations/shared/stdp.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/messaging/messaging.h>
 
@@ -28,13 +28,13 @@
 
 #include "shared.h"
 
-namespace knp::backends::cpu::populations::altai
+namespace knp::backends::cpu::populations::impl::blifat
 {
 
 template <typename Synapse>
 inline void process_spiking_neurons_impl(
     const core::messaging::SpikeMessage &msg, std::vector<knp::core::Projection<Synapse> *> const &working_projections,
-    knp::core::Population<STDPAltaiNeuron> &population, uint64_t step)
+    knp::core::Population<STDPBlifatNeuron> &population, uint64_t step)
 {
     using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     // It's very important that during this function no projection invalidates iterators.
@@ -46,7 +46,7 @@ inline void process_spiking_neurons_impl(
         auto &neuron = population[spiked_neuron_index];
         neuron.last_spike_step_ = step;
         // Calculate neuron ISI status.
-        shared::stdp::update_isi<AltaiNeuron>(neuron, step);
+        shared::stdp::update_isi<knp::neuron_traits::BLIFATNeuron>(neuron, step);
         if (neuron_traits::ISIPeriodType::period_started == neuron.isi_status_)
         {
             neuron.stability_ -= neuron.stability_change_at_isi_;
@@ -56,7 +56,6 @@ inline void process_spiking_neurons_impl(
         for (auto *synapse : synapse_params)
         {
             neuron.additional_threshold_ += synapse->weight_ * (synapse->weight_ > 0);
-            //TODO point of concern, what if step < dopamine_plasticity_period_ ?
             const bool had_spike = shared::stdp::is_point_in_interval(
                 step - synapse->rule_.dopamine_plasticity_period_, step,
                 synapse->rule_.last_spike_step_ + synapse->delay_ - 1);
@@ -92,6 +91,7 @@ inline void process_spiking_neurons_impl(
                 {
                     // 2. If it did, then update synaptic resource value.
                     const float d_h = neuron.d_h_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+
                     synapse->rule_.synaptic_resource_ += d_h;
                     neuron.free_synaptic_resource_ -= d_h;
                     synapse->rule_.had_hebbian_update_ = true;
@@ -103,11 +103,10 @@ inline void process_spiking_neurons_impl(
         shared::stdp::recalculate_synapse_weights<knp::synapse_traits::DeltaSynapse>(synapse_params);
     }
 }
-
 template <typename Synapse>
 inline void do_dopamine_plasticity_impl(
     std::vector<knp::core::Projection<Synapse> *> const &working_projections,
-    knp::core::Population<STDPAltaiNeuron> &population, uint64_t step)
+    knp::core::Population<STDPBlifatNeuron> &population, uint64_t step)
 {
     using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     using SynapseParamType = knp::synapse_traits::synapse_parameters<SynapseType>;
@@ -131,6 +130,7 @@ inline void do_dopamine_plasticity_impl(
                     // Change synapse resource.
                     float d_r =
                         neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
+
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;
                 }
@@ -157,7 +157,7 @@ inline void do_dopamine_plasticity_impl(
 }
 
 inline void teach_population_impl(
-    knp::core::Population<STDPAltaiNeuron> &population,
+    knp::core::Population<STDPBlifatNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
@@ -173,4 +173,4 @@ inline void teach_population_impl(
     shared::stdp::renormalize_resource(projections, population, step);
 }
 
-}  //namespace knp::backends::cpu::populations::altai
+}  //namespace knp::backends::cpu::populations::impl::blifat

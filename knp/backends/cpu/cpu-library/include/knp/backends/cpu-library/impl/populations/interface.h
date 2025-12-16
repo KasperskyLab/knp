@@ -26,7 +26,7 @@
 
 #include <vector>
 
-namespace knp::backends::cpu::populations
+namespace knp::backends::cpu::populations::impl
 {
 
 /**
@@ -79,7 +79,7 @@ void teach_population_interface(
     throw std::runtime_error("Unsupported neuron-synapse pair type combination");
 }
 
-}  // namespace knp::backends::cpu::populations
+}  // namespace knp::backends::cpu::populations::impl
 
 #include "altai/interface.h"
 #include "blifat/interface.h"
