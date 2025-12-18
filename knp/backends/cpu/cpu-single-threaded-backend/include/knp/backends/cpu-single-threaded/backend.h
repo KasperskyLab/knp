@@ -321,18 +321,18 @@ protected:
 
     /**
      * @brief Calculate population of BLIFAT neurons.
-     * @note Population will be changed during calculation.
+     * @note Population state will be changed during calculation.
      * @param population population to calculate.
-     * @return copy of a spike message if population is emitting one.
+     * @return spike message with indexes of spiked neurons if population is emitting one.
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::BLIFATNeuron> &population);
 
     /**
      * @brief Calculate population of `SynapticResourceSTDPNeuron` neurons.
-     * @note Population will be changed during calculation.
+     * @note Population state will be changed during calculation.
      * @param population population to calculate.
-     * @return optional `SpikeMessage`.
+     * @return spike message with indexes of spiked neurons if population is emitting one.
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population);
@@ -351,8 +351,8 @@ protected:
     /**
      * @brief Calculate population of 'AltAILIF' neurons.
      * @note Population state will be changed during calculation.
-     * @param population  population to calculate.
-     * @return optional 'SpikeMessage'.
+     * @param population population to calculate.
+     * @return spike message with indexes of spiked neurons if population is emitting one.
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::AltAILIF> &population);

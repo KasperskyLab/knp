@@ -96,17 +96,17 @@ public:
     }
 
     /**
-     * @brief Function type for message handlers.
+     * @brief Message handler function type.
      */
     using SpikeHandlerFunction =
         std::function<knp::core::messaging::SpikeData(std::vector<knp::core::messaging::SpikeMessage> &)>;
 
     /**
-     * @brief Add spike message handler to executor.
-     * @param message_handler_function functor to process received messages.
+     * @brief Add spike message handler to the model executor.
+     * @param message_handler_function functor to process spike messages.
      * @param senders list of entities sending messages to the handler.
-     * @param receivers list of entities receiving messages from handler.
-     * @param uid handler uid.
+     * @param receivers list of entities receiving messages from the handler.
+     * @param uid handler UID.
      */
     void add_spike_message_handler(
         SpikeHandlerFunction &&message_handler_function, const std::vector<core::UID> &senders,

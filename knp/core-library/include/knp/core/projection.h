@@ -96,6 +96,16 @@ public:
      */
     using SynapseGenerator = std::function<std::optional<Synapse>(size_t)>;
 
+    /**
+     * @brief Type of the container that contains synapses.
+     */
+    using SynapsesContainer = std::vector<Synapse>;
+
+    /**
+     * @brief Iterator for synapses.
+     */
+    using iterator = typename SynapsesContainer::iterator;
+
 public:
     /**
      * @brief Shared synapse parameters for the non-STDP variant of the projection.
@@ -383,7 +393,7 @@ private:
     /**
      * @brief Container of synapse parameters.
      */
-    std::vector<Synapse> parameters_;
+    SynapsesContainer parameters_;
     // So far the index is mutable so we can reindex a const object that has a non-updated index.
     struct Connection
     {

@@ -54,6 +54,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Set git options
+        run: git config --global --add safe.directory "*"
+        shell: bash
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
@@ -83,9 +86,9 @@ jobs:
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
         timeout-minutes: 180
 
-      - name: Analyze C++ code with PVS Studio
-        if: matrix.arch == 'amd64'
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image bash -c 'pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }} && cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }} --target pvs-analyze'
+#      - name: Analyze C++ code with PVS Studio
+#        if: matrix.arch == 'amd64'
+#        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image bash -c 'pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }} && cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }} --target pvs-analyze'
 
       - name: C++ tests
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V
@@ -127,7 +130,7 @@ jobs:
 
       # Set up a matrix to run:
       matrix:
-        os: [macos-13, windows-latest]
+        os: [macos-13, windows-2022]
         build_type: [Debug]
         c_compiler: [clang, cl]
         include:
@@ -137,14 +140,14 @@ jobs:
             boost_install_dir: /Users/runner/work/boost/knp
             boost_platform_version: 13
             boost_toolset: clang
-          - os: windows-latest
+          - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
             boost_install_dir: C:/
             boost_platform_version: 2022
             boost_toolset: msvc
         exclude:
-          - os: windows-latest
+          - os: windows-2022
             c_compiler: clang
           - os: macos-13
             c_compiler: cl
@@ -153,6 +156,9 @@ jobs:
       # NTFS protection must be enabled to prevent files with names containing '\'.
       # - run: git config --global core.protectNTFS false
       - uses: actions/checkout@v4
+      - name: Set git options
+        run: git config --global --add safe.directory "*"
+        shell: bash
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings

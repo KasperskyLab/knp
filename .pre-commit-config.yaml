@@ -10,7 +10,7 @@ repos:
   # Common
   #
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.4.0"
+    rev: "v6.0.0"
     hooks:
       - id: check-case-conflict
       - id: trailing-whitespace
@@ -28,7 +28,7 @@ repos:
   # Git.
   #
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.4.0"
+    rev: "v6.0.0"
     hooks:
       - id: check-merge-conflict
       # - id: no-commit-to-branch
@@ -126,14 +126,14 @@ repos:
   # Python
   #
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.4.0"
+    rev: "v6.0.0"
     hooks:
       - id: debug-statements
       - id: check-docstring-first
       - id: requirements-txt-fixer
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.0
+    rev: v2.3.1
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
@@ -145,7 +145,7 @@ repos:
           - --remove-unused-variables
 
   - repo: https://github.com/pycqa/pylint
-    rev: "v3.0.0a7"  # pylint-2.14.5
+    rev: "v4.0.4"  # pylint-2.14.5
     hooks:
       - id: pylint
         args: ["-rn", "-sn", "--rcfile=knp/python-framework/packaging/common/.pylintrc", "--fail-on=I", "--load-plugins=pylint.extensions.docparams"]
@@ -156,7 +156,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.3.0
     hooks:
       - id: flake8
         args: ["--config", "knp/.flake8"]
@@ -172,12 +172,12 @@ repos:
   #      language_version: python3
 
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.6.2
+    rev: v4.5.0
     hooks:
       - id: validate_manifest
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.19.0
     hooks:
       - id: mypy
         args: ["--config-file", "knp/.mypy.ini", "--install-types", "--explicit-package-bases", "--check-untyped-defs", "--scripts-are-modules", "--strict"]
@@ -199,25 +199,25 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data|python/
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
 
   - repo: https://github.com/ambv/black
-    rev: "23.7.0"
+    rev: "25.12.0"
     hooks:
       - id: black
         args: ["-l", "120", "--skip-string-normalization"]
 
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
+    rev: v0.7.5
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.9.2
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
@@ -267,6 +267,6 @@ repos:
   #    - id: markdownlint
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: "0.7.16"
+    rev: "1.0.0"
     hooks:
      - id: mdformat

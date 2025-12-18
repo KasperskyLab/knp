@@ -100,8 +100,9 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
     }
 
     /**
-     * @brief Coefficient for a synapse-dependent part of neuron activation threshold.
-     * @note Potential threshold is a sum of base threshold, dynamic threshold and synapse-dependent threshold.
+     * @brief Coefficient for the `additional_threshold_` neuron parameter.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
     float synapse_sum_threshold_coefficient_ = 0.0F;
 
@@ -162,12 +163,12 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
     ISIPeriodType isi_status_ = ISIPeriodType::not_in_period;
 
     /**
-     * @brief Last non-forced spike step.
+     * @brief Last step for a non-forced spike.
      */
     uint64_t last_step_ = 0;
 
     /**
-     * @brief Last any spike step.
+     * @brief Last step for any spike.
      */
     uint64_t last_spike_step_ = 0;
 

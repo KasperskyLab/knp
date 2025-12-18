@@ -31,15 +31,12 @@ project(knp_python_framework VERSION "${KNP_VERSION}" LANGUAGES C CXX  # PYTHON
         DESCRIPTION "Kaspersky Neuromorphic Platform Python framework library"
         HOMEPAGE_URL "https://neuro.kaspersky.ru/neyromorfnye-tekhnologii/")
 
-if (MSVC)
-    message(STATUS "Temporarily cannot be built under Windows.")
-    return()
-endif()
-
 if (NOT KNP_PYTHON_FRAMEWORK_BUILD)
     message(STATUS "Python framework building disabled.")
     return()
 endif()
+
+message(STATUS "Python framework building enabled.")
 
 if (Boost_ROOT)
     set(Boost_USE_STATIC_LIBS ON)
@@ -47,14 +44,26 @@ if (Boost_ROOT)
 endif()
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS python CONFIG)
+message(STATUS "Python version: ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.${Python3_VERSION_PATCH}")
 
-if (NOT BOOST_PYTHON_FOUND)
-    file(GLOB _KNP_PY_VER "${BOOST_LIBRARYDIR}/*boost_python*.[lib|a]")
+if (WIN32)
+    find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} CONFIG)
+else()
+    find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS python CONFIG)
+endif()
+
+if (NOT Boost_PYTHON_FOUND)
+    message(WARNING "Correct Boost::Python was not found, trying heuristic search...")
+    file(GLOB _KNP_PY_VER "${BOOST_LIBRARYDIR}/*boost_python*.*")
+
     if (_KNP_PY_VER)
         list(GET _KNP_PY_VER 0 _KNP_PY_VER)
         string(REGEX REPLACE ".+python([0-9]+).*[\n\r]*" "\\1" _KNP_PY_VER "${_KNP_PY_VER}")
+    else()
+        message(FATAL_ERROR "\"${BOOST_LIBRARYDIR}/*boost_python*.*\" was not found!")
     endif()
+
+    message(NOTICE "Trying to find Boost::Python library version: python${_KNP_PY_VER}")
     find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS python${_KNP_PY_VER} REQUIRED)
 endif()
 

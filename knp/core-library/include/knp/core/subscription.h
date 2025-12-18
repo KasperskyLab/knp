@@ -115,13 +115,13 @@ public:
     /**
      * @brief Add a message to the subscription.
      * @param message message to add.
-     * @note move
+     * @note Move method.
      */
     void add_message(MessageType &&message) { messages_.push_back(std::move(message)); }
     /**
      * @brief Add a message to the subscription.
      * @param message constant message to add.
-     * @note copy
+     * @note Copy method.
      */
     void add_message(const MessageType &message) { messages_.push_back(message); }
 

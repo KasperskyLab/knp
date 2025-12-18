@@ -80,8 +80,8 @@ public:
     auto &operator[](const std::string &name) { return get_tag(name); }
 
     /**
-     * @brief Return true if no tag specified.
-     * @return bool.
+     * @brief Check if tag is specified.
+     * @return `true` if no tag is specified, `false` otherwise.
      */
     [[nodiscard]] bool empty() const noexcept { return tags_.empty(); }
 

@@ -68,26 +68,69 @@ struct BackendWrapper : core::Backend, py::wrapper<core::Backend>
     {
         this->get_override("remove_populations")(uids);
     }
+
+    std::vector<std::unique_ptr<core::Device>> get_devices_vector(const std::string &method_name) const
+    {
+        auto py_result = boost::python::list(this->get_override(method_name.c_str())());
+        const auto dev_count = boost::python::len(py_result);
+
+        std::vector<std::unique_ptr<core::Device>> f_result;
+        f_result.reserve(dev_count);
+
+        for (std::remove_const_t<decltype(dev_count)> i = 0; i < dev_count; ++i)
+        {
+            boost::python::extract<core::Device *> extractor(py_result[i]);
+            if (extractor.check())
+            {
+                core::Device *dev = extractor();
+                // py_result[i].release();
+                f_result.emplace_back(dev);
+            }
+            else
+            {
+                // Error.
+            }
+        }
+
+		return f_result;
+    }
+
+/*
     std::vector<std::unique_ptr<core::Device>> get_devices() const override
     {
-        // return py::call<std::vector<std::unique_ptr<core::Device>>>(this->get_override("get_devices").ptr());
-        return {};
+        // return get_devices_vector("get_devices");
+        return this->get_override("get_devices");
     }
+
     std::vector<std::unique_ptr<knp::core::Device>> &get_current_devices()
     {
-        return this->get_override("get_current_devices")();
+        // return get_devices_vector("get_current_devices");
+        return this->get_override("get_current_devices");
     }
+
     const std::vector<std::unique_ptr<core::Device>> &get_current_devices() const
     {
-        return this->get_override("get_current_devices")();
+        // return get_devices_vector("get_current_devices");
+        return this->get_override("get_current_devices");
     }
+*/
     void select_devices(const std::set<core::UID> &uids) override { this->get_override("select_devices")(uids); }
-    void select_device(std::unique_ptr<core::Device>&& device) override { this->get_override("select_device")(device); }
+    void select_device(std::unique_ptr<core::Device> &&device) override { this->get_override("select_device")(device); }
+
+/*
     const core::MessageEndpoint &get_message_endpoint() const override
     {
-        return this->get_override("get_message_endpoint")();
+        // Warning: possibly error.
+        // return reinterpret_cast<const knp::core::MessageEndpoint &>(this->get_override("get_message_endpoint")());
+        return reinterpret_cast<const knp::core::MessageEndpoint &>(this->get_override("get_message_endpoint")());
     }
-    core::MessageEndpoint &get_message_endpoint() override { return this->get_override("get_message_endpoint")(); }
+
+    knp::core::MessageEndpoint &get_message_endpoint()
+    {
+        // Warning: possibly error.
+        return reinterpret_cast<knp::core::MessageEndpoint &>(this->get_override("get_message_endpoint")());
+    }
+*/
     void stop_learning() override { this->get_override("stop_learning")(); }
     void start_learning() override { this->get_override("start_learning")(); }
     void _step() override { this->get_override("step")(); }

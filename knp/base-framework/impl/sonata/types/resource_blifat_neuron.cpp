@@ -90,6 +90,7 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
     PUT_NEURON_TO_DATASET(population, absolute_refractory_period_, group0);
     PUT_NEURON_TO_DATASET(population, potential_reset_value_, group0);
     PUT_NEURON_TO_DATASET(population, min_potential_, group0);
+    PUT_NEURON_TO_DATASET(population, stochastic_stimulation_, group0);
 
     // Synaptic rule parameters.
     // TODO: Do we need to split them into static-dynamic as well? Probably not.
@@ -125,6 +126,7 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
     PUT_NEURON_TO_DATASET(population, total_blocking_period_, dynamic_group0);
     PUT_NEURON_TO_DATASET(population, dopamine_value_, dynamic_group0);
     PUT_NEURON_TO_DATASET(population, additional_threshold_, dynamic_group0);
+    PUT_NEURON_TO_DATASET(population, random_number_generator_state_, dynamic_group0);
 }
 
 

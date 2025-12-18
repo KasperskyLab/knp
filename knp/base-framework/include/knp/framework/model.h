@@ -118,12 +118,12 @@ public:
     }
 
     /**
-     * @brief Return all input channels UIDs.
+     * @brief Get all input channels UIDs.
      * @return map of input channels to projections.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_input_channels() const;
     /**
-     * @brief Return all output channels UIDs.
+     * @brief Get all output channels UIDs.
      * @return map of output channels to populations.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_output_channels() const;

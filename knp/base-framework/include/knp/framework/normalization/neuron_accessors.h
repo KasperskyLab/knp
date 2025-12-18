@@ -1,6 +1,6 @@
 /**
  * @file neuron_accessors.h
- * @brief Neuron field accessor functions.
+ * @brief Neuron parameter accessor functions.
  * @kaspersky_support Artiom N.
  * @date 30.07.2025
  * @license Apache 2.0
@@ -33,14 +33,14 @@ namespace knp::framework::normalization
 {
 
 /**
- * @brief The NeuronAccessor class need to access neuron `potential_` field.
- * @tparam NeuronType type of the neuron.
+ * @brief The `PotentialAccessor` class is a definition of an interface that provides access to neuron potential parameter (potential_). 
+ * @tparam NeuronType type of the neuron to access.
  */
 template <typename NeuronType>
 struct PotentialAccessor
 {
     /**
-     * @brief Neuron parameters type.
+     * @brief Type of neuron parameters.
      */
     using NeuronParametersType = typename knp::core::Population<NeuronType>::NeuronParameters;
     /**
@@ -49,16 +49,16 @@ struct PotentialAccessor
     using PotentialType = decltype(NeuronParametersType::potential_);
 
     /**
-     * @brief return potential.
+     * @brief Get neuron potential.
      * @param neuron_params neuron parameters.
-     * @return neuron potential value.
+     * @return value of the neuron potential.
      */
     PotentialType operator()(const NeuronParametersType &neuron_params) const { return neuron_params.potential_; }
 
     /**
-     * @brief perfrorms potential correction.
-     * @param neuron_params synapse parameters.
-     * @param potential neuron ptential.
+     * @brief Correct the neuron potential value.
+     * @param neuron_params neuron parameters.
+     * @param potential new neuron potential value to set.
      */
     void operator()(NeuronParametersType &neuron_params, const PotentialType &potential) const
     {

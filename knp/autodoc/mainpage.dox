@@ -7,13 +7,12 @@ The Kaspersky Neuromorphic Platform ("KNP" or "platform") is a software platform
 You can use Kaspersky Neuromorphic Platform to do the following:
 @li Create spiking neural networks (SNNs) and train these on various types of input data, such as telemetry, events, images, 3D data, audio, and tactile data.
 @li Convert artificial neural networks (ANNs) into spiking networks and train these.
-@li Optimize the structure of the loaded neural networks.
 @li Conduct applied research in the field of input data classification and other application domains of neural networks.
 @li Develop new neural network topologies, for example, impulse analogs of convolutional neural networks that involve convolution in space and time.
 @li Develop new models of synaptic plasticity.
 @li Implement new neuron models.
 @li Implement application solutions based on neuromorphic spiking neural networks in the field of robotic manipulators, Internet of Things, unmanned systems, human-machine interaction, wearable devices, and optimization planning.
-@li Implement application solutions on devices with low power consumption or using neuromorphic processors.
+@li Implement application solutions on devices with low power consumption using neuromorphic processors.
 
 You can use the C++ and Python languages to accomplish these tasks. The platform supports CPUs as well as the AltAI-1 neuromorphic processor unit designed for energy-efficient execution of neural networks in various types of intelligent devices.
 

@@ -39,15 +39,15 @@ namespace knp::framework::normalization
 {
 
 /**
- * @brief Iterate over synapses in projection normalize parameters.
- * @tparam SynapseType Type of the synapse to change parameter.
- * @tparam DataGetter Type of the class containing method to get parameter value.
- * @tparam DataSetter Type of the class containing method to set parameter value.
- * @tparam ValueCorrector Function to change value.
- * @param projection Projection to change parameters.
- * @param getter Synapse field getter.
- * @param setter Synapse field setter.
- * @param corrector Function used for the value normalization.
+ * @brief Normalize parameters of synapses in a projection.
+ * @tparam SynapseType type of the synapse whose parameters you want to normalize.
+ * @tparam DataGetter type of the class containing method to get parameter value.
+ * @tparam DataSetter type of the class containing method to set parameter value.
+ * @tparam ValueCorrector type of the normalization function for synapse parameters.
+ * @param projection projection whose synapse parameters you want to normalize.
+ * @param getter class used to get synapse parameter value.
+ * @param setter class used to set synapse parameter value.
+ * @param corrector function used to normalize synapse parameter.
  */
 template <
     typename SynapseType, template <typename> typename DataGetter, template <typename> typename DataSetter,
@@ -66,12 +66,12 @@ void normalize_synapses(
 
 
 /**
- * @brief Iterate over all synapses in the network and normalize parameters.
- * @tparam DataGetter Type of the class containing method to get parameter value.
- * @tparam DataSetter Type of the class containing method to set parameter value.
- * @tparam ValueCorrector Function to change value.
- * @param network Network to normalize weights.
- * @param corrector Function used for the value normalization.
+ * @brief Normalize parameters of all synapses in a network.
+ * @tparam DataGetter type of the class containing method to get parameter value.
+ * @tparam DataSetter type of the class containing method to set parameter value.
+ * @tparam ValueCorrector type of the normalization function for synapse parameters.
+ * @param network network whose projection synapse parameters you want to normalize.
+ * @param corrector function used to normalize synapse parameter.
  */
 template <
     template <typename> typename DataGetter, template <typename> typename DataSetter,
@@ -94,12 +94,12 @@ void normalize_synapses(knp::framework::Network &network, ValueCorrector correct
 
 
 /**
- * @brief Iterate over all synapses in the network and normalize parameters.
- * @tparam DataGetter Type of the class containing method to get parameter value.
- * @tparam DataSetter Type of the class containing method to set parameter value.
- * @tparam ValueCorrector Function to change value.
- * @param network Network to normalize synapse fields.
- * @param corrector Function used for the value normalization.
+ * @brief Normalize parameters of all synapses in a network and copy them to a new `Network` object.
+ * @tparam DataGetter type of the class containing method to get parameter value.
+ * @tparam DataSetter type of the class containing method to set parameter value.
+ * @tparam ValueCorrector type of the normalization function for synapse parameters.
+ * @param network network whose projection synapse parameters you want to normalize.
+ * @param corrector function used to normalize synapse parameter.
  * @return copy of the network with normalized synapses.
  */
 template <
@@ -111,7 +111,7 @@ knp::framework::Network normalize_synapses(const knp::framework::Network &networ
 
     normalize_synapses<DataGetter, DataSetter>(new_network, corrector);
 
-    return network;
+    return new_network;
 }
 
 }  // namespace knp::framework::normalization

@@ -1,6 +1,6 @@
 /**
  * @file result.h
- * @brief Structure to hold inference results.
+ * @brief Header file for inference results.
  * @kaspersky_support D. Postnikov
  * @date 16.07.2025
  * @license Apache 2.0
@@ -23,37 +23,45 @@
 
 #include <knp/core/impexp.h>
 
+
+/**
+ * @brief Namespace for classification model inference evaluation.
+ */
 namespace knp::framework::inference_evaluation::classification
 {
 
 /**
- * @brief Processed inference result for single class.
+ * @brief The `InferenceResult` structure represents inference results for a single class.
  */
 struct KNP_DECLSPEC InferenceResult
 {
     /**
-     * @brief Amount of times model, that is supposed  to predict dog, predicted dog when it is a dog.
+     * @brief Number of true positives for the class.
+     * @details A true positive occurs when the model correctly predicts the class.
      */
     size_t true_positives_ = 0;
 
     /**
-     * @brief Amount of times model, that is supposed to predict dog, predicted not a dog when it is a dog.
+     * @brief Number of false negatives for the class.
+     * @details A false negative occurs when the model fails to predict the class when it is present.
      */
     size_t false_negatives_ = 0;
 
     /**
-     * @brief Amount of times model, that is supposed to predict dog, predicted dog when it is not a dog.
+     * @brief Number of false positives for the class.
+     * @details A false positive occurs when the model predicts the class when it is not present.
      */
     size_t false_positives_ = 0;
 
     /**
-     * @brief Amount of times model, that is supposed to predict dog, predicted not a dog when it is a not a dog.
+     * @brief Number of true negatives for the class.
+     * @details A true negative occurs when the model correctly fails to predict the class when it is not present.
      */
     size_t true_negatives_ = 0;
 
     /**
-     * @brief Shortcut for getting total votes.
-     * @return Total votes.
+     * @brief Get total votes for the class.
+     * @return total votes for the class, which is the sum of true positives, false negatives, false positives, and true negatives.
      */
     [[nodiscard]] size_t get_total_votes() const { return true_positives_ + false_negatives_ + false_positives_; }
 };

@@ -35,20 +35,22 @@
 
 /**
  * @brief Namespace for framework projection creators.
- * @details Creators make generators
+ * @details Creators make generators.
  */
 namespace knp::framework::projection::creators
 {
 
 /**
- * @brief For populations of size `N x M` generates connections such as: `0 ->
+ * @brief Create a projection where every neuron in the presynaptic population is connected to every neuron in the 
+ * postsynaptic population.
+ * @details For populations of size `N x M` the method generates connections such as: `0 ->
  * 0`, `0 -> 1`, `0 -> 2`, ..., `0 -> M`, `1 -> 0`, `1 -> 1`, ..., `1 -> M`, ..., `N -> M`.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -66,16 +68,20 @@ template <typename SynapseType>
 
 
 /**
- * @brief For example if population0_size is 2 and population1_size is 4, then synapses amount
- * must be 4, and generator will create synapses as follows: 0-0, 0-1, 1-2, 1-3. So generator will distribute
- * connections evenly.
+ * @brief Create a projection where neurons in the presynaptic population are connected to neurons in the postsynaptic 
+ * population in an aligned manner.
+ * @details This function generates a projection with aligned connections, meaning that neurons from a population with 
+ * a less size have consequent connections with neurons from the other population, and the number of connections for 
+ * each neuron of a population with less size is determined by that size.
+ * For example, if the presynaptic population has 2 neurons and the postsynaptic population has 4 neurons, the connections 
+ * will be: (0, 0), (0, 1), (1, 2), (1, 3).
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size size of first population
- * @param postsynaptic_pop_size size of second population
- * @param syn_gen generator of synapse parameters
- * @return projection
- * tparam SynapseType projection synapse type
+ * @param presynaptic_pop_size size of the presynaptic population.
+ * @param postsynaptic_pop_size size of the postsynaptic population.
+ * @param syn_gen generator of synapse parameters.
+ * @return projection.
  */
 template <typename SynapseType>
 [[nodiscard]] knp::core::Projection<SynapseType> aligned(
@@ -92,16 +98,17 @@ template <typename SynapseType>
 
 
 /**
- * @brief For example if populations size is 3, then synapses amount is 6,
- * and generator will generate synapses as follows: 0-1, 0-2, 1-0, 1-2, 2-0, 2-1. So it excludes one synapse at a time.
- * @pre Population sizes must be equal.
+ * @brief Create a projection where each presynaptic population neuron to each postsynaptic population neuron with
+ * exception of neurons whose indexes are the same.
+ * @details For example, if the population size is 3, the connections will be: (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1).
+ * @pre The presynaptic and postsynaptic populations must have the same size.
  * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param pops_size size of populations, they are supposed to be the same
- * @param syn_gen generator of synapse parameters
- * @return projection
- * tparam SynapseType projection synapse type
+ * @param pops_size size of populations.
+ * @param syn_gen generator of synapse parameters.
+ * @return projection.
  */
 template <typename SynapseType>
 [[nodiscard]] knp::core::Projection<SynapseType> exclusive(
@@ -116,14 +123,14 @@ template <typename SynapseType>
 
 
 /**
- * @brief For the populations of size `N x N` generates connections such as: `0 -> 0`,
- * `1 -> 1`, `2 -> 2`, ..., `N -> N`.
- * @pre Population sizes must be equal.
+ * @brief Create a projection where every neuron in the presynaptic population is connected to the neuron with the same index.
+ * @details For example, if the population size is 3, the connections will be: (0, 0), (1, 1), (2, 2).
+ * @pre The presynaptic and postsynaptic populations must have the same size.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param population_size neuron count in populations.
+ * @param population_size size of populations.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -139,15 +146,15 @@ template <typename SynapseType>
 
 
 /**
- * @brief Generate projection from container.
+ * @brief Create a projection from container.
  * @details Container must contain synapses as `(parameters, from_index, to_index)` tuples,
  * where `parameters` are synapse parameters, `from_index` is presynaptic neuron index,
  * and `to_index` is postsynaptic neuron index.
+ * @tparam SynapseType neuron type.
+ * @tparam Container container type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
  * @param container container with synapses.
- * @tparam SynapseType neuron type.
- * @tparam Container container type.
  * @return projection.
  */
 template <typename SynapseType, template <typename...> class Container>
@@ -162,13 +169,13 @@ template <typename SynapseType, template <typename...> class Container>
 
 
 /**
- * @brief Generate projection from `std::map` object.
+ * @brief Create a projection from `std::map` object.
  * @details 'std::map' object must contain synapse parameters as values and `(from_index, to_index)` tuples as keys.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
  * @param synapses_map map with tuples containing indexes of presynaptic and postsynaptic neurons as keys
  *  and synapse parameters as values.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType, template <typename, typename, typename...> class Map>
@@ -184,16 +191,18 @@ template <typename SynapseType, template <typename, typename, typename...> class
 
 
 /**
- * @brief Make connections with some probability between each presynaptic population (source) neuron
- * to each postsynaptic population (destination) neuron.
+ * @brief Create a projection where connections between neurons in the presynaptic and postsynaptic populations 
+ * are established based on a fixed probability.
+ * @details The connection probability is specified by @p connection_probability which must be a value between 0 and 1.
+ * @note The actual number of connections in the projection may vary due to the random nature of the connection process.
  * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
- * @param connection_probability connection probability.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
+ * @param connection_probability probability of a connection between two neurons.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -212,14 +221,17 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make connections between neurons of presynaptic and postsynaptic populations
- * based on the synapse generation function result.
+ * @brief Create a projection where connections between neurons in the presynaptic and postsynaptic populations 
+ * are established based on a custom index-based connection rule.
+ * @details The connection rule is specified by @p syn_gen which must be a function that takes the presynaptic 
+ * and postsynaptic population sizes as input and returns a container of synapse parameters.
+ * @note The actual number of connections in the projection may vary depending on the connection rule.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -236,16 +248,17 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make connections between each presynaptic neuron and a fixed number of random postsynaptic neurons.
+ * @brief Create a projection where each neuron in the presynaptic population is connected to a fixed number of postsynaptic neurons.
  * @details This connector uses MT19937 generator with uniform integer distribution.
+ * @note The actual number of connections in the projection may vary depending on the number of postsynaptic neurons available.
  * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
  * @param neurons_count number of postsynaptic neurons.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -265,16 +278,17 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make connections between each postsynaptic neuron and a fixed number of random presynaptic neurons.
+ * @brief Create a projection where each neuron in the postsynaptic population is connected to a fixed number of presynaptic neurons.
  * @details This connector uses MT19937 generator with uniform integer distribution.
+ * @note The actual number of connections in the projection may vary depending on the number of presynaptic neurons available.
  * @warning It doesn't get "real" populations and can't be used with populations that contain non-contiguous indexes.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_uid presynaptic population UID.
  * @param postsynaptic_uid postsynaptic population UID.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
  * @param neurons_count number of presynaptic neurons.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return projection.
  */
 template <typename SynapseType>
@@ -294,16 +308,18 @@ template <typename SynapseType>
 
 
 /**
- * @brief Generate a projection which connections are duplicated from another projection.
- * @details Source and target projections can have different types.
- *          In this case synapse parameters will not be cloned.
+ * @brief Create a new projection by cloning the connections from an existing projection.
+ * @details Source and target projections can have different types. In this case, synapse parameters will not be cloned.
+ * The new projection has the same presynaptic and postsynaptic population UIDs as the source 
+ * projection, unless overridden by @p presynaptic_uid and @p postsynaptic_uid.
+ * @note The actual synapse parameters in the new projection may differ from those in the source projection, depending on the generator used.
  * @todo Clone synapse parameters when projection types are the same.
- * @param source_proj source projection.
+ * @tparam DestinationSynapseType generator of target synapse parameters.
+ * @tparam SourceSynapseType source projection synapse type.
+ * @param source_proj source projection to clone.
  * @param presynaptic_uid optional presynaptic population UID.
  * @param postsynaptic_uid optional postsynaptic population UID.
  * @param syn_gen generator of synapse parameters.
- * @tparam DestinationSynapseType generator of target synapse parameters.
- * @tparam SourceSynapseType source projection synapse type.
  * @return projection of the `DestinationSynapseType` synapses.
  */
 template <typename DestinationSynapseType, typename SourceSynapseType>

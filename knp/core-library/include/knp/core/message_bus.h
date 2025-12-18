@@ -51,19 +51,19 @@ class MessageBus
 public:
     /**
      * @brief Create a CPU-based message bus.
-     * @return message bus.
+     * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_cpu_bus();
 
     /**
      * @brief Create a ZMQ-based message bus.
-     * @return message bus.
+     * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_zmq_bus();
 
     /**
      * @brief Create a message bus with default implementation.
-     * @return message bus.
+     * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_bus() { return construct_cpu_bus(); }
 

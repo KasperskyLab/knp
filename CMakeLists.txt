@@ -24,6 +24,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+message(STATUS "cmake version ${CMAKE_VERSION}")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    # cmake > 4.0 does not support projects with minimal versions < 3.5
+    message(STATUS "Changing cmake minimum version to 3.5 globally")
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE INTERNAL "")
+endif()
+
 include(CMakeDependentOption)
 include(third-party)
 include(version)
@@ -193,15 +200,18 @@ if (KNP_ENABLE_AVX)
     # -include bits/stdc++.h
 endif()
 
-if (NOT KNP_MAINTAINER_BUILD AND KNP_BUILD_AUTONOMOUS)
-    execute_process(COMMAND pre-commit install
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    if(ret AND NOT ret EQUAL 0)
-        message(FATAL_ERROR "Cannot install pre-commit hooks.")
-    endif()
-    execute_process(COMMAND pre-commit install -t commit-msg
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-endif()
+# TODO: fix it!
+# An error has occurred: FatalError: git failed. Is it installed, and are you in a Git repository directory?
+# Check the log at /root/.cache/pre-commit/pre-commit.log
+#if (NOT KNP_MAINTAINER_BUILD AND KNP_BUILD_AUTONOMOUS)
+#    execute_process(COMMAND pre-commit install
+#                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+#    if(ret AND NOT ret EQUAL 0)
+#        message(FATAL_ERROR "Cannot install pre-commit hooks.")
+#    endif()
+#    execute_process(COMMAND pre-commit install -t commit-msg
+#                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+#endif()
 
 if (KNP_BUILD_TESTS)
     add_compile_definitions(SPDLOG_ACTIVE_LEVEL=0)
@@ -283,22 +293,29 @@ endmacro()
 # LibHDF5 and its dependencies.
 #
 
-add_third_party("https://gitlab.dkrz.de/k202009/libaec.git@1.1.3")
+#add_third_party("https://gitlab.dkrz.de/k202009/libaec.git@1.1.3")
 #add_third_party("gh:erdc/szip")
-
-add_third_party("gh:HDFGroup/hdf5#hdf5_1.14.4"
+add_third_party("gh:HDFGroup/hdf5#hdf5_1.14.6"
+			    USE_LOCAL_PACKAGES NO
                 GIT_SHALLOW ON
                 FIND_PACKAGE_ARGUMENTS "NAMES hdf5 libhdf5 hdf5-static"
                 OPTIONS
                     "HDF5_EXTERNALLY_CONFIGURED ON"
                     "HDF5_BUILD_DOC OFF"
                     "HDF5_NO_PACKAGES ON"
+                    "H5_ENABLE_STATIC_LIB ON"
                     "HDF5_BUILD_SHARED_LIBS ON"
                     "HDF5_BUILD_TOOLS OFF"
                     "HDF5_BUILD_UTILS OFF"
-                    "HDF5_VOL_ALLOW_EXTERNAL YES")  # "HDF5_ALLOW_EXTERNAL_SUPPORT GIT" SZIP_USE_EXTERNAL
+                    "HDF5_ENABLE_Z_LIB_SUPPORT OFF"
+                    "HDF5_USE_ZLIB_NG ON"
+                    "HDF5_USE_ZLIB_STATIC ON"
+                    "HDF5_VOL_ALLOW_EXTERNAL YES")
+#                    "ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/zlib-ng-build")  # "HDF5_ALLOW_EXTERNAL_SUPPORT GIT" SZIP_USE_EXTERNAL
 
-add_third_party("gh:BlueBrain/HighFive@2.9.0"
+include_directories("${CPM_PACKAGE_hdf5_SOURCE_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/_deps/hdf5-build/src") # $<BUILD_INTERFACE:${CPM_PACKAGE_hdf5_SOURCE_DIR}>
+
+add_third_party("gh:highfive-devs/highfive@3.1.0"
                 GIT_SHALLOW ON
                 OPTIONS
                     "HIGHFIVE_FIND_HDF5 OFF"
@@ -325,7 +342,7 @@ if ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(x86.*)|(X86.*)|(amd64)|(AMD64)" AND NO
     include_directories("${CPM_PACKAGE_pcm_SOURCE_DIR}/src")
 endif()
 
-add_third_party("gh:zeromq/cppzmq@4.10.0"
+add_third_party("gh:zeromq/cppzmq@4.11.0"
                 OPTIONS
                     "CPPZMQ_BUILD_TESTS OFF")
 

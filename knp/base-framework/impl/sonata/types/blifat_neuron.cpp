@@ -65,6 +65,7 @@ void save_static(const core::Population<knp::neuron_traits::BLIFATNeuron> &popul
     PUT_NEURON_TO_DATASET(population, absolute_refractory_period_, group);
     PUT_NEURON_TO_DATASET(population, potential_reset_value_, group);
     PUT_NEURON_TO_DATASET(population, min_potential_, group);
+    PUT_NEURON_TO_DATASET(population, stochastic_stimulation_, group);
 }
 
 
@@ -77,6 +78,7 @@ void save_dynamic(const core::Population<knp::neuron_traits::BLIFATNeuron> &popu
     PUT_NEURON_TO_DATASET(population, bursting_phase_, dynamic_group);
     PUT_NEURON_TO_DATASET(population, total_blocking_period_, dynamic_group);
     PUT_NEURON_TO_DATASET(population, dopamine_value_, dynamic_group);
+    PUT_NEURON_TO_DATASET(population, random_number_generator_state_, dynamic_group);
 }
 
 

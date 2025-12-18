@@ -40,8 +40,6 @@ include(knp-functions)
 
 file(GLOB_RECURSE ${PROJECT_NAME}_headers include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/*.h)
 
-knp_get_hdf5_target(HDF5_LIB)
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(ADD_LIBS "supc++")
 endif()
@@ -80,7 +78,7 @@ knp_add_library("${PROJECT_NAME}-core"
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
-        spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive ${HDF5_LIB} csv2
+        spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC

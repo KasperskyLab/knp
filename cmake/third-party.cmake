@@ -26,23 +26,31 @@ include(CPM)
 
 function(add_third_party module_name)
 #    add_git_submodule("${CMAKE_CURRENT_SOURCE_DIR}/third-party/${module_name}")
-    set(CPM_USE_LOCAL_PACKAGES ON)
+    set(options "")
+    set(one_value_args "USE_LOCAL_PACKAGES")
+    set(multi_value_args "")
+    cmake_parse_arguments(PARSED_ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
+
+    if (PARSED_ARGS_USE_LOCAL_PACKAGES)
+        set(CPM_USE_LOCAL_PACKAGES ON)
+    endif()
+
     if(NOT KNP_ROOT_DIR)
         set(KNP_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
 
     if(NOT "${module_name}" STREQUAL NAME)
-        cpm_parse_add_package_single_arg("${module_name};${ARGN}" ARGN)
+        cpm_parse_add_package_single_arg("${module_name};${PARSED_ARGS_UNPARSED_ARGUMENTS}" PARSED_ARGS_UNPARSED_ARGUMENTS)
         # The shorthand syntax implies EXCLUDE_FROM_ALL and SYSTEM
-        list(GET ARGN 1 _repo_name)
+        list(GET PARSED_ARGS_UNPARSED_ARGUMENTS 1 _repo_name)
         get_filename_component(_repo_name ${_repo_name} NAME)
-        CPMAddPackage(${ARGN}
+        CPMAddPackage(${PARSED_ARGS_UNPARSED_ARGUMENTS}
                       EXCLUDE_FROM_ALL YES
                       SYSTEM YES)
                       # SOURCE_DIR "${KNP_ROOT_DIR}/third-party/${_repo_name}")
     else()
-        list(GET ARGN 0 _m_name)
-        CPMAddPackage("${module_name}" ${ARGN}
+        list(GET PARSED_ARGS_UNPARSED_ARGUMENTS 0 _m_name)
+        CPMAddPackage("${module_name}" ${PARSED_ARGS_UNPARSED_ARGUMENTS}
                       EXCLUDE_FROM_ALL YES
                       SYSTEM YES)
                       # SOURCE_DIR "${KNP_ROOT_DIR}/third-party/${_m_name}")

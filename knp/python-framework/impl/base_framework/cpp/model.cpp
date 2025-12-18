@@ -32,7 +32,7 @@ py::class_<knp::framework::Model>("Model", "The Model class is a definition of a
     .add_property(
         "network", py::make_function(&get_network_from_model, py::return_value_policy<py::reference_existing_object>()),
         &set_network_to_model, "Network associated with model.")
-    .add_property("input_channels", &get_model_input_channels, "Return all input channels UIDs.")
-    .add_property("output_channels", &get_model_output_channels, "Return all output channels UIDs.");
+    .add_property("input_channels", &get_model_input_channels, "Get all input channels UIDs.")
+    .add_property("output_channels", &get_model_output_channels, "Get all output channels UIDs.");
 
 #endif  // KNP_IN_BASE_FW

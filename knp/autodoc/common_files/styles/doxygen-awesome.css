@@ -366,7 +366,7 @@ a.anchor {
 }
 
 #titlearea {
-    width: auto;
+    width: 100%;
     padding: var(--spacing-medium) var(--spacing-large);
     background: none;
     color: var(--header-foreground);
@@ -377,6 +377,10 @@ a.anchor {
     #titlearea {
         padding-bottom: var(--spacing-small);
     }
+}
+
+#titlearea table {
+    width: 100%;
 }
 
 #titlearea table tbody tr {

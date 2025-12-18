@@ -1,6 +1,6 @@
 /**
  * @file perfomance_metrics.h
- * @brief Functions to calculate model statistics.
+ * @brief Header file for performance metrics functions.
  * @kaspersky_support D. Postnikov
  * @date 24.07.2025
  * @license Apache 2.0
@@ -24,59 +24,66 @@
 #include <knp/core/messaging/messaging.h>
 
 
+/**
+ * @brief Namespace for inference evaluation.
+ */
 namespace knp::framework::inference_evaluation
 {
 
 /**
- * @brief Calculate precision.
- * @param true_positives Amount of times model, that is supposed to predict dog, predicted dog when it is a dog.
- * @param false_positives Amount of times model, that is supposed to predict dog, predicted dog when it is not a dog.
- * @return Precicion. true_positives / (true_positives + false_positives).
+ * @brief Calculate model precision.
+ * @details Precision is the ratio of true positives to the sum of true positives and false positives.
+ * It measures the proportion of correct predictions among all positive predictions made by the model.
+ * @param true_positives number of true positives.
+ * @param false_positives number of false positives.
+ * @return model precision.
  */
 KNP_DECLSPEC float get_precision(size_t true_positives, size_t false_positives);
 
 
 /**
- * @brief Calculate recall.
- * @param true_positives Amount of times model, that is supposed to predict dog, predicted dog when it is a dog.
- * @param false_negatives Amount of times model, that is supposed to predict dog, predicted not a dog when it is a dog.
- * @return Recall. true_positives / (true_positives + false_negatives).
+ * @brief Calculate model recall.
+ * @details Recall is the ratio of true positives to the sum of true positives and false negatives.
+ * It measures the proportion of correct predictions among all actual positive instances.
+ * @param true_positives number of true positives.
+ * @param false_negatives number of false negatives.
+ * @return model recall.
  */
 KNP_DECLSPEC float get_recall(size_t true_positives, size_t false_negatives);
 
 
 /**
- * @brief Calculate prevalence.
- * @param true_positives Amount of times model, that is supposed  to predict dog, predicted dog when it is a dog.
- * @param false_negatives Amount of times model, that is supposed to predict dog, predicted not a dog when it is a dog.
- * @param false_positives Amount of times model, that is supposed to predict dog, predicted dog when it is not a dog.
- * @param true_negatives Amount of times model, that is supposed to predict dog, predicted not a dog when it is a not a
- * dog.
- * @return Prevalence. (true_positives + false_negatives) / total_predictions.
+ * @brief Calculate model prevalence.
+ * @details Prevalence is the ratio of the sum of true positives and false negatives to the total number of instances.
+ * It measures the proportion of actual positive instances in the dataset.
+ * @param true_positives number of true positives.
+ * @param false_negatives number of false negatives.
+ * @param false_positives number of false positive.
+ * @param true_negatives number of true negatives.
+ * @return model prevalence.
  */
 KNP_DECLSPEC float get_prevalence(
     size_t true_positives, size_t false_negatives, size_t false_positives, size_t true_negatives);
 
 
 /**
- * @brief Calculate accuracy.
- * @param true_positives Amount of times model, that is supposed  to predict dog, predicted dog when it is a dog.
- * @param false_negatives Amount of times model, that is supposed to predict dog, predicted not a dog when it is a dog.
- * @param false_positives Amount of times model, that is supposed to predict dog, predicted dog when it is not a dog.
- * @param true_negatives Amount of times model, that is supposed to predict dog, predicted not a dog when it is a not a
- * dog.
- * @return Accuracy. (true_positives + true_negatives) / total_predictions.
+ * @brief Calculate model accuracy.
+ * @param true_positives number of true positives.
+ * @param false_negatives number of false negatives.
+ * @param false_positives number of false positive.
+ * @param true_negatives number of true negatives.
+ * @return model accuracy.
  */
 KNP_DECLSPEC float get_accuracy(
     size_t true_positives, size_t false_negatives, size_t false_positives, size_t true_negatives);
 
 
 /**
- * @brief Calculate F-score
- * @details F-score is a measure of predictive perfomance. Calculated as 2 * precision * recall / (precision + recall).
- * @param precision Precision.
- * @param recall Recall.
- * @return F-score.
+ * @brief Calculate model F-score
+ * @details F-score is the harmonic mean of precision and recall. It measures the balance between precision and recall.
+ * @param precision model precision.
+ * @param recall model recall.
+ * @return model F-score.
  */
 KNP_DECLSPEC float get_f_score(float precision, float recall);
 

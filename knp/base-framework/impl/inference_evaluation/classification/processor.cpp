@@ -33,9 +33,7 @@ namespace knp::framework::inference_evaluation::classification
 class EvaluationHelper
 {
 public:
-    explicit EvaluationHelper(
-        const knp::framework::data_processing::classification::Dataset &dataset,
-        std::vector<InferenceResult> &inference_results);
+    explicit EvaluationHelper(const knp::framework::data_processing::classification::Dataset &dataset);
 
     void process_spikes(const knp::core::messaging::SpikeData &firing_neuron_indices, size_t step);
 
@@ -55,14 +53,11 @@ private:
     std::vector<size_t> class_votes_;
 
     const knp::framework::data_processing::classification::Dataset &dataset_;
-    std::vector<InferenceResult> &inference_results_;
 };
 
 
-EvaluationHelper::EvaluationHelper(
-    const knp::framework::data_processing::classification::Dataset &dataset,
-    std::vector<InferenceResult> &inference_results)
-    : class_votes_(dataset.get_amount_of_classes(), 0), dataset_(dataset), inference_results_(inference_results)
+EvaluationHelper::EvaluationHelper(const knp::framework::data_processing::classification::Dataset &dataset)
+    : class_votes_(dataset.get_amount_of_classes(), 0), dataset_(dataset)
 {
 }
 
@@ -119,7 +114,7 @@ void InferenceResultsProcessor::process_inference_results(
     const std::vector<knp::core::messaging::SpikeMessage> &spikes,
     knp::framework::data_processing::classification::Dataset const &dataset)
 {
-    EvaluationHelper helper(dataset, inference_results_);
+    EvaluationHelper helper(dataset);
     knp::core::messaging::SpikeData firing_neuron_indices;
     auto spikes_iter = spikes.begin();
 

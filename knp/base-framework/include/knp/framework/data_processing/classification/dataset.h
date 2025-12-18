@@ -1,6 +1,6 @@
 /**
  * @file dataset.h
- * @brief Definition of classification dataset.
+ * @brief Header file for classification dataset definition.
  * @kaspersky_support D. Postnikov
  * @date 21.07.2025
  * @license Apache 2.0
@@ -29,15 +29,24 @@
 #include <vector>
 
 
-namespace knp::framework::data_processing::classification
+/**
+ * @brief Namespace for data processing.
+ */
+namespace knp::framework::data_processing
 {
 
 /**
- * @brief A class that represents  dataset.
- * @details Dataset is supposed to abstract from actual dataset processing, and dataset characteristics, for example
- * size of dataset. Size of dataset is not that important becase its all handled when dataset is split. Correct workflow
- * would be to firstly process dataset, then split it, and then you can use it as you want. Splitting dataset is
- * important because it also calculates amount of steps for training/inference.
+ * @brief Namespace for classification data processing.
+ */
+namespace classification
+{
+
+/**
+ * @brief The `Dataset` class is the base class for datasets.
+ * @details A dataset is supposed to be abstracted from its actual processing and characteristics, such as size.
+ * The size of the dataset is not a crucial factor, as it is handled during the splitting process. The correct
+ * workflow would be to first process a dataset, then split it, and finally use it for your purposes.
+ * Splitting the dataset is important because it calculates the number of steps required for inference and/or training.
  */
 class KNP_DECLSPEC Dataset
 {
@@ -48,151 +57,152 @@ protected:
     virtual ~Dataset() = default;
 
     /**
-     * @brief Default constructor.
+     * @brief Construct a default `Dataset` object.
      */
     Dataset() = default;
 
     /**
-     * @brief Copy constructor.
-     * @param dataset Dataset.
+     * @brief Construct a new `Dataset` object by copying the contents of another `Dataset` object.
+     * @param dataset the `Dataset` object to copy.
      */
     Dataset(const Dataset& dataset) = default;
 
     /**
-     * @brief Copy assignment operator.
-     * @param dataset Dataset.
-     * @return Dataset.
+     * @brief Assign the contents of another `Dataset` object to new object.
+     * @param dataset the `Dataset` object to copy.
+     * @return reference to new `Dataset` object.
      */
     Dataset& operator=(const Dataset& dataset) = default;
 
     /**
-     * @brief Move constructor.
-     * @param dataset Dataset.
+     * @brief Construct a new `Dataset` object by moving the contents of another `Dataset` object.
+     * @param dataset the `Dataset` object to move.
      */
     Dataset(Dataset&& dataset) = default;
 
     /**
-     * @brief Move assignment operator.
-     * @param dataset Dataset.
-     * @return Dataset.
+     * @brief Assign the contents of another `Dataset` object to new object, transferring ownership.
+     * @param dataset the `Dataset` object to move.
+     * @return reference to new `Dataset` object.
      */
     Dataset& operator=(Dataset&& dataset) = default;
 
 public:
     /**
-     * @brief TODO
-     * @param training_images_amount Amount of images for training.
-     * @param inference_images_amount Amount of images for inference.
+     * @brief Split dataset into training and inference based on given requirements.
+     * @pre Sum of given parameters should be less or equal to size of whole dataset.
+     * @param frames_for_training Amount of frames for training.
+     * @param frames_for_inference Amount of frames for inference.
      */
-    void split(size_t training_images_amount, size_t inference_images_amount);
-
-    /**
-     * @brief Split dataset on train/inference.
-     * @param split_percent Percentage that shows how to split dataset.
-     * @pre Must be from 0 to 1.
-     * @details For example split_percent=0.8 dataset will be split so 80% dedicated for tranining and 20% for
-     * inference. This function not only splits dataset, it also calculates amount of training/inference steps.
-     * If dataset it too big, for example dataset have 1000 records, but we want to train only on 100 records,
-     * this function will consider that. if split_percent is 0.8, then inference will be not 1000*(1-0.8)=200, but
-     * it will be calculated according to training amount, so inference size will be 100/0.8-100=25. So actual size of
-     * dataset is not that important.
-     */
-    virtual void split(float split_percent);
+    void split(size_t frames_for_training, size_t frames_for_inference);
 
 
     /**
-     * @brief Get data for training.
-     * @return Data for training.
+     * @brief Get training data, consisting of pairs of labels and frames.
+     * @return constant reference to the training data.
+     * @note The returned data is the result of the @ref split function, which allocates data for training.
      */
     [[nodiscard]] inline auto const& get_data_for_training() const { return data_for_training_; }
 
     /**
-     * @brief Get data for inference.
-     * @return Data for inference.
+     * @brief Get inference data, consisting of pairs of labels and frames.
+     * @return constant reference to the inference data.
+     * @note The returned data is the result of the @ref split function, which allocates data for inference.
      */
     [[nodiscard]] inline auto const& get_data_for_inference() const { return data_for_inference_; }
 
     /**
-     * @brief Get steps amount per frame.
-     * @return Steps amount per frame.
+     * @brief Get the number of steps each frame is distributed to.
+     * @return number of steps per frame.
      */
     [[nodiscard]] inline size_t get_steps_per_frame() const { return steps_per_frame_; }
 
     /**
-     * @brief Get amount of steps required for training.
-     * @return Amount of steps required for training.
+     * @brief Get the total number of steps required for training.
+     * @return number of steps required for training, calculated based on the training data and steps per frame.
      */
     [[nodiscard]] inline size_t get_steps_required_for_training() const { return steps_required_for_training_; }
 
     /**
-     * @brief Get steps amount required for inference.
-     * @return Steps amount required for inference.
+     * @brief Get the total number of steps required for inference.
+     * @return number of steps required for inference, calculated based on the inference data and steps per frame.
      */
     [[nodiscard]] inline size_t get_steps_required_for_inference() const { return steps_required_for_inference_; }
 
     /**
-     * @brief Get required training amount.
-     * @return Required training amount.
+     * @brief Get the user-specified amount of training data required.
+     * @return required training amount, which may affect the allocation of data for inference.
      */
     [[nodiscard]] inline size_t get_required_training_amount() const { return required_training_amount_; }
 
     /**
-     * @brief Get amount of classes..
-     * @return Amount of classes.
+     * @brief Get the number of classes in the dataset.
+     * @return number of classes.
      */
     [[nodiscard]] inline size_t get_amount_of_classes() const { return classes_amount_; }
 
     /**
-     * @brief A struct that represents a class instance in form of spikes.
-     * @details In classification we want to send class instance, that is converted to spikes form, in several steps.
-     * For example and image can be sent over 20 steps. This struct represents class instance data on those several
-     * steps. So it stores a vector of bools that represents where to send spikes over specified amount of steps. So
-     * with image example, length of this vector would be equal to steps_per_frame * image_size.
+     * @brief The structure represents a class instance in the form of spikes, distributed over multiple steps.
+     * @details This structure encapsulates the spike data for a class instance, which is transmitted over a series of
+     * steps. For example, an image might be sent over 20 steps, with each step representing a subset of the image data.
+     * The structure stores a vector of boolean values, where each value indicates whether a spike should be sent at a
+     * particular step. The length of this vector is determined by the product of the steps per frame and the size of
+     * the class instance data.
      */
     struct Frame
     {
         // cppcheck-suppress unusedStructMember
         /**
-         * @brief All spikes in frame.
+         * @brief A vector of boolean values representing the spike pattern for this frame.
+         * @note The length of this vector is equal to the number of steps per frame multiplied by the size of the class
+         * instance data.
          */
         std::vector<bool> spikes_;
     };
 
 protected:
     /**
-     * @brief Vector of pairs of label and frame.
+     * @brief Training data, consisting of pairs of labels and frames.
+     * @note This vector is modified by the @ref split function to allocate data for training.
      */
     std::vector<std::pair<unsigned, Frame>> data_for_training_;
 
     /**
-     * @brief Vector of pairs of label and frame.
+     * @brief Inference data, consisting of pairs of labels and frames.
+     * @note This vector is modified by the @ref split function to allocate data for inference.
      */
     std::vector<std::pair<unsigned, Frame>> data_for_inference_;
 
     /**
-     * @brief Amount of steps frame is discributed to.
+     * @brief Number of steps each frame is distributed to.
      */
     size_t steps_per_frame_ = 0;
 
     /**
-     * @brief Amount of steps required for training.
+     * @brief Total number of steps required for training, calculated based on @ref data_for_training_ and @ref
+     * steps_per_frame_.
      */
     size_t steps_required_for_training_ = 0;
 
     /**
-     * @brief Amount of steps required for inference.
+     * @brief Total number of steps required for inference, calculated based on @ref data_for_inference_ and @ref
+     * steps_per_frame_.
      */
     size_t steps_required_for_inference_ = 0;
 
     /**
-     * @brief Training amount required by user.
+     * @brief User-specified amount of training data required.
+     * @note If this value is less than the actual size of @ref data_for_training_, the @ref split function adjusts the
+     * inference data accordingly.
      */
     size_t required_training_amount_ = 0;
 
     /**
-     * @brief Amount of classes.
+     * @brief Number of classes in the dataset.
      */
     size_t classes_amount_ = 0;
 };
 
-}  // namespace knp::framework::data_processing::classification
+}  // namespace classification
+
+}  //namespace knp::framework::data_processing

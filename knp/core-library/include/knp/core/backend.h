@@ -153,6 +153,7 @@ public:
     /**
      * @brief Get a list of devices on which the backend runs a network.
      * @return list of devices.
+     * @todo remove this non-constant method?
      * @see Device.
      */
     [[nodiscard]] std::vector<std::unique_ptr<Device>> &get_current_devices() { return devices_; }
@@ -171,8 +172,8 @@ public:
     virtual void select_devices(const std::set<UID> &uids);
 
     /**
-     * @brief Select devices on which to run the backend.
-     * @param device selected for backend device.
+     * @brief Select a device on which to run the backend.
+     * @param device selected device.
      */
     virtual void select_device(std::unique_ptr<Device> &&device);
 
@@ -368,15 +369,14 @@ protected:
 
     /**
      * @brief Backend constructor with custom message bus implementation.
-     * @param message_bus message bus shared pointer.
+     * @param message_bus message bus.
      */
     explicit Backend(MessageBus &&message_bus);
 
     /**
      * @brief Backend constructor with custom message bus implementation.
-     * @param message_bus message bus.
+     * @param message_bus shared pointer to message bus.
      */
-
     explicit Backend(std::shared_ptr<MessageBus> message_bus);
     /**
      * @brief Get the current step and increase the step number.

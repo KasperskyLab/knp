@@ -45,10 +45,10 @@ namespace knp::framework::projection::synapse_generators
  * @details Simple generator that generates connections from source neuron index to all destination indexes and
  * otherwise. For populations of size `N x M` generates connections such as: `0 -> 0`, `0 -> 1`, `0 -> 2`, ...,
  * `0 -> M`, `1 -> 0`, `1 -> 1`, ..., `1 -> M`, ..., `N -> M`.
- * @param presynaptic_pop_size presynaptic population neuron count.
- * @param postsynaptic_pop_size postsynaptic population neuron count.
- * @param syn_gen generator of synapse parameters.
  * @tparam SynapseType projection synapse type.
+ * @param presynaptic_pop_size presynaptic population size.
+ * @param postsynaptic_pop_size postsynaptic population size.
+ * @param syn_gen generator of synapse parameters.
  * @return synapse generator.
  */
 template <typename SynapseType>
@@ -69,17 +69,18 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make connections between neurons of presynaptic and postsynaptic populations, so that neurons from a
- * population with a less size have consequent connections with neurons from the other population, and the number of
- * connections for each neuron of a population with less size is determined by that size.
- * @details For example if presynaptic population's size is 2 and postsynaptic population's size is 4, then synapses
- * amount must be 4, and generator will create synapses as follows: 0-0, 0-1, 1-2, 1-3. So generator will distribute
- * connections evenly.
- * @param presynaptic_pop_size size of first population.
- * @param postsynaptic_pop_size size of second population.
+ * @brief Create a synapse generator that distributes connections evenly between neurons of presynaptic and 
+ * postsynaptic populations.
+ * @details Synapse generator creates connections between neurons of two populations, 
+ * where the population with the smaller size has consecutive connections with neurons from the other population.
+ * The number of connections for each neuron in the smaller population is determined by its size.
+ * For example, if the presynaptic population has 2 neurons and the postsynaptic population has 4 neurons, 
+ * the generator will create synapses as follows: 0-0, 0-1, 1-2, 1-3.
+ * @tparam SynapseType projection synapse type.
+ * @param presynaptic_pop_size presynaptic population neuron count.
+ * @param postsynaptic_pop_size postsynaptic population neuron count.
  * @param syn_gen generator of synapse parameters.
  * @return synapse generator.
- * tparam SynapseType projection synapse type.
  */
 template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator aligned(
@@ -112,15 +113,15 @@ template <typename SynapseType>
 
 
 /**
- * @brief Make connections between each presynaptic population neuron to each postsynaptic population neuron with
- * exception of neurons whose indexes are the same.
- * @details For example if populations size is 3, then synapses amount is 6,
- * and generator will generate synapses as follows: 0-1, 0-2, 1-0, 1-2, 2-0, 2-1. So it excludes one synapse at a time.
+ * @brief Create a synapse generator that connects each presynaptic population neuron to each postsynaptic population 
+ * neuron with exception of neurons whose indexes are the same.
+ * @details For example, if the population size is 3, the generator will create synapses as follows: 0-1, 0-2, 1-0, 
+ * 1-2, 2-0, 2-1.
  * @pre Population sizes must be equal.
- * @param populations_size size of populations, they are supposed to be the same.
+ * @tparam SynapseType projection synapse type.
+ * @param populations_size neuron count in populations.
  * @param syn_gen generator of synapse parameters.
  * @return synapse generator.
- * tparam SynapseType projection synapse type.
  */
 template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator exclusive(
@@ -145,9 +146,9 @@ template <typename SynapseType>
  * @details Simple generator that generates connections from source neuron index to the same destination index.
  * For the populations of size `N x N` generates connections such as: `0 -> 0`, `1 -> 1`, `2 -> 2`, ..., `N -> N`.
  * @pre Population sizes must be equal.
+ * @tparam SynapseType projection synapse type.
  * @param population_size neuron count in populations.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return synapse generator.
  */
 template <typename SynapseType>
@@ -165,9 +166,9 @@ template <typename SynapseType>
  * @details Container must contain synapses as `(parameters, from_index, to_index)` tuples,
  * where `parameters` are synapse parameters, `from_index` is presynaptic neuron index,
  * and `to_index` is postsynaptic neuron index.
- * @param container container with synapses.
  * @tparam SynapseType neuron type.
  * @tparam Container container type.
+ * @param container container with synapses.
  * @return synapse generator.
  */
 template <typename SynapseType, template <typename...> class Container>
@@ -180,7 +181,7 @@ template <typename SynapseType, template <typename...> class Container>
 
 
 /**
- * @brief The FromMap class is a defintion of a generator of synapses from `std::map` or `std::unordered_map` object.
+ * @brief The FromMap class is a definition of a generator of synapses from `std::map` or `std::unordered_map` object.
  * @details 'std::map' object must contain synapse parameters as values and `(from_index, to_index)` tuples as keys.
  * @tparam SynapseType projection synapse type.
  * @tparam Map map class.
@@ -279,10 +280,10 @@ private:
 /**
  * @brief Make connections between neurons of presynaptic and postsynaptic populations
  * based on the synapse generation function result.
+ * @tparam SynapseType projection synapse type.
  * @param presynaptic_pop_size presynaptic population neuron count.
  * @param postsynaptic_pop_size postsynaptic population neuron count.
  * @param syn_gen generator of synapse parameters.
- * @tparam SynapseType projection synapse type.
  * @return synapse generator.
  */
 template <typename SynapseType>
@@ -410,10 +411,10 @@ private:
  * @details Source and target projections can have different types.
  * In this case projection types cannot be same.
  * @todo Clone synapse parameters when projection types are the same.
- * @param source_proj source projection.
- * @param syn_gen generator of synapse parameters.
  * @tparam DestinationSynapseType generator of target synapse parameters.
  * @tparam SourceSynapseType source projection synapse type.
+ * @param source_proj source projection.
+ * @param syn_gen generator of synapse parameters.
  * @return synapse generator.
  */
 template <typename DestinationSynapseType, typename SourceSynapseType>

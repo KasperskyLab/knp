@@ -31,10 +31,10 @@
 #include "train.h"
 
 constexpr size_t active_steps = 10;
-constexpr size_t steps_per_image = 20;
+constexpr size_t steps_per_image = 15;
 constexpr float state_increment_factor = 1.f / 255;
-constexpr size_t images_amount_to_train = 1000;
-constexpr float dataset_split = 0.8;
+constexpr size_t images_amount_to_train = 60000;
+constexpr size_t images_amount_to_test = 10000;
 constexpr size_t classes_amount = 10;
 
 namespace data_processing = knp::framework::data_processing::classification::images;
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     dataset.process_labels_and_images(
         images_stream, labels_stream, images_amount_to_train, classes_amount, input_size, steps_per_image,
         dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
-    dataset.split(dataset_split);
+    dataset.split(images_amount_to_train, images_amount_to_test);
 
     std::cout << "Processed dataset, training will last " << dataset.get_steps_required_for_training()
               << " steps, inference " << dataset.get_steps_required_for_inference() << " steps" << std::endl;

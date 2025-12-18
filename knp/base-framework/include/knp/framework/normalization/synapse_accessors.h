@@ -1,6 +1,6 @@
 /**
  * @file synapse_accessors.h
- * @brief Synapse field accessor functions.
+ * @brief Synapse parameter accessor functions.
  * @kaspersky_support Artiom N.
  * @date 23.07.2025
  * @license Apache 2.0
@@ -33,14 +33,14 @@ namespace knp::framework::normalization
 {
 
 /**
- * @brief The WeightAccessor class need to access `weight_` synapse field.
- * @tparam SynapseType Type of the synapse to correct.
+ * @brief The `WeightAccessor` class is a definition of an interface that provides access to synapse weight parameter (`weight_`).
+ * @tparam SynapseType type of the synapse to access.
  */
 template <typename SynapseType>
 struct WeightAccessor
 {
     /**
-     * @brief Synapse parameters type.
+     * @brief Type of synapse parameters.
      */
     using SynapseParametersType = typename knp::core::Projection<SynapseType>::SynapseParameters;
     /**
@@ -49,16 +49,16 @@ struct WeightAccessor
     using WeightType = decltype(SynapseParametersType::weight_);
 
     /**
-     * @brief return weight.
+     * @brief Get synapse weight.
      * @param syn_params synapse parameters.
-     * @return synapse weight value.
+     * @return value of the synapse weight.
      */
     WeightType operator()(const SynapseParametersType &syn_params) const { return syn_params.weight_; }
 
     /**
-     * @brief perfrorms weight correction.
+     * @brief Correct the synapse weight.
      * @param syn_params synapse parameters.
-     * @param weight synapse weight.
+     * @param weight new synapse weight value to set.
      */
     void operator()(SynapseParametersType &syn_params, const WeightType &weight) const { syn_params.weight_ = weight; }
 };

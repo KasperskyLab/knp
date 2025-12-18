@@ -31,21 +31,25 @@
 #include <vector>
 
 
+/**
+ * @brief Modifier namespace.
+ */
 namespace knp::framework::modifier
 {
 
 /**
- * @brief A modifier functor to process spikes and select random K spikes out of the whole set.
- * @note Only processes a single message.
+ * @brief The KWtaRandomHandler class is a definition of a message handler functor that processes 
+ * spike messages and selects random N spikes out of the whole set.
+ * @note The modifier processes only one message per step.
  */
 class KNP_DECLSPEC KWtaRandomHandler
 {
 public:
     /**
-     * @brief Constructor.
-     * @param winners_number Max number of output spikes.
+     * @brief Functor constructor.
+     * @param winners_number maximum number of groups to pass spikes further.
      * @param seed random generator seed.
-     * @note uses mt19937 for random number generation.
+     * @note The constructor uses `mt19937` generator algorithm for random number generation.
      */
     explicit KWtaRandomHandler(size_t winners_number = 1, int seed = 0)
         : num_winners_(winners_number), random_engine_(seed)
@@ -53,10 +57,11 @@ public:
     }
 
     /**
-     * @brief Function call operator that takes a number of messages and returns a set of spikes.
-     * @param messages spike messages.
-     * @return spikes data containing no more than K spikes.
-     * @note it's assumed that it gets no more than one message per step, so all messages except first are ignored.
+     * @brief Call operator to process a number of messages and return indexes of spiked neurons.
+     * @param messages vector of spike messages.
+     * @return random indexes of no more than N spiked neurons.
+     * @note It is assumed that the method receives no more than one message per step. 
+     * Therefore, all messages except the first one in the `messages` parameter are ignored.
      */
     knp::core::messaging::SpikeData operator()(std::vector<knp::core::messaging::SpikeMessage> &messages);
 
@@ -67,18 +72,25 @@ private:
 
 
 /**
- * @brief MessageHandler functor that only passes through spikes from no more than a fixed number of groups at once.
- * @note Group is considered to be winning if it is in the top K groups sorted by number of spikes in descending order.
- * @note If last place in the top K is shared between groups, the functor selects random ones among the sharing groups.
+ * @brief The GroupWtaRandomHandler class is a definition of a message handler functor that 
+ * passes spikes further from no more than a fixed number of groups at once.
+ * @details The functor divides spike messages into groups, then sorts the groups in the 
+ * descending order based on the number of spikes.
+ * @note If the last place in the top N is shared between groups, the functor selects randomly 
+ * among these groups.
  */
 class KNP_DECLSPEC GroupWtaRandomHandler
 {
 public:
     /**
      * @brief Functor constructor.
-     * @param group_borders right borders of the intervals.
-     * @param num_winning_groups max number of groups that are allowed to pass their spikes further.
-     * @param seed seed for internal random number generator.
+     * @note For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * is {2, 4}, the set of spike messages will be divided into the following groups: 
+     * [0, 1], [2, 3], and [4, 5].
+     * @param group_borders vector of spike message indexes that define right borders for 
+     * each group.
+     * @param num_winning_groups maximum number of groups that can pass their spikes further.
+     * @param seed random generator seed.
      */
     explicit GroupWtaRandomHandler(
         const std::vector<size_t> &group_borders, size_t num_winning_groups = 1, int seed = 0)
@@ -88,9 +100,10 @@ public:
     }
 
     /**
-     * @brief Function call operator.
-     * @param messages input messages.
-     * @return spikes from winning groups.
+     * @brief Call operator to divide spike messages into groups, sort them by number of spikes 
+     * and return indexes of spiked neurons from the top N groups.
+     * @param messages vector of spike messages.
+     * @return set of indexes of spikes neurons from the top N groups.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);
 
@@ -103,17 +116,22 @@ private:
 
 
 /**
- * @brief K spikes per group handler.
- * @note Input message is divided into independent groups and only k spikes from each group are allowed to pass.
+ * @brief The KWtaPerGroup class is a definition of a message handler functor that passes 
+ * further N spikes from each group.
+ * @details Input messages are divided into groups.
  */
 class KNP_DECLSPEC KWtaPerGroup
 {
 public:
     /**
      * @brief Functor constructor.
-     * @param group_borders right borders of the index intervals. Border is not included in the interval.
-     * @param winners_per_group the number of winning neurons per group.
-     * @param seed seed for internal random number generator.
+     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * is {2, 4}, the set of spike messages will be divided into the following groups: 
+     * [0, 1], [2, 3], and [4, 5]. 
+     * @param group_borders vector of spike message indexes that define right borders for 
+     * each group.
+     * @param winners_per_group number of spikes to pass further from each group.
+     * @param seed random generator seed.
      */
     explicit KWtaPerGroup(const std::vector<size_t> &group_borders, size_t winners_per_group = 1, int seed = 0)
         : group_borders_(group_borders), winners_per_group_(winners_per_group), random_engine_(seed)
@@ -122,9 +140,10 @@ public:
     }
 
     /**
-     * @brief Call operator, returns a set of N spikes.
-     * @param messages input messages.
-     * @return random winning spikes from each group.
+     * @brief Call operator to divide spike messages into groups and return random N indexes of 
+     * spiked messages from each group.
+     * @param messages vector of spike messages.
+     * @return set of random N indexes of spiked messages.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);
 
@@ -135,16 +154,17 @@ private:
 };
 
 /**
- * @brief Spike handler functor. An output vector has a spike if that spike was present in at least one input message.
+ * @brief The SpikeUnionHandler class is a definition of a message handler functor that 
+ * passes further indexes of neurons that spiked in at least one message.
  */
 class KNP_DECLSPEC SpikeUnionHandler
 {
 public:
     /**
-     * @brief Function call operator, receives a vector of messages, returns a union of all spike sets from those
-     * messages.
-     * @param messages incoming spike messages.
-     * @return spikes vector containing the union of input message spike sets.
+     * @brief Call operator to receive a vector of messages and return a set of indexes of 
+     * all spiked neurons.
+     * @param messages vector of spike messages.
+     * @return vector of neuron indexes that spiked in at least one message.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);
 };

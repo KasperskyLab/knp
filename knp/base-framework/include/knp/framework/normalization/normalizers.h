@@ -30,27 +30,27 @@
 namespace knp::framework::normalization
 {
 /**
- * @brief Synapse value corrector function type.
- * @tparam ValueType Type of the value to correct.
+ * @brief Type of the function to correct synapse values.
+ * @tparam ValueType type of the value to correct.
  */
 template <typename ValueType>
 using ValueCorrector = std::function<ValueType(const ValueType &)>;
 
 
 /**
- * @brief The Rescaler class need to rescale one interval to another.
- * @tparam ValueType rescaler in and out parameters type.
+ * @brief The `Rescaler` class is a definition of an interface used to scale values from one interval to another.
+ * @tparam ValueType type of values to rescale.
  */
 template <typename ValueType>
 class Rescaler
 {
 public:
     /**
-     * @brief Rescaler constructor.
-     * @param in_interval_start first interval minimum value.
-     * @param in_interval_end first interval maximum value.
-     * @param out_interval_start second interval minimum value.
-     * @param out_interval_end second interval maximum value.
+     * @brief Constructor.
+     * @param in_interval_start start of the input interval.
+     * @param in_interval_end end of the input interval.
+     * @param out_interval_start start of the output interval.
+     * @param out_interval_end end of the output interval.
      */
     Rescaler(
         ValueType in_interval_start, ValueType in_interval_end, ValueType out_interval_start,
@@ -64,7 +64,7 @@ public:
     }
 
     /**
-     * @brief operator () performs rescaling.
+     * @brief Rescale a value from the input interval to the output interval.
      * @param value value to rescale.
      * @return rescaled value.
      */

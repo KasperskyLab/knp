@@ -117,7 +117,7 @@ public:
     MessageEndpoint(MessageEndpoint &&endpoint) noexcept;
 
     /**
-     * @brief Avoid copy assignment of an endpoint.
+     * @brief Avoid copy assignment of MessageEndpoint.
      */
     MessageEndpoint &operator=(const MessageEndpoint &) = delete;
 
@@ -197,7 +197,7 @@ public:
     const SubscriptionContainer &get_endpoint_subscriptions() const { return subscriptions_; }
 
     /**
-     * @brief Get senders list.
+     * @brief Get list of senders.
      * @return weak pointer to unordered set of sender UIDs.
      */
     auto get_senders_ptr()

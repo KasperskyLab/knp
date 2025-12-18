@@ -63,19 +63,26 @@ struct default_values<BLIFATNeuron>
 
     /**
      * @brief The parameter defines a constant part of the threshold for membrane potential.
+     * @details After membrane potential reaches the threshold value, the neuron generates a spike.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_. 
      */
     constexpr static double activation_threshold_ = 1.0;
 
     /**
-     * @brief The parameter defines a dynamic threshold for membrane potential after reaching which a neuron generates a
-     * spike.
+     * @brief The parameter defines a dynamic part of the threshold for membrane potential.
+     * @details After neuron generates a spike, the `dynamic_threshold_` value increases by 
+     * the `threshold_increment_` value.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
     constexpr static double dynamic_threshold_ = 0.;
 
     /**
-     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
-     * @note Current threshold value is composed from three parameters: static value, dynamic with a common algorithm
-     * and dynamic that is based on a specific neuron implementation. This is the third one.
+     * @brief The parameter defines an additional part of the threshold for membrane potential.
+     * @details The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
     constexpr static double additional_threshold_ = 0.;
 
@@ -170,6 +177,16 @@ struct default_values<BLIFATNeuron>
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
      */
     constexpr static double dopamine_value_ = 0.0;
+
+    /**
+     * @brief The parameter defines stochastic stimulation - random number added to the potential every tick.
+     */
+    constexpr static double stochastic_stimulation_ = 0.0;
+
+    /**
+     * @brief The random number generator is used for stochastic stimulation.
+     */
+    constexpr static unsigned random_number_generator_state_ = 0;
 };
 
 
@@ -185,16 +202,25 @@ struct neuron_parameters<BLIFATNeuron>
     std::size_t n_time_steps_since_last_firing_ = default_values<BLIFATNeuron>::n_time_steps_since_last_firing_;
 
     /**
-     * @brief The parameter defines a constant part of a threshold for membrane potential.
+     * @brief The parameter defines a constant part of the threshold for membrane potential.
+     * @details After membrane potential reaches the threshold value, the neuron generates a spike.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_. 
      */
     double activation_threshold_ = default_values<BLIFATNeuron>::activation_threshold_;
     /**
-     * @brief The parameter is used for threshold mechanisms that are implemented in specific neuron types.
+     * @brief The parameter defines an additional part of the threshold for membrane potential.
+     * @details The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
     double additional_threshold_ = default_values<BLIFATNeuron>::additional_threshold_;
     /**
-     * @brief The parameter defines a dynamic threshold for membrane potential after reaching which a neuron generates a
-     * spike.
+     * @brief The parameter defines a dynamic part of the threshold for membrane potential.
+     * @details After neuron generates a spike, the `dynamic_threshold_` value increases by 
+     * the `threshold_increment_` value.
+     * @note Current threshold value for membrane potential is composed from three parameters:
+     * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
     double dynamic_threshold_ = default_values<BLIFATNeuron>::dynamic_threshold_;
     /**
@@ -286,6 +312,14 @@ struct neuron_parameters<BLIFATNeuron>
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
      */
     double dopamine_value_ = default_values<BLIFATNeuron>::dopamine_value_;
+    /**
+     * @brief The parameter defines stochastic stimulation - random namber added to the potential every tick.
+     */
+    double stochastic_stimulation_ = 0.0;
+    /**
+     * @brief The random number generator is used for stochastic stimulation.
+     */
+    unsigned random_number_generator_state_ = 0;
 };
 
 }  // namespace knp::neuron_traits

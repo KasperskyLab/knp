@@ -87,7 +87,7 @@ The `visualize_network.cpp` program file contains implementations of the followi
 * `draw_annotated_subgraph` function that draws a network graph with inscriptions for node names or IDs.
 * `draw_subgraph` function that draws a connected subgraph.
 * `make_reverse_list` function that creates a reverse adjacency list where each node has a list of nodes to which it is adjacent.
-* `find_connected_set` function that fins an independent subgraph inside a network graph.
+* `find_connected_set` function that finds an independent subgraph inside a network graph.
 * `divide_graph_by_connectivity` function defined in the `visualize_network.h` file.
 * `print_connected_subset` function that prints the description of a network subgraph.
 * `print_network_description` function defined in the `visualize_network.h` file.
@@ -138,12 +138,9 @@ If you install the `knp-examples` package, the example binary file is located in
 
 `$ mnist-client`
 
-You can also build the example by using CMake. The example binary file will be located in the `/build/bin` directory. To execute the created binary file, run the following commands:
+You can also build the example by using CMake. The example binary file will be located in the `build/bin` directory. To execute the created binary file, run the following commands:
 
-```
-$ cd /build/bin
-$ mnist-client
-```
+`$ build/bin/mnist-client`
 
 
 # Information about third-party code

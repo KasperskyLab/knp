@@ -36,7 +36,7 @@ py::class_<knp::framework::ModelExecutor, boost::noncopyable>(
     .def("add_impact_observer", &add_executor_impact_observer, "Add impact message observer to model executor.")
     .def("start_learning", &knp::framework::ModelExecutor::start_learning, "Unlock synapse weights.")
     .def("stop_learning", &knp::framework::ModelExecutor::stop_learning, "Lock synapse weights.")
-    .def("get_backend", &knp::framework::ModelExecutor::get_backend, "Get reference of backend object.")
+    .def("get_backend", &knp::framework::ModelExecutor::get_backend, "Get backend object reference.")
     .def(
         "get_output_channel", &get_output_channel, py::return_value_policy<py::reference_existing_object>(),
         "Get output channel reference.");
