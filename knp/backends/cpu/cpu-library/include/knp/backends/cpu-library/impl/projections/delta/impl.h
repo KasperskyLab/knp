@@ -30,16 +30,19 @@
 #include <vector>
 
 #include "shared.h"
+#include "stdp/interface.h"
 
 namespace knp::backends::cpu::projections::impl::delta
 {
 
 template <typename DeltaLikeSynapse>
-inline MessageQueue::const_iterator calculate_projection_impl(
+MessageQueue::const_iterator calculate_projection_impl(
     knp::core::Projection<DeltaLikeSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
     MessageQueue &future_messages, size_t step_n)
 {
     using ProjectionType = knp::core::Projection<DeltaLikeSynapse>;
+
+    stdp::init_projection(projection, messages, step_n);
 
     for (const auto &message : messages)
     {
@@ -50,10 +53,7 @@ inline MessageQueue::const_iterator calculate_projection_impl(
             for (auto synapse_index : synapses)
             {
                 auto &synapse = projection[synapse_index];
-                if constexpr (std::is_same_v<DeltaLikeSynapse, STDPDeltaSynapse>)
-                {
-                    std::get<core::synapse_data>(synapse).rule_.last_spike_step_ = step_n;
-                }
+                stdp::init_synapse(std::get<core::synapse_data>(synapse), step_n);
                 const auto &synapse_params = std::get<core::synapse_data>(synapse);
 
                 // The message is sent on step N - 1, received on step N.
@@ -70,22 +70,20 @@ inline MessageQueue::const_iterator calculate_projection_impl(
                 }
                 else
                 {
-                    bool is_forced = false;
-                    if constexpr (std::is_same_v<DeltaLikeSynapse, DeltaSynapse>)
-                    {
-                        is_forced = true;
-                    }
                     knp::core::messaging::SynapticImpactMessage message_out{
                         {projection.get_uid(), step_n},
                         projection.get_presynaptic(),
                         projection.get_postsynaptic(),
-                        is_forced,
+                        stdp::is_forced<DeltaLikeSynapse>(),
                         {impact}};
                     future_messages.insert(std::make_pair(future_step, message_out));
                 }
             }
         }
     }
+
+    stdp::modify_weights(projection);
+
     return future_messages.find(step_n);
 }
 
@@ -139,13 +137,12 @@ void calculate_projection_multithreaded_impl(
         }
         else
         {
-            bool is_forced = false;
-            if constexpr (std::is_same_v<DeltaLikeSynapse, DeltaSynapse>)
-            {
-                is_forced = true;
-            }
             knp::core::messaging::SynapticImpactMessage message_out{
-                {projection_uid, step_n}, postsynaptic_uid, presynaptic_uid, is_forced, {value.second}};
+                {projection_uid, step_n},
+                postsynaptic_uid,
+                presynaptic_uid,
+                stdp::is_forced<DeltaLikeSynapse>(),
+                {value.second}};
             future_messages.insert(std::make_pair(value.first, message_out));
         }
     }

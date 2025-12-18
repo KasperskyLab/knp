@@ -20,7 +20,7 @@
 #pragma once
 
 // This include does not work at the end of the day. But its here so code analyzer will work properly.
-#include <knp/backends/cpu-library/impl/projections/interface.h>
+#include <knp/backends/cpu-library/impl/projections/interface_fwd.h>
 
 #include <unordered_map>
 #include <vector>
@@ -63,6 +63,22 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::STDPDe
 }
 
 /**
+ * @brief Calculate projection.
+ * @param projection Projection.
+ * @param messages Incoming messages.
+ * @param future_messages Messages queue for future.
+ * @param step_n Step number.
+ * @return Message that should be sent from queue.
+ */
+template <>
+inline MessageQueue::const_iterator calculate_projection_interface<delta::AdditiveSTDPDeltaSynapse>(
+    knp::core::Projection<delta::AdditiveSTDPDeltaSynapse> &projection,
+    std::vector<core::messaging::SpikeMessage> &messages, MessageQueue &future_messages, size_t step_n)
+{
+    return delta::calculate_projection_impl(projection, messages, future_messages, step_n);
+}
+
+/**
  * @brief Process a part of projection synapses in multithreaded way.
  * @param projection projection to receive the message.
  * @param message_in_data processed spike data for the projection.
@@ -73,7 +89,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::STDPDe
  * @param mutex mutex.
  */
 template <>
-void calculate_projection_multithreaded_interface<delta::DeltaSynapse>(
+inline void calculate_projection_multithreaded_interface<delta::DeltaSynapse>(
     knp::core::Projection<delta::DeltaSynapse> &projection,
     const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
     size_t part_start, size_t part_size, std::mutex &mutex)
@@ -94,7 +110,7 @@ void calculate_projection_multithreaded_interface<delta::DeltaSynapse>(
  * @param mutex mutex.
  */
 template <>
-void calculate_projection_multithreaded_interface<delta::STDPDeltaSynapse>(
+inline void calculate_projection_multithreaded_interface<delta::STDPDeltaSynapse>(
     knp::core::Projection<delta::STDPDeltaSynapse> &projection,
     const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
     size_t part_start, size_t part_size, std::mutex &mutex)

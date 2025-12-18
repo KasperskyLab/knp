@@ -1,7 +1,7 @@
 /**
- * @file shared.h
+ * @file interface.h
  * @kaspersky_support Postnikov D.
- * @date 10.12.2025
+ * @date 18.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -19,25 +19,6 @@
  */
 #pragma once
 
-#include <knp/core/projection.h>
-
-namespace knp::backends::cpu::projections::impl::delta
-{
-
-/**
- * @brief Delta synapse shortcut.
- */
-using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
-
-/**
- * @brief STDP Delta synapse shortcut.
- */
-using STDPDeltaSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
-
-/**
- * @brief Additive STDP Delta synapse shortcut.
- */
-using AdditiveSTDPDeltaSynapse = knp::synapse_traits::AdditiveSTDPDeltaSynapse;
-
-
-}  //namespace knp::backends::cpu::projections::impl::delta
+#include "additive.h"
+#include "none.h"
+#include "normal.h"

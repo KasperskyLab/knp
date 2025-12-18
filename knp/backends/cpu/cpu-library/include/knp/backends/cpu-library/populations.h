@@ -38,10 +38,9 @@ namespace knp::backends::cpu::populations
 
 /**
  * @brief Partially calculate population before it receives synaptic impact messages.
- * @param population population to update.
- * @param start index of the first neuron to calculate.
- * @param end index of the last neuron to calculate.
- * @note The method if used for parallelization.
+ * @param population Population to update.
+ * @param start Index of the first neuron to calculate.
+ * @param end Index of the last neuron to calculate.
  */
 template <class Neuron>
 void calculate_pre_impact_population_state(knp::core::Population<Neuron> &population, size_t start, size_t end)
@@ -54,9 +53,9 @@ void calculate_pre_impact_population_state(knp::core::Population<Neuron> &popula
 }
 
 /**
- * @brief TODO
- * @param population TODO
- * @param messages TODO
+ * @brief Impact population.
+ * @param population Population.
+ * @param messages Impact messages.
  */
 template <class Neuron>
 void impact_population(
@@ -78,7 +77,6 @@ void impact_population(
  * @param message output spike message to update.
  * @param start index of the first neuron to update.
  * @param end index of the last neuron to update.
- * @note This method is used for parallelization.
  */
 template <class Neuron>
 void calculate_post_impact_population_state(

@@ -42,7 +42,6 @@ struct WeightByReceiverSender
     size_t receiver_, sender_;
     //cppcheck-suppress unusedStructMember
     float weight_;
-    float resource_, wmin_, wmax_;
 
     //cppcheck-suppress unusedStructMember
     knp::core::Step last_spike_step_;
@@ -56,14 +55,11 @@ auto process_projection_weights(const knp::core::AllProjectionsVariant &proj_var
     for (const auto &synapse_data : proj)
     {
         float weight = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).weight_;
-        float resource = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.synaptic_resource_;
-        float wmin = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.w_min_;
-        float wmax = std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.w_max_;
         knp::core::Step last_spike_step =
             std::get<knp::core::SynapseElementAccess::synapse_data>(synapse_data).rule_.last_spike_step_;
         size_t sender = std::get<knp::core::SynapseElementAccess::source_neuron_id>(synapse_data);
         size_t receiver = std::get<knp::core::SynapseElementAccess::target_neuron_id>(synapse_data);
-        weights_by_receiver_sender.push_back({receiver, sender, weight, resource, wmin, wmax, last_spike_step});
+        weights_by_receiver_sender.push_back({receiver, sender, weight, last_spike_step});
     }
     std::sort(
         weights_by_receiver_sender.begin(), weights_by_receiver_sender.end(),
@@ -100,8 +96,7 @@ SpikeProcessor make_projection_weights_observer_function(
                     neuron = new_neuron;
                     weights_log << std::endl << "Neuron " << neuron << std::endl;
                 }
-                weights_log << syn_data.weight_ << "|" << syn_data.resource_ << "|" << syn_data.wmin_ << "|"
-                            << syn_data.wmax_ << "|" << syn_data.last_spike_step_ << " ";
+                weights_log << syn_data.weight_ << "|" << syn_data.last_spike_step_ << " ";
             }
             weights_log << std::endl;
             return;

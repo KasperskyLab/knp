@@ -91,6 +91,12 @@ inline void impact_neuron_impl(
 
 inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
 {
+    {  // Potential leak.
+        // -1 if leak_rev is true and potential < 0, 1 otherwise.
+        const int sign = (neuron.leak_rev_ && neuron.potential_ < 0) ? -1 : 1;
+        neuron.potential_ += neuron.potential_leak_ * sign;
+    }
+
     bool spiked = false;
     if (neuron.activity_time_ > 0)
     {

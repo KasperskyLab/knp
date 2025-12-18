@@ -126,6 +126,21 @@ inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits
  * @param step Step.
  */
 template <>
+inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+    knp::core::Population<blifat::BlifatNeuron> &population,
+    std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
+    const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
+{
+}
+
+/**
+ * @brief Teach population.
+ * @param population Population.
+ * @param projections Connected projections.
+ * @param message Spiking neurons in population at current step.
+ * @param step Step.
+ */
+template <>
 inline void teach_population_interface<blifat::STDPBlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
     knp::core::Population<blifat::STDPBlifatNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,

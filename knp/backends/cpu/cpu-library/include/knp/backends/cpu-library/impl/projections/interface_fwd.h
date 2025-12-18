@@ -1,7 +1,7 @@
 /**
- * @file interface.h
+ * @file interface_fwd.h
  * @kaspersky_support Postnikov D.
- * @date 10.12.2025
+ * @date 18.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -19,29 +19,47 @@
  */
 #pragma once
 
+#include <knp/core/message_endpoint.h>
+#include <knp/core/messaging/messaging.h>
+#include <knp/core/population.h>
+#include <knp/core/projection.h>
+
 #include <mutex>
 #include <unordered_map>
 #include <vector>
 
-#include "delta/interface.h"
+#include "shared/def.h"
 
 namespace knp::backends::cpu::projections::impl
 {
 
+/**
+ * @brief Calculate projection.
+ * @param projection Projection.
+ * @param messages Incoming messages.
+ * @param future_messages Messages queue for future.
+ * @param step_n Step number.
+ * @return Message that should be sent from queue.
+ */
 template <typename Synapse>
 MessageQueue::const_iterator calculate_projection_interface(
     knp::core::Projection<Synapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
-    MessageQueue &future_messages, size_t step_n)
-{
-    throw std::runtime_error("Unsupported synapse type");
-}
+    MessageQueue &future_messages, size_t step_n);
 
+/**
+ * @brief Process a part of projection synapses in multithreaded way.
+ * @tparam Synapse type of a synapse that requires synapse weight and delay as parameters.
+ * @param projection projection to receive the message.
+ * @param message_in_data processed spike data for the projection.
+ * @param future_messages queue of future messages.
+ * @param step_n current step.
+ * @param part_start index of the starting synapse.
+ * @param part_size number of synapses to process.
+ * @param mutex mutex.
+ */
 template <class Synapse>
 void calculate_projection_multithreaded_interface(
     knp::core::Projection<Synapse> &projection, const std::unordered_map<knp::core::Step, size_t> &message_in_data,
-    MessageQueue &future_messages, uint64_t step_n, size_t part_start, size_t part_size, std::mutex &mutex)
-{
-    throw std::runtime_error("Unsupported synapse type");
-}
+    MessageQueue &future_messages, uint64_t step_n, size_t part_start, size_t part_size, std::mutex &mutex);
 
 }  //namespace knp::backends::cpu::projections::impl
