@@ -15,11 +15,15 @@ limitations under the License.
 ]]
 
 cmake_minimum_required(VERSION 3.22)
-project(mnist_learn_altai_example)
+project(mnist_learn_blifat_example)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#find_package(Boost COMPONENTS program_options REQUIRED )
+# Need to check if the example build inside KNP tree.
+if (NOT TARGET KNP::BaseFramework::Core)
+    find_package(knp-base-framework REQUIRED)
+endif()
 
-add_executable(mnist_learn_altai_example main.cpp construct_network.cpp train.cpp inference.cpp time_string.cpp)
-target_link_libraries(mnist_learn_altai_example PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES})
+add_executable(mnist_learn_blifat_example main.cpp construct_network.cpp train.cpp inference.cpp time_string.cpp)
+target_link_libraries(mnist_learn_blifat_example PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES})

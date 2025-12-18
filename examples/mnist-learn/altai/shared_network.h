@@ -59,7 +59,7 @@ constexpr size_t input_size_width = 28;
 constexpr size_t input_size_height = 28;
 
 constexpr size_t images_amount_to_train = 10000;
-constexpr size_t images_amount_for_inference = 1000;
+constexpr size_t images_amount_for_inference = 2000;
 
 constexpr size_t active_steps = 10;
 constexpr size_t steps_per_image = 15;

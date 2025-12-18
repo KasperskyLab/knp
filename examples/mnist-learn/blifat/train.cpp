@@ -129,7 +129,7 @@ AnnotatedNetwork train_mnist_network(
 
     // Change uid for INPUT population, because of wta.
     {
-        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
+        for (auto pop = pop_names.begin(); pop != pop_names.end();)
             if (pop->second == "INPUT")
                 pop = pop_names.erase(pop);
             else
