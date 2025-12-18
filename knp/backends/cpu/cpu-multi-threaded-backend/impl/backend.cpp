@@ -19,10 +19,9 @@
  * limitations under the License.
  */
 
-#include <knp/backends/cpu-library/altai_lif_population.h>
-#include <knp/backends/cpu-library/blifat_population.h>
-#include <knp/backends/cpu-library/delta_synapse_projection.h>
 #include <knp/backends/cpu-library/init.h>
+#include <knp/backends/cpu-library/populations.h>
+#include <knp/backends/cpu-library/projections.h>
 #include <knp/backends/cpu-multi-threaded/backend.h>
 #include <knp/backends/thread_pool/thread_pool.h>
 #include <knp/devices/cpu.h>
@@ -33,17 +32,14 @@
 #include <spdlog/spdlog.h>
 
 #include <functional>
-#include <optional>
 #include <unordered_map>
 #include <vector>
 
 #include <boost/mp11.hpp>
 
-#include "template_specs.h"
-
-
 namespace knp::backends::multi_threaded_cpu
 {
+
 MultiThreadedCPUBackend::MultiThreadedCPUBackend(
     size_t thread_count, size_t population_part_size, size_t projection_part_size)
     : population_part_size_(population_part_size),
@@ -88,20 +84,11 @@ void MultiThreadedCPUBackend::calculate_populations_pre_impact()
             std::visit(
                 [this, neuron_index](auto &pop)
                 {
-                    // Check if population is supported by backend. We don't need to repeat it.
                     using T = std::decay_t<decltype(pop)>;
-                    if constexpr (
-                        boost::mp11::mp_find<SupportedPopulations, T>{} == boost::mp11::mp_size<SupportedPopulations>{})
-                    {
-                        static_assert(
-                            knp::meta::always_false_v<T>,
-                            "Population is not supported by the multi-threaded CPU backend.");
-                    }
-
-                    // Start threads.
+                    uint64_t part_end = std::min<uint64_t>(neuron_index + population_part_size_, pop.size());
                     calc_pool_->post(
-                        knp::backends::cpu::calculate_neurons_state_part<typename T::PopulationNeuronType>,
-                        std::ref(pop), neuron_index, population_part_size_);
+                        cpu::populations::calculate_pre_impact_population_state<typename T::PopulationNeuronType>,
+                        std::ref(pop), neuron_index, part_end);
                 },
                 population);
         }
@@ -122,7 +109,7 @@ void MultiThreadedCPUBackend::calculate_populations_impact()
             {
                 using T = std::decay_t<decltype(pop)>;
                 calc_pool_->post(
-                    knp::backends::cpu::process_inputs<typename T::PopulationNeuronType>, std::ref(pop),
+                    cpu::populations::impact_population<typename T::PopulationNeuronType>, std::ref(pop),
                     std::move(messages));
             },
             population);
@@ -152,9 +139,25 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
 #    pragma warning(push)
 #    pragma warning(disable : 4267)
 #endif
+
+                    auto call_calculate_post_input_state = [](T &pop_ref,
+                                                              knp::core::messaging::SpikeMessage &message_ref,
+                                                              size_t start, size_t end, std::mutex &mutex_ref)
+                    {
+                        uint64_t part_end = std::min<uint64_t>(start + end, pop_ref.size());
+                        knp::core::messaging::SpikeMessage buffer_message;
+                        knp::backends::cpu::populations::calculate_post_impact_population_state(
+                            pop_ref, buffer_message, start, part_end);
+                        const std::lock_guard lock(mutex_ref);
+                        message_ref.neuron_indexes_.reserve(
+                            message_ref.neuron_indexes_.size() + buffer_message.neuron_indexes_.size());
+                        message_ref.neuron_indexes_.insert(
+                            message_ref.neuron_indexes_.end(), buffer_message.neuron_indexes_.begin(),
+                            buffer_message.neuron_indexes_.end());
+                    };
                     calc_pool_->post(
-                        knp::backends::cpu::calculate_neurons_post_input_state_part<typename T::PopulationNeuronType>,
-                        std::ref(pop), std::ref(message), neuron_index, population_part_size_, std::ref(ep_mutex_));
+                        call_calculate_post_input_state, std::ref(pop), std::ref(message), neuron_index,
+                        population_part_size_, std::ref(ep_mutex_));
                 },
                 population);
         }
@@ -170,8 +173,23 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
                 auto call_finalize = [](T &pop_ref, knp::core::messaging::SpikeMessage &message_ref,
                                         ProjectionContainer &proj_ref, knp::core::Step step)
                 {
-                    knp::backends::cpu::finalize_population<typename T::PopulationNeuronType, ProjectionContainer>(
-                        pop_ref, message_ref, proj_ref, step);
+                    using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+                    std::vector<knp::core::Projection<SynapseType> *> working_projections;
+                    constexpr uint64_t type_index = boost::mp11::mp_find<
+                        backends::multi_threaded_cpu::MultiThreadedCPUBackend::SupportedSynapses, SynapseType>();
+
+                    for (auto &projection : proj_ref)
+                    {
+                        if (projection.arg_.index() != type_index) continue;
+
+                        auto *projection_ptr = &(std::get<type_index>(projection.arg_));
+                        if (projection_ptr->is_locked()) continue;
+
+                        if (projection_ptr->get_postsynaptic() == pop_ref.get_uid())
+                            working_projections.push_back(projection_ptr);
+                    }
+
+                    knp::backends::cpu::populations::teach_population(pop_ref, working_projections, message_ref, step);
                 };
                 calc_pool_->post(call_finalize, std::ref(pop), std::ref(message), std::ref(projections_), get_step());
             },
@@ -217,6 +235,20 @@ void send_message(ProjectionWrapper &projection, core::MessageEndpoint &endpoint
     }
 }
 
+inline std::unordered_map<uint64_t, size_t> convert_spikes(const core::messaging::SpikeMessage &message)
+{
+    std::unordered_map<knp::core::Step, size_t> result;
+    for (auto neuron_idx : message.neuron_indexes_)
+    {
+        auto iter = result.find(neuron_idx);
+        if (result.end() == iter)
+            result.insert({neuron_idx, 1});
+        else
+            ++(iter->second);
+    }
+    return result;
+}
+
 
 void MultiThreadedCPUBackend::calculate_projections()
 {
@@ -235,7 +267,7 @@ void MultiThreadedCPUBackend::calculate_projections()
         }
 
         // Looping over synapses.
-        converted_message_buffer.emplace_back(cpu::convert_spikes(msg_buf[0]));
+        converted_message_buffer.emplace_back(convert_spikes(msg_buf[0]));
         const auto proj_size = std::visit([](const auto &proj) { return proj.size(); }, projection.arg_);
         for (size_t synapse_index = 0; synapse_index < proj_size; synapse_index += projection_part_size_)
         {
@@ -244,7 +276,7 @@ void MultiThreadedCPUBackend::calculate_projections()
                 {
                     using T = std::decay_t<decltype(proj)>;
                     calc_pool_->post(
-                        knp::backends::cpu::calculate_projection_part<typename T::ProjectionSynapseType>,
+                        cpu::projections::calculate_projection_multithreaded<typename T::ProjectionSynapseType>,
                         std::ref(proj), std::ref(converted_message_buffer.back()), std::ref(projection.messages_),
                         get_step(), synapse_index, projection_part_size_, std::ref(ep_mutex_));
                 },

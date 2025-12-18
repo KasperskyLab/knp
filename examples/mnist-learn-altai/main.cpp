@@ -19,7 +19,9 @@
  * limitations under the License.
  */
 
+#include <knp/core/projection.h>
 #include <knp/framework/inference_evaluation/classification/processor.h>
+#include <knp/framework/sonata/network_io.h>
 
 #include <filesystem>
 #include <fstream>
@@ -30,43 +32,13 @@
 #include "time_string.h"
 #include "train.h"
 
-constexpr size_t active_steps = 10;
-constexpr size_t steps_per_image = 20;
 constexpr float state_increment_factor = 1.f / 255;
-constexpr size_t images_amount_to_train = 1000;
 constexpr float dataset_split = 0.8;
 constexpr size_t classes_amount = 10;
 
 namespace data_processing = knp::framework::data_processing::classification::images;
 namespace inference_evaluation = knp::framework::inference_evaluation::classification;
-/*
-CLASS,TOTAL_VOTES,TRUE_POSITIVES,FALSE_NEGATIVES,FALSE_POSITIVES,TRUE
-_NEGATIVES,PRECISION,RECALL,PREVALENCE,ACCURACY,F_SCORE
 
-0,21,0,21,0,229,0,0,0.084,0.916,0
-1,26,0,26,0,224,0,0,0.104,0.896,0
-2,23,0,23,0,227,0,0,0.092,0.908,0
-3,23,0,23,0,227,0,0,0.092,0.908,0
-4,23,0,23,0,227,0,0,0.092,0.908,0
-5,29,0,29,0,221,0,0,0.116,0.884,0
-6,24,0,24,0,226,0,0,0.096,0.904,0
-7,30,0,30,0,220,0,0,0.12,0.88,0
-8,22,0,22,0,228,0,0,0.088,0.912,0
-9,29,0,29,0,221,0,0,0.116,0.884,0
-
-0,21,19,0,2,229,0.904762,0.904762,0.076,0.992,0.904762
-1,26,24,1,1,224,0.96,0.96,0.1,0.992,0.96
-2,23,19,0,4,227,0.826087,0.826087,0.076,0.984,0.826087
-3,23,23,0,0,227,1,1,0.092,1,1
-4,23,21,0,2,227,0.913043,0.913043,0.084,0.992,0.913043
-5,29,17,1,11,221,0.607143,0.607143,0.072,0.952,0.607143
-6,24,19,0,5,226,0.791667,0.791667,0.076,0.98,0.791667
-7,30,27,0,3,220,0.9,0.9,0.108,0.988,0.9
-8,22,14,0,8,228,0.636364,0.636364,0.056,0.968,0.636364
-9,29,11,2,16,221,0.407407,0.407407,0.052,0.928,0.407407
-
-
-*/
 int main(int argc, char** argv)
 {
     if (argc < 3 || argc > 4)
@@ -101,6 +73,55 @@ int main(int argc, char** argv)
 
     // Construct network and run training.
     AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);
+
+    {  // Quantisize weights.
+        for (auto proj = trained_network.network_.begin_projections();
+             proj != trained_network.network_.end_projections(); ++proj)
+        {
+            std::visit(
+                [&trained_network](auto&& proj)
+                {
+                    float max_weight = 0, min_weight = 0;
+                    for (auto& synapse : proj)
+                    {
+                        auto const& params = std::get<knp::core::synapse_data>(synapse);
+                        if (max_weight < params.weight_) max_weight = params.weight_;
+                        if (min_weight > params.weight_) min_weight = params.weight_;
+                    }
+
+                    knp::core::UID post_pop_uid = proj.get_postsynaptic();
+                    auto& pop = std::get<knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>>(
+                        trained_network.network_.get_population(post_pop_uid));
+
+                    uint16_t max_threshold = 0;
+                    for (auto const& neuron : pop)
+                        max_threshold = std::max<uint16_t>(
+                            max_threshold, neuron.activation_threshold_ + neuron.additional_threshold_);
+
+                    float total_max =
+                        std::max({std::abs(max_weight), std::abs(min_weight), std::abs<float>(max_threshold)});
+                    float scale = 255.f / total_max;
+                    std::cout << scale << std::endl;
+
+                    for (auto& synapse : proj)
+                    {
+                        auto& params = std::get<knp::core::synapse_data>(synapse);
+                        params.weight_ *= scale;
+                        params.weight_ = std::round(params.weight_);
+                    }
+
+                    for (auto& neuron : pop)
+                    {
+                        neuron.activation_threshold_ *= scale;
+                        neuron.additional_threshold_ *= scale;
+                    }
+                },
+                *proj);
+        }
+    }
+
+    std::filesystem::create_directory("mnist_network");
+    knp::framework::sonata::save_network(trained_network.network_, "mnist_network");
 
     // Run inference for the same network.
     auto spikes = run_mnist_inference(path_to_backend, trained_network, dataset, log_path);

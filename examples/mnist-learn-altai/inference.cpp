@@ -70,9 +70,9 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
 
     model_executor.get_backend()->stop_learning();
 
-    //knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
+    // knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
 
-    //knp::framework::sonata::load_network("~/Downloads/Telegram Desktop/sonata_mnist2");
+    // knp::framework::sonata::load_network("~/Downloads/Telegram Desktop/sonata_mnist2");
 
     std::ofstream log_stream;
 
@@ -83,21 +83,18 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     std::vector<knp::core::UID> wta_uids;
     {
         std::vector<size_t> wta_borders;
-        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(3 * (i + 1));
+        for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * (i + 1));
         wta_uids = knp::framework::projection::add_wta_handlers(
             model_executor, wta_winners_amount, wta_borders, described_network.data_.wta_data_);
     }
 
     auto pop_names = described_network.data_.population_names_;
 
-    // Change uid for WTA population.
+    // Change names for WTA populations.
     {
-        for (auto pop = pop_names.begin(); pop != pop_names.end();)
-            if (pop->second == "WTA")
-                pop = pop_names.erase(pop);
-            else
-                ++pop;
-        for (auto const &uid : wta_uids) pop_names[uid] = "WTA";
+        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
+            if (pop->second == "L") pop->second = "L[NO WTA]";
+        for (auto const &uid : wta_uids) pop_names[uid] = "L[WTA]";
     }
 
     knp::framework::monitoring::model::add_spikes_logger(model_executor, pop_names, std::cout);
