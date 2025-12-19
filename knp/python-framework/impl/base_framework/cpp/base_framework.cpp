@@ -33,7 +33,7 @@ template <typename T>
 void register_direct_converter()
 {
     // Need to register converter.
-    // Without this extract from the different module can't convert Python object to C++ object.
+    // Without this extract from the different module cannot convert Python object to C++ object.
     py::converter::registry::insert(
         [](PyObject *p) { return static_cast<void *>(p); }, py::type_id<T>(),
         &py::converter::registered_pytype_direct<T>::get_pytype);
