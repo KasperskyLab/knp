@@ -139,7 +139,7 @@
  */
 
 /**
- * @dir /knp/backends/gpu/cuda-backend/include/knp/devices
+ * @dir /knp/backends/gpu/cuda-backend/include/devices
  * @brief Include directory for GPU CUDA devices library headers.
  */
 
