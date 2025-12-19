@@ -130,12 +130,6 @@ public:
     [[nodiscard]] inline size_t get_steps_required_for_inference() const { return steps_required_for_inference_; }
 
     /**
-     * @brief Get the user-specified amount of training data required.
-     * @return required training amount, which may affect the allocation of data for inference.
-     */
-    [[nodiscard]] inline size_t get_required_training_amount() const { return required_training_amount_; }
-
-    /**
      * @brief Get the number of classes in the dataset.
      * @return number of classes.
      */
@@ -189,13 +183,6 @@ protected:
      * steps_per_frame_.
      */
     size_t steps_required_for_inference_ = 0;
-
-    /**
-     * @brief User-specified amount of training data required.
-     * @note If this value is less than the actual size of @ref data_for_training_, the @ref split function adjusts the
-     * inference data accordingly.
-     */
-    size_t required_training_amount_ = 0;
 
     /**
      * @brief Number of classes in the dataset.

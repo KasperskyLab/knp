@@ -32,9 +32,6 @@
 #include "time_string.h"
 #include "train.h"
 
-constexpr float state_increment_factor = 1.f / 255;
-constexpr size_t classes_amount = 10;
-
 namespace data_processing = knp::framework::data_processing::classification::images;
 namespace inference_evaluation = knp::framework::inference_evaluation::classification;
 
@@ -63,8 +60,8 @@ int main(int argc, char** argv)
 
     data_processing::Dataset dataset;
     dataset.process_labels_and_images(
-        images_stream, labels_stream, images_amount_to_train, classes_amount, input_size, steps_per_image,
-        dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
+        images_stream, labels_stream, images_amount_to_train + images_amount_for_inference, classes_amount, input_size,
+        steps_per_image, dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
     dataset.split(images_amount_to_train, images_amount_for_inference);
 
     std::cout << "Processed dataset, training will last " << dataset.get_steps_required_for_training()

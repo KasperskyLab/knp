@@ -34,7 +34,7 @@ void Dataset::split(size_t frames_for_training, size_t frames_for_inference)
         SPDLOG_ERROR(
             "Incorrect split size. Dataset is too small. Required {} frames for training, and {} frames for inference, "
             "while dataset only have {} frames.",
-            frames_for_training, frames_for_training, data_for_training_.size());
+            frames_for_training, frames_for_inference, data_for_training_.size());
         throw std::runtime_error("Dataset too small.");
     }
 

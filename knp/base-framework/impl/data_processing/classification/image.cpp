@@ -26,16 +26,17 @@ namespace knp::framework::data_processing::classification::images
 {
 
 void Dataset::process_labels_and_images(
-    std::istream &images_stream, std::istream &labels_stream, size_t training_amount, size_t classes_amount,
+    std::istream &images_stream, std::istream &labels_stream, size_t max_images_amount, size_t classes_amount,
     size_t image_size, size_t steps_per_image,
     std::function<Frame(std::vector<uint8_t> const &)> const &image_to_spikes)
 {
     image_size_ = image_size;
     steps_per_frame_ = steps_per_image;
-    required_training_amount_ = training_amount;
     classes_amount_ = classes_amount;
 
     std::vector<uint8_t> image_reading_buffer(image_size, 0);
+
+    data_for_training_.reserve(max_images_amount);
 
     while (images_stream.good() && labels_stream.good())
     {
@@ -48,6 +49,8 @@ void Dataset::process_labels_and_images(
 
         // Push to training data set because we dont know dataset size yet for a split
         data_for_training_.push_back({label, std::move(spikes_frame)});
+
+        if (data_for_training_.size() == max_images_amount) break;
     }
 }
 

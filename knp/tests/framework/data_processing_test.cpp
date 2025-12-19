@@ -38,7 +38,6 @@ TEST(DataProcessing, ImageClassification)
 
     ASSERT_EQ(dataset.get_image_size(), image_size);
     ASSERT_EQ(dataset.get_amount_of_classes(), classes_amount);
-    ASSERT_EQ(dataset.get_required_training_amount(), training_amount);
     ASSERT_EQ(dataset.get_steps_per_frame(), steps_per_image);
     ASSERT_EQ(dataset.get_steps_required_for_training(), training_amount);
     ASSERT_EQ(dataset.get_steps_required_for_inference(), inference_amount);

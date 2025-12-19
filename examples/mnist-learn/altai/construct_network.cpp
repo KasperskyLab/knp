@@ -108,9 +108,9 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
     };
     //
     std::vector<PopulationRole> pop_data{
-        {{10 * neurons_per_column, l_neuron}, true, false, "L"},
-        {{10, default_neuron}, true, true, "OUT"},
-        {{10, default_neuron}, false, false, "BIAS"}};
+        {{classes_amount * neurons_per_column, l_neuron}, true, false, "L"},
+        {{classes_amount, default_neuron}, true, true, "OUT"},
+        {{classes_amount, default_neuron}, false, false, "BIAS"}};
 
     std::vector<knp::core::UID> population_uids;
     for (auto &pop_init_data : pop_data)
@@ -163,7 +163,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         TARGET_to_L_synapse.delay_ = 3;
 
         DeltaProjection TARGET_to_L_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
-            knp::core::UID(false), population_uids[L], 10, pop_data[L].pd_.size_,
+            knp::core::UID(false), population_uids[L], classes_amount, pop_data[L].pd_.size_,
             [&TARGET_to_L_synapse](size_t, size_t) { return TARGET_to_L_synapse; });
         result.network_.add_projection(TARGET_to_L_projection);
         result.data_.projections_from_classes_.push_back(TARGET_to_L_projection.get_uid());
@@ -175,7 +175,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         TARGET_to_L_synapse2.delay_ = 4;
 
         DeltaProjection TARGET_to_L_projection2 = knp::framework::projection::creators::all_to_all<DeltaSynapse>(
-            knp::core::UID(false), population_uids[L], 10, pop_data[L].pd_.size_,
+            knp::core::UID(false), population_uids[L], classes_amount, pop_data[L].pd_.size_,
             [&TARGET_to_L_synapse2](size_t, size_t) { return TARGET_to_L_synapse2; });
         result.network_.add_projection(TARGET_to_L_projection2);
         result.data_.projections_from_classes_.push_back(TARGET_to_L_projection2.get_uid());
@@ -186,7 +186,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         TARGET_to_BIAS_synapse.weight_ = 10 * scale;
 
         DeltaProjection TARGET_to_BIAS_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
-            knp::core::UID(false), population_uids[BIAS], 10, pop_data[BIAS].pd_.size_,
+            knp::core::UID(false), population_uids[BIAS], classes_amount, pop_data[BIAS].pd_.size_,
             [&TARGET_to_BIAS_synapse](size_t, size_t) { return TARGET_to_BIAS_synapse; });
         result.network_.add_projection(TARGET_to_BIAS_projection);
         result.data_.projections_from_classes_.push_back(TARGET_to_BIAS_projection.get_uid());
