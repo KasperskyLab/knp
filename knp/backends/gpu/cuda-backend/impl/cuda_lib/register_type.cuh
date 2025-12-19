@@ -1,6 +1,6 @@
 /**
  * @file register_type.cuh
- * @brief Macros for CUDA vector type registration with necessary kernel instantiations.
+ * @brief 
  * @kaspersky_support A. Vartenkov.
  * @date 18.12.2025
  * @license Apache 2.0
@@ -18,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #pragma once
 
 #include "kernels.cuh"
