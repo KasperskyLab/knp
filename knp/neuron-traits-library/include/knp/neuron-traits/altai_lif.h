@@ -99,7 +99,7 @@ struct default_values<AltAILIF>
     /**
      * @brief The parameter defines the default value for `activation_threshold_` of AltAILIF neuron.
      */
-    constexpr static /*uint16_t*/ float activation_threshold_ = 1;
+    constexpr static uint16_t activation_threshold_ = 1;
 
     /**
      * @brief The parameter defines the default value for `negative_activation_threshold_` of AltAILIF neuron.
@@ -107,17 +107,17 @@ struct default_values<AltAILIF>
      * `negative_activation_threshold_` with `saturate_` set to `true` are used to protect against `potential_` negative
      * overflow.
      */
-    constexpr static /*uint16_t*/ float negative_activation_threshold_ = 30000;
+    constexpr static uint16_t negative_activation_threshold_ = 30000;
 
     /**
      * @brief The parameter defines the default value for `potential_leak_` of AltAILIF neuron.
      */
-    constexpr static /*int16_t*/ float potential_leak_ = 0;
+    constexpr static int16_t potential_leak_ = 0;
 
     /**
      * @brief The parameter defines the default value for `potential_reset_value_` of AltAILIF neuron.
      */
-    constexpr static /*uint16_t*/ float potential_reset_value_ = 0;
+    constexpr static uint16_t potential_reset_value_ = 0;
 
     /**
      * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.

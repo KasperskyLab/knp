@@ -68,27 +68,22 @@ float resource_from_weight(float weight, float min_weight, float max_weight)
     return static_cast<float>(over * diff / (diff - over));
 }
 
-constexpr float scale = 1000.f;
-
-// ARNI activation threshold constant
-constexpr uint16_t threshold_idk_constant = 8531;
-
 // Add populations to the network.
 auto add_subnetwork_populations(AnnotatedNetwork &result)
 {
     ResourceNeuronData default_neuron;
-    default_neuron.activation_threshold_ = threshold_idk_constant;
+    default_neuron.activation_threshold_ = 8531;
     ResourceNeuronData l_neuron = default_neuron;
-    l_neuron.potential_leak_ = static_cast<uint16_t>(-(1.f - 1.f / 3.f) * scale);
+    l_neuron.potential_leak_ = static_cast<uint16_t>(-(1.f - 1.f / 3.f) * 1000);
     l_neuron.negative_activation_threshold_ = 0;
     l_neuron.potential_reset_value_ = 0;
 
     l_neuron.dopamine_plasticity_time_ = 10;
     l_neuron.isi_max_ = 10;
-    l_neuron.d_h_ = -0.1765261f * scale;
+    l_neuron.d_h_ = -0.1765261f * 1000;
 
     // stability_resource_change_ratio
-    l_neuron.stability_change_parameter_ = 0.0497573 / scale;
+    l_neuron.stability_change_parameter_ = 0.0497573 / 1000;
 
     // silent synapses
     l_neuron.resource_drain_coefficient_ = 27;
@@ -106,6 +101,7 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
         bool output_;
         std::string name_;
     };
+
     //
     std::vector<PopulationRole> pop_data{
         {{classes_amount * neurons_per_column, l_neuron}, true, false, "L"},
@@ -143,8 +139,8 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         // R_to_L_synapse.rule_.d_u_ = 0.277539;
         // w_min and w_max * 1000 because of 8531
         R_to_L_synapse.rule_.dopamine_plasticity_period_ = 10;
-        R_to_L_synapse.rule_.w_min_ = -0.253122 * scale;
-        R_to_L_synapse.rule_.w_max_ = 0.0923957 * scale;
+        R_to_L_synapse.rule_.w_min_ = -0.253122 * 1000;
+        R_to_L_synapse.rule_.w_max_ = 0.0923957 * 1000;
         R_to_L_synapse.rule_.synaptic_resource_ =
             resource_from_weight(0, R_to_L_synapse.rule_.w_min_, R_to_L_synapse.rule_.w_max_);
 
@@ -159,7 +155,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams TARGET_to_L_synapse;
         TARGET_to_L_synapse.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
-        TARGET_to_L_synapse.weight_ = 0.179376 * scale;
+        TARGET_to_L_synapse.weight_ = 0.179376 * 1000;
         TARGET_to_L_synapse.delay_ = 3;
 
         DeltaProjection TARGET_to_L_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
@@ -171,7 +167,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams TARGET_to_L_synapse2;
         TARGET_to_L_synapse2.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-        TARGET_to_L_synapse2.weight_ = -30 * scale;
+        TARGET_to_L_synapse2.weight_ = -30 * 1000;
         TARGET_to_L_synapse2.delay_ = 4;
 
         DeltaProjection TARGET_to_L_projection2 = knp::framework::projection::creators::all_to_all<DeltaSynapse>(
@@ -183,7 +179,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams TARGET_to_BIAS_synapse;
         TARGET_to_BIAS_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-        TARGET_to_BIAS_synapse.weight_ = 10 * scale;
+        TARGET_to_BIAS_synapse.weight_ = 10 * 1000;
 
         DeltaProjection TARGET_to_BIAS_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
             knp::core::UID(false), population_uids[BIAS], classes_amount, pop_data[BIAS].pd_.size_,
@@ -194,7 +190,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams L_to_OUT_synapse;
         L_to_OUT_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-        L_to_OUT_synapse.weight_ = 10.f * scale;
+        L_to_OUT_synapse.weight_ = 10.f * 1000;
 
         DeltaProjection L_to_OUT_projection =
             knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
@@ -218,7 +214,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaSynapseParams BIAS_to_L_synapse;
         BIAS_to_L_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-        BIAS_to_L_synapse.weight_ = 10.f * scale;
+        BIAS_to_L_synapse.weight_ = 10.f * 1000;
 
         DeltaProjection BIAS_to_L_projection =
             knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
