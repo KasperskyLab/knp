@@ -37,34 +37,32 @@ void export_blifat()
         .add_property(
             "dynamic_threshold", &bn_params::dynamic_threshold_,
             "The parameter defines a dynamic threshold for membrane potential after reaching which a neuron generates "
-            "a "
-            "spike.")
+            "a spike.")
         .add_property(
             "threshold_decay", &bn_params::threshold_decay_,
             "The parameter defines a time constant during which the `dynamic_threshold_` parameter tends to its base "
-            "value "
-            "if nothing happens.")
+            "value if nothing happens.")
         .add_property(
             "threshold_increment", &bn_params::threshold_increment_,
-            "The parameter defines a value that increases the `dynamic_threshold_` value if a neuron generates a "
+            "The parameter defines a value that increases the `dynamic_threshold` value if a neuron generates a "
             "spike.")
         .add_property(
             "postsynaptic_trace", &bn_params::postsynaptic_trace_,
             "The parameter defines a threshold after reaching which a neuron generates spikes.")
         .add_property(
             "postsynaptic_trace_decay", &bn_params::postsynaptic_trace_decay_,
-            "The parameter defines a time constant during which the `postsynaptic_trace_` parameter tends to zero if "
+            "The parameter defines a time constant during which the `postsynaptic_trace` parameter tends to zero if "
             "nothing happens.")
         .add_property(
             "postsynaptic_trace_increment", &bn_params::postsynaptic_trace_increment_,
-            "The parameter defines a value that increases the `postsynaptic_trace_` value if a neuron generates a "
+            "The parameter defines a value that increases the `postsynaptic_trace` value if a neuron generates a "
             "spike.")
         .add_property(
             "inhibitory_conductance", &bn_params::inhibitory_conductance_,
             "The parameter defines speed with which a potential tends to the `reversal_inhibitory_potential` value.")
         .add_property(
             "inhibitory_conductance_decay", &bn_params::inhibitory_conductance_decay_,
-            "The parameter defines a time constant during which the `inhibitory_conductance_` value decreases.")
+            "The parameter defines a time constant during which the `inhibitory_conductance` value decreases.")
         .add_property("potential", &bn_params::potential_, "The parameter defines the current membrane potential.")
         .add_property(
             "pre_impact_potential", &bn_params::pre_impact_potential_,
@@ -72,10 +70,10 @@ void export_blifat()
             "ignored.")
         .add_property(
             "potential_decay", &bn_params::potential_decay_,
-            "The parameter defines a time constant during which the `potential_` value tends to zero.")
+            "The parameter defines a time constant during which the `potential` value tends to zero.")
         .add_property(
             "bursting_phase", &bn_params::bursting_phase_,
-            "The parameter defines a counter for the `bursting_period_` value.")
+            "The parameter defines a counter for the `bursting_period` value.")
         .add_property(
             "bursting_period", &bn_params::bursting_period_,
             "The parameter defines a number of network steps after reaching which a neuron generates a spike.")

@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 24.02.2025
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +43,21 @@
 #include <boost/mp11.hpp>
 
 /**
- * @brief Namespace for single-threaded backend.
+ * @brief Namespace for GPU backend.
  */
 namespace knp::backends::gpu
 {
 
+
+/**
+ * @brief Namespace for GPU CUDA backend.
+ */
 namespace cuda
+
 {
+/**
+ * @brief The CUDABackendImpl class is an internal implementation class for GPU CUDA backend.
+ */
 class CUDABackendImpl;
 }
 
@@ -60,12 +68,12 @@ class KNP_DECLSPEC CUDABackend : public knp::core::Backend
 {
 public:
     /**
-     * @brief List of neuron types supported by the single-threaded CPU backend.
+     * @brief List of neuron types supported by the CUDA GPU backend.
      */
     using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron>;
 
     /**
-     * @brief List of synapse types supported by the single-threaded CPU backend.
+     * @brief List of synapse types supported by the CUDA GPU backend.
      */
     using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse>;
 
@@ -132,17 +140,17 @@ public:
 
 public:
     /**
-     * @brief Default constructor for CUDA backend.
+     * @brief Default constructor for GPU CUDA backend.
      */
     CUDABackend();
     /**
-     * @brief Destructor for CUDA backend.
+     * @brief Destructor for GPU CUDA backend.
      */
     ~CUDABackend() override;
 
 public:
     /**
-     * @brief Create an object of the single-threaded CUDA backend.
+     * @brief Create an object of the GPU CUDA backend.
      * @return shared pointer to backend object.
      */
     static std::shared_ptr<CUDABackend> create();
@@ -277,7 +285,7 @@ public:
 
     /**
      * @brief Select devices on which to run the backend.
-     * @param device selected for backend device.
+     * @param device selected device.
      */
     void select_device(std::unique_ptr<knp::core::Device> &&device) override;
 

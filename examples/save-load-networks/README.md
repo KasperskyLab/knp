@@ -46,7 +46,7 @@ If you install the `knp-examples` package, the example binary file is located in
 
 You can also build the example by using CMake. The example binary file will be located in the `build/bin` directory. To execute the created binary file, run the following commands:
 
-`/build/bin/save-load-networks`
+`build/bin/save-load-networks`
 
 
 # Information about third-party code

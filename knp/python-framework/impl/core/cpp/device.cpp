@@ -24,8 +24,11 @@
 void export_device()
 {
     py::enum_<core::DeviceType>("DeviceType")
+        // CPU device.
         .value("CPU", core::DeviceType::CPU)
+        // GPU device.
         .value("GPU", core::DeviceType::GPU)
+        // Generic NPU device.
         .value("NPU", core::DeviceType::NPU);
 
     //py::class_<core::Device>("Device", "The Device class is the base class for devices supported by the device

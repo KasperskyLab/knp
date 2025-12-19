@@ -46,7 +46,7 @@ If you install the `knp-examples` package, the example binary file is located in
 
 You can also build the example by using CMake. The example binary file will be located in the `build/bin` directory. To execute the created binary file, run the following commands:
 
-`$ cd /build/bin/simple-network`
+`$ build/bin/simple-network`
 
 
 # Information about third-party code

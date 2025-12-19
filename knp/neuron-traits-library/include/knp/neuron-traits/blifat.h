@@ -116,7 +116,7 @@ struct default_values<BLIFATNeuron>
     constexpr static double postsynaptic_trace_increment_ = 0.;
 
     /**
-     * @brief The parameter defines speed with which a potential tends to the `reversal_inhibitory_potential` value.
+     * @brief The parameter defines speed with which a potential tends to the `reversal_inhibitory_potential_` value.
      */
     constexpr static double inhibitory_conductance_ = 0.;
 
@@ -179,12 +179,12 @@ struct default_values<BLIFATNeuron>
     constexpr static double dopamine_value_ = 0.0;
 
     /**
-     * @brief The parameter defines stochastic stimulation - random number added to the potential every tick.
+     * @brief The parameter defines stochastic stimulation, that is, a random number added to the potential every tick.
      */
     constexpr static double stochastic_stimulation_ = 0.0;
 
     /**
-     * @brief The random number generator is used for stochastic stimulation.
+     * @brief The parameter defines the state of a random number generator that is used for stochastic stimulation.
      */
     constexpr static unsigned random_number_generator_state_ = 0;
 };
@@ -248,7 +248,7 @@ struct neuron_parameters<BLIFATNeuron>
      */
     double postsynaptic_trace_increment_ = default_values<BLIFATNeuron>::postsynaptic_trace_increment_;
     /**
-     * @brief The parameter defines speed with which a potential tends to the `reversal_inhibitory_potential` value.
+     * @brief The parameter defines speed with which a potential tends to the `reversal_inhibitory_potential_` value.
      */
     double inhibitory_conductance_ = default_values<BLIFATNeuron>::inhibitory_conductance_;
 
@@ -286,7 +286,7 @@ struct neuron_parameters<BLIFATNeuron>
     double reflexive_weight_ = default_values<BLIFATNeuron>::reflexive_weight_;
 
     /**
-     * @brief The parameter takes the default value of `reversal_inhibitory_potential` defined for a BLIFAT neuron.
+     * @brief The parameter takes the default value of `reversal_inhibitory_potential_` defined for a BLIFAT neuron.
      */
     double reversal_inhibitory_potential_ = default_values<BLIFATNeuron>::reversal_inhibitory_potential_;
 
@@ -300,7 +300,7 @@ struct neuron_parameters<BLIFATNeuron>
     double potential_reset_value_ = default_values<BLIFATNeuron>::potential_reset_value_;
 
     /**
-     * @brief The parameter takes the default value of `min_potential` defined for a BLIFAT neuron.
+     * @brief The parameter takes the default value of `min_potential_` defined for a BLIFAT neuron.
      */
     double min_potential_ = default_values<BLIFATNeuron>::min_potential_;
     /**
@@ -313,11 +313,11 @@ struct neuron_parameters<BLIFATNeuron>
      */
     double dopamine_value_ = default_values<BLIFATNeuron>::dopamine_value_;
     /**
-     * @brief The parameter defines stochastic stimulation - random namber added to the potential every tick.
+     * @brief The parameter defines stochastic stimulation, that is, a random number added to the potential every tick.
      */
     double stochastic_stimulation_ = 0.0;
     /**
-     * @brief The random number generator is used for stochastic stimulation.
+     * @brief The parameter defines the state of a random number generator that is used for stochastic stimulation.
      */
     unsigned random_number_generator_state_ = 0;
 };
