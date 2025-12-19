@@ -79,14 +79,14 @@ BOOST_PYTHON_MODULE(KNP_FULL_LIBRARY_NAME)
         "BackendLoader", "The BackendLoader class is a definition of a backend loader.")
         .def(
             "__enter__", &make_loader, py::return_self<>(),
-            "Make loader")
+            "Make loader.")
         .def(
             "__exit__",
             make_handler([](boost::python::object &self, boost::python::object &exc_type,
                             boost::python::object &exc_value, boost::python::object &traceback) { return false; }),
-            "Exit loader")
-        .def("load", &load_backend, "Load backend")
-        .def("is_backend", &knp::framework::BackendLoader::is_backend, "Check if the specified path points to a backend")
+            "Exit loader.")
+        .def("load", &load_backend, "Load backend.")
+        .def("is_backend", &knp::framework::BackendLoader::is_backend, "Check if the specified path points to a backend.")
         .staticmethod("is_backend");
     export_device();
     export_message_bus();
