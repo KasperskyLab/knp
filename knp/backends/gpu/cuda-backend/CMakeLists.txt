@@ -28,14 +28,14 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
     cmake_policy(SET CMP0167 OLD)
 endif()
 
-project(knp-gpu-cuda-backend VERSION "${KNP_VERSION}" LANGUAGES CUDA C CXX
-        DESCRIPTION "Kaspersky Neuromorphic Platform NVIDIA CUDA GPU backend"
-        HOMEPAGE_URL "https://neuro.kaspersky.ru/neyromorfnye-tekhnologii/")
-
 if (NOT KNP_BUILD_CUDA)
     message(STATUS "Building CUDA backend disabled.")
     return()
 endif()
+
+project(knp-gpu-cuda-backend VERSION "${KNP_VERSION}" LANGUAGES CUDA C CXX
+        DESCRIPTION "Kaspersky Neuromorphic Platform NVIDIA CUDA GPU backend"
+        HOMEPAGE_URL "https://neuro.kaspersky.ru/neyromorfnye-tekhnologii/")
 
 if(NOT DEFINED CMAKE_CUDA_STANDARD)
     set(CMAKE_CUDA_STANDARD 17)
