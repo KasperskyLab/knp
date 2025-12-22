@@ -45,19 +45,19 @@ using ResourceSynapseParams = knp::synapse_traits::synapse_parameters<ResourceSy
 
 
 // Create an input projection.
-inline std::optional<DeltaProjection::Synapse> input_projection_gen(size_t /*index*/)  // NOLINT
+static inline std::optional<DeltaProjection::Synapse> input_projection_gen(size_t /*index*/)  // NOLINT
 {
     return DeltaProjection::Synapse{{1.0, 1, knp::synapse_traits::OutputType::EXCITATORY}, 0, 0};
 }
 
 // Create a loop projection.
-inline std::optional<DeltaProjection::Synapse> synapse_generator(size_t /*index*/)  // NOLINT
+static inline std::optional<DeltaProjection::Synapse> synapse_generator(size_t /*index*/)  // NOLINT
 {
     return DeltaProjection::Synapse{{1.1, 6, knp::synapse_traits::OutputType::EXCITATORY}, 0, 0};
 }
 
 // Create an input resource projection
-inline std::optional<ResourceDeltaProjection::Synapse> input_res_projection_gen(size_t /*index*/)  // NOLINT
+static inline std::optional<ResourceDeltaProjection::Synapse> input_res_projection_gen(size_t /*index*/)  // NOLINT
 {
     knp::synapse_traits::synapse_parameters<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> syn;
     syn.rule_.w_max_ = 2.0;
@@ -71,7 +71,7 @@ inline std::optional<ResourceDeltaProjection::Synapse> input_res_projection_gen(
 }
 
 // Create a loop resource projection
-inline std::optional<ResourceDeltaProjection::Synapse> loop_res_projection_gen(size_t /*index*/)  // NOLINT
+static inline std::optional<ResourceDeltaProjection::Synapse> loop_res_projection_gen(size_t /*index*/)  // NOLINT
 {
     knp::synapse_traits::synapse_parameters<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> syn;
     syn.rule_.w_max_ = 2.0;
@@ -86,14 +86,15 @@ inline std::optional<ResourceDeltaProjection::Synapse> loop_res_projection_gen(s
 
 
 // Create population.
-inline knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> neuron_generator(size_t)  // NOLINT
+static inline knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> neuron_generator(
+    size_t)  // NOLINT
 {
     return knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron>{};
 }
 
 
 // Create resource population
-inline auto neuron_res_generator(size_t)  // NOLINT
+static inline auto neuron_res_generator(size_t)  // NOLINT
 {
     return knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>{};
 }

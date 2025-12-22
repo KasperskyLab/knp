@@ -24,6 +24,7 @@
 #include <spdlog/spdlog.h>
 
 #include <exception>
+#include <utility>
 
 #include <boost/uuid/name_generator.hpp>
 
@@ -52,7 +53,7 @@ CPU::CPU(uint32_t cpu_num) : cpu_num_(cpu_num), power_meter_{std::make_unique<Cp
 }
 
 
-CPU::CPU(CPU&& other) : cpu_name_{std::move(other.cpu_name_)}, cpu_num_{std::move(other.cpu_num_)} {}
+CPU::CPU(CPU&& other) : cpu_num_{std::move(other.cpu_num_)}, cpu_name_{std::move(other.cpu_name_)} {}
 
 
 CPU::~CPU() {}
@@ -60,7 +61,7 @@ CPU::~CPU() {}
 
 CPU& CPU::operator=(CPU&& other) noexcept
 {
-    cpu_num_.swap(other.cpu_num_);
+    std::swap(cpu_num_, other.cpu_num_);
     cpu_name_.swap(other.cpu_name_);
     power_meter_.swap(other.power_meter_);
     return *this;
