@@ -1,53 +1,53 @@
-<depends update_date="04.10.2024">
+<depends update_date="23.12.2025">
     <!-- library name, vendor_name, os_name, os_version are optional -->
+    
+    <!-- Docker -->
 
-    <!-- Third Party Code Docker образ -->
-
-    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.81" site="https://github.com/boostorg/python/tree/boost-1.81.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/filesystem" version="1.81" site="https://github.com/boostorg/filesystem/tree/boost-1.81.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/dll" version="1.81" site="https://github.com/boostorg/dll/tree/boost-1.81.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/mp11" version="1.81" site="https://github.com/boostorg/mp11/tree/boost-1.81.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/asio" version="1.81" site="https://github.com/boostorg/asio/tree/boost-1.81.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="common" name="doxygen" version="1.10.0" site="https://www.doxygen.nl/download.html" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.81.0" site="https://github.com/boostorg/python/tree/boost-1.81.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/filesystem" version="1.81.0" site="https://github.com/boostorg/filesystem/tree/boost-1.81.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/dll" version="1.81.0" site="https://github.com/boostorg/dll/tree/boost-1.81.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/mp11" version="1.81.0" site="https://github.com/boostorg/mp11/tree/boost-1.81.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/asio" version="1.81.0" site="https://github.com/boostorg/asio/tree/boost-1.81.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="common" name="doxygen" version="1.10.0" site="https://www.doxygen.nl/download.html " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="github" name="gcovr/gcovr" version="5.2" site="https://github.com/gcovr/gcovr/releases/tag/5.2" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="pre-commit/pre-commit" version="2.20.0" site="https://github.com/pre-commit/pre-commit/releases/tag/v2.20.0 " legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="pre-commit/pre-commit" version="2.20.0" site="https://github.com/pre-commit/pre-commit/releases/tag/v2.20.0 " legal_type_of_use="tool"/>
     <depend type="lib" ecosystem_name="github" name="oclint/oclint" version="22.02" site="https://github.com/oclint/oclint/releases/tag/v22.02" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="common" name="graphviz" version="2.42.2" site="https://gitlab.com/graphviz/graphviz/-/tree/2.42.2?ref_type=tags" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="llvm/llvm-project" version="19.0.0" site="https://github.com/llvm/llvm-project/tree/llvmorg-19-init/clang-tools-extra/clang-tidy" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="llvm/llvm-project" version="15.0.7" site="https://github.com/llvm/llvm-project/tree/llvmorg-15.0.7/clang/tools/clang-format" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="danmar/cppcheck" version="2.13" site="https://github.com/danmar/cppcheck/archive/2.13.0.zip" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="cpplint/cpplint" version="1.6.1" site="https://github.com/cpplint/cpplint/tree/1.6.1" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="llvm/llvm-project" version="19.0.0" site="https://github.com/llvm/llvm-project/tree/llvmorg-19-init/clang-tools-extra/clang-tidy" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="llvm/llvm-project" version="15.0.7" site="https://github.com/llvm/llvm-project/tree/llvmorg-15.0.7/clang/tools/clang-format" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="danmar/cppcheck" version="2.13.0" site="https://github.com/danmar/cppcheck/archive/2.13.0.zip" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="cpplint/cpplint" version="1.6.1" site="https://github.com/cpplint/cpplint/tree/1.6.1" legal_type_of_use="tool"/>
     <depend type="lib" ecosystem_name="pypi" name="PyLint" version="3.0.0a7" site="https://github.com/pylint-dev/pylint/tree/v3.0.0a7" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="github" name="PyCQA/flake8" version="6.1.0" site="https://github.com/PyCQA/flake8/tree/6.1.0" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="psf/black" version="23.7.0" site="https://github.com/psf/black/tree/23.7.0" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="Kitware/CMake" version="3.29" site="https://github.com/Kitware/CMake/tree/v3.29.0" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="pypi" name="Pytest" version="8.0" site="https://github.com/pytest-dev/pytest/tree/8.0.0" legal_type_of_use="binary"/>
+    <depend type="toolset" ecosystem_name="github" name="PyCQA/flake8" version="6.1.0" site="https://github.com/PyCQA/flake8/tree/6.1.0" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="psf/black" version="23.7.0" site="https://github.com/psf/black/tree/23.7.0" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="Kitware/CMake" version="3.29.0" site="https://github.com/Kitware/CMake/tree/v3.29.0" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="pypi" name="Pytest" version="8.0.0" site="https://github.com/pytest-dev/pytest/tree/8.0.0" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="pypi" name="MyPy" version="1.0.1" site="https://github.com/python/mypy/tree/v1.0.1" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="github" name="gcc-mirror/gcc" version="14.1.0" site="https://github.com/gcc-mirror/gcc/tree/releases/gcc-14.1.0" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="github" name="llvm/llvm-project" version="14.0.6" site="https://github.com/llvm/llvm-project/tree/llvmorg-14.0.6/clang" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="github" name="docker-library/gcc" version="14" site="https://github.com/docker-library/gcc/tree/master/14 " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="apt-transport-https" version="2.6.1" site="https://packages.debian.org/bookworm/apt-transport-https " legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="deb" name="bison" version="2:3.8.2+dfsg-1+b1" site="https://packages.debian.org/bookworm/bison " legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="deb" name="bison" version="3.8.2+dfsg-1+b1" site="https://packages.debian.org/bookworm/bison " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="build-essential" version="12.9" site="https://packages.debian.org/bookworm/build-essential " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="ca-certificates" version="20230311" site="https://packages.debian.org/bookworm/ca-certificates" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="clang" version="1:14.0-55.7~deb12u1" site="https://packages.debian.org/bookworm/clang " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="clang-tidy" version="1:14.0.6-12" site="https://packages.debian.org/bookworm/clang-tidy-14 " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="cmake" version="3.25.1-1" site="https://packages.debian.org/bookworm/cmake " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="cloc" version="1.96-1" site="https://packages.debian.org/bookworm/cloc" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="deb" name="cpplint" version="1.6.1-2  " site="https://packages.debian.org/bookworm/cpplint" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="deb" name="cpplint" version="1.6.1-2 " site="https://packages.debian.org/bookworm/cpplint" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="cppcheck" version="2.10-2" site="https://packages.debian.org/bookworm/cppcheck" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="curl" version="7.88.1-10+deb12u5" site="https://packages.debian.org/bookworm/curl " legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="deb" name="flake8" version="5.0.4-4 " site="https://packages.debian.org/bookworm/flake8 " legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="deb" name="flake8" version="5.0.4-4" site="https://packages.debian.org/bookworm/flake8 " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="flex" version="2.6.4-8.2" site="https://packages.debian.org/bookworm/flex" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="fonts-liberation" version="1:1.07.4-11" site="https://packages.debian.org/bookworm/fonts-liberation " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="gdb" version="13.1-3" site="https://packages.debian.org/bookworm/gdb" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="gdbserver" version="13.1-3" site="https://packages.debian.org/bookworm/gdbserver" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="deb" name="git" version="1:2.39.2-1.1" site="https://packages.debian.org/bookworm/git" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="deb" name="git" version="2.39.2-1.1" site="https://packages.debian.org/bookworm/git" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="gnupg-agent" version="2.2.40-1.1" site="https://packages.debian.org/bookworm/gnupg-agent" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="gosu" version="1.14-1+b6" site="https://packages.debian.org/bookworm/gosu " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="graphviz" version="2.42.2-7+b3" site="https://packages.debian.org/bookworm/graphviz" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="gsfonts" version="2:20200910-7" site="https://packages.debian.org/bookworm/gsfonts" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="deb" name="jq" version="1.6-2.1" site="https://packages.debian.org/bookworm/jq" legal_type_of_use="binary"/>
+    <depend type="lib" ecosystem_name="deb" name="jq" version="1.6-2.1+deb12u1" site="https://packages.debian.org/bookworm/jq" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="libcurl4" version="7.88.1-10+deb12u5" site="https://packages.debian.org/bookworm/libcurl4" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="libunwind8" version="1.6.2-3" site="https://packages.debian.org/bookworm/libunwind8 " legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="iputils-ping" version="3:20221126-1" site="https://packages.debian.org/bookworm/iputils-ping" legal_type_of_use="binary"/>
@@ -80,5 +80,6 @@
     <depend type="lib" ecosystem_name="deb" name="vim" version="2:9.0.1378-2" site="https://packages.debian.org/bookworm/vim" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="wget" version="1.21.3-1+b2" site="https://packages.debian.org/bookworm/wget" legal_type_of_use="binary"/>
     <depend type="lib" ecosystem_name="deb" name="zip" version="3.0-13" site="https://packages.debian.org/bookworm/zip" legal_type_of_use="binary"/>
-    <depend type="lib" ecosystem_name="common" name="Valgrind" version="3.23.0" site="https://valgrind.org/downloads/current.html" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="opencv/opencv" version="4.10.0" site="https://github.com/opencv/opencv/releases/tag/4.10.0" legal_type_of_use="shared_library"/>
+    <depend type="toolset" ecosystem_name="common" name="Valgrind" version="3.23.0" site="https://valgrind.org/downloads/current.html" legal_type_of_use="tool"/>
 </depends>

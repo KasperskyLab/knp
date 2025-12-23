@@ -1,43 +1,48 @@
-<depends update_date="04.10.2024">
+<depends update_date="23.12.2025">
     <!-- library name, vendor_name, os_name, os_version are optional -->
+    
+    <!-- source -->
 
-    <!-- Third Party Code исходный код -->
-
-    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.81" site="https://github.com/boostorg/python/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/filesystem" version="1.81" site="https://github.com/boostorg/filesystem/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/dll" version="1.81" site="https://github.com/boostorg/dll/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/mp11" version="1.81" site="https://github.com/boostorg/mp11/tree/boost-1.81.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/asio" version="1.81" site="https://github.com/boostorg/asio/tree/boost-1.81.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="google/flatbuffers" version="23.5.26" site="https://github.com/google/flatbuffers/tree/v23.5.26" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.81.0" site="https://github.com/boostorg/python/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/filesystem" version="1.81.0" site="https://github.com/boostorg/filesystem/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/dll" version="1.81.0" site="https://github.com/boostorg/dll/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/mp11" version="1.81.0" site="https://github.com/boostorg/mp11/tree/boost-1.81.0" legal_type_of_use="static_library"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/asio" version="1.81.0" site="https://github.com/boostorg/asio/tree/boost-1.81.0" legal_type_of_use="static_library"/>
+    <depend type="toolset" ecosystem_name="github" name="google/flatbuffers" version="23.5.26" site="https://github.com/google/flatbuffers/tree/v23.5.26" legal_type_of_use="tool"/>
     <depend type="lib" ecosystem_name="github" name="google/flatbuffers" version="23.5.26" site="https://github.com/google/flatbuffers/tree/v23.5.26" legal_type_of_use="static_library"/>
     <depend type="lib" ecosystem_name="github" name="gabime/spdlog" version="1.12.0" site="https://github.com/gabime/spdlog/tree/v1.12.0" legal_type_of_use="static_library"/>
     <depend type="lib" ecosystem_name="github" name="google/googletest" version="1.14.0" site="https://github.com/google/googletest/tree/v1.14.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="intel/pcm" version="коммит 2f9b0c2" site="https://github.com/intel/pcm/tree/202307" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="jothepro/doxygen-awesome-css" version="2.2.0" site="https://github.com/jothepro/doxygen-awesome-css/tree/v2.2.0" is_modified="true" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="intel/pcm" version="2f9b0c2" site="https://github.com/intel/pcm/tree/202307" legal_type_of_use="static_library"/>
+    <depend type="toolset" ecosystem_name="github" name="jothepro/doxygen-awesome-css" version="2.2.0" site="https://github.com/jothepro/doxygen-awesome-css/tree/v2.2.0" is_modified="true" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="github" name="zeromq/libzmq" version="4.3.5" site="https://github.com/zeromq/libzmq/tree/v4.3.5" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="zeromq/cppzmq" version="4.10.0" site="https://github.com/zeromq/cppzmq/tree/v4.10.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="BlueBrain/HighFive" version="2.9.0" site="https://github.com/BlueBrain/HighFive/tree/v2.9.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="Tencent/rapidjson" version="коммит 7c73dd7" site="https://github.com/Tencent/rapidjson/releases/tag/v1.1.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="cpm-cmake/CPM.cmake" version="0.39" site="https://github.com/cpm-cmake/CPM.cmake" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="HDFGroup/hdf5" version="1.14.4" site="https://github.com/HDFGroup/hdf5/tree/hdf5_1.14.4 " legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="p-ranav/csv2 " version="2.0.1" site="https://github.com/p-ranav/csv2 " legal_type_of_use="static_library"/>
+    <depend type="lib" ecosystem_name="github" name="zeromq/cppzmq" version="4.11.0" site="https://github.com/zeromq/cppzmq/tree/v4.10.0" legal_type_of_use="static_library"/>
+    <depend type="toolset" ecosystem_name="github" name="pre-commit/pre-commit" version="2.20.0" site="https://github.com/pre-commit/pre-commit/releases/tag/v2.20.0 " legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="pre-commit/pre-commit-hooks" version="4.4.0" site="https://github.com/pre-commit/pre-commit-hooks/tree/v4.4.0" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="oclint/oclint" version="22.02" site="https://github.com/oclint/oclint/releases/tag/v22.02" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="AlDanial/cloc" version="1.96" site="https://github.com/AlDanial/cloc/tree/v1.96" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="sarnold/cccc" version="3.2.0" site="https://github.com/sarnold/cccc/tree/3.2.0" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="BlueBrain/HighFive" version="3.1.0" site="https://github.com/BlueBrain/HighFive/tree/v2.9.0" legal_type_of_use="static_library"/>
+    <depend type="lib" ecosystem_name="github" name="Tencent/rapidjson" version="7c73dd7" site="https://github.com/Tencent/rapidjson/releases/tag/v1.1.0" legal_type_of_use="static_library"/>
+    <depend type="toolset" ecosystem_name="github" name="pre-commit/pre-commit-hooks" version="4.4.0" site="https://github.com/pre-commit/pre-commit-hooks/blob/v4.4.0/pre_commit_hooks/check_merge_conflict.py " legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="PyCQA/autoflake" version="2.2.0" site="https://github.com/PyCQA/autoflake/tree/v2.2.0" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="pypi" name="PyUpgrade" version="3.10.1" site="https://github.com/asottile/pyupgrade/tree/v3.10.1" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="pypi" name="PydocstringFormatter" version="0.7.3" site="https://github.com/DanielNoord/pydocstringformatter/tree/v0.7.3" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="PyCQA/bandit" version="1.7.5" site="https://github.com/PyCQA/bandit/tree/1.7.5" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="PyCQA/isort" version="5.12.0" site="https://github.com/PyCQA/isort/tree/5.12.0" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="executablebooks/mdformat" version="0.7.16" site="https://github.com/executablebooks/mdformat/tree/0.7.16" legal_type_of_use="tool"/>
+    <depend type="toolset" ecosystem_name="github" name="cpm-cmake/CPM.cmake" version="0.42.0" site="https://github.com/cpm-cmake/CPM.cmake" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="HDFGroup/hdf5" version="1.14.6" site="https://github.com/HDFGroup/hdf5/tree/hdf5_1.14.4 " legal_type_of_use="static_library"/>
+    <depend type="lib" ecosystem_name="github" name="p-ranav/csv2 " version="0.1" site="https://github.com/p-ranav/csv2 " legal_type_of_use="static_library"/>
     <depend type="lib" ecosystem_name="github" name="simdjson/simdjson" version="3.9.1" site="https://github.com/simdjson/simdjson" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="bilke/cmake-modules" version="-" site="https://github.com/bilke/cmake-modules" legal_type_of_use="source"/>
+    <depend type="lib" ecosystem_name="github" name="bilke/cmake-modules" version="891c5db57d49dc8ba298d82542bb5182e1d958c5" site="https://github.com/bilke/cmake-modules" legal_type_of_use="source"/>
     <depend type="lib" ecosystem_name="github" name="viva64/pvs-studio-cmake-module" version="7.30" site="https://github.com/viva64/pvs-studio-cmake-module/tree/master" legal_type_of_use="source"/>
-    <depend type="lib" ecosystem_name="github" name="opencv/opencv" version="4.10.0" site="https://github.com/opencv/opencv/releases/tag/4.10.0" legal_type_of_use="shared_library"/>
-
-    <!-- Third Party Code бинарный пакет -->
-
-    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.81" site="https://github.com/boostorg/python/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/filesystem" version="1.81" site="https://github.com/boostorg/filesystem/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/dll" version="1.81" site="https://github.com/boostorg/dll/tree/boost-1.81.0" legal_type_of_use="shared_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/mp11" version="1.81" site="https://github.com/boostorg/mp11/tree/boost-1.81.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/asio" version="1.81" site="https://github.com/boostorg/asio/tree/boost-1.81.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="google/flatbuffers" version="23.5.26" site="https://github.com/google/flatbuffers/tree/v23.5.26" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="google/flatbuffers" version="23.5.26" site="https://github.com/google/flatbuffers/tree/v23.5.26" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="gabime/spdlog" version="1.12.0" site="https://github.com/gabime/spdlog/tree/v1.12.0" legal_type_of_use="static_library"/>
-    <depend type="lib" ecosystem_name="github" name="jothepro/doxygen-awesome-css" version="2.2.0" site="https://github.com/jothepro/doxygen-awesome-css/tree/v2.2.0" is_modified="true" legal_type_of_use="unknown"/>
-    <depend type="lib" ecosystem_name="github" name="gcc-mirror/gcc" version="14.1.0" site="https://github.com/gcc-mirror/gcc/tree/releases/gcc-14.1.0" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="llvm/llvm-project" version="14.0.6" site="https://github.com/llvm/llvm-project/tree/llvmorg-14.0.6/clang" legal_type_of_use="tool"/>
-    <depend type="lib" ecosystem_name="github" name="cpm-cmake/CPM.cmake" version="0.39" site="https://github.com/cpm-cmake/CPM.cmake" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="freedick/cltcache" version="1.1.2" site="https://github.com/freedick/cltcache" is_modified="true" legal_type_of_use="source"/>
+    <depend type="lib" ecosystem_name="github" name="davidcaron/CppHeaderParser" version="2.7.3.1" site="https://github.com/davidcaron/CppHeaderParser/blob/master/CppHeaderParser/CppHeaderParser.py" is_modified="true" legal_type_of_use="source"/>
+    <depend type="lib" ecosystem_name="github" name="pocc/pre-commit-hooks" version="1.3.5" site="https://github.com/pocc/pre-commit-hooks/tree/master" is_modified="true" legal_type_of_use="source"/>
+    <depend type="toolset" ecosystem_name="common" name="Valgrind" version="3.23.0" site="https://valgrind.org/downloads/current.html" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="NVIDIA/cccl" version="2.7.0" site="https://github.com/NVIDIA/cccl/tree/main/thrust" legal_type_of_use="static_library"/>
+    <depend type="lib" ecosystem_name="github" name="NVIDIA/cccl" version="2.7.0" site="https://github.com/NVIDIA/cccl/tree/main/libcudacxx" legal_type_of_use="static_library"/>
+    <depend type="toolset" ecosystem_name="common" name="nvcc" version="12.8" site="nan" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="common" name="libnvidia-ml.so" version="12.8" site="nan" legal_type_of_use="shared_library"/>
+    <depend type="lib" ecosystem_name="common" name="libcudart.so" version="12.8" site="nan" legal_type_of_use="shared_library"/>
 </depends>
