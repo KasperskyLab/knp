@@ -93,10 +93,6 @@ struct CUDAProjection
                          ::cuda::std::get<0>(syn_copy).delay_);
         }
     }
-    /**
-     * @brief Destructor.
-     */
-    __host__ __device__ ~CUDAProjection() = default;
 
     __host__ __device__ void lock_weights() { is_locked_ = true; }
     __host__ __device__ void unlock_weights() { is_locked_ = false; }

@@ -58,7 +58,7 @@ public:
     using UidSet = device_lib::CUDAVector<UID>;
 
 public:
-    __host__ __device__ Subscription() = default;
+    Subscription() = default;
 
     /**
      * @brief Subscription constructor.
@@ -171,7 +171,7 @@ public:
      */
     [[nodiscard]] __host__ __device__ bool has_sender(const cuda::UID &uid) const
     {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__)
         PRINTF_TRACE("Using has_sender on device\n");
         for (size_t i = 0; i < senders_.size(); ++i)
         {

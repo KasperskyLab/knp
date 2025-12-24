@@ -145,7 +145,10 @@ add_custom_target(test_with_memcheck
     COMMAND cat "Testing/Temporary/MemoryChecker.*.log"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/knp/tests")
 
-set_property(TARGET "${PROJECT_NAME}" PROPERTY CUDA_ARCHITECTURES 60)
+if (KNP_BUILD_CUDA)
+    set_property(TARGET "${PROJECT_NAME}" PROPERTY CUDA_ARCHITECTURES 60)
+    target_link_options("${PROJECT_NAME}" PRIVATE "-Wl,--allow-shlib-undefined")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options("${PROJECT_NAME}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-G>)

@@ -54,7 +54,7 @@ struct CUDAPopulation
      */
     using NeuronParameters = ::knp::neuron_traits::neuron_parameters<NeuronType>;
 
-    __host__ __device__ CUDAPopulation() = default;
+    CUDAPopulation() = default;
 
 //#if !defined(__CUDA_ARCH__)
     /**
@@ -67,8 +67,6 @@ struct CUDAPopulation
     {
     }
 //#endif
-
-    __host__ __device__ ~CUDAPopulation() = default;
 
     __host__ __device__ void actualize() { neurons_.actualize(); }
 

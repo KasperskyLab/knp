@@ -83,10 +83,11 @@ set_target_properties(
         CUDA_SEPARABLE_COMPILATION ON
         CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
-target_compile_options("${PROJECT_NAME}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true>)
-target_compile_options("${PROJECT_NAME}_static" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true>)
-set_property(TARGET "${PROJECT_NAME}" PROPERTY CUDA_ARCHITECTURES 60)
-set_property(TARGET "${PROJECT_NAME}_static" PROPERTY CUDA_ARCHITECTURES 60)
+foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
+    target_compile_options("${lib_name}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true>)
+    target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
+    set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)
+endforeach()
 
 if (KNP_INSTALL)
     knp_get_component_name("${PROJECT_NAME}" COMPONENT_NAME)

@@ -422,6 +422,12 @@ a.anchor {
     font-size: 80%;
 }
 
+#titlesearch
+{
+    display: flex;
+    float: right;
+}
+
 #projectlogo {
     vertical-align: middle;
 }
