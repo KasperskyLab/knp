@@ -22,6 +22,21 @@
 #include "common.h"
 
 
+using ds_params = knp::synapse_traits::synapse_parameters<knp::synapse_traits::DeltaSynapse>;
+
+
+auto construct_ds_params(float weight, uint32_t delay, knp::synapse_traits::OutputType out_type)
+{
+    auto params = std::make_shared<ds_params>();
+
+    params->weight_ = weight;
+    params->delay_ = delay;
+    params->output_type_ = out_type;
+
+    return params;
+}
+
+
 void export_delta()
 {
     py::enum_<knp::synapse_traits::OutputType>("OutputType")
@@ -36,10 +51,9 @@ void export_delta()
         // Neuron blocking synapse type.
         .value("BLOCKING", knp::synapse_traits::OutputType::BLOCKING);
 
-    using ds_params = knp::synapse_traits::synapse_parameters<knp::synapse_traits::DeltaSynapse>;
-
     py::class_<ds_params>("DeltaSynapseParameters", "Structure for Delta synapse parameters.")
         .def(py::init<>())
+        .def("__init__", py::make_constructor(&construct_ds_params))
         .add_property("weight", &ds_params::weight_, "Synaptic weight.")
         .add_property(
             "delay", &ds_params::delay_,
