@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 21.02.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 #include <message_endpoint_impl.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/fmt.h>
 
 #include <memory>
 
@@ -30,6 +31,9 @@
 #include <thread>
 
 #include <boost/preprocessor.hpp>
+
+
+namespace cm = knp::core::messaging;
 
 
 namespace knp::core
@@ -73,9 +77,15 @@ MessageEndpoint::~MessageEndpoint() = default;
 template <typename MessageType>
 Subscription<MessageType> &MessageEndpoint::subscribe(const UID &receiver, const std::vector<UID> &senders)
 {
-    SPDLOG_DEBUG("Subscribing {} to the list of senders [{}]...", std::string(receiver), senders.size());
-
     constexpr size_t index = get_type_index<knp::core::messaging::MessageVariant, MessageType>;
+
+    SPDLOG_DEBUG("Subscribing {} to the list of senders [{}], message type index = {}...",
+        std::string(receiver), senders.size(),
+        index);
+
+    #if (SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE)
+    for (const auto &s_uid : senders) SPDLOG_TRACE("Sender UID = {}", std::string(s_uid));
+    #endif
 
     auto iter = subscriptions_.find(std::make_pair(index, receiver));
 
@@ -85,11 +95,14 @@ Subscription<MessageType> &MessageEndpoint::subscribe(const UID &receiver, const
     if (iter != subscriptions_.end())
     {
         auto &sub = std::get<index>(iter->second);
+        SPDLOG_TRACE("Existing subscription found, adding senders...");
         sub.add_senders(senders);
         return sub;
     }
 
+    SPDLOG_TRACE("Existing subscription was not found, creating new subscription...");
     auto sub_variant = SubscriptionVariant{Subscription<MessageType>{receiver, senders}};
+    assert(index == sub_variant.index());
     auto insert_res = subscriptions_.emplace(std::make_pair(index, receiver), sub_variant);
     auto &sub = std::get<index>(insert_res.first->second);
     return sub;
@@ -165,13 +178,22 @@ bool MessageEndpoint::receive_message()
         std::visit(
             [&sender_uid, &message](auto &&subscription)
             {
-                SPDLOG_TRACE("Sender UID: {}.", std::string(sender_uid));
+                SPDLOG_TRACE("Adding message to subscription, checking sender UID: {}.", std::string(sender_uid));
                 if (subscription.has_sender(sender_uid))
                 {
                     SPDLOG_TRACE("Subscription has sender with UID {}.", std::string(sender_uid));
                     subscription.add_message(
                         std::get<typename std::decay_t<decltype(subscription)>::MessageType>(message));
-                    SPDLOG_TRACE("Message was added to the subscription {}.", std::string(sender_uid));
+                    SPDLOG_TRACE("Message with type index {} was added in the subscription to sender {}.",
+                                 message.index(),
+                                 std::string(sender_uid));
+                }
+                else
+                {
+                    SPDLOG_TRACE("Subscription has not sender UID: {}.", std::string(sender_uid));
+                    SPDLOG_TRACE(
+                        "Message was added to the subscription with receiver {}.",
+                        std::string(get_receiver_uid(subscription)));
                 }
             },
             sub_variant);
@@ -232,8 +254,6 @@ void MessageEndpoint::update_senders()
     }
 }
 
-
-namespace cm = knp::core::messaging;
 
 #define INSTANCE_MESSAGES_FUNCTIONS(n, template_for_instance, message_type)                \
     template Subscription<cm::message_type> &MessageEndpoint::subscribe<cm::message_type>( \

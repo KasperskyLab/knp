@@ -4,7 +4,7 @@
  * @kaspersky_support D. Postnikov
  * @date 10.08.2025
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

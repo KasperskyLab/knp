@@ -4,7 +4,7 @@
 
 @kaspersky_support Artiom N.
 @license Apache 2.0 License.
-@copyright © 2024 AO Kaspersky Lab
+@copyright © 2024-2025 AO Kaspersky Lab
 @date 28.10.2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,19 +23,15 @@ limitations under the License.
 # pylint: disable = no-name-in-module
 from knp.core._knp_python_framework_core import (
     UID,
-    AdditiveSTDPDeltaSynapseParameters,
     AdditiveSTDPDeltaSynapseProjection,
     Backend,
-    BaseData,
     BLIFATNeuronPopulation,
-    DeltaSynapseParameters,
     DeltaSynapseProjection,
     MessageBus,
     MessageEndpoint,
     SpikeMessageSubscription,
     SynapticImpactMessageSubscription,
     SynapticResourceSTDPBLIFATNeuronPopulation,
-    SynapticResourceSTDPDeltaSynapseParameters,
     SynapticResourceSTDPDeltaSynapseProjection,
     TagMap,
     continuously_uid_generator,
@@ -48,17 +44,13 @@ __all__ = [
     'UID',
     'BLIFATNeuronPopulation',
     'DeltaSynapseProjection',
-    'AdditiveSTDPDeltaSynapseParameters',
     'AdditiveSTDPDeltaSynapseProjection',
     'Backend',
-    'BaseData',
-    'DeltaSynapseParameters',
     'MessageBus',
     'MessageEndpoint',
     'SpikeMessageSubscription',
     'SynapticImpactMessageSubscription',
     'SynapticResourceSTDPBLIFATNeuronPopulation',
-    'SynapticResourceSTDPDeltaSynapseParameters',
     'SynapticResourceSTDPDeltaSynapseProjection',
     'TagMap',
     'uid_hash',

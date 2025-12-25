@@ -20,10 +20,9 @@
  */
 #include "common.h"
 
-#ifdef KNP_IN_BASE_FW
 
-py::def("save_network", &knp::framework::sonata::save_network, "Save network to disk.");
-
-py::def("load_network", &knp::framework::sonata::load_network, "Load network from disk.");
-
-#endif  // KNP_IN_BASE_FW
+void export_network_io()
+{
+    py::def("save_network", &knp::framework::sonata::save_network, "Save network to disk.");
+    py::def("load_network", &knp::framework::sonata::load_network, "Load network from disk.");
+}

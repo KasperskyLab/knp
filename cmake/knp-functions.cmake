@@ -1,5 +1,5 @@
 #[[
-© 2024 AO Kaspersky Lab
+© 2024-2025 AO Kaspersky Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,18 +42,15 @@ function(knp_set_target_parameters target visibility)
     else()
         set(pub_visibility "PUBLIC")
         if(KNP_IPO_ENABLED)
-            check_ipo_supported(RESULT _ipo_result OUTPUT _ipo_output)
+            check_ipo_supported(RESULT _ipo_result OUTPUT _ipo_output LANGUAGES C CXX)
             if (_ipo_result)
-                set_target_properties("${target}" PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+                set_target_properties("${target}" PROPERTIES
+                                      $<$<NOT:$<COMPILE_LANGUAGE:C,CXX>>:INTERPROCEDURAL_OPTIMIZATION TRUE>)
             else()
                 message(WARNING "IPO is not supported: ${_ipo_output}.")
             endif()
         endif()
     endif()
-
-    # if (MSVC)  # AND ($<COMPILE_LANGUAGE> STREQUAL CXX OR $<COMPILE_LANGUAGE> STREQUAL C))
-    #    set_property(TARGET "${target}" PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    # endif()
 
     target_compile_options("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wdocumentation>)
     target_compile_options("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wdocumentation>)
@@ -236,6 +233,12 @@ function(knp_add_python_module name)
     target_include_directories("${LIB_NAME}" PRIVATE ${Python3_INCLUDE_DIRS})
     message(TRACE "Linking ${LIB_NAME} with Boost::python${PARSED_ARGS_PY_VER}...")
     target_link_libraries("${LIB_NAME}" PRIVATE Boost::disable_autolinking Boost::headers Boost::python${PARSED_ARGS_PY_VER} ${PARSED_ARGS_LINK_LIBRARIES})
+    target_compile_options("${LIB_NAME}" PRIVATE $<$<CONFIG:Debug>:-DBOOST_PYTHON_DEBUG>)
+
+    # if (MSVC) # AND ($<COMPILE_LANGUAGE> STREQUAL CXX OR $<COMPILE_LANGUAGE> STREQUAL C))
+    #    # Dynamic MSVC runtime.
+    #    set_property(TARGET "${LIB_NAME}" PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    # endif()
 
 #    set_target_properties(${LIB_NAME} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
 #    set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "${PYTHON_MODULE_EXTENSION}")
@@ -247,8 +250,6 @@ function(knp_add_python_module name)
 
     if (NOT WIN32)
         target_compile_definitions("${LIB_NAME}" PRIVATE Py_NO_ENABLE_SHARED)
-    else()
-        target_compile_definitions("${LIB_NAME}" PRIVATE CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON)
     endif()
 
     add_custom_command(TARGET "${LIB_NAME}" POST_BUILD
@@ -291,7 +292,7 @@ function(knp_packaging_set_parameters component_name project_name)
 
     if (PARSED_ARGS_DEPENDS)
         string(REPLACE ";" ", " PARSED_ARGS_DEPENDS "${PARSED_ARGS_DEPENDS}")
-        set(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPE  NDS "${PARSED_ARGS_DEPENDS}" CACHE STRING "${project_name} dependencies" FORCE)
+        set(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPENDS "${PARSED_ARGS_DEPENDS}" CACHE STRING "${project_name} dependencies" FORCE)
     else()
         unset(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPENDS CACHE)
     endif()

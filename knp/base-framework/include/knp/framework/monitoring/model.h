@@ -31,23 +31,28 @@
 #include <vector>
 
 
+/**
+ * @brief Namespace for monitoring and logging model behavior during execution. 
+ */
 namespace knp::framework::monitoring::model
 {
 
 /**
- * @brief Function object that receives messages and processes their data somehow.
+ * @brief Function object that receives spike messages and processes their data.
  */
 using SpikeProcessor = knp::framework::monitoring::MessageProcessor<knp::core::messaging::SpikeMessage>;
 
 
 /**
- * @brief add a logger that outputs spikes in aggregated format
- * @param model network model
- * @param senders_names uid-name of senders that will have spikes observer attached to them
- * @param model_executor model executor
- * @param spike_accumulator will save spikes between logging, acts as a buffer
- * @param log_stream output stream
- * @param logging_period logging period, will output to log_stream each logging_period steps
+ * @brief Add a logger that outputs spikes in aggregated format.
+ * @details The function sets up an observer that aggregates spike counts from specified senders and 
+ * writes the aggregated results to the provided output stream at regular intervals.
+ * @param model network model.
+ * @param senders_names UID-name mapping of senders that will have spike observer attached to them.
+ * @param model_executor model executor.
+ * @param spike_accumulator buffer for accumulating spike counts between logging intervals.
+ * @param log_stream output stream to write aggregated spike counts.
+ * @param logging_period interval between logging operations.
  */
 KNP_DECLSPEC void add_aggregated_spikes_logger(
     const knp::framework::Model &model, const std::map<knp::core::UID, std::string> &senders_names,
@@ -56,11 +61,13 @@ KNP_DECLSPEC void add_aggregated_spikes_logger(
 
 
 /**
- * @brief add a logger that outputs weights from projections
- * @param weights_log output stream
- * @param model_executor model executor
- * @param uid projection uid
- * @param logging_period logging period, will output to weights_log every logging_period steps
+ * @brief Add a logger that outputs synaptic weights from a specific projection.
+ * @details The function sets up an observer that captures and logs synaptic weights from the specified 
+ * projection at regular intervals. 
+ * @param weights_log output stream to write projection weights. 
+ * @param model_executor model executor.
+ * @param uid UID of the projection to monitor.
+ * @param logging_period interval between logging operations.
  */
 KNP_DECLSPEC void add_projection_weights_logger(
     std::ostream &weights_log, knp::framework::ModelExecutor &model_executor, knp::core::UID const &uid,
@@ -68,10 +75,12 @@ KNP_DECLSPEC void add_projection_weights_logger(
 
 
 /**
- * @brief add a logger that outputs all spikes
- * @param model_executor model executor
- * @param senders_names uid-name of senders that will have spikes observer attached to them
- * @param log_stream output stream
+ * @brief Add a logger that outputs all spike messages with detailed information.
+ * @details The function sets up an observer that captures all spike messages from the specified senders and
+ * writes detailed spike information to the provided output stream.
+ * @param model_executor model executor.
+ * @param senders_names UID-name mapping of senders that will have spike observer attached to them.
+ * @param log_stream output stream to write spike messages.
  */
 KNP_DECLSPEC void add_spikes_logger(
     knp::framework::ModelExecutor &model_executor, const std::map<knp::core::UID, std::string> &senders_names,
@@ -79,11 +88,13 @@ KNP_DECLSPEC void add_spikes_logger(
 
 
 /**
- * @brief add a logger that will output status of model
- * @param model_executor model executor
- * @param model model
- * @param log_stream output stream
- * @param logging_period logging period, will output status to log_stream every logging_period steps
+ * @brief Add a logger that outputs model status information.
+ * @details The function sets up an observer that monitors spike messages and outputs the count of spike messages
+ * received at each logging interval.
+ * @param model_executor model executor.
+ * @param model model.
+ * @param log_stream output stream to write model status information.
+ * @param logging_period interval between logging operations.
  */
 KNP_DECLSPEC void add_status_logger(
     knp::framework::ModelExecutor &model_executor, const knp::framework::Model &model, std::ostream &log_stream,

@@ -21,27 +21,33 @@
 
 
 #include "common.h"
-#ifdef KNP_IN_BASE_FW
+#include "network_utility.h"
 
 
-py::class_<knp::framework::Network>(
-    "Network", "The Network class is a definition of a neural network that contains populations and projections.")
-    .def(py::init<const knp::core::UID&>())
-    .def("add_projection", network_add_projection_variant, "Add a projection to the network.")
-    .def("add_population", network_add_population_variant, "Add a population to the network.")
-    .def("get_population", &network_get_population_variant, "Get a population with the given UID from the network.")
-    .def("get_projection", &network_get_projection_variant, "Get a projection with the given UID from the network.")
-    .def(
-        "remove_population", &knp::framework::Network::remove_population,
-        "Remove a population with the given UID from the network.")
-    .def(
-        "remove_projection", &knp::framework::Network::remove_projection,
-        "Remove a projection with the given UID from the network.")
-    .add_property("populations_count", &knp::framework::Network::populations_count, "Count populations in the network.")
-    .add_property("projections_count", &knp::framework::Network::projections_count, "Count projections in the network.")
-    .def("get_uid", &get_entity_uid<knp::framework::Network>, "Get network UID.")
-    .def("populations_range", py::range(&network_begin_populations, &network_end_populations), "Get populations range.")
-    .def(
-        "projections_range", py::range(&network_begin_projections, &network_end_projections), "Get projections range.");
-
-#endif  // KNP_IN_BASE_FW
+void export_network()
+{
+    py::class_<knp::framework::Network>(
+        "Network", "The Network class is a definition of a neural network that contains populations and projections.")
+        .def(py::init<const knp::core::UID&>())
+        .def("add_projection", network_add_projection_variant, "Add a projection to the network.")
+        .def("add_population", network_add_population_variant, "Add a population to the network.")
+        .def("get_population", &network_get_population_variant, "Get a population with the given UID from the network.")
+        .def("get_projection", &network_get_projection_variant, "Get a projection with the given UID from the network.")
+        .def(
+            "remove_population", &knp::framework::Network::remove_population,
+            "Remove a population with the given UID from the network.")
+        .def(
+            "remove_projection", &knp::framework::Network::remove_projection,
+            "Remove a projection with the given UID from the network.")
+        .add_property(
+            "populations_count", &knp::framework::Network::populations_count, "Count populations in the network.")
+        .add_property(
+            "projections_count", &knp::framework::Network::projections_count, "Count projections in the network.")
+        .def("get_uid", &get_entity_uid<knp::framework::Network>, "Get network UID.")
+        .def(
+            "populations_range", py::range(&network_begin_populations, &network_end_populations),
+            "Get populations range.")
+        .def(
+            "projections_range", py::range(&network_begin_projections, &network_end_projections),
+            "Get projections range.");
+}

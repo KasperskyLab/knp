@@ -112,6 +112,7 @@ std::string get_name(const Entity &pop)
 /**
  * @brief Build network graph from a network.
  * @param network source network for a graph.
+ * @details Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
  */
 NetworkGraph::NetworkGraph(const knp::framework::Network &network)
 {

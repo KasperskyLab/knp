@@ -40,6 +40,7 @@ auto make_input_image_generator(const std::vector<std::vector<bool>> &spike_fram
 {
     auto generator = [&spike_frames, skip](knp::core::Step step)
     {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243634
         knp::core::messaging::SpikeData message;
 
         if (step >= spike_frames.size()) return message;
@@ -57,6 +58,7 @@ auto make_input_image_generator(const std::vector<std::vector<bool>> &spike_fram
 
 // Find a specific projection using a criterion.
 std::vector<knp::core::UID> find_projections(
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
     const knp::framework::Network &network,
     const std::function<bool(const knp::core::AllProjectionsVariant &)> &criterion)
 {
@@ -108,6 +110,7 @@ std::vector<InferenceResult> do_inference(
     const std::filesystem::path &path_to_backend)
 {
     std::vector<std::pair<knp::core::UID, size_t>> input_uids;
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
     knp::framework::Network network = knp::framework::sonata::load_network(path_to_model);
 
     // Make a list of all populations and their sizes.
@@ -119,6 +122,7 @@ std::vector<InferenceResult> do_inference(
         population_sizes.insert({uid, size});
     }
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network));
 
     // The largest projection is the input image projection. These are numbers for a specific MNIST model.
@@ -137,11 +141,14 @@ std::vector<InferenceResult> do_inference(
     }
 
     auto spike_frames = read_spike_frames(path_to_data);
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
     for (auto img_channel_uid : input_image_channel_uids)
         channel_map.insert({img_channel_uid, make_input_image_generator(spike_frames)});
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
     std::vector<InferenceResult> result;
 

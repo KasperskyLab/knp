@@ -31,7 +31,7 @@ namespace knp::framework::inference_evaluation::classification
 {
 
 /**
- * @brief The `InferenceResult` structure represents inference results for a single class.
+ * @brief The InferenceResult structure represents inference results for a single class.
  */
 struct KNP_DECLSPEC InferenceResult
 {

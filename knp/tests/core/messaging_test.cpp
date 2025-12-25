@@ -4,7 +4,7 @@
  * @kaspersky_support A. Vartenkov
  * @date 19.04.2023.
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@
 #include <sstream>
 
 
+namespace knp::tesing
+{
+
 TEST(MessageSuite, SpikeToChannelTest)
 {
     const knp::core::UID uid(true);
@@ -46,7 +49,7 @@ TEST(MessageSuite, SpikeToChannelTest)
 }
 
 
-TEST(MessageSuite, ImpactToChannelTest)
+TEST(MessageSuite, ImpactToChannelTest)  // cppcheck-suppress syntaxError
 {
     const knp::core::UID uid{true}, pre_uid{true}, post_uid{true};
     const size_t time = 7;
@@ -96,3 +99,5 @@ TEST(MessageSuite, HeaderIOTest)
     ASSERT_EQ(header_in.sender_uid_, header_out.sender_uid_);
     ASSERT_EQ(header_in.send_time_, header_out.send_time_);
 }
+
+}  // namespace knp::tesing

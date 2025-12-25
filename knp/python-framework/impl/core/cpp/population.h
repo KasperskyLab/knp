@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 07.02.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ struct PopulationGeneratorProxy
         {
             return std::nullopt;
         }
+
         return py::extract<ElemParametersType>(res);
     }
 
@@ -78,3 +79,19 @@ void population_neurons_add_wrapper(core::Population<ElemType> &population, cons
     population.add_neurons(
         PopulationGeneratorProxy<typename core::Population<ElemType>::NeuronParameters>(gen_func), index);
 };
+
+
+namespace nt = knp::neuron_traits;
+
+#define INSTANCE_POPULATION_CONVERTER(n, template_for_instance, neuron_type)                     \
+    detail::register_direct_converter<nt::neuron_parameters<knp::neuron_traits::neuron_type>>(); \
+    py::implicitly_convertible<core::Population<nt::neuron_type>, core::AllPopulationsVariant>();
+
+
+inline void instance_populations_converters()
+{
+    BOOST_PP_SEQ_FOR_EACH(INSTANCE_POPULATION_CONVERTER, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_NEURONS))
+}
+
+
+void export_populations();

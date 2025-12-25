@@ -3,7 +3,7 @@
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
- * @copyright © 2025 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ MessageQueue::const_iterator calculate_projection_impl(
         for (const auto &spiked_neuron_index : message_data)
         {
             auto synapses = projection.find_synapses(spiked_neuron_index, ProjectionType::Search::by_presynaptic);
+            SPDLOG_TRACE("Projection synapse count for the spike = {}", synapses.size());
             for (auto synapse_index : synapses)
             {
                 auto &synapse = projection[synapse_index];
@@ -64,8 +65,14 @@ MessageQueue::const_iterator calculate_projection_impl(
                     static_cast<uint32_t>(std::get<core::target_neuron_id>(synapse))};
 
                 auto iter = future_messages.find(future_step);
+
+                SPDLOG_TRACE(
+                    "Synapse index = {}, synapse delay = {}, synapse weight = {}, step = {}, future step = {}",
+                    synapse_index, synapse_params.delay_, synapse_params.weight_, step_n, future_step);
+
                 if (iter != future_messages.end())
                 {
+                    SPDLOG_TRACE("Add existing impact.");
                     iter->second.impacts_.push_back(impact);
                 }
                 else
@@ -76,6 +83,7 @@ MessageQueue::const_iterator calculate_projection_impl(
                         projection.get_postsynaptic(),
                         stdp::is_forced<DeltaLikeSynapse>(),
                         {impact}};
+                    SPDLOG_TRACE("Add new impact.");
                     future_messages.insert(std::make_pair(future_step, message_out));
                 }
             }

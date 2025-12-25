@@ -52,7 +52,7 @@ enum class DeviceType
 
 
 /**
- * @brief The Device class is the base class for devices supported by the device library.
+ * @brief The Device class is the base class for supported devices.
  */
 class Device
 {

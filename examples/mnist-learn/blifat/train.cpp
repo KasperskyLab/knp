@@ -65,6 +65,7 @@ auto build_channel_map_train(
         model.add_input_channel(input_image_channel_classes, target_proj_uid);
 
     // Create and fill a channel map.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
     channel_map.insert({input_image_channel_raster, dataset.make_training_images_spikes_generator()});
     channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
@@ -78,10 +79,12 @@ knp::framework::Network get_network_for_inference(
     const std::set<knp::core::UID> &inference_internal_projection)
 {
     auto data_ranges = backend.get_network_data();
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
     knp::framework::Network res_network;
 
     for (auto &iter = *data_ranges.population_range.first; iter != *data_ranges.population_range.second; ++iter)
     {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
         auto population = *iter;
         knp::core::UID pop_uid = std::visit([](const auto &p) { return p.get_uid(); }, population);
         if (inference_population_uids.find(pop_uid) != inference_population_uids.end())
@@ -89,6 +92,7 @@ knp::framework::Network get_network_for_inference(
     }
     for (auto &iter = *data_ranges.projection_range.first; iter != *data_ranges.projection_range.second; ++iter)
     {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
         auto projection = *iter;
         knp::core::UID proj_uid = std::visit([](const auto &p) { return p.get_uid(); }, projection);
         if (inference_internal_projection.find(proj_uid) != inference_internal_projection.end())
@@ -103,13 +107,20 @@ AnnotatedNetwork train_mnist_network(
 {
     AnnotatedNetwork example_network = create_example_network(num_subnetworks);
     std::filesystem::create_directory("mnist_network");
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
     knp::framework::sonata::save_network(example_network.network_, "mnist_network");
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(example_network.network_));
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train(example_network, model, dataset);
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
+
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=260375
+    knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
 
     // Add all spikes observer.
     // All these variables should have the same lifetime as model_executor, or else UB.
@@ -119,6 +130,7 @@ AnnotatedNetwork train_mnist_network(
 
     std::vector<knp::core::UID> wta_uids;
     {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
         std::vector<size_t> wta_borders;
         for (size_t i = 0; i < num_possible_labels; ++i) wta_borders.push_back(neurons_per_column * (i + 1));
         wta_uids = knp::framework::projection::add_wta_handlers(

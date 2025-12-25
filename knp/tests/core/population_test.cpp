@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 13.02.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@
 #include <tests_common.h>
 
 
+namespace knp::testing
+{
+
 using BLIFATParams = knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron>;
 
 BLIFATParams neuron_generator(size_t index)
@@ -38,7 +41,7 @@ BLIFATParams neuron_generator(size_t index)
 const auto neurons_count = 10;
 
 
-TEST(PopulationSuite, Create)
+TEST(PopulationSuite, Create)  // cppcheck-suppress syntaxError
 {
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> population(neuron_generator, neurons_count);
 
@@ -81,3 +84,5 @@ TEST(PopulationSuite, SetNeuronParameter)
 
     ASSERT_EQ(150, population[p_index].potential_);
 }
+
+}  // namespace knp::testing

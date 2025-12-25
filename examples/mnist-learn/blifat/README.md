@@ -69,11 +69,13 @@ The `MNIST.zip` file contains image data and corresponding labels for the MNIST 
 
 The `main.cpp` program file contains implementation of neural network training on image data and labels and classification of images from the MNIST database.
 
-# Implementation of neural network trainng on image data and labels and classification of images from the MNIST database
+
+
+# Implementation of neural network training on image data and labels and classification of images from the MNIST database
 
 `main.cpp` contains implementation of neural network that trains on image data and labels from the MNIST database and classifies images.
 
-_Neural network trainng on image data and labels and classification of images from the MNIST database consists of the following steps_:
+_Neural network training on image data and labels and classification of images from the MNIST database consists of the following steps_:
 
 1. Header files required for the neural network execution are included using the `#include` directive.
 

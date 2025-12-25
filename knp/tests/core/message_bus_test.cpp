@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 13.04.2023.
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@
 #include <tests_common.h>
 
 
+namespace knp::testing
+{
+
 TEST(MessageBusSuite, AddSubscriptionMessage)
 {
     using SpikeMessage = knp::core::messaging::SpikeMessage;
@@ -42,7 +45,7 @@ TEST(MessageBusSuite, AddSubscriptionMessage)
 }
 
 
-TEST(MessageBusSuite, SubscribeUnsubscribe)
+TEST(MessageBusSuite, SubscribeUnsubscribe)  // cppcheck-suppress syntaxError
 {
     // Test that adding and removing subscriptions works correctly.
     std::shared_ptr<knp::core::MessageBus> bus = knp::core::MessageBus::construct_bus();
@@ -174,3 +177,5 @@ TEST(MessageBusSuite, SynapticImpactMessageSendCPU)
     ASSERT_EQ(msgs[0].is_forcing_, msg.is_forcing_);
     ASSERT_EQ(msgs[0].impacts_, msg.impacts_);
 }
+
+}  // namespace knp::testing

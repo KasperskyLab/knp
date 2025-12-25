@@ -1,6 +1,6 @@
 """
 @file test_network.py
-@brief KNP Network tests.
+@brief Network tests.
 
 @kaspersky_support Vartenkov A.
 @license Apache 2.0 License.

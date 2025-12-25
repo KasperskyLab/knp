@@ -1,5 +1,5 @@
 #[[
-© 2024 AO Kaspersky Lab
+© 2024-2025 AO Kaspersky Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.
 ]]
 
 cmake_minimum_required(VERSION 3.25)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHED)
 
 include_guard(GLOBAL)
 
@@ -159,6 +160,11 @@ else()
 endif()
 
 cmake_dependent_option(KNP_BUILD_DOCUMENTATION "Build doxygen auto documentation" ${KNP_BUILD_AUTONOMOUS} "DOXYGEN_FOUND" OFF)
+
+# Check for CUDA.
+find_package(CUDAToolkit)
+
+option(KNP_BUILD_CUDA "Build CUDA backend" ${CUDAToolkit_FOUND})
 option(KNP_BUILD_EXAMPLES "Build usage examples" ${KNP_BUILD_AUTONOMOUS})
 option(KNP_BUILD_TESTS "Build tests" ${KNP_BUILD_AUTONOMOUS})
 option(KNP_ENABLE_AVX "Enable AVX and other CPU-specific extensions in the release build" ${KNP_ENABLE_AVX_DEFAULT})
@@ -174,6 +180,7 @@ mark_as_advanced(KNP_ENABLE_COVERAGE)
 mark_as_advanced(KNP_ENABLE_AVX)
 mark_as_advanced(KNP_IPO_ENABLED)
 
+message(STATUS "KNP_BUILD_CUDA = ${KNP_BUILD_CUDA}")
 message(STATUS "KNP_BUILD_DOCUMENTATION = ${KNP_BUILD_DOCUMENTATION}")
 message(STATUS "KNP_BUILD_EXAMPLES = ${KNP_BUILD_EXAMPLES}")
 message(STATUS "KNP_BUILD_TESTS = ${KNP_BUILD_TESTS}")
@@ -196,7 +203,8 @@ if (KNP_ENABLE_AVX)
     # endif()
 
     set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-    add_compile_options(-include x86intrin.h)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:-include>)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:x86intrin.h>)
     # -include bits/stdc++.h
 endif()
 

@@ -28,7 +28,9 @@
 #include <filesystem>
 
 
+// Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=308225
 using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
+// Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=308213
 using BLIFATPopulation = knp::core::Population<knp::neuron_traits::BLIFATNeuron>;
 
 // A function is implemented that generates synapses for the projection connected
@@ -57,9 +59,11 @@ inline knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> n
 int main(int argc, const char *const argv[])
 {
     // Creates a population object with one BLIFAT neuron.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
     BLIFATPopulation population{neuron_generator, 1};
     // Creates a projection object with one delta synapse, which loops the output of the population
     // to itself.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
     DeltaProjection loop_projection = DeltaProjection{population.get_uid(), population.get_uid(), synapse_generator, 1};
     // Creates an input projection object with one delta synapse, which is assigned
     // a null ID (knp::core::UID{false}). The projection receives spikes from
@@ -73,6 +77,7 @@ int main(int argc, const char *const argv[])
     knp::core::UID output_uid = population.get_uid();
 
     // Creates a network object.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
     knp::framework::Network network;
 
     // Adds the created population object to the neural network object.
@@ -84,9 +89,13 @@ int main(int argc, const char *const argv[])
     network.add_projection(std::move(loop_projection));
 
     // Creates arbitrary i_channel_uid and o_channel_uid identifiers for the input and output channels.
+    // Online Help links:
+    // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=244944
+    // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243539
     knp::core::UID i_channel_uid, o_channel_uid;
 
     // Creates a model object and passes the neural network object to it.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network));
     // Passes to the model object the created input channel ID (i_channel_uid)
     // and the input projection ID (input_uid).
@@ -109,11 +118,13 @@ int main(int argc, const char *const argv[])
 
     // Specifies the path to the required dynamic backend library on your computer.
     auto backend_path = std::filesystem::path(argv[0]).parent_path() / "knp-cpu-single-threaded-backend";
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
 
     // Creates the model executor object (model_executor). Passes to the model_executor object the model object,
     // the path to the backend (backend_path), the input channel ID (i_channel_uid), and
     // the spike generation functor (input_gen).
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(
         model, backend_loader.load(backend_path), {{i_channel_uid, input_gen}});
 

@@ -60,6 +60,7 @@ MessageBusZMQImpl::MessageBusZMQImpl()
       router_socket_(context_, zmq::socket_type::router),
       publish_socket_(context_, zmq::socket_type::pub)
 {
+    SPDLOG_DEBUG("ZMQ message bus creating...");
     SPDLOG_DEBUG("Router socket binding to {}...", router_sock_address_);
     router_socket_.bind(router_sock_address_);
     SPDLOG_DEBUG("Publish socket binding to {}...", publish_sock_address_);

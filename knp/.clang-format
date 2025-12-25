@@ -22,7 +22,7 @@ SpacesInLineCommentPrefix:
 
 IncludeBlocks: Regroup
 IncludeCategories:
-  # KNP headers in <>.
+  # Kaspersky Neuromorphic Platform headers in <>.
   - Regex:           '<knp\/[[:alnum:]_.\/\-]+>'
     SortPriority:    0
     Priority:        2

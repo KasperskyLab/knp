@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 09.08.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,13 @@ extern "C"
 
 #include <tests_common.h>
 
+namespace knp::testing
+{
+
 TEST(DeviceTestSuite, CPUTest)
 {
     GTEST_SKIP() << "This test doesn't work under Github builders";
-    
+
 #if defined(WIN32)
     GTEST_SKIP() << "Test needs driver under Windows";
 #else
@@ -52,7 +55,7 @@ TEST(DeviceTestSuite, CPUTest)
 }
 
 
-TEST(DeviceTestSuite, BackendDevicesTest)
+TEST(DeviceTestSuite, BackendDevicesTest)  // cppcheck-suppress syntaxError
 {
     GTEST_SKIP() << "This test doesn't work under Github builders";
 
@@ -81,3 +84,5 @@ TEST(DeviceTestSuite, BackendDevicesTest)
 
     // std::cout << device.get_name() << std::endl;
 }
+
+}  // namespace knp::testing

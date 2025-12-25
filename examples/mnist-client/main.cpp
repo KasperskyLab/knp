@@ -69,7 +69,10 @@ int main(int argc, char **argv)
     if (task == "show")
     {
         const auto network_path = options_map["net-path"].as<std::string>();
-        // Create a network objects by loading it using the `load_network` function from the `sonata` namespace.
+        // Creates a network objects by loading it using the `load_network` function from the `sonata` namespace.
+        // Online Help links:
+        // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
+        // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
         knp::framework::Network network = knp::framework::sonata::load_network(network_path);
         // Constructs a network graph.
         const NetworkGraph net_graph(network);

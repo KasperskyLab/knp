@@ -1,3 +1,24 @@
+"""
+@file test_executor.py
+@kaspersky_support Artiom N.
+@license Apache 2.0
+@copyright © 2025 AO Kaspersky Lab
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+
+
 from knp.base_framework import Network, Model, ModelExecutor, BackendLoader
 from knp.core import BLIFATNeuronPopulation, DeltaSynapseProjection, UID
 from knp.neuron_traits import BLIFATNeuronParameters
@@ -45,12 +66,13 @@ def is_continue_execution(step_num):  # type: ignore[no-untyped-def]
 
 
 def run_model(model, input_channel_uid, input_generator, output_uid, root_path):  # type: ignore[no-untyped-def]
-    backend = BackendLoader().load(f'{root_path}/../bin/knp-cpu-single-threaded-backend')
-    input_channel_map = {input_channel_uid: input_generator}
-    model_executor = ModelExecutor(model, backend, input_channel_map)
-    model_executor.start(is_continue_execution)
-    output = model_executor.get_output_channel(output_uid).read_some_from_buffer(0, 20)
-    return output
+    with BackendLoader() as loader:
+        backend = loader.load(f'{root_path}/../bin/knp-cpu-single-threaded-backend')
+        input_channel_map = {input_channel_uid: input_generator}
+        model_executor = ModelExecutor(model, backend, input_channel_map)
+        model_executor.start(is_continue_execution)
+        output = model_executor.get_output_channel(output_uid).read_some_from_buffer(0, 20)
+        return output
 
 
 def messages_to_results(messages):  # type: ignore[no-untyped-def]

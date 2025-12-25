@@ -23,7 +23,6 @@ limitations under the License.
 
 # pylint: disable = no-name-in-module
 from knp.base_framework._knp_python_framework_base_framework import (
-    BackendLoader,
     Network,
     Model,
     ModelExecutor,
@@ -34,6 +33,8 @@ from knp.base_framework._knp_python_framework_base_framework import (
     ModelLoader,
 )
 
+
+from knp.core._knp_python_framework_core import BackendLoader
 
 __all__ = [
     'BackendLoader',

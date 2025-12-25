@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 16.02.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
 #include <boost/python/tuple.hpp>
 
 #include "common.h"
+#include "tuple_converter.h"
 
 
 template <typename ElemParametersType>
@@ -85,3 +86,19 @@ void projection_synapses_add_wrapper(
 {
     projection.add_synapses(ProjectionGeneratorProxy<ElemType>(gen_func), num_iterations);
 };
+
+
+namespace st = knp::synapse_traits;
+
+#define INSTANCE_PROJECTION_CONVERTER(n, template_for_instance, synapse_type)                       \
+    detail::register_direct_converter<st::synapse_parameters<knp::synapse_traits::synapse_type>>(); \
+    py::implicitly_convertible<core::Projection<st::synapse_type>, core::AllProjectionsVariant>();
+
+
+inline void instance_projections_converters()
+{
+    BOOST_PP_SEQ_FOR_EACH(INSTANCE_PROJECTION_CONVERTER, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_SYNAPSES))
+}
+
+void instance_projections_converters();
+void export_projections();

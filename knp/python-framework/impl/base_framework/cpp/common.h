@@ -22,7 +22,6 @@
 
 #include <knp/core/message_endpoint.h>
 #include <knp/core/uid.h>
-#include <knp/framework/backend_loader.h>
 #include <knp/framework/io/input_channel.h>
 #include <knp/framework/io/output_channel.h>
 #include <knp/framework/model.h>

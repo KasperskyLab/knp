@@ -4,7 +4,7 @@
  * @kaspersky_support D. Postnikov
  * @date 14.07.2025
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace knp::framework::data_processing::classification::images
 {
 
 /**
- * @brief The `Dataset` class is a definition of an interface to processed dataset of images.
+ * @brief The Dataset class is a definition of an interface to processed dataset of images.
  */
 class KNP_DECLSPEC Dataset final : public classification::Dataset
 {

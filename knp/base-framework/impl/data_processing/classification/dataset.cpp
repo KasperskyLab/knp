@@ -4,7 +4,7 @@
  * @kaspersky_support D. Postnikov
  * @date 29.07.2025
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ void Dataset::split(size_t frames_for_training, size_t frames_for_inference)
             "Incorrect split size. Dataset is too small. Required {} frames for training, and {} frames for inference, "
             "while dataset only have {} frames.",
             frames_for_training, frames_for_inference, dataset_.size());
-        throw std::runtime_error("Dataset too small.");
+        throw std::runtime_error("Dataset is too small.");
     }
 
     frames_amount_for_training_ = frames_for_training;

@@ -1,5 +1,5 @@
 #[[
-© 2024 AO Kaspersky Lab
+© 2024-2025 AO Kaspersky Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Need to build tests.
+set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
+
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
     # Suppress Boost warning.
@@ -31,8 +34,18 @@ project(knp-tester VERSION "${KNP_VERSION}" LANGUAGES CXX
         DESCRIPTION "Kaspersky Neuromorphic Platform tester and tests")
 
 if (NOT KNP_BUILD_TESTS)
-    message(STATUS "Building of tests is disabled.")
+    message(STATUS "Building of tests disabled.")
     return()
+endif()
+
+set(GLOB_LIST "*.h" "*_test.cpp")
+
+if (KNP_BUILD_CUDA)
+    message(STATUS "Building CUDA tests enabled.")
+    enable_language(CUDA)
+    list(APPEND GLOB_LIST "*_test.cu")
+
+    find_package(CUDAToolkit REQUIRED)
 endif()
 
 include(CTest)
@@ -43,9 +56,7 @@ enable_testing()
 
 include(GoogleTest)
 
-file(GLOB_RECURSE COMMON_SOURCE CONFIGURE_DEPENDS
-     "*.h"
-     "*_test.cpp")
+file(GLOB_RECURSE COMMON_SOURCE CONFIGURE_DEPENDS ${GLOB_LIST})
 
 add_executable("${PROJECT_NAME}" ${COMMON_SOURCE} tester.cpp utility.cpp)
 
@@ -59,6 +70,11 @@ target_include_directories("${PROJECT_NAME}"
 
 target_link_libraries("${PROJECT_NAME}" PRIVATE KNP::BaseFramework::CoreStatic KNP::Backends::CPUSingleThreaded KNP::Backends::CPUMultiThreaded
                                                 KNP::Backends::CPU::ThreadPool)
+
+if (KNP_BUILD_CUDA)
+    target_link_libraries("${PROJECT_NAME}" PRIVATE knp-gpu-cuda-backend_static CUDA::cudart)  # KNP::Backends::CUDA
+endif()
+
 target_link_libraries("${PROJECT_NAME}" PRIVATE gtest gtest_main spdlog::spdlog_header_only) #  HighFive
 
 add_dependencies("${PROJECT_NAME}" knp-base-framework-core_static)
@@ -128,3 +144,12 @@ add_custom_target(test_with_memcheck
         --rerun-failed --output-on-failure
     COMMAND cat "Testing/Temporary/MemoryChecker.*.log"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/knp/tests")
+
+if (KNP_BUILD_CUDA)
+    set_property(TARGET "${PROJECT_NAME}" PROPERTY CUDA_ARCHITECTURES 60)
+    target_link_options("${PROJECT_NAME}" PRIVATE "-Wl,--allow-shlib-undefined")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options("${PROJECT_NAME}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-G>)
+endif()

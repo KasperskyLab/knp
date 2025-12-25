@@ -47,6 +47,7 @@ using std::chrono_literals::operator""ms;
 MessageEndpointZMQImpl::MessageEndpointZMQImpl(zmq::socket_t &&sub_socket, zmq::socket_t &&pub_socket)
     : sub_socket_(std::move(sub_socket)), pub_socket_(std::move(pub_socket))
 {
+    SPDLOG_DEBUG("ZMQ message endpoint creating...");
 }
 
 

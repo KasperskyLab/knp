@@ -48,6 +48,7 @@ public:
         std::shared_ptr<std::vector<messaging::MessageVariant>> received_messages)
         : messages_to_send_(std::move(messages_to_send)), received_messages_(std::move(received_messages))
     {
+        SPDLOG_DEBUG("CPU message endpoint creating...");
     }
 
     void send_message(const knp::core::messaging::MessageVariant &message) override
@@ -55,7 +56,7 @@ public:
         const std::lock_guard lock(mutex_);
 
         messages_to_send_->push_back(message);
-        SPDLOG_TRACE("Message was sent, type index = {}.", message.index());
+        SPDLOG_TRACE("Message with type index = {} was sent", message.index());
     }
 
     ~MessageEndpointCPUImpl() override = default;

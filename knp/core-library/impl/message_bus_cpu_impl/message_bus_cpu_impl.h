@@ -24,6 +24,8 @@
 
 #include <message_bus_impl.h>
 
+#include <spdlog/spdlog.h>
+
 #include <list>
 #include <memory>
 #include <mutex>
@@ -42,6 +44,8 @@ class MessageEndpointCPU;
 class MessageBusCPUImpl : public MessageBusImpl
 {
 public:
+    MessageBusCPUImpl() { SPDLOG_DEBUG("CPU message bus creating..."); }
+
     void update() override;
     size_t step() override;
     template <typename MessageType>

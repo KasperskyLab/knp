@@ -1,6 +1,6 @@
 # Build image Dockerfile.
 #
-# © 2024 AO Kaspersky Lab
+# © 2024-2025 AO Kaspersky Lab
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

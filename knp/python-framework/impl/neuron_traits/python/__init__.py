@@ -4,7 +4,7 @@
 
 @kaspersky_support Artiom N.
 @license Apache 2.0 License.
-@copyright © 2024 AO Kaspersky Lab
+@copyright © 2024-2025 AO Kaspersky Lab
 @date 28.10.2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,7 @@ limitations under the License.
 from knp.neuron_traits._knp_python_framework_neuron_traits import (
     BLIFATNeuronParameters,
     SynapticResourceSTDPBLIFATNeuronParameters,
+    AltAILIFNeuronParameters,
 )
 
-__all__ = ['BLIFATNeuronParameters', 'SynapticResourceSTDPBLIFATNeuronParameters']
+__all__ = ['BLIFATNeuronParameters', 'SynapticResourceSTDPBLIFATNeuronParameters', 'AltAILIFNeuronParameters']

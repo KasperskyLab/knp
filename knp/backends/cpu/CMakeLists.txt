@@ -28,7 +28,7 @@ if(NOT backends)
 endif()
 
 foreach(backend ${backends})
-    message(STATUS "Adding backend \"${backend}\"...")
+    message(STATUS "Adding CPU backend \"${backend}\"...")
     get_filename_component(BACKEND_NAME "${backend}" NAME)
     add_subdirectory("${backend}")
 endforeach()

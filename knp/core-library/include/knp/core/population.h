@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 18.01.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public:
     using NeuronGenerator = std::function<std::optional<NeuronParameters>(size_t index)>;
 
     /**
-     * @brief Real neurons container type.
+     * @brief Type of the container that contains neurons.
      */
     using NeuronsContainer = std::vector<NeuronParameters>;
 

@@ -4,7 +4,7 @@
  * @kaspersky_support Andrey V.
  * @date 26.01.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,44 +70,22 @@ template <>
 struct synapse_parameters<DeltaSynapse>
 {
     /**
-     * @brief Default constructor.
-     */
-    synapse_parameters()
-        : weight_(default_values<DeltaSynapse>::weight_),
-          delay_(default_values<DeltaSynapse>::delay_),
-          output_type_(default_values<DeltaSynapse>::output_type_)
-    {
-    }
-
-    /**
-     * @brief Constructor.
-     * @param weight synaptic weight.
-     * @param delay synaptic delay (number of steps).
-     * @param type impact type.
-     * @note The minimum `delay` value is `1`.
-     */
-    synapse_parameters(float weight, uint32_t delay, knp::synapse_traits::OutputType type)
-        : weight_(weight), delay_(delay), output_type_(type)
-    {
-    }
-
-    /**
      * @brief Synaptic weight.
      */
-    float weight_;
+    float weight_ = default_values<DeltaSynapse>::weight_;
 
     /**
      * @brief Synaptic delay.
      * @details Delay of `N` means that a spike sent on step `X` will be received on step `X + N`.
      */
-    uint32_t delay_;
+    uint32_t delay_ = default_values<DeltaSynapse>::delay_;
 
     /**
      * @brief Synapse type.
      * @details Various types have different influences on neuron parameters, as defined by neuron
      * function.
      */
-    knp::synapse_traits::OutputType output_type_;
+    knp::synapse_traits::OutputType output_type_ = default_values<DeltaSynapse>::output_type_;
 };
 
 }  // namespace knp::synapse_traits

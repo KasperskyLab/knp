@@ -4,7 +4,7 @@
  * @kaspersky_support A. Vartenkov
  * @date 30.08.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ int main(int argc, char** argv)
     std::ifstream images_stream(images_file_path, std::ios::binary);
     std::ifstream labels_stream(labels_file_path, std::ios::in);
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306364
     data_processing::Dataset dataset;
     dataset.process_labels_and_images(
         images_stream, labels_stream, images_amount_to_train + images_amount_to_test, classes_amount, input_size,
@@ -80,6 +81,7 @@ int main(int argc, char** argv)
     std::cout << get_time_string() << ": inference finished  -- output spike count is " << spikes.size() << std::endl;
 
     // Evaluate results.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306417
     inference_evaluation::InferenceResultsProcessor inference_processor;
     inference_processor.process_inference_results(spikes, dataset);
 

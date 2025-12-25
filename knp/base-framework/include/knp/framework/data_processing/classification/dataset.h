@@ -4,7 +4,7 @@
  * @kaspersky_support D. Postnikov
  * @date 21.07.2025
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ namespace classification
 {
 
 /**
- * @brief The `Dataset` class is the base class for datasets.
+ * @brief The Dataset class is the base class for datasets.
  * @details A dataset is supposed to be abstracted from its actual processing and characteristics, such as size.
  * The size of the dataset is not a crucial factor, as it is handled during the splitting process. The correct
  * workflow would be to first process a dataset, then split it, and finally use it for your purposes.

@@ -42,7 +42,7 @@ namespace classification
 {
 
 /**
- * @details The `InferenceResultsProcessor` class is a definition of an interface used to process 
+ * @brief The InferenceResultsProcessor class is a definition of an interface used to process 
  * inference results, suited for classification models.
  */
 class KNP_DECLSPEC InferenceResultsProcessor

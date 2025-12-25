@@ -19,9 +19,9 @@ You can use Kaspersky Neuromorphic Platform to do the following:
 - Implement application solutions based on neuromorphic spiking neural networks in the field of robotic manipulators, Internet of Things, unmanned systems, human-machine interaction, wearable devices, and optimization planning.
 - Implement application solutions on devices with low power consumption using neuromorphic processors.
 
-You can use the C++ and Python languages to accomplish these tasks. The platform supports CPUs as well as the AltAI-1 neuromorphic processor unit designed for energy-efficient execution of neural networks in various types of intelligent devices.
+You can use the C++ and Python languages to accomplish these tasks. The platform supports CPUs, GPUs with CUDA support, as well as the AltAI-2 neuromorphic processing unit designed for power-efficient execution of neural networks on various classes of smart devices.
 
-For information on the platform concepts and architecture, installation instructions and platform use cases, see <a href="https://click.kaspersky.com/?hl=en-US&version=1.0&pid=KNP&link=online_help">Kaspersky Neuromorphic Platform Help</a>.
+For information on the platform concepts and architecture, installation instructions and platform use cases, see <a href="https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=index">Kaspersky Neuromorphic Platform Help</a>.
 
 Only versions of repository with release tags have release quality. If you use the source code from master branch or a build compiled from master branch, you may get code and build with errors and vulnerabilities.
 
@@ -32,7 +32,8 @@ For Kaspersky Neuromorphic Platform operation, the computer must meet the follow
 Minimum hardware requirements:
 
 - CPU: Intel Core i5 or higher compatible processor
-- Neuromorphic processing unit (if needed): AltAI-1
+- GPU with CUDA support: NVIDIA GPU using Pascal or higher
+- Neuromorphic processing unit (if needed): AltAI-2
 - 8 GB of RAM
 - Available hard drive space:
   - 1 GB for installing Kaspersky Neuromorphic Platform.
@@ -47,65 +48,43 @@ Supported operating systems:
 
 You can use the device running any other operating system from the Linux family, if the operating system distribution kit contains the Boost library version 1.81 or later.
 
-To work with the platform, the following software must be installed on the device:
+For information on the required software, see <a href="https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=232788">Kaspersky Neuromorphic Platform Help</a>.
 
-- Visual Studio 2022
+## Installation
 
-  This software must be installed for building the platform or application solution in Windows.
+You can install Kaspersky Neuromorphic Platform in one of the following ways:
 
-- Boost 1.81 or later
-
-  When working in Windows, it is recommended to install the library <a href="https://archives.boost.io/release/1.81.0/binaries/">precompiled</a> for Visual Studio 2022 (compiler version: 14.3).
-
-- CMake 3.25 or later
-
-- Before installing platform component deb packages for an `AltAI ANN2SNN` backend, make sure that the device has the following software:
-
-  - TensorFlow 2.4.1 or later
-
-  - Keras 2.3.1 or later
-
-  - NumPy 2.4.1 or later
-
-    The NumPy library version must match the TensorFlow library version.
-
-- Before installing a whl or deb package containing a Python framework for an `AltAI SNN` backend, make sure that the device has Python 3.10 or later.
-
-- Before installing a whl package containing a Python framework for an `AltAI ANN2SNN` backend, make sure that the device has the following software:
-
-  - NumPy 1.24.3
-  - TensorFlow 2.13.1
-  - Loguru 0.7.2
-  - PyYAML 6.0.1
-  - NetworkX 3.1
-  - Matplotlib 3.6.3
-  - tqdm 4.66.5
-
-- Before installing a deb package containing a Python framework for an `AltAI ANN2SNN` backend, make sure that the device has the following software:
-
-  - python3-pip
-  - python3-numpy
-  - python3-yaml
-  - python3-networkx
-  - python3-matplotlib
-  - python3-loguru
-  - python3-tqdm
-  - TensorFlow 2.13.1
+- <a href="https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=273773">Install deb packages</a>
+- <a href="https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=273774">Install Python development packages</a>
+- <a href="https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=283082">Build a platform project</a>
 
 ## Trademark notices
 
 Registered trademarks and service marks are the property of their respective owners.
 
+AMD and AMD64 are trademarks or registered trademarks of Advanced Micro Devices, Inc.\
 Apache is either a registered trademark or a trademark of the Apache Software Foundation.\
+Apple, Leopard, Mac, Mac OS, macOS, OS X, Objective-C, Safari, TrueType, and Xcode are trademarks of Apple Inc.\
+Arm is a registered trademark of Arm Limited (or its subsidiaries) in the US and/or elsewhere.\
+Borland is a trademark or registered trademark of Borland Software Corporation.\
 Ubuntu and LTS are registered trademarks of Canonical Ltd.\
 Docker and the Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.\
-TensorFlow and any associated designations are trademarks of Google LLC.\
-Intel and Core are trademarks of Intel Corporation in the U.S. and/or other countries.\
+FreeBSD is a registered trademark of The FreeBSD Foundation.\
+GITHUB is a trademark of GitHub, Inc., registered in the United States and other countries.\
+GITLAB is a trademark of GitLab Inc. in the United States and other countries and regions.\
+Google, Chrome, and Chromium are trademarks of Google LLC.\
+TensorFlow and any related marks are trademarks of Google LLC.\
+Intel, Core, and Pentium are trademarks of Intel Corporation or its subsidiaries.\
+IBM is a trademark of International Business Machines Corporation, registered in many jurisdictions worldwide.\
 Linux is the registered trademark of Linus Torvalds in the U.S. and other countries.\
-Microsoft, Visual Studio and Windows are trademarks of the Microsoft group of companies.\
-JavaScript is a registered trademark of Oracle and/or its affiliates.\
+Microsoft, Consolas, Internet Explorer, OpenType, Segoe, Visual Studio, Win32, and Windows are trademarks of the Microsoft group of companies.\
+Firefox is a trademark of the Mozilla Foundation in the U.S. and other countries.\
+NVIDIA is a registered trademark of NVIDIA Corporation.\
+Java and JavaScript are registered trademarks of Oracle and/or its affiliates.\
 Python is a trademark or registered trademark of the Python Software Foundation.\
-Debian is a registered trademark of Software in the Public Interest, Inc.
+Debian is a registered trademark of Software in the Public Interest, Inc.\
+QT is a trademark or registered trademark of The Qt Company Ltd.\
+UNIX is a registered trademark in the United States and other countries, licensed exclusively through X/Open Company Limited.
 
 ## Contribution
 
@@ -113,5 +92,6 @@ This is an open source project. If you are interested in making a code contribut
 
 ## License
 
-Copyright © 2025 AO Kaspersky Lab
 Licensed under the Apache 2.0 License. See the `LICENSE.txt` file in the root directory for details.
+
+© 2025 AO Kaspersky Lab

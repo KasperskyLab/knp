@@ -1,6 +1,6 @@
 """
 @file test_model.py
-@brief KNP Model tests.
+@brief Model tests.
 
 @kaspersky_support Vartenkov A.
 @license Apache 2.0 License.

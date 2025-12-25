@@ -153,7 +153,7 @@ public:
     /**
      * @brief Get a list of devices on which the backend runs a network.
      * @return list of devices.
-     * @todo remove this non-constant method?
+     * @todo Maybe remove this non-constant method.
      * @see Device.
      */
     [[nodiscard]] std::vector<std::unique_ptr<Device>> &get_current_devices() { return devices_; }
@@ -290,6 +290,12 @@ public:
     class BaseValueIterator
     {
     public:
+
+        /**
+         * @brief Default constructor. 
+         */
+        BaseValueIterator() = default;
+
         /**
          * @brief Iterator tag.
          */
@@ -331,7 +337,6 @@ public:
          */
         virtual ~BaseValueIterator() = default;
     };
-
 
     /**
      * @brief Structure used to access population and projection data.

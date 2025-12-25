@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 21.02.24
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,48 +19,49 @@
  * limitations under the License.
  */
 
+#include <knp/framework/backend_loader.h>
+
+#include "../../core/cpp/backend_wrapper.h"
+#include "../../core/cpp/population.h"
+#include "../../core/cpp/projection.h"
+#include "../../core/cpp/uid_utilities.h"
 #include "common.h"
-#include "input_channel_utility.h"
-#include "model_executor_utility.h"
-#include "model_loader_utility.h"
-#include "model_utility.h"
-#include "network_utility.h"
-#include "observer_utility.h"
-#include "output_channel_utility.h"
+#include "exports.h"
 
 
-std::shared_ptr<knp::core::Backend> load_backend(cpp_framework::BackendLoader& loader, const py::object& backend_path)
+template <typename T>
+void register_direct_converter()
 {
-    return loader.load(py::extract<std::string>(backend_path)());
+    // Need to register converter.
+    // Without this extract from the different module cannot convert Python object to C++ object.
+    py::converter::registry::insert(
+        [](PyObject *p) { return static_cast<void *>(p); }, py::type_id<T>(),
+        &py::converter::registered_pytype_direct<T>::get_pytype);
 }
 
 
+PyObject *PyInit__knp_python_framework_core();
+
 BOOST_PYTHON_MODULE(KNP_FULL_LIBRARY_NAME)
 {
-#define KNP_IN_BASE_FW
-    // Py_Initialize();
-
+    // PyImport_AppendInittab("_knp_python_framework_core", &PyInit__knp_python_framework_base_framework);
+    //PyImport_AppendInittab("_knp_python_framework_core", &PyInit__knp_python_framework_core);
+    //py::import("knp.core._knp_python_framework_core");
     // auto path_type = py::import("pathlib.Path");
-
     py::implicitly_convertible<std::string, std::filesystem::path>();
-    py::register_ptr_to_python<std::shared_ptr<knp::core::Backend>>();
+    instance_populations_converters();
+    instance_projections_converters();
 
-    py::class_<cpp_framework::BackendLoader>(
-        "BackendLoader", "The BackendLoader class is a definition of a backend loader.")
-        // py::return_value_policy<py::manage_new_object>()
-        .def("load", &cpp_framework::BackendLoader::load, "Load backend")
-        .def("load", &load_backend, "Load backend")
-        .def(
-            "is_backend", &cpp_framework::BackendLoader::is_backend, "Check if the specified path points to a backend");
+    //register_direct_converter<knp::core::Backend>();
+    //py::register_ptr_to_python<std::shared_ptr<knp::core::Backend>>();
+    //py::implicitly_convertible<std::shared_ptr<knp::core::Backend>, Backend>();
 
-#include "input_channel.cpp"   // NOLINT
-#include "model.cpp"           // NOLINT
-#include "model_executor.cpp"  // NOLINT
-#include "model_loader.cpp"    // NOLINT
-#include "network.cpp"         // NOLINT
-#include "network_io.cpp"      // NOLINT
-#include "observer.cpp"        // NOLINT
-#include "output_channel.cpp"  // NOLINT
-
-#undef KNP_IN_BASE_FW
+    export_input_channel();
+    export_model();
+    export_model_executor();
+    export_model_loader();
+    export_network();
+    export_network_io();
+    export_observers();
+    export_output_channel();
 }

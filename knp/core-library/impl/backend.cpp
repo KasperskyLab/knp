@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 11.01.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ namespace knp::core
 Backend::Backend()
     : message_bus_{knp::core::MessageBus::construct_bus()}, message_endpoint_(message_bus_->create_endpoint())
 {
+#if (!defined(NDEBUG))
+    spdlog::set_level(spdlog::level::trace);
+#endif
 }
 
 
@@ -186,8 +189,9 @@ void Backend::select_devices(const std::set<UID>& uids)
 
 void Backend::select_device(std::unique_ptr<Device>&& device)
 {
-    SPDLOG_INFO("Device with UID {} was selected.", std::string(device->get_uid()));
+    devices_.clear();
     devices_.push_back(std::move(device));
+    SPDLOG_INFO("Device with UID {} was selected.", std::string(devices_[0]->get_uid()));
 }
 
 }  // namespace knp::core

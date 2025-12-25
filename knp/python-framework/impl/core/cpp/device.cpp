@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 01.02.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(KNP_IN_CORE)
 
-/*
-py::enum_<core::DeviceType>("DeviceType")
-    .value("CPU", DeviceType::0)
-    .value("GPU", DeviceType::1)
-    .value("AltAI1_NPU", DeviceType::2);
+#include "common.h"
 
-py::class_<core::Device>("Device", "The Device class is the base class for devices supported by the device library.");
+void export_device()
+{
+    py::enum_<core::DeviceType>("DeviceType")
+        // CPU device.
+        .value("CPU", core::DeviceType::CPU)
+        // GPU device.
+        .value("GPU", core::DeviceType::GPU)
+        // Generic NPU device.
+        .value("NPU", core::DeviceType::NPU);
 
-*/
-
-#endif
+    //py::class_<core::Device>("Device", "The Device class is the base class for devices supported by the device
+    //library.");
+}

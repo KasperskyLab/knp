@@ -48,20 +48,25 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     const fs::path &path_to_backend, AnnotatedNetwork &described_network,
     knp::framework::data_processing::classification::images::Dataset const &dataset, const fs::path &log_path)
 {
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(described_network.network_));
 
     // Creates arbitrary o_channel_uid identifier for the output channel.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243539
     knp::core::UID o_channel_uid;
-    // Passes to the model object the created output channel ID (o_channel_uid)
-    // and the population IDs.
+    // Passes the created output channel ID (o_channel_uid) and the population IDs to the model object.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=244944
     knp::core::UID input_image_channel_uid;
     channel_map.insert({input_image_channel_uid, dataset.make_inference_images_spikes_generator()});
 
     for (auto i : described_network.data_.output_uids_) model.add_output_channel(o_channel_uid, i);
     for (auto image_proj_uid : described_network.data_.projections_from_raster_)
         model.add_input_channel(input_image_channel_uid, image_proj_uid);
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
 
     // Receives a link to the output channel object (out_channel) from
@@ -70,6 +75,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
 
     model_executor.get_backend()->stop_learning();
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=260375
     knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
 
     std::ofstream log_stream;
@@ -78,6 +84,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     //  cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
 
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
     std::vector<knp::core::UID> wta_uids;
     {
         std::vector<size_t> wta_borders;

@@ -109,6 +109,41 @@
  */
 
 /**
+  * @dir /knp/backends/gpu
+  * @brief GPU backend directory.
+  */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend
+ * @brief GPU CUDA backend library directory.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/backends
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/backends/gpu-cuda
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/devices
+ * @brief Include directory for GPU CUDA devices library headers.
+ */
+
+/**
  * @dir /knp/base-framework
  * @brief C++ framework directory.
  */
@@ -131,6 +166,26 @@
 /**
  * @dir /knp/base-framework/include/knp/framework/coordinates
  * @brief Directory for coordinate headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/data_processing
+ * @brief Directory for data processing headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/data_processing/classification
+ * @brief Directory for classification model data processing headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/inference_evaluation
+ * @brief Directory for inference evaluation headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/inference_evaluation/classification
+ * @brief Directory for classification model inference evaluation headers.
  */
 
 /**
@@ -161,6 +216,11 @@
 /**
  * @dir /knp/base-framework/include/knp/framework/monitoring
  * @brief Directory for monitoring headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/normalization
+ * @brief Directory for normalization headers.
  */
 
 /**

@@ -4,7 +4,7 @@
  * @kaspersky_support Vartenkov An.
  * @date 07.04.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <generators.h>
 #include <spdlog/spdlog.h>
 #include <tests_common.h>
+#include <tests_messaging_common.h>
 
 #include <functional>
 #include <vector>
@@ -48,29 +49,6 @@ public:
 };
 
 }  // namespace knp::testing
-
-
-template <class Endpoint>
-bool send_messages_smallest_network(const knp::core::UID &in_channel_uid, Endpoint &endpoint, knp::core::Step step)
-{
-    if (step % 5 == 0)
-    {
-        knp::core::messaging::SpikeMessage message{{in_channel_uid, 0}, {0}};
-        endpoint.send_message(message);
-        return true;
-    }
-    return false;
-}
-
-
-template <class Endpoint>
-bool receive_messages_smallest_network(const knp::core::UID &out_channel_uid, Endpoint &endpoint)
-{
-    endpoint.receive_all_messages();
-    // Write the steps on which the network sends a spike.
-    if (!endpoint.template unload_messages<knp::core::messaging::SpikeMessage>(out_channel_uid).empty()) return true;
-    return false;
-}
 
 
 TEST(MultiThreadCpuSuite, SmallestNetwork)
@@ -106,9 +84,10 @@ TEST(MultiThreadCpuSuite, SmallestNetwork)
     for (knp::core::Step step = 0; step < 20; ++step)
     {
         // Send inputs on steps 0, 5, 10, 15.
-        send_messages_smallest_network(in_channel_uid, endpoint, step);
+        knp::testing::internal::send_messages_smallest_network(in_channel_uid, endpoint, step);
         backend._step();
-        if (receive_messages_smallest_network(out_channel_uid, endpoint)) results.push_back(step);
+        auto out = knp::testing::internal::receive_messages_smallest_network(out_channel_uid, endpoint);
+        if (!out.empty()) results.push_back(step);
     }
 
     // Spikes on steps "5n + 1" (input) and on "previous_spike_n + 6" (positive feedback loop).
@@ -149,9 +128,10 @@ TEST(MultiThreadCpuSuite, SmallestResourceNetwork)
     for (knp::core::Step step = 0; step < 20; ++step)
     {
         // Send inputs on steps 0, 5, 10, 15.
-        send_messages_smallest_network(in_channel_uid, endpoint, step);
+        knp::testing::internal::send_messages_smallest_network(in_channel_uid, endpoint, step);
         backend._step();
-        if (receive_messages_smallest_network(out_channel_uid, endpoint)) results.push_back(step);
+        auto out = knp::testing::internal::receive_messages_smallest_network(out_channel_uid, endpoint);
+        if (!out.empty()) results.push_back(step);
     }
 
     // Spikes on steps "5n + 1" (input) and on "previous_spike_n + 6" (positive feedback loop).

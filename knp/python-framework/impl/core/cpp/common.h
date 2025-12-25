@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 05.02.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@
 #include <knp/core/projection.h>
 #include <knp/core/subscription.h>
 #include <knp/core/uid.h>
+#include <knp/framework/backend_loader.h>
+
+#include "exports.h"
 
 #if defined(__GNUC__) && (__GNUC__ >= 14)
 #    pragma GCC diagnostic push
@@ -56,6 +59,7 @@
 #include <boost/python.hpp>
 #include <boost/python/implicit.hpp>
 #include <boost/python/iterator.hpp>
+#include <boost/python/object/class_metadata.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 
@@ -64,6 +68,18 @@ namespace core = knp::core;
 
 namespace detail
 {
+
+template <typename T>
+void register_direct_converter()
+{
+    // Need to register converter.
+    // Without this extract from the different module can't convert Python object to C++ object.
+    py::converter::registry::insert(
+        [](PyObject *p) { return static_cast<void *>(p); }, py::type_id<T>(),
+        &py::converter::registered_pytype_direct<T>::get_pytype);
+}
+
+
 template <typename F>
 struct function_traits : public function_traits<decltype(&F::operator())>
 {
@@ -123,4 +139,16 @@ boost::python::object adapt_unique(std::unique_ptr<T> (C::*fn)(Args...))
         boost::mpl::vector<T *, C &, Args...>());
 }
 
-std::string get_py_class_name(const py::object &obj_class);
+
+inline std::string get_py_class_name(const py::object &obj_class)
+{
+    const std::string class_name = boost::python::extract<std::string>(obj_class.attr("__class__").attr("__name__"));
+    if (class_name != "class")
+    {
+        PyErr_SetString(PyExc_TypeError, "Passed object is not a class.");
+        py::throw_error_already_set();
+        throw std::runtime_error("Not a class.");
+    }
+
+    return boost::python::extract<std::string>(obj_class.attr("__name__"));
+}

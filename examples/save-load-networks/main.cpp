@@ -27,7 +27,9 @@
 #include <knp/synapse-traits/delta.h>
 
 
+// Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=308225
 using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
+// Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=308213
 using BLIFATPopulation = knp::core::Population<knp::neuron_traits::BLIFATNeuron>;
 
 
@@ -57,12 +59,15 @@ inline knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> n
 
 // Creates a simple neural network with the following structure:
 // input channel -> input_projection -> population <=> loop_projection.
+// Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
 knp::framework::Network make_simple_network()
 {
     // Creates a population object with one BLIFAT neuron.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
     BLIFATPopulation population{neuron_generator, 1};
     // Creates a projection object with one delta synapse, which loops the output of the population
     // to itself.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
     knp::core::Projection<knp::synapse_traits::DeltaSynapse> loop_projection =
         DeltaProjection{population.get_uid(), population.get_uid(), synapse_generator, 1};
     // Creates an input projection object with one delta synapse, which is assigned
@@ -87,6 +92,7 @@ int main()
 {
     auto network = make_simple_network();
     // Saves the neural network in the SONATA format.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
     knp::framework::sonata::save_network(network, ".");
     // Loads the neural network from the SONATA format.
     auto network2 = knp::framework::sonata::load_network(".");

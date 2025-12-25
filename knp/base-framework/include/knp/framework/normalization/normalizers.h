@@ -38,7 +38,7 @@ using ValueCorrector = std::function<ValueType(const ValueType &)>;
 
 
 /**
- * @brief The `Rescaler` class is a definition of an interface used to scale values from one interval to another.
+ * @brief The Rescaler class is a definition of an interface used to scale values from one interval to another.
  * @tparam ValueType type of values to rescale.
  */
 template <typename ValueType>

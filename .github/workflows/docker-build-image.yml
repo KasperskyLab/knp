@@ -37,7 +37,7 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push the Docker image for KNP build
+      - name: Build and push the Docker image for Kaspersky Neuromorphic Platform build
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64

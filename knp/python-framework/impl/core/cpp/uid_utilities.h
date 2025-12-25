@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 22.02.2024
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ struct uid_from_python
 };
 
 
-auto get_py_hash(const knp::core::UID& uid)
+inline auto get_py_hash(const knp::core::UID& uid)
 {
     const knp::core::uid_hash hash;
     return hash(uid);

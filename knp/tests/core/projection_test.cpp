@@ -4,7 +4,7 @@
  * @kaspersky_support Artiom N.
  * @date 13.04.2023
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@
 #include <cstdlib>
 #include <optional>
 
+
+namespace knp::testing
+{
 
 namespace knc = knp::core;
 
@@ -59,7 +62,7 @@ SynapseGenerator make_cyclic_generator(std::pair<uint32_t, uint32_t> pop_sizes, 
 }
 
 
-TEST(ProjectionSuite, Generation)
+TEST(ProjectionSuite, Generation)  // cppcheck-suppress syntaxError
 {
     // Test constructor, get_connections, get_connection, operator[], get_size.
     const size_t presynaptic_size = 99;
@@ -72,7 +75,8 @@ TEST(ProjectionSuite, Generation)
         const uint32_t id_from = iter / postsynaptic_size;
         const uint32_t id_to = iter % postsynaptic_size;
         float weight = weight_constant * static_cast<float>(iter);
-        const SynapseParameters params(weight, iter / 100 + 1, knp::synapse_traits::OutputType::EXCITATORY);
+        const SynapseParameters params{
+            weight, static_cast<uint32_t>(iter / 100 + 1), knp::synapse_traits::OutputType::EXCITATORY};
         return std::optional(Synapse{params, id_from, id_to});
     };
 
@@ -268,3 +272,5 @@ TEST(ProjectionSuite, GetUIDTest)
     ASSERT_EQ(projection.get_presynaptic(), uid_from);
     ASSERT_EQ(projection.get_postsynaptic(), uid_to);
 }
+
+}  // namespace knp::testing

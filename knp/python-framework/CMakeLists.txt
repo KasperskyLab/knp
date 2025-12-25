@@ -1,5 +1,5 @@
 #[[
-© 2024 AO Kaspersky Lab
+© 2024-2025 AO Kaspersky Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ include(file-functions)
 set(KNP_PYTHON_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
 knp_add_python_module(core
-        LINK_LIBRARIES KNP::Core
+        LINK_LIBRARIES KNP::Core KNP::BaseFramework::Core
         PY_VER ${_KNP_PY_VER})
 knp_add_python_module(neuron_traits
         LINK_LIBRARIES KNP::Neuron::Traits
