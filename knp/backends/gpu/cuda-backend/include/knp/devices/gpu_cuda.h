@@ -39,7 +39,7 @@
  */
 
 /**
- * @brief GPU devices namespace.
+ * @brief GPU device namespace.
  */
 namespace knp::devices::gpu
 {
@@ -96,7 +96,7 @@ public:
     [[nodiscard]] uint32_t get_socket_number() const;
 
     /**
-     * @brief Get power consumption details for the device in mWatts.
+     * @brief Get power consumption details for the device in mW.
      * @return amount of consumed power.
      */
     [[nodiscard]] float get_power() const override;
@@ -108,57 +108,57 @@ public:
     [[nodiscard]] unsigned int get_warp_size() const;
 
     /**
-     * @brief Get multiprocessors count.
-     * @return Count of multiprocessors.
+     * @brief Get number of multiprocessors.
+     * @return number of multiprocessors.
      */
     [[nodiscard]] unsigned int get_mp_count() const;
 
     /**
-     * @brief Get threads per multiprocessor.
-     * @return Threads per multiprocessor.
+     * @brief Get number of threads per multiprocessor.
+     * @return number of threads per multiprocessor.
      */
     [[nodiscard]] unsigned int get_threads_per_mp() const;
 
     /**
-     * @brief Get threads per block from GPU.
-     * @return Maximum threads count.
+     * @brief Get number of threads per block from GPU.
+     * @return maximum number of threads.
      */
     [[nodiscard]] unsigned int get_max_threads_count() const;
 
     /**
-     * @brief Get kernels count that GPU can possibly execute concurrently.
-     * @return Count of the concurrent kernels.
+     * @brief Get number of kernels  that GPU can possibly execute concurrently.
+     * @return number of the concurrent kernels.
      */
     [[nodiscard]] unsigned int get_concurrent_kernels() const;
 
     /**
      * @brief Get maximum size of each dimension of a block from GPU.
-     * @return Dimensions sizes.
+     * @return dimensions sizes.
      */
     [[nodiscard]] const std::array<int, 3> get_max_threads_dim() const;
 
     /**
      * @brief Get maximum size of each dimension of a grid from GPU.
-     * @return Grid dimensions.
+     * @return grid dimensions.
      */
     [[nodiscard]] const std::array<int, 3> get_max_grid_size() const;
 
     /**
      * @brief Get global memory available on device in bytes.
-     * @return Count of bytes of the global memory.
+     * @return number of bytes available in the global memory.
      */
     [[nodiscard]] unsigned int get_global_memory_bytes() const;
 
     /**
      * @brief Get constant memory available on device in bytes.
-     * @return Count of bytes of the constant memory.
+     * @return number of bytes available in the constant memory.
      */
     [[nodiscard]] unsigned int get_constant_memory_bytes() const;
 
 public:
     /**
-     * @brief Get description sGPU.
-     * @return Device properties structure.
+     * @brief Get description of sGPU.
+     * @return device properties structure.
      */
     [[nodiscard]] [[deprecated("Use methods")]] cudaDeviceProp get_device_prop() const;
 

@@ -89,8 +89,8 @@ protected:
 
 public:
     /**
-     * @brief Split dataset into training and inference based on given requirements.
-     * @pre Sum of given parameters should be less or equal to size of whole dataset.
+     * @brief Split dataset into training and inference based on given parameters.
+     * @pre Sum of given parameters should be less or equal to the size of the whole dataset.
      * @param frames_for_training Amount of frames for training.
      * @param frames_for_inference Amount of frames for inference.
      */

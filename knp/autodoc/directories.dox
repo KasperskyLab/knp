@@ -109,6 +109,41 @@
  */
 
 /**
+  * @dir /knp/backends/gpu
+  * @brief GPU backend directory.
+  */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend
+ * @brief GPU CUDA backend library directory.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/backends
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/backends/gpu-cuda
+ * @brief Include directory for GPU CUDA library headers.
+ */
+
+/**
+ * @dir /knp/backends/gpu/cuda-backend/include/knp/devices
+ * @brief Include directory for GPU CUDA devices library headers.
+ */
+
+/**
  * @dir /knp/base-framework
  * @brief C++ framework directory.
  */

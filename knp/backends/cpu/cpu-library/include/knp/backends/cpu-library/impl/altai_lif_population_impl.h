@@ -94,8 +94,8 @@ knp::core::messaging::SpikeData calculate_spikes_lif<knp::neuron_traits::AltAILI
         }
         if (neuron.potential_ <= -static_cast<float>(neuron.negative_activation_threshold_) && !was_reset)
         {
-            // Might probably want a negative spike, but we don't have any of the sort in KNP. Not a large problem,
-            // just requires some conversion.
+            // Might probably want a negative spike, but we don't have any of the sort in Kaspersky Neuromorphic Platform. 
+            // Not a large problem, just requires some conversion.
             if (neuron.saturate_)
             {
                 neuron.potential_ = -static_cast<float>(neuron.negative_activation_threshold_);

@@ -1,6 +1,8 @@
 /**
  * @file backend_wrapper.h
+ * @brief Python bindings header for backend wrapper.
  * @kaspersky_support Artiom N.
+ * @date 05.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -144,7 +146,7 @@ struct BackendWrapper : core::Backend, py::wrapper<core::Backend>
 
 void export_backend()
 {
-    // "Abstract" class.
+    // Abstract class.
     py::class_<BackendWrapper, boost::noncopyable>(
         "Backend", "The Backend class is the base class for backends.", py::no_init)
         .def(
