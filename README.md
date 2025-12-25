@@ -92,6 +92,6 @@ This is an open source project. If you are interested in making a code contribut
 
 ## License
 
-Licensed under the Apache 2.0 License. See the `LICENSE.txt` file in the root directory for details.\
+Licensed under the Apache 2.0 License. See the `LICENSE.txt` file in the root directory for details.
 
 © 2025 AO Kaspersky Lab
