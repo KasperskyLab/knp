@@ -25,4 +25,4 @@
 * `synapse_traits` library (for use in C++ and Python): extended the interface of the synapse based on the `SynapticResourceSTDPDeltaSynapse` model.
 * Example `mnist-learn` is an added example of training a neural network on images of handwritten numbers and their labels from the MNIST database and its execution.
 
-Copyright © 2025 AO Kaspersky Lab
+© 2025 AO Kaspersky Lab
