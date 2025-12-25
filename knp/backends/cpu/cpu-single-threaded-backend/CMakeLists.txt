@@ -82,10 +82,11 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "libboost-all (= ${Boost_VERSION})" "libzmq"
+            DEPENDS "libboost-all (= ${Boost_VERSION})"
+            DEPENDS "libzmq"
             PROVIDES "knp-backend")
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION} development package: C++ headers and CMake modules"
-            DEPENDS "${COMPONENT_NAME}")
+            INTERNAL_DEPENDS "${COMPONENT_NAME}")
 endif()

@@ -274,7 +274,7 @@ function(knp_packaging_set_parameters component_name project_name)
             "PARSED_ARGS"
             ""
             "DESCRIPTION"
-            "DEPENDS;PROVIDES;RECOMMENDS"
+            "DEPENDS;INTERNAL_DEPENDS;PROVIDES;RECOMMENDS"
             ${ARGN}
     )
 
@@ -292,7 +292,13 @@ function(knp_packaging_set_parameters component_name project_name)
 
     if (PARSED_ARGS_DEPENDS)
         string(REPLACE ";" ", " PARSED_ARGS_DEPENDS "${PARSED_ARGS_DEPENDS}")
-        set(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPENDS "${PARSED_ARGS_DEPENDS}" CACHE STRING "${project_name} dependencies" FORCE)
+        set(CPACK_DEBIAN_${COMPONENT_VAR_NAME}_PACKAGE_DEPENDS "${PARSED_ARGS_DEPENDS}" CACHE STRING "${project_name} dependencies" FORCE)
+    else()
+        unset(CPACK_DEBIAN_${COMPONENT_VAR_NAME}_PACKAGE_DEPENDS CACHE)
+    endif()
+
+    if (PARSED_ARGS_INTERNAL_DEPENDS)
+        set(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPENDS "${PARSED_ARGS_INTERNAL_DEPENDS}" CACHE STRING "${project_name} internal dependencies" FORCE)
     else()
         unset(CPACK_COMPONENT_${COMPONENT_VAR_NAME}_DEPENDS CACHE)
     endif()
