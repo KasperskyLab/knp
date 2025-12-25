@@ -163,7 +163,11 @@ endif()
 find_package(CUDAToolkit)
 
 cmake_dependent_option(KNP_BUILD_DOCUMENTATION "Build doxygen auto documentation" ${KNP_BUILD_AUTONOMOUS} "DOXYGEN_FOUND" OFF)
-option(KNP_BUILD_CUDA "Build CUDA backend" ${CUDAToolkit_FOUND})
+
+# Check for CUDA.
+find_package(CUDAToolkit)
+
+option(KNP_BUILD_CUDA "Enable CUDA backend build" ${CUDAToolkit_FOUND})
 option(KNP_BUILD_EXAMPLES "Build usage examples" ${KNP_BUILD_AUTONOMOUS})
 option(KNP_BUILD_TESTS "Build tests" ${KNP_BUILD_AUTONOMOUS})
 option(KNP_ENABLE_AVX "Enable AVX and other CPU-specific extensions in the release build" ${KNP_ENABLE_AVX_DEFAULT})
