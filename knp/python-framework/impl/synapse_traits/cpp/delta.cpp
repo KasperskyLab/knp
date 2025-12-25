@@ -53,7 +53,7 @@ void export_delta()
 
     py::class_<ds_params>("DeltaSynapseParameters", "Structure for Delta synapse parameters.")
         .def(py::init<>())
-        .def("__init__", py::make_constructor(&construct_ds_params))
+        .def("__init__", py::make_constructor(&construct_ds_params), "Initialize Delta synapse parameters.")
         .add_property("weight", &ds_params::weight_, "Synaptic weight.")
         .add_property(
             "delay", &ds_params::delay_,

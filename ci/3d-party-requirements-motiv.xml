@@ -7,51 +7,51 @@
 
     <!-- Python Dependencies -->
 
-    <depend type="lib" ecosystem_name="pypi" name="absl-py" version="2.3.1" site="https://github.com/abseil/abseil-py" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="github" name="simonpercivall/astunparse" version="1.6.3" site="https://github.com/simonpercivall/astunparse" legal_type_of_use="BSD-3-Clause"/>
+    <depend type="lib" ecosystem_name="pypi" name="absl-py" version="2.3.1" site="https://github.com/abseil/abseil-py" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="simonpercivall/astunparse" version="1.6.3" site="https://github.com/simonpercivall/astunparse" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="pypi" name="certifi" version="2025.11.12" site="https://github.com/certifi/python-certifi" legal_type_of_use="MPL-2.0"/>
-    <depend type="lib" ecosystem_name="github" name="Ousret/charset_normalizer" version="3.4.4" site="https://github.com/Ousret/charset_normalizer" legal_type_of_use="MIT"/>
+    <depend type="lib" ecosystem_name="github" name="Ousret/charset_normalizer" version="3.4.4" site="https://github.com/Ousret/charset_normalizer" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="common" name="flatbuffers" version="25.9.23" site="https://google.github.io/flatbuffers/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="github" name="serge-sans-paille/gast" version="0.6.0" site="https://github.com/serge-sans-paille/gast/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="github" name="google/pasta" version="0.2.0" site="https://github.com/google/pasta" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="common" name="grpcio" version="1.76.0" site="https://grpc.io" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="h5py" version="3.15.1" site="https://www.h5py.org/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="idna" version="3.11" site="https://pypi.org/project/idna/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="common" name="keras" version="3.12.0" site="https://keras.io/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="libclang" version="18.1.1" site="https://pypi.org/project/libclang/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="loguru" version="0.7.2" site="https://pypi.org/project/loguru/" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="Markdown" version="3.10" site="https://github.com/Python-Markdown/markdown" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="markdown-it-py" version="4.0.0" site="https://github.com/executablebooks/markdown-it-py" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="MarkupSafe" version="3.0.3" site="https://github.com/pallets/markupsafe" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="mdurl" version="0.1.2" site="https://github.com/executablebooks/mdurl" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="ml-dtypes" version="0.3.2" site="https://github.com/jax-ml/ml_dtypes" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="namex" version="0.1.0" site="https://pypi.org/project/namex/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="common" name="networkx" version="3.1" site="https://networkx.org/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="Nuitka" version="2.4.8" site="https://nuitka.net/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="numpy" version="1.26.4" site="https://www.numpy.org" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="github" name="dgasmith/opt_einsum" version="3.4.0" site="https://github.com/dgasmith/opt_einsum" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="optree" version="0.18.0" site="https://github.com/metaopt/optree" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="common" name="protobuf" version="4.25.8" site="https://developers.google.com/protocol-buffers/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="Pygments" version="2.19.2" site="https://pygments.org/" legal_type_of_use="BSD-2-Clause"/>
-    <depend type="lib" ecosystem_name="pypi" name="PyYAML" version="6.0.2" site="https://pyyaml.org/" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="common" name="requests" version="2.32.5" site="https://requests.readthedocs.io" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="rich" version="14.2.0" site="https://github.com/Textualize/rich" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="github" name="benjaminp/six" version="1.17.0" site="https://github.com/benjaminp/six" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="tensorboard" version="2.16.2" site="https://www.tensorflow.org/tensorboard" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="tensorboard-data-server" version="0.7.2" site="https://github.com/tensorflow/tensorboard" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="common" name="tensorflow" version="2.16.2" site="https://www.tensorflow.org/" legal_type_of_use="Apache-2.0"/>
-    <depend type="lib" ecosystem_name="github" name="termcolor/termcolor" version="3.2.0" site="https://github.com/termcolor/termcolor" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="github" name="tqdm/tqdm" version="4.66.5" site="https://github.com/tqdm/tqdm" legal_type_of_use="MIT AND MPL-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="typing-extensions" version="4.15.0" site="https://pypi.org/project/typing-extensions/" legal_type_of_use="PSF-2.0"/>
-    <depend type="lib" ecosystem_name="pypi" name="urllib3" version="2.5.0" site="https://pypi.org/project/urllib3/" legal_type_of_use="MIT"/>
-    <depend type="lib" ecosystem_name="pypi" name="Werkzeug" version="3.1.3" site="https://palletsprojects.com/p/werkzeug/" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="github" name="GrahamDumpleton/wrapt" version="2.0.1" site="https://github.com/GrahamDumpleton/wrapt" legal_type_of_use="BSD-2-Clause"/>
+    <depend type="lib" ecosystem_name="github" name="serge-sans-paille/gast" version="0.6.0" site="https://github.com/serge-sans-paille/gast/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="google/pasta" version="0.2.0" site="https://github.com/google/pasta" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="grpcio" version="1.76.0" site="https://grpc.io" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="h5py" version="3.15.1" site="https://www.h5py.org/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="idna" version="3.11" site="https://pypi.org/project/idna/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="keras" version="3.12.0" site="https://keras.io/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="libclang" version="18.1.1" site="https://pypi.org/project/libclang/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="loguru" version="0.7.2" site="https://pypi.org/project/loguru/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="Markdown" version="3.10" site="https://github.com/Python-Markdown/markdown" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="markdown-it-py" version="4.0.0" site="https://github.com/executablebooks/markdown-it-py" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="MarkupSafe" version="3.0.3" site="https://github.com/pallets/markupsafe" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="mdurl" version="0.1.2" site="https://github.com/executablebooks/mdurl" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="ml-dtypes" version="0.3.2" site="https://github.com/jax-ml/ml_dtypes" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="namex" version="0.1.0" site="https://pypi.org/project/namex/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="networkx" version="3.1" site="https://networkx.org/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="Nuitka" version="2.4.8" site="https://nuitka.net/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="numpy" version="1.26.4" site="https://www.numpy.org" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="dgasmith/opt_einsum" version="3.4.0" site="https://github.com/dgasmith/opt_einsum" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="optree" version="0.18.0" site="https://github.com/metaopt/optree" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="protobuf" version="4.25.8" site="https://developers.google.com/protocol-buffers/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="Pygments" version="2.19.2" site="https://pygments.org/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="PyYAML" version="6.0.2" site="https://pyyaml.org/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="requests" version="2.32.5" site="https://requests.readthedocs.io" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="rich" version="14.2.0" site="https://github.com/Textualize/rich" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="benjaminp/six" version="1.17.0" site="https://github.com/benjaminp/six" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="tensorboard" version="2.16.2" site="https://www.tensorflow.org/tensorboard" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="tensorboard-data-server" version="0.7.2" site="https://github.com/tensorflow/tensorboard" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="common" name="tensorflow" version="2.16.2" site="https://www.tensorflow.org/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="termcolor/termcolor" version="3.2.0" site="https://github.com/termcolor/termcolor" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="tqdm/tqdm" version="4.66.5" site="https://github.com/tqdm/tqdm" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="typing-extensions" version="4.15.0" site="https://pypi.org/project/typing-extensions/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="urllib3" version="2.5.0" site="https://pypi.org/project/urllib3/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="pypi" name="Werkzeug" version="3.1.3" site="https://palletsprojects.com/p/werkzeug/" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="GrahamDumpleton/wrapt" version="2.0.1" site="https://github.com/GrahamDumpleton/wrapt" legal_type_of_use="unknown"/>
 
     <!-- C++ Dependencies -->
 
-    <depend type="lib" ecosystem_name="github" name="boostorg/boost" version="1.83.0" site="https://github.com/boostorg/boost" legal_type_of_use="BSL-1.0"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.83.0" site="https://github.com/boostorg/python" legal_type_of_use="BSL-1.0"/>
-    <depend type="lib" ecosystem_name="github" name="boostorg/numpy" version="1.83.0" site="https://github.com/boostorg/python" legal_type_of_use="BSL-1.0"/>
-    <depend type="lib" ecosystem_name="github" name="Kitware/CMake" version="3.23.2" site="https://github.com/Kitware/CMake" legal_type_of_use="BSD-3-Clause"/>
-    <depend type="lib" ecosystem_name="github" name="nlohmann/json" version="3.9.1" site="https://github.com/nlohmann/json" legal_type_of_use="MIT"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/boost" version="1.83.0" site="https://github.com/boostorg/boost" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/python" version="1.83.0" site="https://github.com/boostorg/python" legal_type_of_use="unknown"/>
+    <depend type="lib" ecosystem_name="github" name="boostorg/numpy" version="1.83.0" site="https://github.com/boostorg/python" legal_type_of_use="shared_library"/>
+    <depend type="lib" ecosystem_name="github" name="Kitware/CMake" version="3.25.2" site="https://github.com/Kitware/CMake" legal_type_of_use="tool"/>
+    <depend type="lib" ecosystem_name="github" name="nlohmann/json" version="3.9.1" site="https://github.com/nlohmann/json" legal_type_of_use="shared_library"/>
 </depends>

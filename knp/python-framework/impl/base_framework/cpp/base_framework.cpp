@@ -33,7 +33,7 @@ template <typename T>
 void register_direct_converter()
 {
     // Need to register converter.
-    // Without this extract from the different module can't convert Python object to C++ object.
+    // Without this extract from the different module cannot convert Python object to C++ object.
     py::converter::registry::insert(
         [](PyObject *p) { return static_cast<void *>(p); }, py::type_id<T>(),
         &py::converter::registered_pytype_direct<T>::get_pytype);
@@ -48,10 +48,6 @@ BOOST_PYTHON_MODULE(KNP_FULL_LIBRARY_NAME)
     //PyImport_AppendInittab("_knp_python_framework_core", &PyInit__knp_python_framework_core);
     //py::import("knp.core._knp_python_framework_core");
     // auto path_type = py::import("pathlib.Path");
-    uid_from_python();
-    py::to_python_converter<boost::uuids::uuid, uid_into_python>();
-    py::implicitly_convertible<core::UID, boost::uuids::uuid>();
-
     py::implicitly_convertible<std::string, std::filesystem::path>();
     instance_populations_converters();
     instance_projections_converters();

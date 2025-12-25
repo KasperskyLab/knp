@@ -2,7 +2,7 @@
  * @file gpu_cuda_device.cu
  * @brief CUDA device class implementation.
  * @kaspersky_support Artiom N.
- * @date 24.02.2024
+ * @date 24.02.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *

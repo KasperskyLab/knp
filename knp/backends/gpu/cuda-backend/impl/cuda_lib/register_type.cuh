@@ -1,6 +1,8 @@
 /**
  * @file register_type.cuh
+ * @brief Macros for CUDA vector type registration with necessary kernel instantiations.
  * @kaspersky_support A. Vartenkov.
+ * @date 18.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -16,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #pragma once
 
 #include "kernels.cuh"

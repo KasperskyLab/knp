@@ -290,7 +290,12 @@ public:
     class BaseValueIterator
     {
     public:
+
+        /**
+         * @brief Default constructor. 
+         */
         BaseValueIterator() = default;
+
         /**
          * @brief Iterator tag.
          */

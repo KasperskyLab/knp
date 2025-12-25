@@ -157,7 +157,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         result.network_.add_projection(input_projection);
         result.data_.inference_internal_projection_.insert(input_projection.get_uid());
 
-        // 2. Dopamine projection. It sends signals from labels to learning population.
+        // 2. Dopamine projection. It sends signals from labels to a learning population.
         const DeltaSynapseData default_dopamine_synapse{0.18, 3, knp::synapse_traits::OutputType::DOPAMINE};
         DeltaProjection projection_2 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
             knp::core::UID{false}, population_uids[INPUT], num_possible_labels, pop_data[INPUT].pd_.size_,

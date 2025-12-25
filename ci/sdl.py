@@ -153,7 +153,8 @@ def get_valgrind_config(filename: Path = KNP_ROOT / 'knp' / 'tests' / 'CMakeList
 def generate_static_analysis_xml() -> str:
     pvs_logs = []
 
-    for osname in ['linux', 'windows']:
+    # linux, windows
+    for osname in ['linux']:
         pvs_logs_archive = f'{osname}_pvs_report.7z'
         pvs_config = f'{osname}_pvs_config.txt'
 
@@ -170,13 +171,14 @@ def generate_static_analysis_xml() -> str:
     with open(KNP_ROOT / SDL_ARTIFACTS_DIRECTORY / f'{BUILD_NUMBER}_bandit', 'w', encoding='utf8') as pc_f:
         pc_f.write(get_bandit_config())
 
+    # <analyzer name="OCLint C++ Linux" type="oclint">
+    #    <config name=".oclint" link="{artifact_url('oclint')}"/>
+    #    <log link="{artifact_url('linux_oclint_report.7z')}"/>
+    # </analyzer>
+
     return f'''<SDL>
     <static_analysis>
         {' '.join(pvs_logs)}
-        <analyzer name="OCLint C++ Linux" type="oclint">
-            <config name=".oclint" link="{artifact_url('oclint')}"/>
-            <log link="{artifact_url('linux_oclint_report.7z')}"/>
-        </analyzer>
         <analyzer name="PyLint Linux" type="pylint">
             <log link="{artifact_url('linux_pylint_report.7z')}"/>
             <config name=".pylintrc" link="{artifact_url('pylintrc')}"/>

@@ -47,9 +47,10 @@ void export_uid()
     uid_from_python();
 
     py::class_<core::UID>("UID", "The UID class is a definition of unique identifiers for entities.")
-        .def(py::init<bool>(py::arg("random")))     // Generate a random UID.
-        .def(py::init<const boost::uuids::uuid>())  // Create a UID from `boost::uuids::uuid`.
-        .def(py::init<boost::uuids::uuid>())        // Create a UID from `boost::uuids::uuid`.
+        // Generate a random UID.
+        .def(py::init<bool>(py::arg("random")))
+        // Create a UID from `boost::uuids::uuid`.
+        .def(py::init<boost::uuids::uuid>())
         // Create a UID from an array of 16 uint8_t integers.
         .def(py::init<std::array<
                  boost::uuids::uuid::value_type,
@@ -61,7 +62,7 @@ void export_uid()
         .def("__lt__", &core::UID::operator<, "Check if the current UID is less than the specified UID.")
         .def("__eq__", &core::UID::operator==, "Check if two UIDs are the same.")
         .def("__ne__", &core::UID::operator!=, "Check if two UIDs are different.")
-        .def("__hash__", &get_py_hash, "Hash value for UID.")
+        .def("__hash__", &get_py_hash, "Get UID hash value.")
         .add_property("tag", &core::UID::tag, "UID value.");
 
     py::class_<core::uid_hash>("uid_hash", "UID hash functor type.")
