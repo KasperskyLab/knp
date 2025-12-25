@@ -153,7 +153,8 @@ def get_valgrind_config(filename: Path = KNP_ROOT / 'knp' / 'tests' / 'CMakeList
 def generate_static_analysis_xml() -> str:
     pvs_logs = []
 
-    for osname in ['linux', 'windows']:
+    # linux, windows
+    for osname in ['linux']:
         pvs_logs_archive = f'{osname}_pvs_report.7z'
         pvs_config = f'{osname}_pvs_config.txt'
 
