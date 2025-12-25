@@ -92,27 +92,30 @@ endforeach()
 if (KNP_INSTALL)
     knp_get_component_name("${PROJECT_NAME}" COMPONENT_NAME)
 
-#    install(TARGETS "${PROJECT_NAME}"
-#            EXPORT "${PROJECT_NAME}"
-#            COMPONENT "${COMPONENT_NAME}"
-#            LIBRARY)
+    install(TARGETS "${PROJECT_NAME}"
+            EXPORT "${PROJECT_NAME}"
+            COMPONENT "${COMPONENT_NAME}"
+            LIBRARY)
 
-#    install(TARGETS "${PROJECT_NAME}_static"
-#            EXPORT "${PROJECT_NAME}_static"
-#            COMPONENT "${COMPONENT_NAME}-dev"
-#            ARCHIVE)
+    install(TARGETS "${PROJECT_NAME}_static"
+            EXPORT "${PROJECT_NAME}_static"
+            COMPONENT "${COMPONENT_NAME}-dev"
+            ARCHIVE)
 
     install(DIRECTORY "include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}"
             COMPONENT "${COMPONENT_NAME}-dev"
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/knp/backends"
             FILES_MATCHING PATTERN "*.h")
 
+
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "libboost-all (= ${Boost_VERSION})" "libzmq"
+            DEPENDS "libboost-all-dev (>= ${Boost_VERSION})"
+            DEPENDS "libzmq5"
+            DEPENDS "nvidia-cuda-toolkit-12-8 | cuda-toolkit-12-8"
             PROVIDES "knp-backend")
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION} development package: C++ headers and CMake modules"
-            DEPENDS "${COMPONENT_NAME}")
+            INTERNAL_DEPENDS "${COMPONENT_NAME}")
 endif()

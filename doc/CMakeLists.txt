@@ -45,7 +45,7 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS cpp-framework-dev
+            INTERNAL_DEPENDS cpp-framework-dev
             PROVIDES "knp-documentation")
 
     knp_get_component_var_name("${COMPONENT_NAME}" COMPONENT_VAR)
