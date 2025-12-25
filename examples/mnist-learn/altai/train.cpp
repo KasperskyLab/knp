@@ -1,8 +1,8 @@
 /**
  * @file train.cpp
  * @brief Functions for train network.
- * @kaspersky_support A. Vartenkov
- * @date 24.03.2025
+ * @kaspersky_support D. Postnikov
+ * @date 25.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *

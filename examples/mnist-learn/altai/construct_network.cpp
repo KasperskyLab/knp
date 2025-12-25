@@ -1,8 +1,8 @@
 /**
  * @file construct_network.cpp
  * @brief Functions for network construction.
- * @kaspersky_support A. Vartenkov
- * @date 03.12.2024
+ * @kaspersky_support D. Postnikov
+ * @date 25.09.2025
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *

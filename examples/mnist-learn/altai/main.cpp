@@ -1,8 +1,8 @@
 /**
  * @file main.cpp
  * @brief Example of training a MNIST network
- * @kaspersky_support A. Vartenkov
- * @date 30.08.2024
+ * @kaspersky_support D. Postnikov
+ * @date 25.12.2025
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *

@@ -1,8 +1,8 @@
 /**
  * @file train.h
  * @brief Functions for network training.
- * @kaspersky_support A. Vartenkov
- * @date 28.03.2025
+ * @kaspersky_support D. Postnikov
+ * @date 25.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
