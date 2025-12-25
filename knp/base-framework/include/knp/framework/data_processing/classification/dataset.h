@@ -25,6 +25,7 @@
 #include <knp/core/impexp.h>
 #include <knp/core/messaging/messaging.h>
 
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -89,53 +90,6 @@ protected:
 
 public:
     /**
-     * @brief Split dataset into training and inference based on given requirements.
-     * @pre Sum of given parameters should be less or equal to size of whole dataset.
-     * @param frames_for_training Amount of frames for training.
-     * @param frames_for_inference Amount of frames for inference.
-     */
-    void split(size_t frames_for_training, size_t frames_for_inference);
-
-
-    /**
-     * @brief Get training data, consisting of pairs of labels and frames.
-     * @return constant reference to the training data.
-     * @note The returned data is the result of the @ref split function, which allocates data for training.
-     */
-    [[nodiscard]] inline auto const& get_data_for_training() const { return data_for_training_; }
-
-    /**
-     * @brief Get inference data, consisting of pairs of labels and frames.
-     * @return constant reference to the inference data.
-     * @note The returned data is the result of the @ref split function, which allocates data for inference.
-     */
-    [[nodiscard]] inline auto const& get_data_for_inference() const { return data_for_inference_; }
-
-    /**
-     * @brief Get the number of steps each frame is distributed to.
-     * @return number of steps per frame.
-     */
-    [[nodiscard]] inline size_t get_steps_per_frame() const { return steps_per_frame_; }
-
-    /**
-     * @brief Get the total number of steps required for training.
-     * @return number of steps required for training, calculated based on the training data and steps per frame.
-     */
-    [[nodiscard]] inline size_t get_steps_required_for_training() const { return steps_required_for_training_; }
-
-    /**
-     * @brief Get the total number of steps required for inference.
-     * @return number of steps required for inference, calculated based on the inference data and steps per frame.
-     */
-    [[nodiscard]] inline size_t get_steps_required_for_inference() const { return steps_required_for_inference_; }
-
-    /**
-     * @brief Get the number of classes in the dataset.
-     * @return number of classes.
-     */
-    [[nodiscard]] inline size_t get_amount_of_classes() const { return classes_amount_; }
-
-    /**
      * @brief The structure represents a class instance in the form of spikes, distributed over multiple steps.
      * @details This structure encapsulates the spike data for a class instance, which is transmitted over a series of
      * steps. For example, an image might be sent over 20 steps, with each step representing a subset of the image data.
@@ -154,35 +108,91 @@ public:
         std::vector<bool> spikes_;
     };
 
-protected:
-    /**
-     * @brief Training data, consisting of pairs of labels and frames.
-     * @note This vector is modified by the @ref split function to allocate data for training.
-     */
-    std::vector<std::pair<unsigned, Frame>> data_for_training_;
 
     /**
-     * @brief Inference data, consisting of pairs of labels and frames.
-     * @note This vector is modified by the @ref split function to allocate data for inference.
+     * @brief Label of frame.
      */
-    std::vector<std::pair<unsigned, Frame>> data_for_inference_;
+    using Label = unsigned;
+
+
+    /**
+     * @brief Frame with a label.
+     */
+    using NamedFrame = std::pair<Label, Frame>;
+
+
+    /**
+     * @brief Split dataset into training and inference based on given requirements.
+     * @pre Sum of given parameters should be less or equal to size of whole dataset.
+     * @param frames_for_training Amount of frames for training.
+     * @param frames_for_inference Amount of frames for inference.
+     */
+    void split(size_t frames_for_training, size_t frames_for_inference);
+
+
+    /**
+     * @brief Get training data, consisting of pairs of labels and frames.
+     * @return constant span to training data.
+     */
+    [[nodiscard]] std::span<const NamedFrame> get_data_for_training() const;
+
+    /**
+     * @brief Get inference data, consisting of pairs of labels and frames.
+     * @return constant span to inference data.
+     */
+    [[nodiscard]] std::span<const NamedFrame> get_data_for_inference() const;
+
+    /**
+     * @brief Get the number of steps each frame is distributed to.
+     * @return number of steps per frame.
+     */
+    [[nodiscard]] inline size_t get_steps_per_frame() const { return steps_per_frame_; }
+
+    /**
+     * @brief Get the total number of steps required for training.
+     * @return number of steps required for training, calculated based on the training data and steps per frame.
+     */
+    [[nodiscard]] inline size_t get_steps_amount_for_training() const
+    {
+        return frames_amount_for_training_ * steps_per_frame_;
+    }
+
+    /**
+     * @brief Get the total number of steps required for inference.
+     * @return number of steps required for inference, calculated based on the inference data and steps per frame.
+     */
+    [[nodiscard]] inline size_t get_steps_amount_for_inference() const
+    {
+        return frames_amount_for_inference_ * steps_per_frame_;
+    }
+
+    /**
+     * @brief Get the number of classes in the dataset.
+     * @return number of classes.
+     */
+    [[nodiscard]] inline size_t get_amount_of_classes() const { return classes_amount_; }
+
+protected:
+    // cppcheck-suppress unusedStructMember
+    /**
+     * @brief Whole dataset.
+     */
+    std::vector<NamedFrame> dataset_;
+
+    /**
+     * @brief Amount of frames from dataset for training.
+     */
+    unsigned frames_amount_for_training_ = 0;
+
+    /**
+     * @brief Amount of frames from dataset for inference.
+     */
+    unsigned frames_amount_for_inference_ = 0;
 
     /**
      * @brief Number of steps each frame is distributed to.
      */
     size_t steps_per_frame_ = 0;
-
-    /**
-     * @brief Total number of steps required for training, calculated based on @ref data_for_training_ and @ref
-     * steps_per_frame_.
-     */
-    size_t steps_required_for_training_ = 0;
-
-    /**
-     * @brief Total number of steps required for inference, calculated based on @ref data_for_inference_ and @ref
-     * steps_per_frame_.
-     */
-    size_t steps_required_for_inference_ = 0;
 
     /**
      * @brief Number of classes in the dataset.

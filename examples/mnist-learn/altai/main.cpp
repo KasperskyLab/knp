@@ -28,7 +28,7 @@
 #include <iostream>
 
 #include "inference.h"
-#include "shared_network.h"
+#include "shared.h"
 #include "time_string.h"
 #include "train.h"
 
@@ -64,8 +64,8 @@ int main(int argc, char** argv)
         steps_per_image, dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
     dataset.split(images_amount_to_train, images_amount_for_inference);
 
-    std::cout << "Processed dataset, training will last " << dataset.get_steps_required_for_training()
-              << " steps, inference " << dataset.get_steps_required_for_inference() << " steps" << std::endl;
+    std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
+              << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps" << std::endl;
 
     // Construct network and run training.
     AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);

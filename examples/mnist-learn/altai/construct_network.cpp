@@ -21,7 +21,7 @@
 
 #include "construct_network.h"
 
-#include "shared_network.h"
+#include "shared.h"
 
 
 // A list of short type names to make reading easier.

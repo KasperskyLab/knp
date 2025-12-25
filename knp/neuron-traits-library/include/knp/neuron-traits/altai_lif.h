@@ -129,6 +129,14 @@ struct default_values<AltAILIF>
      * @note Current threshold value is composed from two parameters: static value, and dynamic value.
      */
     constexpr static double additional_threshold_ = 0.;
+
+    /**
+     * @brief If this parameter is positive, then -1 is added on each step. If its negative, then 1 is added on each
+     * step. If its equal to 0, it gets infinitely big positive value, as big as it can be. If neuron receives spike,
+     * this parameter is set to be equal to the weight of synapse, where spike came from. When neuron produces a spike,
+     * it will actually be sent further only if this parameter is positive.
+     */
+    constexpr static int64_t activity_time_ = 0;
 };
 
 
@@ -302,9 +310,12 @@ struct neuron_parameters<AltAILIF>
     double additional_threshold_ = default_values<AltAILIF>::additional_threshold_;
 
     /**
-     * @brief TODO add description, this is taken from neuron description
+     * @brief If this parameter is positive, then -1 is added on each step. If its negative, then 1 is added on each
+     * step. If its equal to 0, it gets infinitely big positive value, as big as it can be. If neuron receives spike,
+     * this parameter is set to be equal to the weight of synapse, where spike came from. When neuron produces a spike,
+     * it will actually be sent further only if this parameter is positive.
      */
-    int64_t activity_time_ = 0;
+    int64_t activity_time_ = default_values<AltAILIF>::activity_time_;
 };
 
 }  // namespace knp::neuron_traits

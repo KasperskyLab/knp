@@ -34,7 +34,7 @@
 #include <utility>
 
 #include "construct_network.h"
-#include "shared_network.h"
+#include "shared.h"
 #include "time_string.h"
 
 constexpr size_t aggregated_spikes_logging_period = 4e3;
@@ -117,7 +117,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
         [&dataset](size_t step)
         {
             if (step % 20 == 0) std::cout << "Inference step: " << step << std::endl;
-            return step != dataset.get_steps_required_for_inference();
+            return step != dataset.get_steps_amount_for_inference();
         });
     // Updates the output channel.
     auto spikes = out_channel.update();

@@ -36,7 +36,7 @@ void Dataset::process_labels_and_images(
 
     std::vector<uint8_t> image_reading_buffer(image_size, 0);
 
-    data_for_training_.reserve(max_images_amount);
+    dataset_.reserve(max_images_amount);
 
     while (images_stream.good() && labels_stream.good())
     {
@@ -48,9 +48,9 @@ void Dataset::process_labels_and_images(
         int label = std::stoi(str);
 
         // Push to training data set because we dont know dataset size yet for a split
-        data_for_training_.push_back({label, std::move(spikes_frame)});
+        dataset_.push_back({label, std::move(spikes_frame)});
 
-        if (data_for_training_.size() == max_images_amount) break;
+        if (dataset_.size() == max_images_amount) break;
     }
 }
 
@@ -62,9 +62,9 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         knp::core::messaging::SpikeData message;
 
         const size_t frame_index = step / steps_per_frame_;
-        const size_t looped_frame_index = frame_index % data_for_training_.size();
+        const size_t looped_frame_index = frame_index % frames_amount_for_training_;
 
-        message.push_back(data_for_training_[looped_frame_index].first);
+        message.push_back(dataset_[looped_frame_index].first);
         std::cout << "image label: step " << step << '\n' << *message.rbegin() << std::endl;
         return message;
     };
@@ -78,9 +78,9 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         knp::core::messaging::SpikeData message;
 
         const size_t frame_index = step / steps_per_frame_;
-        const size_t looped_frame_index = frame_index % data_for_training_.size();
+        const size_t looped_frame_index = frame_index % frames_amount_for_training_;
 
-        auto const &data = data_for_training_[looped_frame_index].second.spikes_;
+        auto const &data = dataset_[looped_frame_index].second.spikes_;
 
         const size_t local_step = step % steps_per_frame_;
         const size_t frame_start = local_step * image_size_;
@@ -103,9 +103,9 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_in
         knp::core::messaging::SpikeData message;
 
         const size_t frame_index = step / steps_per_frame_;
-        const size_t looped_frame_index = frame_index % data_for_inference_.size();
+        const size_t looped_frame_index = frame_index % frames_amount_for_inference_;
 
-        auto const &data = data_for_inference_[looped_frame_index].second.spikes_;
+        auto const &data = dataset_[frames_amount_for_training_ + looped_frame_index].second.spikes_;
 
         const size_t local_step = step % steps_per_frame_;
         const size_t frame_start = local_step * image_size_;

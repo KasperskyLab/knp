@@ -185,7 +185,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         DeltaProjection projection_6 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
             population_uids[GATE], population_uids[INPUT], pop_data[GATE].pd_.size_, pop_data[INPUT].pd_.size_,
             [&default_synapse](size_t, size_t) { return default_synapse; });
-        result.network_.add_projection(projection_5);
+        result.network_.add_projection(projection_6);
 
         // 7. Projection used to reset learning neurons before the next image.
         auto inhibitory_synapse = default_synapse;

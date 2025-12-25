@@ -101,7 +101,7 @@ knp::framework::Network get_network_for_inference(
 AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
-    AnnotatedNetwork example_network = create_example_network(1);  // num_subnetworks);
+    AnnotatedNetwork example_network = create_example_network(num_subnetworks);
     std::filesystem::create_directory("mnist_network");
     knp::framework::sonata::save_network(example_network.network_, "mnist_network");
     knp::framework::Model model(std::move(example_network.network_));
@@ -167,7 +167,7 @@ AnnotatedNetwork train_mnist_network(
         [&dataset](size_t step)
         {
             if (step % 20 == 0) std::cout << "Step: " << step << std::endl;
-            return step != dataset.get_steps_required_for_training();
+            return step != dataset.get_steps_amount_for_training();
         });
 
     std::cout << get_time_string() << ": learning finished\n";
