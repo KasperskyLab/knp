@@ -159,9 +159,6 @@ else()
     set(KNP_PYTHON_FRAMEWORK_BUILD_DEFAULT ON)
 endif()
 
-# Check for CUDA.
-find_package(CUDAToolkit)
-
 cmake_dependent_option(KNP_BUILD_DOCUMENTATION "Build doxygen auto documentation" ${KNP_BUILD_AUTONOMOUS} "DOXYGEN_FOUND" OFF)
 
 # Check for CUDA.
