@@ -20,6 +20,9 @@
  */
 
 #pragma once
+#include "altai_lif.h"
+#include "blifat.h"
+#include "stdp_synaptic_resource_rule.h"
 
 /**
  * @brief Namespace for neuron traits.
@@ -30,5 +33,10 @@ namespace knp::neuron_traits
  * @brief BLIFAT neuron with additional resource-based STDP parameters.
  */
 using SynapticResourceSTDPBLIFATNeuron = SynapticResourceSTDPNeuron<BLIFATNeuron>;
+
+/**
+ * @brief AltAILIF neuron with additional resource-based STDP parameters.
+ */
+using SynapticResourceSTDPAltAILIFNeuron = SynapticResourceSTDPNeuron<AltAILIF>;
 
 }  // namespace knp::neuron_traits

@@ -31,17 +31,16 @@ TEST(DataProcessing, ImageClassification)
     std::stringstream labels_stream("0\n1\n2\n");
     knp::framework::data_processing::classification::images::Dataset dataset;
     dataset.process_labels_and_images(
-        images_stream, labels_stream, training_amount, classes_amount, image_size, steps_per_image,
+        images_stream, labels_stream, training_amount + inference_amount, classes_amount, image_size, steps_per_image,
         [](std::vector<uint8_t> const&) -> knp::framework::data_processing::classification::Dataset::Frame
         { return {{true}}; });
     dataset.split(training_amount, inference_amount);
 
     ASSERT_EQ(dataset.get_image_size(), image_size);
     ASSERT_EQ(dataset.get_amount_of_classes(), classes_amount);
-    ASSERT_EQ(dataset.get_required_training_amount(), training_amount);
     ASSERT_EQ(dataset.get_steps_per_frame(), steps_per_image);
-    ASSERT_EQ(dataset.get_steps_required_for_training(), training_amount);
-    ASSERT_EQ(dataset.get_steps_required_for_inference(), inference_amount);
+    ASSERT_EQ(dataset.get_steps_amount_for_training(), training_amount);
+    ASSERT_EQ(dataset.get_steps_amount_for_inference(), inference_amount);
 
     ASSERT_EQ(dataset.get_data_for_training().size(), training_amount);
     ASSERT_EQ(dataset.get_data_for_training()[0].first, 0);
@@ -57,7 +56,7 @@ TEST(DataProcessing, ImageClassification)
     ASSERT_EQ(dataset.get_data_for_inference()[0].second.spikes_[0], true);
 
     auto train_images_spikes_gen = dataset.make_training_images_spikes_generator();
-    for (size_t i = 0; i < dataset.get_steps_required_for_training(); ++i)
+    for (size_t i = 0; i < dataset.get_steps_amount_for_training(); ++i)
     {
         const auto res = train_images_spikes_gen(i);
         ASSERT_EQ(res.size(), 1);
@@ -65,7 +64,7 @@ TEST(DataProcessing, ImageClassification)
     }
 
     auto train_labels_gen = dataset.make_training_labels_generator();
-    for (size_t i = 0; i < dataset.get_steps_required_for_training(); ++i)
+    for (size_t i = 0; i < dataset.get_steps_amount_for_training(); ++i)
     {
         const auto res = train_labels_gen(i);
         ASSERT_EQ(res.size(), 1);
@@ -73,7 +72,7 @@ TEST(DataProcessing, ImageClassification)
     }
 
     auto inf_images_spikes_gen = dataset.make_inference_images_spikes_generator();
-    for (size_t i = 0; i < dataset.get_steps_required_for_inference(); ++i)
+    for (size_t i = 0; i < dataset.get_steps_amount_for_inference(); ++i)
     {
         const auto res = train_images_spikes_gen(i);
         ASSERT_EQ(res.size(), 1);
