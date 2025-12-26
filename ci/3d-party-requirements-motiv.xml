@@ -9,9 +9,9 @@
 
     <depend type="lib" ecosystem_name="pypi" name="absl-py" version="2.3.1" site="https://github.com/abseil/abseil-py" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="github" name="simonpercivall/astunparse" version="1.6.3" site="https://github.com/simonpercivall/astunparse" legal_type_of_use="unknown"/>
-    <depend type="lib" ecosystem_name="pypi" name="certifi" version="2025.11.12" site="https://github.com/certifi/python-certifi" legal_type_of_use="MPL-2.0"/>
+    <depend type="lib" ecosystem_name="pypi" name="certifi" version="2025.11.12" site="https://github.com/certifi/python-certifi" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="github" name="Ousret/charset_normalizer" version="3.4.4" site="https://github.com/Ousret/charset_normalizer" legal_type_of_use="unknown"/>
-    <depend type="lib" ecosystem_name="common" name="flatbuffers" version="25.9.23" site="https://google.github.io/flatbuffers/" legal_type_of_use="Apache-2.0"/>
+    <depend type="lib" ecosystem_name="common" name="flatbuffers" version="25.9.23" site="https://google.github.io/flatbuffers/" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="github" name="serge-sans-paille/gast" version="0.6.0" site="https://github.com/serge-sans-paille/gast/" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="github" name="google/pasta" version="0.2.0" site="https://github.com/google/pasta" legal_type_of_use="unknown"/>
     <depend type="lib" ecosystem_name="common" name="grpcio" version="1.76.0" site="https://grpc.io" legal_type_of_use="unknown"/>
