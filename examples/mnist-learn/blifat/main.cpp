@@ -26,16 +26,9 @@
 #include <iostream>
 
 #include "inference.h"
-#include "shared_network.h"
+#include "shared.h"
 #include "time_string.h"
 #include "train.h"
-
-constexpr size_t active_steps = 10;
-constexpr size_t steps_per_image = 15;
-constexpr float state_increment_factor = 1.f / 255;
-constexpr size_t images_amount_to_train = 10000;
-constexpr size_t images_amount_to_test = 2000;
-constexpr size_t classes_amount = 10;
 
 namespace data_processing = knp::framework::data_processing::classification::images;
 namespace inference_evaluation = knp::framework::inference_evaluation::classification;

@@ -21,7 +21,7 @@
 
 #include "construct_network.h"
 
-#include "shared_network.h"
+#include "shared.h"
 
 
 // A list of short type names to make reading easier.
@@ -73,8 +73,6 @@ float resource_from_weight(float weight, float min_weight, float max_weight)
 // Add populations to the network.
 auto add_subnetwork_populations(AnnotatedNetwork &result)
 {
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
-    result.data_.wta_data_.push_back({});
     // Parameters for a default neuron.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235859
     ResourceNeuronData default_neuron{{}};
@@ -122,7 +120,7 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
         if (pop_init_data.output_) result.data_.output_uids_.push_back(uid);
     }
 
-    result.data_.wta_data_.back().first.push_back(population_uids[INPUT]);
+    result.data_.wta_data_.emplace_back().first.push_back(population_uids[INPUT]);
     return std::make_pair(population_uids, pop_data);
 }
 
@@ -135,76 +133,92 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
     {
         auto [population_uids, pop_data] = add_subnetwork_populations(result);
 
-        // Now that we added all the populations we need, we have to connect them with projections.
-        // Creating a projection is more tricky, as all the connection logic should be described in a generator.
-        // Create a default synapse.
-        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235860
-        ResourceSynapseParams default_synapse;
-        auto afferent_synapse = default_synapse;
-        afferent_synapse.rule_.synaptic_resource_ =
+        ResourceSynapseParams R_to_INPUT_synapse;
+        R_to_INPUT_synapse.rule_.synaptic_resource_ =
             resource_from_weight(base_weight_value, min_synaptic_weight, max_synaptic_weight);
-        afferent_synapse.rule_.dopamine_plasticity_period_ = synapse_dopamine_period;
-        afferent_synapse.rule_.w_min_ = min_synaptic_weight;
-        afferent_synapse.rule_.w_max_ = max_synaptic_weight;
+        R_to_INPUT_synapse.rule_.dopamine_plasticity_period_ = synapse_dopamine_period;
+        R_to_INPUT_synapse.rule_.w_min_ = min_synaptic_weight;
+        R_to_INPUT_synapse.rule_.w_max_ = max_synaptic_weight;
 
-        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
-        // 1. Trainable input projection.
-        ResourceDeltaProjection input_projection = knp::framework::projection::creators::all_to_all<ResourceSynapse>(
-            knp::core::UID{false}, population_uids[INPUT], input_size, num_input_neurons,
-            [&afferent_synapse](size_t, size_t) { return afferent_synapse; });
-        result.data_.projections_from_raster_.push_back(input_projection.get_uid());
-        input_projection.unlock_weights();  // Trainable
-        result.network_.add_projection(input_projection);
-        result.data_.inference_internal_projection_.insert(input_projection.get_uid());
+        ResourceDeltaProjection R_to_INPUT_projection =
+            knp::framework::projection::creators::all_to_all<ResourceSynapse>(
+                knp::core::UID{false}, population_uids[INPUT], input_size, num_input_neurons,
+                [&R_to_INPUT_synapse](size_t, size_t) { return R_to_INPUT_synapse; });
+        result.data_.projections_from_raster_.push_back(R_to_INPUT_projection.get_uid());
+        R_to_INPUT_projection.unlock_weights();  // Trainable
+        result.network_.add_projection(R_to_INPUT_projection);
+        result.data_.inference_internal_projection_.insert(R_to_INPUT_projection.get_uid());
 
-        // 2. Dopamine projection. It sends signals from labels to a learning population.
-        const DeltaSynapseData default_dopamine_synapse{0.18, 3, knp::synapse_traits::OutputType::DOPAMINE};
-        DeltaProjection projection_2 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            knp::core::UID{false}, population_uids[INPUT], num_possible_labels, pop_data[INPUT].pd_.size_,
-            [&default_dopamine_synapse](size_t, size_t) { return default_dopamine_synapse; });
-        result.network_.add_projection(projection_2);
-        result.data_.projections_from_classes_.push_back(projection_2.get_uid());
 
-        // 3. Strong excitatory projection going to output neurons.
-        default_synapse.weight_ = 10;
-        DeltaProjection projection_3 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            population_uids[INPUT], population_uids[OUTPUT], pop_data[INPUT].pd_.size_, pop_data[OUTPUT].pd_.size_,
-            [&default_synapse](size_t, size_t) { return default_synapse; });
-        result.data_.wta_data_[i].second.push_back(projection_3.get_uid());
-        result.network_.add_projection(projection_3);
-        result.data_.inference_internal_projection_.insert(projection_3.get_uid());
+        DeltaSynapseData TARGET_to_INPUT_synapse;
+        TARGET_to_INPUT_synapse.weight_ = 0.18;
+        TARGET_to_INPUT_synapse.delay_ = 3;
+        TARGET_to_INPUT_synapse.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
 
-        // 4. Blocking projection.
-        const DeltaSynapseData default_blocking_synapse{-10, 1, knp::synapse_traits::OutputType::BLOCKING};
-        DeltaProjection projection_4 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            population_uids[OUTPUT], population_uids[GATE], pop_data[OUTPUT].pd_.size_, pop_data[GATE].pd_.size_,
-            [&default_blocking_synapse](size_t, size_t) { return default_blocking_synapse; });
-        result.network_.add_projection(projection_4);
+        DeltaProjection TARGET_to_INPUT_projection =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                knp::core::UID{false}, population_uids[INPUT], num_possible_labels, pop_data[INPUT].pd_.size_,
+                [&TARGET_to_INPUT_synapse](size_t, size_t) { return TARGET_to_INPUT_synapse; });
+        result.network_.add_projection(TARGET_to_INPUT_projection);
+        result.data_.projections_from_classes_.push_back(TARGET_to_INPUT_projection.get_uid());
 
-        // 5. Strong excitatory projection going from ground truth classes.
-        DeltaProjection projection_5 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            knp::core::UID{false}, population_uids[GATE], num_possible_labels, pop_data[GATE].pd_.size_,
-            [&default_synapse](size_t, size_t) { return default_synapse; });
-        result.network_.add_projection(projection_5);
-        result.data_.projections_from_classes_.push_back(projection_5.get_uid());
 
-        // 6. Strong excitatory projection going from BIASGATE to learning neurons.
-        DeltaProjection projection_6 = knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            population_uids[GATE], population_uids[INPUT], pop_data[GATE].pd_.size_, pop_data[INPUT].pd_.size_,
-            [&default_synapse](size_t, size_t) { return default_synapse; });
-        result.network_.add_projection(projection_6);
+        DeltaSynapseData INPUT_to_OUTPUT_synapse;
+        INPUT_to_OUTPUT_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
+        INPUT_to_OUTPUT_synapse.weight_ = 10;
 
-        // 7. Projection used to reset learning neurons before the next image.
-        auto inhibitory_synapse = default_synapse;
-        inhibitory_synapse.weight_ = -30;
-        inhibitory_synapse.delay_ = 4;
-        DeltaProjection projection_7 =
+        DeltaProjection INPUT_to_OUTPUT_projection =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                population_uids[INPUT], population_uids[OUTPUT], pop_data[INPUT].pd_.size_, pop_data[OUTPUT].pd_.size_,
+                [&INPUT_to_OUTPUT_synapse](size_t, size_t) { return INPUT_to_OUTPUT_synapse; });
+        result.data_.wta_data_[i].second.push_back(INPUT_to_OUTPUT_projection.get_uid());
+        result.network_.add_projection(INPUT_to_OUTPUT_projection);
+        result.data_.inference_internal_projection_.insert(INPUT_to_OUTPUT_projection.get_uid());
+
+
+        DeltaSynapseData OUTPUT_to_GATE_synapse;
+        OUTPUT_to_GATE_synapse.weight_ = -10;
+        OUTPUT_to_GATE_synapse.output_type_ = knp::synapse_traits::OutputType::BLOCKING;
+
+        DeltaProjection OUTPUT_to_GATE_projection =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                population_uids[OUTPUT], population_uids[GATE], pop_data[OUTPUT].pd_.size_, pop_data[GATE].pd_.size_,
+                [&OUTPUT_to_GATE_synapse](size_t, size_t) { return OUTPUT_to_GATE_synapse; });
+        result.network_.add_projection(OUTPUT_to_GATE_projection);
+
+
+        DeltaSynapseData TARGET_to_GATE_synapse;
+        TARGET_to_GATE_synapse.weight_ = 10;
+        TARGET_to_GATE_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
+
+        DeltaProjection TARGET_to_GATE_projection =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                knp::core::UID{false}, population_uids[GATE], num_possible_labels, pop_data[GATE].pd_.size_,
+                [&TARGET_to_GATE_synapse](size_t, size_t) { return TARGET_to_GATE_synapse; });
+        result.network_.add_projection(TARGET_to_GATE_projection);
+        result.data_.projections_from_classes_.push_back(TARGET_to_GATE_projection.get_uid());
+
+
+        DeltaSynapseData GATE_to_INPUT_synapse;
+        GATE_to_INPUT_synapse.weight_ = 10;
+        GATE_to_INPUT_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
+
+        DeltaProjection GATE_to_INPUT_projection =
+            knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
+                population_uids[GATE], population_uids[INPUT], pop_data[GATE].pd_.size_, pop_data[INPUT].pd_.size_,
+                [&GATE_to_INPUT_synapse](size_t, size_t) { return GATE_to_INPUT_synapse; });
+        result.network_.add_projection(GATE_to_INPUT_projection);
+
+        DeltaSynapseData TARGET_to_INPUT_synapse2;
+        TARGET_to_INPUT_synapse2.weight_ = -30;
+        TARGET_to_INPUT_synapse2.delay_ = 4;
+        TARGET_to_INPUT_synapse2.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
+        DeltaProjection TARGET_to_INPUT_projection2 =
             knp::framework::projection::creators::all_to_all<knp::synapse_traits::DeltaSynapse>(
                 knp::core::UID{false}, population_uids[INPUT], num_possible_labels, num_input_neurons,
-                [&inhibitory_synapse](size_t, size_t) { return inhibitory_synapse; });
-        result.network_.add_projection(projection_7);
-        result.data_.inference_internal_projection_.insert(projection_7.get_uid());
-        result.data_.projections_from_classes_.push_back(projection_7.get_uid());
+                [&TARGET_to_INPUT_synapse2](size_t, size_t) { return TARGET_to_INPUT_synapse2; });
+        result.network_.add_projection(TARGET_to_INPUT_projection2);
+        result.data_.projections_from_classes_.push_back(TARGET_to_INPUT_projection2.get_uid());
     }
 
     // Return created network.

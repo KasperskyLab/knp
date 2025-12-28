@@ -36,12 +36,6 @@
 #include "shared.h"
 #include "time_string.h"
 
-constexpr size_t aggregated_spikes_logging_period = 4e3;
-
-constexpr size_t projection_weights_logging_period = 1e5;
-
-constexpr size_t wta_winners_amount = 1;
-
 namespace fs = std::filesystem;
 
 namespace images_classification = knp::framework::data_processing::classification::images;

@@ -34,12 +34,8 @@
 #include <utility>
 
 #include "construct_network.h"
-#include "shared_network.h"
+#include "shared.h"
 #include "time_string.h"
-
-constexpr size_t aggregated_spikes_logging_period = 4e3;
-
-constexpr size_t wta_winners_amount = 1;
 
 namespace fs = std::filesystem;
 
@@ -93,10 +89,13 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
             model_executor, wta_winners_amount, wta_borders, described_network.data_.wta_data_);
     }
 
-    auto all_senders_names = described_network.data_.population_names_;
-    for (const auto &uid : wta_uids)
+    auto pop_names = described_network.data_.population_names_;
+
+    // Change names for WTA populations.
     {
-        all_senders_names.insert({uid, "WTA"});
+        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
+            if (pop->second == "INPUT") pop->second = "INPUT[NO WTA]";
+        for (auto const &uid : wta_uids) pop_names[uid] = "INPUT[WTA]";
     }
 
     // All loggers go here
@@ -108,7 +107,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
     if (log_stream.is_open())
     {
         knp::framework::monitoring::model::add_aggregated_spikes_logger(
-            model, all_senders_names, model_executor, spike_accumulator, log_stream, aggregated_spikes_logging_period);
+            model, pop_names, model_executor, spike_accumulator, log_stream, aggregated_spikes_logging_period);
     }
 
     // Start model.

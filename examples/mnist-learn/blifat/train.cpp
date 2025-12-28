@@ -34,14 +34,8 @@
 #include <utility>
 
 #include "construct_network.h"
-#include "shared_network.h"
+#include "shared.h"
 #include "time_string.h"
-
-constexpr size_t aggregated_spikes_logging_period = 4e3;
-
-constexpr size_t projection_weights_logging_period = 1e5;
-
-constexpr size_t wta_winners_amount = 1;
 
 namespace fs = std::filesystem;
 
@@ -55,6 +49,7 @@ auto build_channel_map_train(
     // Create future channels uids randomly.
     knp::core::UID input_image_channel_raster;
     knp::core::UID input_image_channel_classes;
+    knp::core::UID output_channel;
 
     // Add input channel for each image input projection.
     for (auto image_proj_uid : network.data_.projections_from_raster_)
@@ -64,11 +59,26 @@ auto build_channel_map_train(
     for (auto target_proj_uid : network.data_.projections_from_classes_)
         model.add_input_channel(input_image_channel_classes, target_proj_uid);
 
+    // Add output channel.
+    for (auto out_pop : network.data_.output_uids_) model.add_output_channel(output_channel, out_pop);
+
     // Create and fill a channel map.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
     channel_map.insert({input_image_channel_raster, dataset.make_training_images_spikes_generator()});
-    channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
+    // channel_map.insert({input_image_channel_classes, dataset.make_training_labels_generator()});
+    channel_map.insert(
+        {input_image_channel_classes, [&dataset](knp::core::Step step)
+         {
+             knp::core::messaging::SpikeData message;
+
+             knp::core::Step local_step = step % 15;
+             if (local_step == 11) message.push_back(dataset.get_data_for_training()[step / 15].first);
+             std::cout << "image label: step " << step << '\n'
+                       << (message.size() ? static_cast<int>(*message.rbegin()) : -1) << std::endl;
+             return message;
+         }});
+
 
     return channel_map;
 }
@@ -106,9 +116,6 @@ AnnotatedNetwork train_mnist_network(
     const fs::path &path_to_backend, const images_classification::Dataset &dataset, const fs::path &log_path)
 {
     AnnotatedNetwork example_network = create_example_network(num_subnetworks);
-    std::filesystem::create_directory("mnist_network");
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
-    knp::framework::sonata::save_network(example_network.network_, "mnist_network");
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(example_network.network_));
 
@@ -139,15 +146,11 @@ AnnotatedNetwork train_mnist_network(
 
     auto pop_names = example_network.data_.population_names_;
 
-    // Change uid for INPUT population, because of wta.
+    // Change names for WTA populations.
     {
-        for (auto pop = pop_names.begin(); pop != pop_names.end();)
-            if (pop->second == "INPUT")
-                pop = pop_names.erase(pop);
-            else
-                ++pop;
-
-        for (auto const &uid : wta_uids) pop_names[uid] = "INPUT";
+        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
+            if (pop->second == "INPUT") pop->second = "INPUT[NO WTA]";
+        for (auto const &uid : wta_uids) pop_names[uid] = "INPUT[WTA]";
     }
 
     // knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);

@@ -52,3 +52,9 @@ constexpr size_t num_subnetworks = 1;
 
 // Number of pixels for a single MNIST image.
 constexpr size_t input_size = input_size_width * input_size_height;
+
+constexpr size_t wta_winners_amount = 1;
+
+constexpr size_t aggregated_spikes_logging_period = 4e3;
+
+constexpr size_t projection_weights_logging_period = 1e5;
