@@ -101,8 +101,8 @@ auto add_subnetwork_populations(AnnotatedNetwork &result)
     // Create initial neuron data for populations. There are four of them.
     std::vector<PopulationRole> pop_data{
         {{num_input_neurons, l_neuron}, true, false, "INPUT"},
-        {{num_possible_labels, default_neuron}, true, true, "OUTPUT"},
-        {{num_possible_labels, default_neuron}, false, false, "GATE"}};
+        {{classes_amount, default_neuron}, true, true, "OUTPUT"},
+        {{classes_amount, default_neuron}, false, false, "GATE"}};
 
     // Creating a population. It's usually very simple as all neurons are usually the same.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
@@ -157,7 +157,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaProjection TARGET_to_INPUT_projection =
             knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-                knp::core::UID{false}, population_uids[INPUT], num_possible_labels, pop_data[INPUT].pd_.size_,
+                knp::core::UID{false}, population_uids[INPUT], classes_amount, pop_data[INPUT].pd_.size_,
                 [&TARGET_to_INPUT_synapse](size_t, size_t) { return TARGET_to_INPUT_synapse; });
         result.network_.add_projection(TARGET_to_INPUT_projection);
         result.data_.projections_from_classes_.push_back(TARGET_to_INPUT_projection.get_uid());
@@ -193,7 +193,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
         DeltaProjection TARGET_to_GATE_projection =
             knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-                knp::core::UID{false}, population_uids[GATE], num_possible_labels, pop_data[GATE].pd_.size_,
+                knp::core::UID{false}, population_uids[GATE], classes_amount, pop_data[GATE].pd_.size_,
                 [&TARGET_to_GATE_synapse](size_t, size_t) { return TARGET_to_GATE_synapse; });
         result.network_.add_projection(TARGET_to_GATE_projection);
         result.data_.projections_from_classes_.push_back(TARGET_to_GATE_projection.get_uid());
@@ -215,7 +215,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
         TARGET_to_INPUT_synapse2.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
         DeltaProjection TARGET_to_INPUT_projection2 =
             knp::framework::projection::creators::all_to_all<knp::synapse_traits::DeltaSynapse>(
-                knp::core::UID{false}, population_uids[INPUT], num_possible_labels, num_input_neurons,
+                knp::core::UID{false}, population_uids[INPUT], classes_amount, num_input_neurons,
                 [&TARGET_to_INPUT_synapse2](size_t, size_t) { return TARGET_to_INPUT_synapse2; });
         result.network_.add_projection(TARGET_to_INPUT_projection2);
         result.data_.projections_from_classes_.push_back(TARGET_to_INPUT_projection2.get_uid());
