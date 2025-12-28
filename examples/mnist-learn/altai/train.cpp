@@ -72,8 +72,6 @@ auto build_channel_map_train(
 
              knp::core::Step local_step = step % steps_per_image;
              if (local_step == 11) message.push_back(dataset.get_data_for_training()[step / steps_per_image].first);
-             std::cout << "image label: step " << step << '\n'
-                       << (message.size() ? static_cast<int>(*message.rbegin()) : -1) << std::endl;
              return message;
          }});
 

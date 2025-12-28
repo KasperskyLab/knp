@@ -89,7 +89,6 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         {
             if (data[i]) message.push_back(i - frame_start);
         }
-        std::cout << "image: step " << step << " spikes " << message.size() << std::endl;
 
         return message;
     };
@@ -114,7 +113,7 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_in
         {
             if (data[i]) message.push_back(i - frame_start);
         }
-        std::cout << "image: step " << step << " spikes " << message.size() << std::endl;
+
         return message;
     };
 }

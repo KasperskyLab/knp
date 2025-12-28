@@ -68,8 +68,6 @@ std::vector<knp::core::messaging::SpikeMessage> run_mnist_inference(
 
     // knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
 
-    // knp::framework::sonata::load_network("~/Downloads/Telegram Desktop/sonata_mnist2");
-
     std::ofstream log_stream;
 
     // This variable should have the same lifetime as model_executor, or else UB.
