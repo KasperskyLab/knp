@@ -1,7 +1,7 @@
 /**
  * @file interface.h
  * @kaspersky_support Postnikov D.
- * @date 02.12.2025
+ * @date 26.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -26,9 +26,6 @@
 
 #include <vector>
 
-#include "altai/interface.h"
-#include "blifat/interface.h"
-
 namespace knp::backends::cpu::populations::impl
 {
 
@@ -37,10 +34,7 @@ namespace knp::backends::cpu::populations::impl
  * @param neuron Neuron.
  */
 template <class Neuron>
-void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
-{
-    throw std::runtime_error("Unsupported neuron type");
-}
+void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron);
 
 /**
  * @brief Impact neuron.
@@ -51,10 +45,7 @@ void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neur
 template <class Neuron>
 void impact_neuron_interface(
     knp::neuron_traits::neuron_parameters<Neuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
-    bool is_forcing)
-{
-    throw std::runtime_error("Unsupported neuron type");
-}
+    bool is_forcing);
 
 /**
  * @brief Calculate post impact state of single neuron.
@@ -62,10 +53,7 @@ void impact_neuron_interface(
  * @return Should neuron produce spike or should not.
  */
 template <class Neuron>
-bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
-{
-    throw std::runtime_error("Unsupported neuron type");
-}
+bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron);
 
 /**
  * @brief Teach population.
@@ -77,9 +65,6 @@ bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neu
 template <class Neuron, class Synapse>
 void teach_population_interface(
     knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
-    const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
-{
-    throw std::runtime_error("Unsupported neuron-synapse pair type combination");
-}
+    const knp::core::messaging::SpikeMessage &message, knp::core::Step step);
 
 }  // namespace knp::backends::cpu::populations::impl

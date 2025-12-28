@@ -20,7 +20,7 @@
 #pragma once
 
 // This include does not work at the end of the day. But its here so code analyzer will work properly.
-#include <knp/backends/cpu-library/impl/populations/interface.h>
+#include <knp/backends/cpu-library/impl/populations/interface_fwd.h>
 
 #include <vector>
 
