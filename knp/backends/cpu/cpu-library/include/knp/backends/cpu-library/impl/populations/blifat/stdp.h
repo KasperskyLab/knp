@@ -77,7 +77,6 @@ inline void process_spiking_neurons_impl(
         // Update synapse-only data.
         if (neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced)
         {
-            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // Unconditional decreasing synaptic resource.
@@ -96,7 +95,6 @@ inline void process_spiking_neurons_impl(
                     neuron.free_synaptic_resource_ -= d_h;
                     synapse->rule_.had_hebbian_update_ = true;
                 }
-                synapse_ind++;
             }
         }
         // Recalculating synapse weights. Sometimes it probably doesn't need to happen, check it later.
@@ -120,7 +118,6 @@ inline void do_dopamine_plasticity_impl(
             std::vector<SynapseParamType *> synapse_params =
                 shared::stdp::get_all_connected_synapses<SynapseType>(working_projections, neuron_index);
             // Change synapse values for both `D > 0` and `D < 0`.
-            size_t synapse_ind = 0;
             for (auto *synapse : synapse_params)
             {
                 // if ((step - synapse->rule_.last_spike_step_ < synapse->rule_.dopamine_plasticity_period_)
@@ -134,7 +131,6 @@ inline void do_dopamine_plasticity_impl(
                     synapse->rule_.synaptic_resource_ += d_r;
                     neuron.free_synaptic_resource_ -= d_r;
                 }
-                synapse_ind++;
             }
             // Stability changes.
             if (neuron.is_being_forced_ || neuron.dopamine_value_ < 0)

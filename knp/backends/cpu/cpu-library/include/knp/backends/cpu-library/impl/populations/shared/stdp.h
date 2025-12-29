@@ -72,7 +72,7 @@ std::vector<synapse_traits::synapse_parameters<Synapse> *> get_all_connected_syn
 
 /**
  * @brief Update spike sequence state for the neuron. It's called after a neuron sends a spike.
- * @tparam NeuronType Base neuron type.
+ * @tparam Neuron Base neuron type.
  * @param neuron Neuron parameters.
  * @param step Current step.
  * @return New state.
