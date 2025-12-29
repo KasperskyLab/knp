@@ -48,7 +48,6 @@ knp_add_library("${PROJECT_NAME}"
     BOTH
         impl/backend.cpp
         impl/get_network.cpp
-        impl/template_specs.cpp
         ${${PROJECT_NAME}_headers}
     ALIAS KNP::Backends::CPUMultiThreaded
     LINK_PRIVATE

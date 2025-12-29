@@ -81,7 +81,7 @@ TEST(MessageHandlerSuite, KWtaPerGroup)
     size_t seed = std::random_device{}();
     SPDLOG_DEBUG("Seed is {}", seed);
     // the intervals are [0, 1, 2, 3], [4, 5, 6, 7], [8, ...].
-    knp::framework::modifier::KWtaPerGroup handler({4, 8}, 1, seed);
+    knp::framework::modifier::KWtaPerGroup handler({4, 8, 12}, 1, seed);
 
     // All neurons are activated.
     const knp::core::messaging::SpikeMessage empty_message({{knp::core::UID{}}, {}});
