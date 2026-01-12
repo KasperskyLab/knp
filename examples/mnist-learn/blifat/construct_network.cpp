@@ -50,9 +50,8 @@ struct PopulationData
 enum PopIndexes
 {
     INPUT = 0,
-    DOPAMINE = 1,
-    OUTPUT = 2,
-    GATE = 3
+    OUTPUT = 1,
+    GATE = 2
 };
 
 
@@ -188,7 +187,7 @@ AnnotatedNetwork create_example_network(int num_compound_networks)
 
 
         DeltaSynapseData TARGET_to_GATE_synapse;
-        TARGET_to_GATE_synapse.weight_ = 10;
+        TARGET_to_GATE_synapse.weight_ = 10.f;
         TARGET_to_GATE_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
 
         DeltaProjection TARGET_to_GATE_projection =

@@ -153,7 +153,7 @@ AnnotatedNetwork train_mnist_network(
         if (weight_stream.is_open())
             knp::framework::monitoring::model::add_projection_weights_logger(
                 weight_stream, model_executor, example_network.data_.projections_from_raster_[0],
-                steps_per_image * images_amount_to_train);
+                projection_weights_logging_period);
         else
             std::cout << "Couldn't open weights.csv at " << log_path << std::endl;
     }
