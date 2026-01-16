@@ -192,7 +192,9 @@ message(STATUS "KNP_MAINTAINER_BUILD = ${KNP_MAINTAINER_BUILD}")
 message(STATUS "KNP_PYTHON_FRAMEWORK_BUILD = ${KNP_PYTHON_FRAMEWORK_BUILD}")
 message(STATUS "KNP_PYTHON_BUILD_WHEEL = ${KNP_PYTHON_BUILD_WHEEL}")
 
-if (KNP_ENABLE_AVX)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND KNP_ENABLE_AVX)
+    message(WARNING "Could not enable AVX. It is not supported under clang at the moment.")
+elseif (KNP_ENABLE_AVX)
     message(STATUS "AVX enabled.")
     message(STATUS "Setting release optimization flags...")
     # -pipe

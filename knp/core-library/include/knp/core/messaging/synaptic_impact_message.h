@@ -76,6 +76,11 @@ struct SynapticImpact
 };
 
 
+#if defined(__GNUG__) && !defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 /**
  * @brief Structure of the synaptic impact message.
  */
@@ -155,3 +160,7 @@ std::ostream &operator<<(std::ostream &stream, const SynapticImpactMessage &msg)
 std::istream &operator>>(std::istream &stream, SynapticImpactMessage &msg);
 
 }  // namespace knp::core::messaging
+
+#if defined(__GNUG__) && !defined(__clang__)
+#    pragma GCC diagnostic pop
+#endif
