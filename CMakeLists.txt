@@ -36,6 +36,8 @@ include(CMakeDependentOption)
 include(third-party)
 include(version)
 
+include(avx)
+
 knp_get_version()
 
 if(NOT KNP_VERSION)
@@ -192,23 +194,6 @@ message(STATUS "KNP_MAINTAINER_BUILD = ${KNP_MAINTAINER_BUILD}")
 message(STATUS "KNP_PYTHON_FRAMEWORK_BUILD = ${KNP_PYTHON_FRAMEWORK_BUILD}")
 message(STATUS "KNP_PYTHON_BUILD_WHEEL = ${KNP_PYTHON_BUILD_WHEEL}")
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND KNP_ENABLE_AVX)
-    message(WARNING "Could not enable AVX. It is not supported under clang at the moment.")
-elseif (KNP_ENABLE_AVX)
-    message(STATUS "AVX enabled.")
-    message(STATUS "Setting release optimization flags...")
-    # -pipe
-    set(CMAKE_C_FLAGS_RELEASE "-march=native -mtune=native -mno-vzeroupper -Ofast -funroll-loops -fomit-frame-pointer -finline")
-
-    # if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    #    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fopt-info-vec-optimized")
-    # endif()
-
-    set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:-include>)
-    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:x86intrin.h>)
-    # -include bits/stdc++.h
-endif()
 
 # TODO: fix it!
 # An error has occurred: FatalError: git failed. Is it installed, and are you in a Git repository directory?
