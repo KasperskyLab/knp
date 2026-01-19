@@ -25,7 +25,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-message(STATUS "cmake version ${CMAKE_VERSION}")
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
     # cmake > 4.0 does not support projects with minimal versions < 3.5
     message(STATUS "Changing cmake minimum version to 3.5 globally")
@@ -35,6 +34,8 @@ endif()
 include(CMakeDependentOption)
 include(third-party)
 include(version)
+
+include(avx)
 
 knp_get_version()
 
@@ -135,12 +136,11 @@ else()
     set(KNP_BUILD_AUTONOMOUS FALSE)
 endif()
 
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+set(KNP_ENABLE_AVX_DEFAULT OFF)
+if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
         set(KNP_ENABLE_AVX_DEFAULT ON)
     endif()
-else()
-    set(KNP_ENABLE_AVX_DEFAULT OFF)
 endif()
 
 if (KNP_BUILD_AUTONOMOUS OR KNP_MAINTAINER_BUILD)
@@ -192,21 +192,6 @@ message(STATUS "KNP_MAINTAINER_BUILD = ${KNP_MAINTAINER_BUILD}")
 message(STATUS "KNP_PYTHON_FRAMEWORK_BUILD = ${KNP_PYTHON_FRAMEWORK_BUILD}")
 message(STATUS "KNP_PYTHON_BUILD_WHEEL = ${KNP_PYTHON_BUILD_WHEEL}")
 
-if (KNP_ENABLE_AVX)
-    message(STATUS "AVX enabled.")
-    message(STATUS "Setting release optimization flags...")
-    # -pipe
-    set(CMAKE_C_FLAGS_RELEASE "-march=native -mtune=native -mno-vzeroupper -Ofast -funroll-loops -fomit-frame-pointer -finline")
-
-    # if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    #    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fopt-info-vec-optimized")
-    # endif()
-
-    set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:-include>)
-    add_compile_options($<$<COMPILE_LANGUAGE:CXX,C>:x86intrin.h>)
-    # -include bits/stdc++.h
-endif()
 
 # TODO: fix it!
 # An error has occurred: FatalError: git failed. Is it installed, and are you in a Git repository directory?

@@ -58,6 +58,8 @@ knp_add_library("${PROJECT_NAME}"
         KNP::Devices::CPU
 )
 
+enable_avx(${PROJECT_NAME})
+
 set_target_properties(
         "${PROJECT_NAME}"
         PROPERTIES
