@@ -15,18 +15,19 @@ limitations under the License.
 #]]
 
 function(enable_avx target)
-  if(KNP_ENABLE_AVX)
-    message(STATUS "AVX enabled for ${target}")
-    target_compile_options(
-      ${target}
-      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-march=native
-              -mtune=native
-              -mno-vzeroupper
-              -Ofast
-              -funroll-loops
-              -fomit-frame-pointer
-              -finline>)
-  else()
-    message(WARNING "AVX is not enabled for ${target}, because AVX is disabled")
-  endif()
+    if(KNP_ENABLE_AVX)
+        message(STATUS "AVX enabled for ${target}")
+        target_compile_options(
+            ${target}
+            PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
+                        -march=native
+                        -mtune=native
+                        -mno-vzeroupper
+                        -Ofast
+                        -funroll-loops
+                        -fomit-frame-pointer
+                        -finline>)
+    else()
+        message(WARNING "AVX is not enabled for ${target}, because AVX is disabled")
+    endif()
 endfunction()
