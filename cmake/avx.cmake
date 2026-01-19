@@ -19,13 +19,13 @@ function(enable_avx target)
     message(STATUS "AVX enabled for ${target}")
     target_compile_options(
       ${target}
-      PRIVATE -march=native
+      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-march=native
               -mtune=native
               -mno-vzeroupper
               -Ofast
               -funroll-loops
               -fomit-frame-pointer
-              -finline)
+              -finline>)
   else()
     message(WARNING "AVX is not enabled for ${target}, because AVX is disabled")
   endif()
