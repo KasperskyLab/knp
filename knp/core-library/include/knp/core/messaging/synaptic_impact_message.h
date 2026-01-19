@@ -75,7 +75,6 @@ struct SynapticImpact
     bool operator==(const SynapticImpact &) const;
 };
 
-
 #if defined(__GNUG__) && !defined(__clang__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -86,6 +85,10 @@ struct SynapticImpact
  */
 struct SynapticImpactMessage
 {
+#if defined(__GNUG__) && !defined(__clang__)
+#    pragma GCC diagnostic pop
+#endif
+
     /**
      * @brief Message header.
      */
@@ -107,7 +110,6 @@ struct SynapticImpactMessage
      * @todo Try to remove this when fixing main; this parameter is too specific to be a part of a general message.
      */
     bool is_forcing_ = false;
-
     /**
      * @brief Impact values.
      */
@@ -160,7 +162,3 @@ std::ostream &operator<<(std::ostream &stream, const SynapticImpactMessage &msg)
 std::istream &operator>>(std::istream &stream, SynapticImpactMessage &msg);
 
 }  // namespace knp::core::messaging
-
-#if defined(__GNUG__) && !defined(__clang__)
-#    pragma GCC diagnostic pop
-#endif
