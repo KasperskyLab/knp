@@ -75,6 +75,7 @@ struct SynapticImpact
     bool operator==(const SynapticImpact &) const;
 };
 
+// This is a GCC specific fix. Generated move constructor in SynapticImpactMessage generates a false positive warning.
 #if defined(__GNUG__) && !defined(__clang__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -85,6 +86,7 @@ struct SynapticImpact
  */
 struct SynapticImpactMessage
 {
+// Pop the diagnostic ignore we added earlier.
 #if defined(__GNUG__) && !defined(__clang__)
 #    pragma GCC diagnostic pop
 #endif
