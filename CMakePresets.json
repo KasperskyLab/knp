@@ -4,7 +4,7 @@
     {
       "name": "linux-default-debug",
       "displayName": "Linux Debug",
-      "description": "Windows for Linux (WSL) or remote Linux.",
+      "description": "Linux machine or WSL or remote Linux from Windows.",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -19,7 +19,7 @@
     {
       "name": "linux-default-release",
       "displayName": "Linux Release",
-      "description": "Windows for Linux (WSL) or remote Linux.",
+      "description": "Linux machine or WSL or remote Linux from Windows.",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
