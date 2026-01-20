@@ -56,8 +56,6 @@ knp_add_library("${PROJECT_NAME}"
         KNP::Core KNP::Devices::CPU
 )
 
-enable_avx(${PROJECT_NAME})
-
 set_target_properties(
         "${PROJECT_NAME}"
         PROPERTIES
@@ -84,11 +82,10 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "libboost-all-dev (>= ${Boost_VERSION})"
-            DEPENDS "libzmq5"
+            DEPENDS "libboost-all (= ${Boost_VERSION})" "libzmq"
             PROVIDES "knp-backend")
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION} development package: C++ headers and CMake modules"
-            INTERNAL_DEPENDS "${COMPONENT_NAME}")
+            DEPENDS "${COMPONENT_NAME}")
 endif()
