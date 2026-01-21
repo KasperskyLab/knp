@@ -19,7 +19,7 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/impl/projections/shared/def.h>
+#include <knp/backends/cpu-library/impl/projections/interface_fwd.h>
 #include <knp/backends/cpu-library/impl/projections/training/stdp/interface.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>

@@ -19,9 +19,6 @@
  */
 #pragma once
 
-// This include does not work at the end of the day. But its here so code analyzer will work properly.
-#include <knp/backends/cpu-library/impl/projections/interface_fwd.h>
-
 #include <unordered_map>
 #include <vector>
 

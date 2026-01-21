@@ -19,6 +19,7 @@
  */
 #pragma once
 
+#include <knp/backends/cpu-library/impl/populations/interface_fwd.h>
 #include <knp/core/population.h>
 
 #include <limits>

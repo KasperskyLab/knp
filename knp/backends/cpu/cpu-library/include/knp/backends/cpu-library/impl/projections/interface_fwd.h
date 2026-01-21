@@ -28,10 +28,16 @@
 #include <unordered_map>
 #include <vector>
 
-#include "shared/def.h"
 
+namespace knp::backends::cpu::projections
+{
 
-namespace knp::backends::cpu::projections::impl
+/**
+ * @brief Type of the message queue.
+ */
+using MessageQueue = std::unordered_map<uint64_t, knp::core::messaging::SynapticImpactMessage>;
+
+namespace impl
 {
 
 /**
@@ -64,4 +70,5 @@ void calculate_projection_multithreaded_interface(
     knp::core::Projection<Synapse> &projection, const std::unordered_map<knp::core::Step, size_t> &message_in_data,
     MessageQueue &future_messages, uint64_t step_n, size_t part_start, size_t part_size, std::mutex &mutex);
 
-}  //namespace knp::backends::cpu::projections::impl
+}  //namespace impl
+}  //namespace knp::backends::cpu::projections
