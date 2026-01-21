@@ -25,6 +25,7 @@
 
 #include "delta/interface.h"
 
+
 namespace knp::backends::cpu::projections::impl
 {
 
@@ -35,6 +36,7 @@ MessageQueue::const_iterator calculate_projection_interface(
 {
     throw std::runtime_error("Unsupported synapse type");
 }
+
 
 template <class Synapse>
 void calculate_projection_multithreaded_interface(

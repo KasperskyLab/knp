@@ -30,6 +30,7 @@
 
 #include "impl/populations/interface.h"
 
+
 /**
  * @brief Namespace for CPU backend's populations.
  */
@@ -52,6 +53,7 @@ void calculate_pre_impact_population_state(knp::core::Population<Neuron> &popula
     }
 }
 
+
 /**
  * @brief Impact population.
  * @param population Population.
@@ -70,6 +72,7 @@ void impact_population(
         }
     }
 }
+
 
 /**
  * @brief Partially calculate population after it receives synaptic impact messages.
@@ -92,21 +95,21 @@ void calculate_post_impact_population_state(
     }
 }
 
+
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <class Neuron, class Synapse>
-void teach_population(
+void train_population(
     knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
-    SPDLOG_TRACE("Teaching population.");
-    impl::teach_population_interface(population, projections, message, step);
+    SPDLOG_TRACE("Training population.");
+    impl::train_population_interface(population, projections, message, step);
 }
-
 
 }  // namespace knp::backends::cpu::populations

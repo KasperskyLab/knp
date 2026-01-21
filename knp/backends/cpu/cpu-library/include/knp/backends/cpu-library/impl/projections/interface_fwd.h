@@ -30,6 +30,7 @@
 
 #include "shared/def.h"
 
+
 namespace knp::backends::cpu::projections::impl
 {
 
@@ -45,6 +46,7 @@ template <typename Synapse>
 MessageQueue::const_iterator calculate_projection_interface(
     knp::core::Projection<Synapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
     MessageQueue &future_messages, size_t step_n);
+
 
 /**
  * @brief Process a part of projection synapses in multithreaded way.

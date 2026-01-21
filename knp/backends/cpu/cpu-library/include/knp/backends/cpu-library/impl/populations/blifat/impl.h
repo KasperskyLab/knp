@@ -23,6 +23,7 @@
 
 #include "stdp.h"
 
+
 namespace knp::backends::cpu::populations::impl::blifat
 {
 
@@ -43,6 +44,7 @@ inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::ne
     }
     neuron.pre_impact_potential_ = neuron.potential_;
 }
+
 
 inline void calculate_pre_impact_single_neuron_state_impl(
     knp::neuron_traits::neuron_parameters<STDPBlifatNeuron> &neuron)
@@ -66,6 +68,7 @@ inline void calculate_pre_impact_single_neuron_state_impl(
     neuron.pre_impact_potential_ = neuron.potential_;
 }
 
+
 inline void impact_neuron_impl(
     knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
     bool is_forcing)
@@ -87,8 +90,12 @@ inline void impact_neuron_impl(
         case knp::synapse_traits::OutputType::BLOCKING:
             neuron.total_blocking_period_ = static_cast<decltype(neuron.total_blocking_period_)>(impact.impact_value_);
             break;
+        default:
+            throw std::runtime_error("Unhandled synapse type.");
     }
 }
+
+
 inline void impact_neuron_impl(
     knp::neuron_traits::neuron_parameters<STDPBlifatNeuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
     bool is_forcing)
@@ -99,6 +106,7 @@ inline void impact_neuron_impl(
         neuron.is_being_forced_ |= is_forcing;
     }
 }
+
 
 inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron)
 {
@@ -111,9 +119,10 @@ inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::n
         bool was_negative = neuron.total_blocking_period_ < 0;
         // If it is negative, increase by 1.
         neuron.total_blocking_period_ += was_negative;
-        // If it is now zero, but was negative before, increase it to max, else leave it as is.
-        neuron.total_blocking_period_ +=
-            std::numeric_limits<int64_t>::max() * ((neuron.total_blocking_period_ == 0) && was_negative);
+        if ((neuron.total_blocking_period_ == 0) && was_negative)
+        {
+            neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();
+        }
     }
     else
     {

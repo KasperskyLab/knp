@@ -1,7 +1,7 @@
 /**
- * @file shared.h
+ * @file interface.h
  * @kaspersky_support Postnikov D.
- * @date 10.12.2025
+ * @date 21.01.2026
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -19,14 +19,5 @@
  */
 #pragma once
 
-#include <knp/core/population.h>
-
-namespace knp::backends::cpu::populations::impl::altai
-{
-
-/**
- * @brief AltAI neuron shortcut.
- */
-using AltaiNeuron = knp::neuron_traits::AltAILIF;
-
-}  //namespace knp::backends::cpu::populations::impl::altai
+#include "additive.h"
+#include "synaptic_resource.h"

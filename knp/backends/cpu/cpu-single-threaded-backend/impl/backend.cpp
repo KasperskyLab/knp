@@ -135,7 +135,7 @@ void SingleThreadedCPUBackend::_step()
                 auto working_projections = find_projection_by_type_and_postsynaptic<
                     knp::synapse_traits::SynapticResourceSTDPDeltaSynapse, ProjectionContainer>(
                     projections_, pop.get_uid(), true);
-                cpu::populations::teach_population(pop, working_projections, message_out, get_step());
+                cpu::populations::train_population(pop, working_projections, message_out, get_step());
 
                 if (!message_out.neuron_indexes_.empty())
                 {

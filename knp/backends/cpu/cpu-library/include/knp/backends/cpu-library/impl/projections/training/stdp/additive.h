@@ -19,19 +19,23 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/impl/projections/delta/shared.h>
-
 #include <vector>
 
 #include "interface_fwd.h"
 
-namespace knp::backends::cpu::projections::impl::delta::stdp
+
+namespace knp::backends::cpu::projections::impl::training::stdp
 {
-template <>
-inline void init_synapse<AdditiveSTDPDeltaSynapse>(
-    knp::synapse_traits::synapse_parameters<AdditiveSTDPDeltaSynapse> &params, uint64_t step)
+
+template <typename Synapse>
+using AdditiveSTDPSynapse = knp::synapse_traits::STDP<knp::synapse_traits::STDPAdditiveRule, Synapse>;
+
+
+template <typename Synapse>
+inline void init_synapse(knp::synapse_traits::synapse_parameters<AdditiveSTDPSynapse<Synapse>> &params, uint64_t step)
 {
 }
+
 
 class STDPFormula
 {
@@ -83,11 +87,12 @@ private:
     float a_minus_;
 };
 
-template <class DeltaLikeSynapse>
+
+template <class Synapse>
 inline void append_spike_times(
-    knp::core::Projection<AdditiveSTDPDeltaSynapse> &projection, const knp::core::messaging::SpikeMessage &message,
+    knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &projection, const knp::core::messaging::SpikeMessage &message,
     const std::function<std::vector<size_t>(knp::core::messaging::SpikeIndex)> &synapse_index_getter,
-    std::vector<knp::core::Step> knp::synapse_traits::STDPAdditiveRule<DeltaLikeSynapse>::*spike_queue)
+    std::vector<knp::core::Step> knp::synapse_traits::STDPAdditiveRule<Synapse>::*spike_queue)
 {
     // Fill synapses spike queue.
     for (auto neuron_index : message.neuron_indexes_)
@@ -106,10 +111,11 @@ inline void append_spike_times(
     }
 }
 
-template <>
-inline void init_projection<AdditiveSTDPDeltaSynapse>(
-    knp::core::Projection<AdditiveSTDPDeltaSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
-    uint64_t step)
+
+template <typename Synapse>
+inline void init_projection(
+    knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &projection,
+    std::vector<core::messaging::SpikeMessage> &messages, uint64_t step)
 {
     using ProjectionType = typename std::decay_t<decltype(projection)>;
     using ProcessingType = typename ProjectionType::SharedSynapseParameters::ProcessingType;
@@ -137,7 +143,7 @@ inline void init_projection<AdditiveSTDPDeltaSynapse>(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
                 { return projection.find_synapses(neuron_index, ProjectionType::Search::by_postsynaptic); },
-                &knp::synapse_traits::STDPAdditiveRule<knp::synapse_traits::DeltaSynapse>::postsynaptic_spike_times_);
+                &knp::synapse_traits::STDPAdditiveRule<Synapse>::postsynaptic_spike_times_);
         }
         if (processing_type == ProcessingType::STDPAndSpike)
         {
@@ -145,7 +151,7 @@ inline void init_projection<AdditiveSTDPDeltaSynapse>(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
                 { return projection.find_synapses(neuron_index, ProjectionType::Search::by_postsynaptic); },
-                &knp::synapse_traits::STDPAdditiveRule<knp::synapse_traits::DeltaSynapse>::presynaptic_spike_times_);
+                &knp::synapse_traits::STDPAdditiveRule<Synapse>::presynaptic_spike_times_);
         }
         if (processing_type == ProcessingType::STDPOnly)
         {
@@ -156,8 +162,9 @@ inline void init_projection<AdditiveSTDPDeltaSynapse>(
     }
 }
 
-template <>
-inline void modify_weights<AdditiveSTDPDeltaSynapse>(knp::core::Projection<AdditiveSTDPDeltaSynapse> &projection)
+
+template <typename Synapse>
+inline void modify_weights(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &projection)
 {
     // Update projection parameters.
     for (uint64_t i = 0; i < projection.size(); ++i)
@@ -177,10 +184,11 @@ inline void modify_weights<AdditiveSTDPDeltaSynapse>(knp::core::Projection<Addit
     }
 }
 
-template <>
-constexpr bool is_forced<AdditiveSTDPDeltaSynapse>()
+
+template <typename Synapse>
+constexpr bool is_forced(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &projection)
 {
     return false;
 }
 
-}  //namespace knp::backends::cpu::projections::impl::delta::stdp
+}  //namespace knp::backends::cpu::projections::impl::training::stdp

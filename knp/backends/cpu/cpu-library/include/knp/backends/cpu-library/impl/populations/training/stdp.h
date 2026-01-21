@@ -26,7 +26,8 @@
 #include <map>
 #include <vector>
 
-namespace knp::backends::cpu::populations::impl::shared::stdp
+
+namespace knp::backends::cpu::populations::impl::training::stdp
 {
 
 /**
@@ -47,6 +48,7 @@ void recalculate_synapse_weights(
         synapse_ptr->weight_ = synapse_ptr->rule_.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
     }
 }
+
 
 /**
  * @brief Get all synapses that are connected to some neuron.
@@ -69,6 +71,7 @@ std::vector<synapse_traits::synapse_parameters<Synapse> *> get_all_connected_syn
     }
     return result;
 }
+
 
 /**
  * @brief Update spike sequence state for the neuron. It's called after a neuron sends a spike.
@@ -117,10 +120,6 @@ neuron_traits::ISIPeriodType update_isi(
     return neuron.isi_status_;
 }
 
-static inline std::map<
-    knp::core::UID,
-    std::vector<knp::synapse_traits::synapse_parameters<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
-    precomputed_synapses;
 
 /**
  * @brief Check if point is in interval.
@@ -137,6 +136,7 @@ inline bool is_point_in_interval(uint64_t interval_begin, uint64_t interval_end,
     return (is_after_begin && is_before_end) || ((is_after_begin || is_before_end) && is_overflow);
 }
 
+
 /**
  * @brief Distribute neurons resources amongst all synapses.
  * @note If a neuron resource is greater than `1` or `-1` it should be distributed among all synapses.
@@ -151,8 +151,6 @@ inline void renormalize_resource(
     std::vector<knp::core::Projection<Synapse> *> const &working_projections, knp::core::Population<Neuron> &population,
     uint64_t step)
 {
-    using SynapseType =
-        knp::synapse_traits::STDP<knp::synapse_traits::STDPSynapticResourceRule, synapse_traits::DeltaSynapse>;
     for (size_t neuron_index = 0; neuron_index < population.size(); ++neuron_index)
     {
         auto &neuron = population[neuron_index];
@@ -168,7 +166,7 @@ inline void renormalize_resource(
             continue;
         }
 
-        auto synapse_params = get_all_connected_synapses<SynapseType>(working_projections, neuron_index);
+        auto synapse_params = get_all_connected_synapses<Synapse>(working_projections, neuron_index);
 
         // Divide free resource between all synapses.
         auto add_resource_value =
@@ -184,5 +182,4 @@ inline void renormalize_resource(
     }
 }
 
-
-}  //namespace knp::backends::cpu::populations::impl::shared::stdp
+}  //namespace knp::backends::cpu::populations::impl::training::stdp

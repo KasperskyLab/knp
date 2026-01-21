@@ -29,6 +29,7 @@
 #include "altai/interface.h"
 #include "blifat/interface.h"
 
+
 namespace knp::backends::cpu::populations::impl
 {
 
@@ -41,6 +42,7 @@ void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neur
 {
     throw std::runtime_error("Unsupported neuron type");
 }
+
 
 /**
  * @brief Impact neuron.
@@ -56,6 +58,7 @@ void impact_neuron_interface(
     throw std::runtime_error("Unsupported neuron type");
 }
 
+
 /**
  * @brief Calculate post impact state of single neuron.
  * @param neuron Neuron.
@@ -67,15 +70,16 @@ bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neu
     throw std::runtime_error("Unsupported neuron type");
 }
 
+
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <class Neuron, class Synapse>
-void teach_population_interface(
+void train_population_interface(
     knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {

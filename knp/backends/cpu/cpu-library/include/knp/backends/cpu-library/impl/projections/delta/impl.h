@@ -20,6 +20,7 @@
 #pragma once
 
 #include <knp/backends/cpu-library/impl/projections/shared/def.h>
+#include <knp/backends/cpu-library/impl/projections/training/stdp/interface.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>
 
@@ -29,11 +30,25 @@
 #include <utility>
 #include <vector>
 
-#include "shared.h"
-#include "stdp/interface.h"
 
 namespace knp::backends::cpu::projections::impl::delta
 {
+
+/**
+ * @brief Delta synapse shortcut.
+ */
+using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
+
+/**
+ * @brief STDP Delta synapse shortcut.
+ */
+using STDPDeltaSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+
+/**
+ * @brief Additive STDP Delta synapse shortcut.
+ */
+using AdditiveSTDPDeltaSynapse = knp::synapse_traits::AdditiveSTDPDeltaSynapse;
+
 
 template <typename DeltaLikeSynapse>
 MessageQueue::const_iterator calculate_projection_impl(
@@ -42,7 +57,7 @@ MessageQueue::const_iterator calculate_projection_impl(
 {
     using ProjectionType = knp::core::Projection<DeltaLikeSynapse>;
 
-    stdp::init_projection(projection, messages, step_n);
+    training::stdp::init_projection(projection, messages, step_n);
 
     for (const auto &message : messages)
     {
@@ -54,7 +69,7 @@ MessageQueue::const_iterator calculate_projection_impl(
             for (auto synapse_index : synapses)
             {
                 auto &synapse = projection[synapse_index];
-                stdp::init_synapse(std::get<core::synapse_data>(synapse), step_n);
+                training::stdp::init_synapse(std::get<core::synapse_data>(synapse), step_n);
                 const auto &synapse_params = std::get<core::synapse_data>(synapse);
 
                 // The message is sent on step N - 1, received on step N.
@@ -81,7 +96,7 @@ MessageQueue::const_iterator calculate_projection_impl(
                         {projection.get_uid(), step_n},
                         projection.get_presynaptic(),
                         projection.get_postsynaptic(),
-                        stdp::is_forced<DeltaLikeSynapse>(),
+                        training::stdp::is_forced(projection),
                         {impact}};
                     SPDLOG_TRACE("Add new impact.");
                     future_messages.insert(std::make_pair(future_step, message_out));
@@ -90,7 +105,7 @@ MessageQueue::const_iterator calculate_projection_impl(
         }
     }
 
-    stdp::modify_weights(projection);
+    training::stdp::modify_weights(projection);
 
     return future_messages.find(step_n);
 }
@@ -149,12 +164,11 @@ void calculate_projection_multithreaded_impl(
                 {projection_uid, step_n},
                 postsynaptic_uid,
                 presynaptic_uid,
-                stdp::is_forced<DeltaLikeSynapse>(),
+                training::stdp::is_forced(projection),
                 {value.second}};
             future_messages.insert(std::make_pair(value.first, message_out));
         }
     }
 }
-
 
 }  //namespace knp::backends::cpu::projections::impl::delta

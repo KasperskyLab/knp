@@ -189,7 +189,7 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
                             working_projections.push_back(projection_ptr);
                     }
 
-                    knp::backends::cpu::populations::teach_population(pop_ref, working_projections, message_ref, step);
+                    knp::backends::cpu::populations::train_population(pop_ref, working_projections, message_ref, step);
                 };
                 calc_pool_->post(call_finalize, std::ref(pop), std::ref(message), std::ref(projections_), get_step());
             },

@@ -59,6 +59,7 @@ void calculate_projection(
     }
 }
 
+
 /**
  * @brief Process a part of projection synapses in multithreaded way.
  * @pre TODO Get rid of this function. Its here just so multi threaded backend will work.
@@ -79,6 +80,5 @@ void calculate_projection_multithreaded(
     impl::calculate_projection_multithreaded_interface(
         projection, message_in_data, future_messages, step_n, part_start, part_size, mutex);
 }
-
 
 }  //namespace knp::backends::cpu::projections

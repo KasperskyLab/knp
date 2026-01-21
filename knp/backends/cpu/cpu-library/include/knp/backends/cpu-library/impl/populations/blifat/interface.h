@@ -26,6 +26,7 @@
 
 #include "impl.h"
 
+
 namespace knp::backends::cpu::populations::impl
 {
 
@@ -40,6 +41,7 @@ inline void calculate_pre_impact_single_neuron_state_interface<blifat::BlifatNeu
     blifat::calculate_pre_impact_single_neuron_state_impl(neuron);
 }
 
+
 /**
  * @brief Calculate pre impact state of single neuron.
  * @param neuron Neuron.
@@ -50,6 +52,7 @@ inline void calculate_pre_impact_single_neuron_state_interface<blifat::STDPBlifa
 {
     blifat::calculate_pre_impact_single_neuron_state_impl(neuron);
 }
+
 
 /**
  * @brief Impact neuron.
@@ -65,6 +68,7 @@ inline void impact_neuron_interface<blifat::BlifatNeuron>(
     blifat::impact_neuron_impl(neuron, impact, is_forcing);
 }
 
+
 /**
  * @brief Impact neuron.
  * @param neuron Neuron.
@@ -79,6 +83,7 @@ inline void impact_neuron_interface<blifat::STDPBlifatNeuron>(
     blifat::impact_neuron_impl(neuron, impact, is_forcing);
 }
 
+
 /**
  * @brief Calculate post impact state of single neuron.
  * @param neuron Neuron.
@@ -90,6 +95,7 @@ inline bool calculate_post_impact_single_neuron_state_interface<blifat::BlifatNe
 {
     return blifat::calculate_post_impact_single_neuron_state_impl(neuron);
 }
+
 
 /**
  * @brief Calculate post impact state of single neuron.
@@ -103,6 +109,7 @@ inline bool calculate_post_impact_single_neuron_state_interface<blifat::STDPBlif
     return blifat::calculate_post_impact_single_neuron_state_impl(neuron);
 }
 
+
 /**
  * @brief Teach population.
  * @param population Population.
@@ -111,13 +118,14 @@ inline bool calculate_post_impact_single_neuron_state_interface<blifat::STDPBlif
  * @param step Step.
  */
 template <>
-inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits::DeltaSynapse>(
+inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits::DeltaSynapse>(
     knp::core::Population<blifat::BlifatNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }
 
+
 /**
  * @brief Teach population.
  * @param population Population.
@@ -126,13 +134,14 @@ inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits
  * @param step Step.
  */
 template <>
-inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
     knp::core::Population<blifat::BlifatNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }
 
+
 /**
  * @brief Teach population.
  * @param population Population.
@@ -141,13 +150,12 @@ inline void teach_population_interface<blifat::BlifatNeuron, knp::synapse_traits
  * @param step Step.
  */
 template <>
-inline void teach_population_interface<blifat::STDPBlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+inline void train_population_interface<blifat::STDPBlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
     knp::core::Population<blifat::STDPBlifatNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
-    blifat::teach_population_impl(population, projections, message, step);
+    blifat::train_population_impl(population, projections, message, step);
 }
-
 
 }  //namespace knp::backends::cpu::populations::impl

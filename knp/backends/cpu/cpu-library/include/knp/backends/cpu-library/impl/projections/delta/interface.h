@@ -27,6 +27,7 @@
 
 #include "impl.h"
 
+
 namespace knp::backends::cpu::projections::impl
 {
 
@@ -46,6 +47,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::DeltaS
     return delta::calculate_projection_impl(projection, messages, future_messages, step_n);
 }
 
+
 /**
  * @brief Calculate projection.
  * @param projection Projection.
@@ -62,6 +64,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::STDPDe
     return delta::calculate_projection_impl(projection, messages, future_messages, step_n);
 }
 
+
 /**
  * @brief Calculate projection.
  * @param projection Projection.
@@ -77,6 +80,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::Additi
 {
     return delta::calculate_projection_impl(projection, messages, future_messages, step_n);
 }
+
 
 /**
  * @brief Process a part of projection synapses in multithreaded way.
@@ -118,6 +122,5 @@ inline void calculate_projection_multithreaded_interface<delta::STDPDeltaSynapse
     delta::calculate_projection_multithreaded_impl(
         projection, message_in_data, future_messages, step_n, part_start, part_size, mutex);
 }
-
 
 }  //namespace knp::backends::cpu::projections::impl

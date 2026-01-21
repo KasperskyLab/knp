@@ -1,5 +1,5 @@
 /**
- * @file none.h
+ * @file interface_fwd.h
  * @kaspersky_support Postnikov D.
  * @date 18.12.2025
  * @license Apache 2.0
@@ -18,36 +18,37 @@
  * limitations under the License.
  */
 #pragma once
-
-#include <knp/backends/cpu-library/impl/projections/delta/shared.h>
+#include <knp/core/messaging/messaging.h>
+#include <knp/core/projection.h>
 
 #include <vector>
 
-#include "interface_fwd.h"
 
-namespace knp::backends::cpu::projections::impl::delta::stdp
+namespace knp::backends::cpu::projections::impl::training::stdp
 {
-template <>
-inline void init_synapse<DeltaSynapse>(knp::synapse_traits::synapse_parameters<DeltaSynapse> &params, uint64_t step)
-{
-}
-
-template <>
-inline void init_projection<DeltaSynapse>(
-    knp::core::Projection<DeltaSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
-    uint64_t step)
+template <class Synapse>
+void init_synapse(knp::synapse_traits::synapse_parameters<Synapse> &params, uint64_t step)
 {
 }
 
-template <>
-inline void modify_weights<DeltaSynapse>(knp::core::Projection<DeltaSynapse> &projection)
+
+template <class Synapse>
+void init_projection(
+    knp::core::Projection<Synapse> &projection, std::vector<core::messaging::SpikeMessage> &messages, uint64_t step)
 {
 }
 
-template <>
-constexpr bool is_forced<DeltaSynapse>()
+
+template <class Synapse>
+void modify_weights(knp::core::Projection<Synapse> &projection)
+{
+}
+
+
+template <class Synapse>
+constexpr bool is_forced(knp::core::Projection<Synapse> &projection)
 {
     return true;
 }
 
-}  //namespace knp::backends::cpu::projections::impl::delta::stdp
+}  //namespace knp::backends::cpu::projections::impl::training::stdp

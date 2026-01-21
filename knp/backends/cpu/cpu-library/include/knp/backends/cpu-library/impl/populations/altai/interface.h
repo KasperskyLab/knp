@@ -55,6 +55,7 @@ inline void impact_neuron_interface<altai::AltaiNeuron>(
     altai::impact_neuron_impl(neuron, impact, is_forcing);
 }
 
+
 /**
  * @brief Calculate post impact state of single neuron.
  * @param neuron Neuron.
@@ -67,20 +68,6 @@ inline bool calculate_post_impact_single_neuron_state_interface<altai::AltaiNeur
     return altai::calculate_post_impact_single_neuron_state_impl(neuron);
 }
 
-/**
- * @brief Teach population.
- * @param population Population.
- * @param projections Connected projections.
- * @param message Spiking neurons in population at current step.
- * @param step Step.
- */
-template <>
-inline void teach_population_interface<altai::AltaiNeuron, knp::synapse_traits::DeltaSynapse>(
-    knp::core::Population<altai::AltaiNeuron> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
-    const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
-{
-}
 
 /**
  * @brief Teach population.
@@ -90,7 +77,23 @@ inline void teach_population_interface<altai::AltaiNeuron, knp::synapse_traits::
  * @param step Step.
  */
 template <>
-inline void teach_population_interface<altai::AltaiNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+inline void train_population_interface<altai::AltaiNeuron, knp::synapse_traits::DeltaSynapse>(
+    knp::core::Population<altai::AltaiNeuron> &population,
+    std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
+    const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
+{
+}
+
+
+/**
+ * @brief Teach population.
+ * @param population Population.
+ * @param projections Connected projections.
+ * @param message Spiking neurons in population at current step.
+ * @param step Step.
+ */
+template <>
+inline void train_population_interface<altai::AltaiNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
     knp::core::Population<altai::AltaiNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)

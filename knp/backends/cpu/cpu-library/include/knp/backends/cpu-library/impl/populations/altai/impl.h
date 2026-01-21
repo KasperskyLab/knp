@@ -19,12 +19,19 @@
  */
 #pragma once
 
+#include <knp/core/population.h>
+
 #include <limits>
 
-#include "shared.h"
 
 namespace knp::backends::cpu::populations::impl::altai
 {
+
+/**
+ * @brief AltAI neuron shortcut.
+ */
+using AltaiNeuron = knp::neuron_traits::AltAILIF;
+
 
 inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
 {
@@ -34,6 +41,7 @@ inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::ne
 
     neuron.pre_impact_potential_ = neuron.potential_;
 }
+
 
 inline void impact_neuron_impl(
     knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron,
@@ -67,20 +75,18 @@ inline void impact_neuron_impl(
 
 inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
 {
-    {  // Potential leak.
-        // -1 if leak_rev is true and potential < 0, 1 otherwise.
-        const int sign = (neuron.leak_rev_ && neuron.potential_ < 0) ? -1 : 1;
-        neuron.potential_ += neuron.potential_leak_ * sign;
-    }
+    // -1 if leak_rev is true and potential < 0, 1 otherwise.
+    const int sign = (neuron.leak_rev_ && neuron.potential_ < 0) ? -1 : 1;
+    neuron.potential_ += neuron.potential_leak_ * sign;
 
     bool spiked = false;
     if (neuron.activity_time_ > 0)
     {
-        neuron.activity_time_--;
+        --neuron.activity_time_;
     }
     else if (neuron.activity_time_ < 0)
     {
-        neuron.activity_time_++;
+        ++neuron.activity_time_;
     }
 
     if (neuron.activity_time_ == 0)
