@@ -46,7 +46,7 @@ void calculate_projection(
     knp::core::Projection<Synapse> &projection, knp::core::MessageEndpoint &endpoint, MessageQueue &future_messages,
     size_t step_n)
 {
-    SPDLOG_DEBUG("Calculating delta synapse projection...");
+    SPDLOG_DEBUG("Calculating synapse projection at step {}.", step_n);
 
     auto messages = endpoint.unload_messages<core::messaging::SpikeMessage>(projection.get_uid());
     auto out_iter = impl::calculate_projection_interface(projection, messages, future_messages, step_n);

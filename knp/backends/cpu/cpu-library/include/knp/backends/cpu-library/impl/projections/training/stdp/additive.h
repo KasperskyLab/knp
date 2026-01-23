@@ -139,6 +139,7 @@ inline void init_projection(
         assert(uid == msg.header_.sender_uid_);
         if (processing_type == ProcessingType::STDPOnly || processing_type == ProcessingType::STDPAndSpike)
         {
+            SPDLOG_TRACE("Added spikes to STDP projection postsynaptic history.");
             append_spike_times(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
@@ -147,6 +148,7 @@ inline void init_projection(
         }
         if (processing_type == ProcessingType::STDPAndSpike)
         {
+            SPDLOG_TRACE("Added spikes to STDP projection presynaptic history.");
             append_spike_times(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
@@ -166,6 +168,7 @@ inline void init_projection(
 template <typename Synapse>
 inline void modify_weights(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &projection)
 {
+    SPDLOG_TRACE("Applying STDP rule to {} neurons.", projection.size());
     // Update projection parameters.
     for (uint64_t i = 0; i < projection.size(); ++i)
     {
@@ -191,4 +194,4 @@ constexpr bool is_forced(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &pr
     return false;
 }
 
-}  //namespace knp::backends::cpu::projections::impl::training::stdp
+}  // namespace knp::backends::cpu::projections::impl::training::stdp

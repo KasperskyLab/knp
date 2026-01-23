@@ -26,8 +26,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "shared.h"
-
 
 namespace knp::backends::cpu::populations::impl::blifat
 {
@@ -35,7 +33,7 @@ namespace knp::backends::cpu::populations::impl::blifat
 template <typename Synapse>
 inline void process_spiking_neurons_impl(
     const core::messaging::SpikeMessage &msg, std::vector<knp::core::Projection<Synapse> *> const &working_projections,
-    knp::core::Population<STDPBlifatNeuron> &population, uint64_t step)
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, uint64_t step)
 {
     // It's very important that during this function no projection invalidates iterators.
     // Loop over neurons.
@@ -105,7 +103,7 @@ inline void process_spiking_neurons_impl(
 template <typename Synapse>
 inline void do_dopamine_plasticity_impl(
     std::vector<knp::core::Projection<Synapse> *> const &working_projections,
-    knp::core::Population<STDPBlifatNeuron> &population, uint64_t step)
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, uint64_t step)
 {
     using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     using SynapseParamType = knp::synapse_traits::synapse_parameters<SynapseType>;
@@ -126,11 +124,11 @@ inline void do_dopamine_plasticity_impl(
                     synapse->rule_.has_contributed_)
                 {
                     // Change synapse resource.
-                    float d_r =
+                    float resource_change =
                         neuron.dopamine_value_ * std::min(static_cast<float>(std::pow(2, -neuron.stability_)), 1.F);
 
-                    synapse->rule_.synaptic_resource_ += d_r;
-                    neuron.free_synaptic_resource_ -= d_r;
+                    synapse->rule_.synaptic_resource_ += resource_change;
+                    neuron.free_synaptic_resource_ -= resource_change;
                 }
             }
             // Stability changes.
@@ -144,9 +142,9 @@ inline void do_dopamine_plasticity_impl(
             {
                 // A dopamine reward when non-forced changes stability by `D max(2 - |t(TSS) - ISImax| / ISImax, -1)`.
                 const double dopamine_constant = 2.0;
-                const double difference = step - neuron.first_isi_spike_ - neuron.isi_max_;
+                const double difference = std::fabs(step - neuron.first_isi_spike_ - neuron.isi_max_);
                 neuron.stability_ += neuron.stability_change_parameter_ * neuron.dopamine_value_ *
-                                     std::max(dopamine_constant - std::fabs(difference) / neuron.isi_max_, -1.0);
+                                     std::max(dopamine_constant - difference / neuron.isi_max_, -1.0);
             }
             training::stdp::recalculate_synapse_weights(synapse_params);
         }
@@ -155,7 +153,7 @@ inline void do_dopamine_plasticity_impl(
 
 
 inline void train_population_impl(
-    knp::core::Population<STDPBlifatNeuron> &population,
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
@@ -164,10 +162,8 @@ inline void train_population_impl(
         process_spiking_neurons_impl(message, projections, population, step);
     }
 
-    // 2. Do dopamine plasticity.
     do_dopamine_plasticity_impl(projections, population, step);
 
-    // 3. Renormalize resources if needed.
     training::stdp::renormalize_resource(projections, population, step);
 }
 

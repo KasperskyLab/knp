@@ -28,17 +28,11 @@
 namespace knp::backends::cpu::populations::impl::altai
 {
 
-/**
- * @brief AltAI neuron shortcut.
- */
-using AltaiNeuron = knp::neuron_traits::AltAILIF;
-
-
-inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
+inline void calculate_pre_impact_single_neuron_state_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron)
 {
-    neuron.potential_ = std::round(neuron.potential_);
-
-    neuron.potential_ = neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : neuron.potential_;
+    neuron.potential_ =
+        neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : std::round(neuron.potential_);
 
     neuron.pre_impact_potential_ = neuron.potential_;
 }
@@ -60,21 +54,18 @@ inline void impact_neuron_impl(
             neuron.dopamine_value_ += impact.impact_value_;
             break;
         case knp::synapse_traits::OutputType::BLOCKING:
-            if (((neuron.activity_time_ < 0 && impact.impact_value_ < 0) ||
-                 (neuron.activity_time_ > 0 && impact.impact_value_ > 0)) &&
-                std::abs(neuron.activity_time_) > std::abs(impact.impact_value_))
-            {
-            }
-            else
+            if (std::signbit(neuron.activity_time_) != std::signbit(impact.impact_value_) ||
+                std::abs(neuron.activity_time_) <= std::abs(impact.impact_value_))
                 neuron.activity_time_ = static_cast<decltype(neuron.activity_time_)>(impact.impact_value_);
             break;
         default:
-            break;
+            throw std::runtime_error("Unhandled synapse type.");
     }
 }
 
 
-inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<AltaiNeuron> &neuron)
+inline bool calculate_post_impact_single_neuron_state_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron)
 {
     // -1 if leak_rev is true and potential < 0, 1 otherwise.
     const int sign = (neuron.leak_rev_ && neuron.potential_ < 0) ? -1 : 1;

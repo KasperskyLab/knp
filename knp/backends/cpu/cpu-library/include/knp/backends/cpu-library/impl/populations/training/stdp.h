@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <map>
+#include <utility>
 #include <vector>
 
 
@@ -43,9 +44,10 @@ void recalculate_synapse_weights(
     // Synapse weight recalculation.
     for (auto synapse_ptr : synapse_params)
     {
-        const auto syn_w = std::max(synapse_ptr->rule_.synaptic_resource_, 0.F);
-        const auto weight_diff = synapse_ptr->rule_.w_max_ - synapse_ptr->rule_.w_min_;
-        synapse_ptr->weight_ = synapse_ptr->rule_.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
+        const auto &rule = synapse_ptr->rule_;
+        const auto syn_w = std::max(rule.synaptic_resource_, 0.F);
+        const auto weight_diff = rule.w_max_ - rule.w_min_;
+        synapse_ptr->weight_ = rule.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
     }
 }
 
@@ -130,10 +132,8 @@ neuron_traits::ISIPeriodType update_isi(
  */
 inline bool is_point_in_interval(uint64_t interval_begin, uint64_t interval_end, uint64_t point)
 {
-    const bool is_after_begin = point >= interval_begin;
-    const bool is_before_end = point <= interval_end;
-    const bool is_overflow = interval_end < interval_begin;
-    return (is_after_begin && is_before_end) || ((is_after_begin || is_before_end) && is_overflow);
+    if (interval_begin > interval_end) std::swap(interval_begin, interval_end);
+    return (interval_begin <= point) && (point <= interval_end);
 }
 
 

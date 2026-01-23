@@ -134,12 +134,11 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
             std::visit(
                 [this, &message, neuron_index](auto &pop)
                 {
-                    using T = std::decay_t<decltype(pop)>;
 #if defined(_MSC_VER)
 #    pragma warning(push)
 #    pragma warning(disable : 4267)
 #endif
-
+                    using T = std::decay_t<decltype(pop)>;
                     auto call_calculate_post_input_state = [](T &pop_ref,
                                                               knp::core::messaging::SpikeMessage &message_ref,
                                                               size_t start, size_t end, std::mutex &mutex_ref)

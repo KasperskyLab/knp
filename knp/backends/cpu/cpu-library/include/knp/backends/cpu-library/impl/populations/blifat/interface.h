@@ -32,8 +32,8 @@ namespace knp::backends::cpu::populations::impl
  * @param neuron Neuron.
  */
 template <>
-inline void calculate_pre_impact_single_neuron_state_interface<blifat::BlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::BlifatNeuron> &neuron)
+inline void calculate_pre_impact_single_neuron_state_interface<knp::neuron_traits::BLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
 {
     blifat::calculate_pre_impact_single_neuron_state_impl(neuron);
 }
@@ -44,8 +44,8 @@ inline void calculate_pre_impact_single_neuron_state_interface<blifat::BlifatNeu
  * @param neuron Neuron.
  */
 template <>
-inline void calculate_pre_impact_single_neuron_state_interface<blifat::STDPBlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::STDPBlifatNeuron> &neuron)
+inline void calculate_pre_impact_single_neuron_state_interface<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &neuron)
 {
     blifat::calculate_pre_impact_single_neuron_state_impl(neuron);
 }
@@ -58,8 +58,8 @@ inline void calculate_pre_impact_single_neuron_state_interface<blifat::STDPBlifa
  * @param is_forcing Is impact forced.
  */
 template <>
-inline void impact_neuron_interface<blifat::BlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::BlifatNeuron> &neuron,
+inline void impact_neuron_interface<knp::neuron_traits::BLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron,
     const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
 {
     blifat::impact_neuron_impl(neuron, impact, is_forcing);
@@ -73,8 +73,8 @@ inline void impact_neuron_interface<blifat::BlifatNeuron>(
  * @param is_forcing Is impact forced.
  */
 template <>
-inline void impact_neuron_interface<blifat::STDPBlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::STDPBlifatNeuron> &neuron,
+inline void impact_neuron_interface<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &neuron,
     const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
 {
     blifat::impact_neuron_impl(neuron, impact, is_forcing);
@@ -87,8 +87,8 @@ inline void impact_neuron_interface<blifat::STDPBlifatNeuron>(
  * @return Should neuron produce spike or should not.
  */
 template <>
-inline bool calculate_post_impact_single_neuron_state_interface<blifat::BlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::BlifatNeuron> &neuron)
+inline bool calculate_post_impact_single_neuron_state_interface<knp::neuron_traits::BLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
 {
     return blifat::calculate_post_impact_single_neuron_state_impl(neuron);
 }
@@ -100,23 +100,23 @@ inline bool calculate_post_impact_single_neuron_state_interface<blifat::BlifatNe
  * @return Should neuron produce spike or should not.
  */
 template <>
-inline bool calculate_post_impact_single_neuron_state_interface<blifat::STDPBlifatNeuron>(
-    knp::neuron_traits::neuron_parameters<blifat::STDPBlifatNeuron> &neuron)
+inline bool calculate_post_impact_single_neuron_state_interface<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &neuron)
 {
     return blifat::calculate_post_impact_single_neuron_state_impl(neuron);
 }
 
 
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <>
-inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits::DeltaSynapse>(
-    knp::core::Population<blifat::BlifatNeuron> &population,
+inline void train_population_interface<knp::neuron_traits::BLIFATNeuron, knp::synapse_traits::DeltaSynapse>(
+    knp::core::Population<knp::neuron_traits::BLIFATNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
@@ -124,15 +124,16 @@ inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits
 
 
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <>
-inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
-    knp::core::Population<blifat::BlifatNeuron> &population,
+inline void
+train_population_interface<knp::neuron_traits::BLIFATNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+    knp::core::Population<knp::neuron_traits::BLIFATNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
@@ -140,15 +141,16 @@ inline void train_population_interface<blifat::BlifatNeuron, knp::synapse_traits
 
 
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <>
-inline void train_population_interface<blifat::STDPBlifatNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
-    knp::core::Population<blifat::STDPBlifatNeuron> &population,
+inline void train_population_interface<
+    knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {

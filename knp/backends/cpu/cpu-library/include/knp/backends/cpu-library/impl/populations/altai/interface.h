@@ -31,8 +31,8 @@ namespace knp::backends::cpu::populations::impl
  * @param neuron Neuron.
  */
 template <>
-inline void calculate_pre_impact_single_neuron_state_interface<altai::AltaiNeuron>(
-    knp::neuron_traits::neuron_parameters<altai::AltaiNeuron> &neuron)
+inline void calculate_pre_impact_single_neuron_state_interface<knp::neuron_traits::AltAILIF>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron)
 {
     altai::calculate_pre_impact_single_neuron_state_impl(neuron);
 }
@@ -45,8 +45,8 @@ inline void calculate_pre_impact_single_neuron_state_interface<altai::AltaiNeuro
  * @param is_forcing Is impact forced.
  */
 template <>
-inline void impact_neuron_interface<altai::AltaiNeuron>(
-    knp::neuron_traits::neuron_parameters<altai::AltaiNeuron> &neuron,
+inline void impact_neuron_interface<knp::neuron_traits::AltAILIF>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron,
     const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
 {
     altai::impact_neuron_impl(neuron, impact, is_forcing);
@@ -59,23 +59,23 @@ inline void impact_neuron_interface<altai::AltaiNeuron>(
  * @return Should neuron produce spike or should not.
  */
 template <>
-inline bool calculate_post_impact_single_neuron_state_interface<altai::AltaiNeuron>(
-    knp::neuron_traits::neuron_parameters<altai::AltaiNeuron> &neuron)
+inline bool calculate_post_impact_single_neuron_state_interface<knp::neuron_traits::AltAILIF>(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron)
 {
     return altai::calculate_post_impact_single_neuron_state_impl(neuron);
 }
 
 
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <>
-inline void train_population_interface<altai::AltaiNeuron, knp::synapse_traits::DeltaSynapse>(
-    knp::core::Population<altai::AltaiNeuron> &population,
+inline void train_population_interface<knp::neuron_traits::AltAILIF, knp::synapse_traits::DeltaSynapse>(
+    knp::core::Population<knp::neuron_traits::AltAILIF> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
@@ -83,15 +83,16 @@ inline void train_population_interface<altai::AltaiNeuron, knp::synapse_traits::
 
 
 /**
- * @brief Teach population.
+ * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <>
-inline void train_population_interface<altai::AltaiNeuron, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
-    knp::core::Population<altai::AltaiNeuron> &population,
+inline void
+train_population_interface<knp::neuron_traits::AltAILIF, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(
+    knp::core::Population<knp::neuron_traits::AltAILIF> &population,
     std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {

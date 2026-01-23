@@ -29,15 +29,17 @@
 namespace knp::backends::cpu::populations::impl::blifat
 {
 
-inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron)
+inline void calculate_pre_impact_single_neuron_state_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
 {
     ++neuron.n_time_steps_since_last_firing_;
     neuron.dynamic_threshold_ *= neuron.threshold_decay_;
     neuron.postsynaptic_trace_ *= neuron.postsynaptic_trace_decay_;
     neuron.inhibitory_conductance_ *= neuron.inhibitory_conductance_decay_;
 
-    if (neuron.bursting_phase_ && !--neuron.bursting_phase_)
+    if (neuron.bursting_phase_ == 1)
     {
+        --neuron.bursting_phase_;
         neuron.potential_ = neuron.potential_ * neuron.potential_decay_ + neuron.reflexive_weight_;
     }
     else
@@ -49,7 +51,7 @@ inline void calculate_pre_impact_single_neuron_state_impl(knp::neuron_traits::ne
 
 
 inline void calculate_pre_impact_single_neuron_state_impl(
-    knp::neuron_traits::neuron_parameters<STDPBlifatNeuron> &neuron)
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &neuron)
 {
     ++neuron.n_time_steps_since_last_firing_;
     neuron.dynamic_threshold_ *= neuron.threshold_decay_;
@@ -59,7 +61,7 @@ inline void calculate_pre_impact_single_neuron_state_impl(
     neuron.dopamine_value_ = 0.0;
     neuron.is_being_forced_ = false;
 
-    if (neuron.bursting_phase_ && !--neuron.bursting_phase_)
+    if (neuron.bursting_phase_ == 1)
     {
         neuron.potential_ = neuron.potential_ * neuron.potential_decay_ + neuron.reflexive_weight_;
     }
@@ -72,8 +74,8 @@ inline void calculate_pre_impact_single_neuron_state_impl(
 
 
 inline void impact_neuron_impl(
-    knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
-    bool is_forcing)
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron,
+    const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
 {
     switch (impact.synapse_type_)
     {
@@ -99,10 +101,12 @@ inline void impact_neuron_impl(
 
 
 inline void impact_neuron_impl(
-    knp::neuron_traits::neuron_parameters<STDPBlifatNeuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
-    bool is_forcing)
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &neuron,
+    const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
 {
-    impact_neuron_impl(static_cast<knp::neuron_traits::neuron_parameters<BlifatNeuron> &>(neuron), impact, is_forcing);
+    impact_neuron_impl(
+        static_cast<knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &>(neuron), impact,
+        is_forcing);
     if (impact.synapse_type_ == synapse_traits::OutputType::EXCITATORY)
     {
         neuron.is_being_forced_ |= is_forcing;
@@ -110,20 +114,21 @@ inline void impact_neuron_impl(
 }
 
 
-inline bool calculate_post_impact_single_neuron_state_impl(knp::neuron_traits::neuron_parameters<BlifatNeuron> &neuron)
+inline bool calculate_post_impact_single_neuron_state_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
 {
     bool spike = false;
     if (neuron.total_blocking_period_ <= 0)
     {
-        // TODO: Make it more readable, don't be afraid to use if operators.
         // Restore potential that the neuron had before impacts.
         neuron.potential_ = neuron.pre_impact_potential_;
-        bool was_negative = neuron.total_blocking_period_ < 0;
-        // If it is negative, increase by 1.
-        neuron.total_blocking_period_ += was_negative;
-        if ((neuron.total_blocking_period_ == 0) && was_negative)
+        if (neuron.total_blocking_period_ < 0)
         {
-            neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();
+            neuron.total_blocking_period_++;
+            if (neuron.total_blocking_period_ == 0)
+            {
+                neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();
+            }
         }
     }
     else

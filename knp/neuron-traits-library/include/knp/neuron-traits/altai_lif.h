@@ -246,7 +246,6 @@ struct neuron_parameters<AltAILIF>
      */
     float pre_impact_potential_ = default_values<AltAILIF>::pre_impact_potential_;
 
-
     /**
      * @brief The parameter defines the threshold value of neuron potential, after exceeding which a positive spike can
      * be emitted.
