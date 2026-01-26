@@ -1,5 +1,5 @@
 /**
- * @file interface.h
+ * @file dispatch.h
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
@@ -36,8 +36,7 @@ namespace knp::backends::cpu::projections::impl
  * @param step_n Step number.
  * @return Message that should be sent from queue.
  */
-template <>
-inline MessageQueue::const_iterator calculate_projection_interface<delta::DeltaSynapse>(
+inline MessageQueue::const_iterator calculate_projection_dispatch(
     knp::core::Projection<delta::DeltaSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
     MessageQueue &future_messages, size_t step_n)
 {
@@ -53,8 +52,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::DeltaS
  * @param step_n Step number.
  * @return Message that should be sent from queue.
  */
-template <>
-inline MessageQueue::const_iterator calculate_projection_interface<delta::STDPDeltaSynapse>(
+inline MessageQueue::const_iterator calculate_projection_dispatch(
     knp::core::Projection<delta::STDPDeltaSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
     MessageQueue &future_messages, size_t step_n)
 {
@@ -70,8 +68,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::STDPDe
  * @param step_n Step number.
  * @return Message that should be sent from queue.
  */
-template <>
-inline MessageQueue::const_iterator calculate_projection_interface<delta::AdditiveSTDPDeltaSynapse>(
+inline MessageQueue::const_iterator calculate_projection_dispatch(
     knp::core::Projection<delta::AdditiveSTDPDeltaSynapse> &projection,
     std::vector<core::messaging::SpikeMessage> &messages, MessageQueue &future_messages, size_t step_n)
 {
@@ -89,8 +86,7 @@ inline MessageQueue::const_iterator calculate_projection_interface<delta::Additi
  * @param part_size number of synapses to process.
  * @param mutex mutex.
  */
-template <>
-inline void calculate_projection_multithreaded_interface<delta::DeltaSynapse>(
+inline void calculate_projection_multithreaded_dispatch(
     knp::core::Projection<delta::DeltaSynapse> &projection,
     const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
     size_t part_start, size_t part_size, std::mutex &mutex)
@@ -110,8 +106,7 @@ inline void calculate_projection_multithreaded_interface<delta::DeltaSynapse>(
  * @param part_size number of synapses to process.
  * @param mutex mutex.
  */
-template <>
-inline void calculate_projection_multithreaded_interface<delta::STDPDeltaSynapse>(
+inline void calculate_projection_multithreaded_dispatch(
     knp::core::Projection<delta::STDPDeltaSynapse> &projection,
     const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
     size_t part_start, size_t part_size, std::mutex &mutex)

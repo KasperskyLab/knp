@@ -19,9 +19,10 @@
  */
 #pragma once
 
-#include <vector>
+#include <knp/core/messaging/messaging.h>
+#include <knp/core/projection.h>
 
-#include "interface_fwd.h"
+#include <vector>
 
 
 namespace knp::backends::cpu::projections::impl::training::stdp

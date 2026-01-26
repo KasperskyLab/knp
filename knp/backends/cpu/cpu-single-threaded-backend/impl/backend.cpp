@@ -21,8 +21,8 @@
 
 
 #include <knp/backends/cpu-library/init.h>
-#include <knp/backends/cpu-library/populations.h>
-#include <knp/backends/cpu-library/projections.h>
+#include <knp/backends/cpu-library/populations_old.h>
+#include <knp/backends/cpu-library/projections_old.h>
 #include <knp/backends/cpu-single-threaded/backend.h>
 #include <knp/devices/cpu.h>
 #include <knp/meta/assert_helpers.h>
@@ -85,34 +85,6 @@ SupportedVariants convert_variant(const AllVariants &input)
     return result;
 }
 
-template <class SynapseType, class ProjectionContainer>
-std::vector<knp::core::Projection<SynapseType> *> find_projection_by_type_and_postsynaptic(
-    ProjectionContainer &projections, const knp::core::UID &post_uid, bool exclude_locked)
-{
-    using ProjectionType = knp::core::Projection<SynapseType>;
-    std::vector<knp::core::Projection<SynapseType> *> result;
-    constexpr auto type_index =
-        boost::mp11::mp_find<backends::single_threaded_cpu::SingleThreadedCPUBackend::SupportedSynapses, SynapseType>();
-    for (auto &projection : projections)
-    {
-        if (projection.arg_.index() != type_index)
-        {
-            continue;
-        }
-
-        ProjectionType *projection_ptr = &(std::get<type_index>(projection.arg_));
-        if (projection_ptr->is_locked() && exclude_locked)
-        {
-            continue;
-        }
-
-        if (projection_ptr->get_postsynaptic() == post_uid)
-        {
-            result.push_back(projection_ptr);
-        }
-    }
-    return result;
-}
 
 void SingleThreadedCPUBackend::_step()
 {
@@ -123,24 +95,15 @@ void SingleThreadedCPUBackend::_step()
     for (auto &population : populations_)
     {
         std::visit(
-            [this](auto &pop)
+            [this](auto &arg)
             {
-                std::vector<knp::core::messaging::SynapticImpactMessage> messages =
-                    get_message_endpoint().unload_messages<knp::core::messaging::SynapticImpactMessage>(pop.get_uid());
-                knp::core::messaging::SpikeMessage message_out{{pop.get_uid(), get_step()}, {}};
-                cpu::populations::calculate_pre_impact_population_state(pop, 0, pop.size());
-                cpu::populations::impact_population(pop, messages);
-                cpu::populations::calculate_post_impact_population_state(pop, message_out, 0, pop.size());
-
-                auto working_projections = find_projection_by_type_and_postsynaptic<
-                    knp::synapse_traits::SynapticResourceSTDPDeltaSynapse, ProjectionContainer>(
-                    projections_, pop.get_uid(), true);
-                cpu::populations::train_population(pop, working_projections, message_out, get_step());
-
-                if (!message_out.neuron_indexes_.empty())
-                {
-                    get_message_endpoint().send_message(message_out);
-                }
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (
+                    boost::mp11::mp_find<SupportedPopulations, T>{} == boost::mp11::mp_size<SupportedPopulations>{})
+                    static_assert(
+                        knp::meta::always_false_v<T>,
+                        "Population is not supported by the single-threaded CPU backend.");
+                auto message_opt = calculate_population(arg);
             },
             population);
     }
@@ -152,10 +115,17 @@ void SingleThreadedCPUBackend::_step()
     for (auto &projection : projections_)
     {
         std::visit(
-            [this, &projection](auto &proj)
+            [this, &projection](auto &arg)
             {
-                knp::backends::cpu::projections::calculate_projection(
-                    proj, get_message_endpoint(), projection.messages_, get_step());
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (
+                    boost::mp11::mp_find<SupportedProjections, T>{} == boost::mp11::mp_size<SupportedProjections>{})
+                {
+                    static_assert(
+                        knp::meta::always_false_v<T>,
+                        "Projection is not supported by the single-threaded CPU backend.");
+                }
+                calculate_projection(arg, projection.messages_);
             },
             projection.arg_);
     }
@@ -239,6 +209,62 @@ void SingleThreadedCPUBackend::_init()
     knp::backends::cpu::init(projections_, get_message_endpoint());
 
     SPDLOG_DEBUG("Initialization finished.");
+}
+
+
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    core::Population<knp::neuron_traits::BLIFATNeuron> &population)
+{
+    SPDLOG_TRACE("Calculate BLIFAT population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_blifat_population(population, get_message_endpoint(), get_step());
+}
+
+
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    core::Population<neuron_traits::AltAILIF> &population)
+{
+    SPDLOG_TRACE("Calculate AltAI-LIF population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_lif_population<neuron_traits::AltAILIF>(
+        population, get_message_endpoint(), get_step());
+}
+
+
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population)
+{
+    SPDLOG_TRACE("Calculate resource-based STDP-compatible BLIFAT population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_resource_stdp_population<
+        neuron_traits::BLIFATNeuron, synapse_traits::DeltaSynapse, ProjectionContainer>(
+        population, projections_, get_message_endpoint(), get_step());
+}
+
+
+void SingleThreadedCPUBackend::calculate_projection(
+    knp::core::Projection<knp::synapse_traits::DeltaSynapse> &projection, SynapticMessageQueue &message_queue)
+{
+    SPDLOG_TRACE("Calculate delta synapse projection {}.", std::string(projection.get_uid()));
+    knp::backends::cpu::calculate_delta_synapse_projection(
+        projection, get_message_endpoint(), message_queue, get_step());
+}
+
+
+void SingleThreadedCPUBackend::calculate_projection(
+    knp::core::Projection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
+    SynapticMessageQueue &message_queue)
+{
+    SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(projection.get_uid()));
+    knp::backends::cpu::calculate_delta_synapse_projection(
+        projection, get_message_endpoint(), message_queue, get_step());
+}
+
+
+void SingleThreadedCPUBackend::calculate_projection(
+    knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
+    SynapticMessageQueue &message_queue)
+{
+    SPDLOG_TRACE("Calculate STDPSynapticResource synapse projection {}.", std::string(projection.get_uid()));
+    knp::backends::cpu::calculate_delta_synapse_projection(
+        projection, get_message_endpoint(), message_queue, get_step());
 }
 
 

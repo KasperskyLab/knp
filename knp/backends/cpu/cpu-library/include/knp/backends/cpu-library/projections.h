@@ -26,9 +26,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include <string>
 #include <unordered_map>
 
-#include "impl/projections/interface.h"
+#include "impl/projections/dispatch.h"
 
 
 namespace knp::backends::cpu::projections
@@ -49,7 +50,17 @@ void calculate_projection(
     SPDLOG_DEBUG("Calculating synapse projection at step {}.", step_n);
 
     auto messages = endpoint.unload_messages<core::messaging::SpikeMessage>(projection.get_uid());
-    auto out_iter = impl::calculate_projection_interface(projection, messages, future_messages, step_n);
+
+#if (SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE)
+    for (const auto &message : messages)
+    {
+        SPDLOG_TRACE(
+            "Spike from {} with spiked neurons: {}", std::string(message.header_.sender_uid_),
+            fmt::join(message.neuron_indexes_, ", "));
+    }
+#endif
+
+    auto out_iter = impl::calculate_projection_dispatch(projection, messages, future_messages, step_n);
     if (out_iter != future_messages.end())
     {
         SPDLOG_TRACE("Projection is sending an impact message.");
@@ -77,7 +88,7 @@ void calculate_projection_multithreaded(
     knp::core::Projection<Synapse> &projection, const std::unordered_map<knp::core::Step, size_t> &message_in_data,
     MessageQueue &future_messages, uint64_t step_n, size_t part_start, size_t part_size, std::mutex &mutex)
 {
-    impl::calculate_projection_multithreaded_interface(
+    impl::calculate_projection_multithreaded_dispatch(
         projection, message_in_data, future_messages, step_n, part_start, part_size, mutex);
 }
 

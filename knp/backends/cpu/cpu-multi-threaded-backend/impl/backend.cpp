@@ -148,8 +148,6 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
                         knp::backends::cpu::populations::calculate_post_impact_population_state(
                             pop_ref, buffer_message, start, part_end);
                         const std::lock_guard lock(mutex_ref);
-                        message_ref.neuron_indexes_.reserve(
-                            message_ref.neuron_indexes_.size() + buffer_message.neuron_indexes_.size());
                         message_ref.neuron_indexes_.insert(
                             message_ref.neuron_indexes_.end(), buffer_message.neuron_indexes_.begin(),
                             buffer_message.neuron_indexes_.end());

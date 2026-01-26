@@ -1,7 +1,7 @@
 /**
- * @file interface_fwd.h
+ * @file dispatch.h
  * @kaspersky_support Postnikov D.
- * @date 18.12.2025
+ * @date 21.01.2026
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -18,14 +18,19 @@
  * limitations under the License.
  */
 #pragma once
+
 #include <knp/core/messaging/messaging.h>
 #include <knp/core/projection.h>
 
 #include <vector>
 
+#include "additive.h"
+#include "synaptic_resource.h"
+
 
 namespace knp::backends::cpu::projections::impl::training::stdp
 {
+
 template <class Synapse>
 void init_synapse(knp::synapse_traits::synapse_parameters<Synapse> &params, uint64_t step)
 {

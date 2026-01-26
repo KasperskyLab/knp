@@ -19,8 +19,6 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/impl/populations/interface_fwd.h>
-
 #include <limits>
 
 #include "stdp.h"
@@ -114,6 +112,15 @@ inline void impact_neuron_impl(
 }
 
 
+inline bool check_spike_threshold(const knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
+{
+    // Three components of neuron threshold: "static", "common dynamic" and "implementation-specific dynamic".
+    return (neuron.n_time_steps_since_last_firing_ > neuron.absolute_refractory_period_) &&
+           (neuron.potential_ >=
+            neuron.activation_threshold_ + neuron.dynamic_threshold_ + neuron.additional_threshold_);
+}
+
+
 inline bool calculate_post_impact_single_neuron_state_impl(
     knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &neuron)
 {
@@ -146,18 +153,14 @@ inline bool calculate_post_impact_single_neuron_state_impl(
         neuron.potential_ = neuron.reversal_inhibitory_potential_;
     }
 
-    // Three components of neuron threshold: "static", "common dynamic" and "implementation-specific dynamic".
-    if ((neuron.n_time_steps_since_last_firing_ > neuron.absolute_refractory_period_) &&
-        (neuron.potential_ >= neuron.activation_threshold_ + neuron.dynamic_threshold_ + neuron.additional_threshold_))
+    if (spike = check_spike_threshold(neuron); spike)
     {
-        // Spike.
         neuron.dynamic_threshold_ += neuron.threshold_increment_;
         neuron.postsynaptic_trace_ += neuron.postsynaptic_trace_increment_;
 
         neuron.potential_ = neuron.potential_reset_value_;
         neuron.bursting_phase_ = neuron.bursting_period_;
         neuron.n_time_steps_since_last_firing_ = 0;
-        spike = true;
     }
 
     if (neuron.potential_ < neuron.min_potential_)

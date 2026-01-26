@@ -1,5 +1,5 @@
 /**
- * @file interface.h
+ * @file dispatch.h
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
@@ -23,14 +23,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "delta/interface.h"
+#include "delta/dispatch.h"
 
 
 namespace knp::backends::cpu::projections::impl
 {
 
 template <typename Synapse>
-MessageQueue::const_iterator calculate_projection_interface(
+MessageQueue::const_iterator calculate_projection_dispatch(
     knp::core::Projection<Synapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
     MessageQueue &future_messages, size_t step_n)
 {
@@ -39,7 +39,7 @@ MessageQueue::const_iterator calculate_projection_interface(
 
 
 template <class Synapse>
-void calculate_projection_multithreaded_interface(
+void calculate_projection_multithreaded_dispatch(
     knp::core::Projection<Synapse> &projection, const std::unordered_map<knp::core::Step, size_t> &message_in_data,
     MessageQueue &future_messages, uint64_t step_n, size_t part_start, size_t part_size, std::mutex &mutex)
 {

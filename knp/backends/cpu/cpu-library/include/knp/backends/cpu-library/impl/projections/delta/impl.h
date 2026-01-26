@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#include <knp/backends/cpu-library/impl/projections/interface_fwd.h>
-#include <knp/backends/cpu-library/impl/projections/training/stdp/interface.h>
+#include <knp/backends/cpu-library/impl/projections/message_queue.h>
+#include <knp/backends/cpu-library/impl/projections/training/stdp/dispatch.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>
 

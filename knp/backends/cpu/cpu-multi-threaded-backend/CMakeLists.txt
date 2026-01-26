@@ -90,5 +90,5 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION} development package: C++ headers and CMake modules"
-            DEPENDS "${COMPONENT_NAME}")
+            INTERNAL_DEPENDS "${COMPONENT_NAME}")
 endif()

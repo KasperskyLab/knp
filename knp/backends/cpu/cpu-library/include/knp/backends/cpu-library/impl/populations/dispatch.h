@@ -1,5 +1,5 @@
 /**
- * @file interface.h
+ * @file dispatch.h
  * @kaspersky_support Postnikov D.
  * @date 02.12.2025
  * @license Apache 2.0
@@ -26,8 +26,8 @@
 
 #include <vector>
 
-#include "altai/interface.h"
-#include "blifat/interface.h"
+#include "altai/dispatch.h"
+#include "blifat/dispatch.h"
 
 
 namespace knp::backends::cpu::populations::impl
@@ -38,7 +38,7 @@ namespace knp::backends::cpu::populations::impl
  * @param neuron Neuron.
  */
 template <class Neuron>
-void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
+void calculate_pre_impact_single_neuron_state_dispatch(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
 {
     throw std::runtime_error("Unsupported neuron type");
 }
@@ -51,7 +51,7 @@ void calculate_pre_impact_single_neuron_state_interface(knp::neuron_traits::neur
  * @param is_forcing Is impact forced.
  */
 template <class Neuron>
-void impact_neuron_interface(
+void impact_neuron_dispatch(
     knp::neuron_traits::neuron_parameters<Neuron> &neuron, const knp::core::messaging::SynapticImpact &impact,
     bool is_forcing)
 {
@@ -65,7 +65,7 @@ void impact_neuron_interface(
  * @return Should neuron produce spike or should not.
  */
 template <class Neuron>
-bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
+bool calculate_post_impact_single_neuron_state_dispatch(knp::neuron_traits::neuron_parameters<Neuron> &neuron)
 {
     throw std::runtime_error("Unsupported neuron type");
 }
@@ -79,7 +79,7 @@ bool calculate_post_impact_single_neuron_state_interface(knp::neuron_traits::neu
  * @param step Step.
  */
 template <class Neuron, class Synapse>
-void train_population_interface(
+void train_population_dispatch(
     knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {

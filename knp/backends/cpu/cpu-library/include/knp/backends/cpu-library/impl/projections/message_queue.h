@@ -1,7 +1,7 @@
 /**
- * @file interface.h
+ * @file message_queue.h
  * @kaspersky_support Postnikov D.
- * @date 21.01.2026
+ * @date 18.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
  *
@@ -19,5 +19,17 @@
  */
 #pragma once
 
-#include "additive.h"
-#include "synaptic_resource.h"
+#include <knp/core/messaging/messaging.h>
+
+#include <unordered_map>
+
+
+namespace knp::backends::cpu::projections
+{
+
+/**
+ * @brief Type of the message queue.
+ */
+using MessageQueue = std::unordered_map<uint64_t, knp::core::messaging::SynapticImpactMessage>;
+
+}  //namespace knp::backends::cpu::projections
