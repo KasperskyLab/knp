@@ -29,7 +29,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "impl/projections/dispatch.h"
+#include "impl/projections/projection_dispatcher.h"
 
 
 namespace knp::backends::cpu::projections

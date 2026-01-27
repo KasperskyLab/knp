@@ -1,5 +1,5 @@
 /**
- * @file dispatch.h
+ * @file altai_dispatcher.h
  * @kaspersky_support Postnikov D.
  * @date 08.12.2025
  * @license Apache 2.0
@@ -21,7 +21,7 @@
 
 #include <vector>
 
-#include "impl.h"
+#include "altai_impl.h"
 
 namespace knp::backends::cpu::populations::impl
 {

@@ -1,5 +1,5 @@
 /**
- * @file dispatch.h
+ * @file population_dispatcher.h
  * @kaspersky_support Postnikov D.
  * @date 02.12.2025
  * @license Apache 2.0
@@ -26,8 +26,8 @@
 
 #include <vector>
 
-#include "altai/dispatch.h"
-#include "blifat/dispatch.h"
+#include "altai/altai_dispatcher.h"
+#include "blifat/blifat_dispatcher.h"
 
 
 namespace knp::backends::cpu::populations::impl

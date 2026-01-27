@@ -1,5 +1,5 @@
 /**
- * @file synaptic_resource.h
+ * @file synaptic_resource_stdp.h
  * @kaspersky_support Postnikov D.
  * @date 18.12.2025
  * @license Apache 2.0

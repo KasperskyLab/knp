@@ -1,5 +1,5 @@
 /**
- * @file impl.h
+ * @file altai_impl.h
  * @kaspersky_support Postnikov D.
  * @date 08.12.2025
  * @license Apache 2.0

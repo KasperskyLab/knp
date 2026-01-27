@@ -1,5 +1,5 @@
 /**
- * @file dispatch.h
+ * @file stdp_dispatcher.h
  * @kaspersky_support Postnikov D.
  * @date 21.01.2026
  * @license Apache 2.0
@@ -24,8 +24,8 @@
 
 #include <vector>
 
-#include "additive.h"
-#include "synaptic_resource.h"
+#include "additive_stdp.h"
+#include "synaptic_resource_stdp.h"
 
 
 namespace knp::backends::cpu::projections::impl::training::stdp

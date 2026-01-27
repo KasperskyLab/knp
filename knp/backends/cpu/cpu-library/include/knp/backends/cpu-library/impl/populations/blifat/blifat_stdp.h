@@ -1,5 +1,5 @@
 /**
- * @file stdp.h
+ * @file blifat_stdp.h
  * @kaspersky_support Postnikov D.
  * @date 12.12.2025
  * @license Apache 2.0

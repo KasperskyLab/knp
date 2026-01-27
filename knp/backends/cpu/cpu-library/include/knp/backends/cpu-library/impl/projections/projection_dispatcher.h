@@ -1,5 +1,5 @@
 /**
- * @file dispatch.h
+ * @file projection_dispatcher.h
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "delta/dispatch.h"
+#include "delta/delta_dispatcher.h"
 
 
 namespace knp::backends::cpu::projections::impl

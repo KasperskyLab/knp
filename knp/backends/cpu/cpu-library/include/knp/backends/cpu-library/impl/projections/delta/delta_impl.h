@@ -1,5 +1,5 @@
 /**
- * @file impl.h
+ * @file delta_impl.h
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
@@ -20,7 +20,7 @@
 #pragma once
 
 #include <knp/backends/cpu-library/impl/projections/message_queue.h>
-#include <knp/backends/cpu-library/impl/projections/training/stdp/dispatch.h>
+#include <knp/backends/cpu-library/impl/projections/training/stdp/stdp_dispatcher.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>
 

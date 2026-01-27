@@ -1,5 +1,5 @@
 /**
- * @file impl.h
+ * @file blifat_impl.h
  * @kaspersky_support Postnikov D.
  * @date 12.12.2025
  * @license Apache 2.0
@@ -21,7 +21,7 @@
 
 #include <limits>
 
-#include "stdp.h"
+#include "blifat_stdp.h"
 
 
 namespace knp::backends::cpu::populations::impl::blifat

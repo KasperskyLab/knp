@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include "impl/populations/dispatch.h"
+#include "impl/populations/population_dispatcher.h"
 
 
 /**
