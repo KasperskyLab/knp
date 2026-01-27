@@ -1,6 +1,6 @@
 /**
  * @file altai_impl.h
- * @kaspersky_support Postnikov D.
+ * @kaspersky_support Vartenkov A.
  * @date 08.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab

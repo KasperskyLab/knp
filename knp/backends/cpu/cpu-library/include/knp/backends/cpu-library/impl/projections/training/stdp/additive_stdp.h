@@ -1,6 +1,6 @@
 /**
  * @file additive_stdp.h
- * @kaspersky_support Postnikov D.
+ * @kaspersky_support Artiom N.
  * @date 18.12.2025
  * @license Apache 2.0
  * @copyright © 2024-2025 AO Kaspersky Lab
@@ -142,7 +142,7 @@ inline void init_projection(
         assert(uid == msg.header_.sender_uid_);
         if (processing_type == ProcessingType::STDPOnly || processing_type == ProcessingType::STDPAndSpike)
         {
-            SPDLOG_TRACE("Added spikes to STDP projection postsynaptic history.");
+            SPDLOG_TRACE("Add spikes to STDP projection postsynaptic history.");
             append_spike_times(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
@@ -151,7 +151,7 @@ inline void init_projection(
         }
         if (processing_type == ProcessingType::STDPAndSpike)
         {
-            SPDLOG_TRACE("Added spikes to STDP projection presynaptic history.");
+            SPDLOG_TRACE("Add spikes to STDP projection presynaptic history.");
             append_spike_times(
                 projection, msg,
                 [&projection](uint32_t neuron_index)
@@ -160,6 +160,7 @@ inline void init_projection(
         }
         if (processing_type == ProcessingType::STDPOnly)
         {
+            SPDLOG_TRACE("STDP-only synapse, remove message from list.");
             msg.neuron_indexes_ = {};
         }
 

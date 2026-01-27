@@ -1,6 +1,6 @@
 /**
  * @file blifat_impl.h
- * @kaspersky_support Postnikov D.
+ * @kaspersky_support Artiom N.
  * @date 12.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
@@ -131,7 +131,7 @@ inline bool calculate_post_impact_single_neuron_state_impl(
         neuron.potential_ = neuron.pre_impact_potential_;
         if (neuron.total_blocking_period_ < 0)
         {
-            neuron.total_blocking_period_++;
+            ++neuron.total_blocking_period_;
             if (neuron.total_blocking_period_ == 0)
             {
                 neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();

@@ -1,6 +1,6 @@
 /**
  * @file blifat_stdp.h
- * @kaspersky_support Postnikov D.
+ * @kaspersky_support Artiom N.
  * @date 12.12.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
