@@ -105,7 +105,8 @@ void calculate_post_impact_population_state(
  */
 template <class Neuron, class Synapse>
 void train_population(
-    knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
+    knp::core::Population<Neuron> &population,
+    std::vector<std::reference_wrapper<knp::core::Projection<Synapse>>> &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
     SPDLOG_TRACE("Training population.");

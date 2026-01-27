@@ -19,9 +19,12 @@
  */
 #pragma once
 
+#include <knp/core/projection.h>
+
 #include <vector>
 
 #include "altai_impl.h"
+
 
 namespace knp::backends::cpu::populations::impl
 {
@@ -72,7 +75,7 @@ inline bool calculate_post_impact_single_neuron_state_dispatch(
  */
 inline void train_population_dispatch(
     knp::core::Population<knp::neuron_traits::AltAILIF> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::DeltaSynapse>>> &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }
@@ -87,7 +90,8 @@ inline void train_population_dispatch(
  */
 inline void train_population_dispatch(
     knp::core::Population<knp::neuron_traits::AltAILIF> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
+        &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }

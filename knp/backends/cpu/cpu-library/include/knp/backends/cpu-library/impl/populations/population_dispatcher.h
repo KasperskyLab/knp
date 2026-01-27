@@ -75,12 +75,14 @@ bool calculate_post_impact_single_neuron_state_dispatch(knp::neuron_traits::neur
  * @brief Train population.
  * @param population Population.
  * @param projections Connected projections.
+    std::vector<std::reference_wrapper<knp::core::Projection<Synapse>>> const &projections,
  * @param message Spiking neurons in population at current step.
  * @param step Step.
  */
 template <class Neuron, class Synapse>
 void train_population_dispatch(
-    knp::core::Population<Neuron> &population, std::vector<knp::core::Projection<Synapse> *> const &projections,
+    knp::core::Population<Neuron> &population,
+    std::vector<std::reference_wrapper<knp::core::Projection<Synapse>>> const &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
     throw std::runtime_error("Unsupported neuron-synapse pair type combination");

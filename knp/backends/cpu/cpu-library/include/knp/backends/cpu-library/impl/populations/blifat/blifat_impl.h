@@ -105,7 +105,7 @@ inline void impact_neuron_impl(
     impact_neuron_impl(
         static_cast<knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron> &>(neuron), impact,
         is_forcing);
-    if (impact.synapse_type_ == synapse_traits::OutputType::EXCITATORY)
+    if (synapse_traits::OutputType::EXCITATORY == impact.synapse_type_)
     {
         neuron.is_being_forced_ |= is_forcing;
     }

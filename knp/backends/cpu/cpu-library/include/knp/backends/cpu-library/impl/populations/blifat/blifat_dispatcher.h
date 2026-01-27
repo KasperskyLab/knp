@@ -110,7 +110,7 @@ inline bool calculate_post_impact_single_neuron_state_dispatch(
  */
 inline void train_population_dispatch(
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::DeltaSynapse> *> const &projections,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::DeltaSynapse>>> &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }
@@ -125,7 +125,8 @@ inline void train_population_dispatch(
  */
 inline void train_population_dispatch(
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
+        &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
 }
@@ -140,7 +141,8 @@ inline void train_population_dispatch(
  */
 inline void train_population_dispatch(
     knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-    std::vector<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> *> const &projections,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
+        &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
     blifat::train_population_impl(population, projections, message, step);

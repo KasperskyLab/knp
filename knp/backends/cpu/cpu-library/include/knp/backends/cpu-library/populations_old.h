@@ -44,31 +44,59 @@ namespace knp::backends::cpu
  * @return found projections.
  */
 template <class SynapseType, class ProjectionContainer>
-std::vector<knp::core::Projection<SynapseType> *> find_projection_by_type_and_postsynaptic(
+std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> find_projection_by_type_and_postsynaptic(
     ProjectionContainer &projections, const knp::core::UID &post_uid, bool exclude_locked)
 {
     using ProjectionType = knp::core::Projection<SynapseType>;
-    std::vector<knp::core::Projection<SynapseType> *> result;
+    std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> result;
     constexpr auto type_index = boost::mp11::mp_find<synapse_traits::AllSynapses, SynapseType>();
-    for (auto &projection : projections)
+    for (auto &projection_wrap : projections)
     {
-        if (projection.arg_.index() != type_index)
+        if (projection_wrap.arg_.index() != type_index)
         {
             continue;
         }
 
-        ProjectionType *projection_ptr = &(std::get<type_index>(projection.arg_));
-        if (projection_ptr->is_locked() && exclude_locked)
+        ProjectionType &projection = std::get<type_index>(projection_wrap.arg_);
+        if (projection.is_locked() && exclude_locked)
         {
             continue;
         }
 
-        if (projection_ptr->get_postsynaptic() == post_uid)
+        if (projection.get_postsynaptic() == post_uid)
         {
-            result.push_back(projection_ptr);
+            result.push_back(projection);
         }
     }
     return result;
+}
+
+
+/**
+ * @brief Make one execution step for a population of any neurons.
+ * @tparam BlifatLikeNeuron type of a neuron with BLIFAT-like parameters.
+ * @param pop population to update.
+ * @param endpoint message endpoint used for message exchange.
+ * @param step_n execution step.
+ * @return indexes of spiked neurons.
+ */
+template <class Neuron>
+std::optional<core::messaging::SpikeMessage> calculate_any_population(
+    knp::core::Population<Neuron> &pop, knp::core::MessageEndpoint &endpoint, size_t step_n)
+{
+    std::vector<knp::core::messaging::SynapticImpactMessage> messages =
+        endpoint.unload_messages<knp::core::messaging::SynapticImpactMessage>(pop.get_uid());
+    knp::core::messaging::SpikeMessage message_out{{pop.get_uid(), step_n}, {}};
+    populations::calculate_pre_impact_population_state(pop, 0, pop.size());
+    populations::impact_population(pop, messages);
+    populations::calculate_post_impact_population_state(pop, message_out, 0, pop.size());
+
+    if (!message_out.neuron_indexes_.empty())
+    {
+        endpoint.send_message(message_out);
+    }
+
+    return message_out;
 }
 
 
@@ -84,19 +112,7 @@ template <class BlifatLikeNeuron>
 std::optional<core::messaging::SpikeMessage> calculate_blifat_population(
     knp::core::Population<BlifatLikeNeuron> &pop, knp::core::MessageEndpoint &endpoint, size_t step_n)
 {
-    std::vector<knp::core::messaging::SynapticImpactMessage> messages =
-        endpoint.unload_messages<knp::core::messaging::SynapticImpactMessage>(pop.get_uid());
-    knp::core::messaging::SpikeMessage message_out{{pop.get_uid(), step_n}, {}};
-    populations::calculate_pre_impact_population_state(pop, 0, pop.size());
-    populations::impact_population(pop, messages);
-    populations::calculate_post_impact_population_state(pop, message_out, 0, pop.size());
-
-    if (!message_out.neuron_indexes_.empty())
-    {
-        endpoint.send_message(message_out);
-    }
-
-    return message_out;
+    return calculate_any_population(pop, endpoint, step_n);
 }
 
 
@@ -112,19 +128,7 @@ template <class LifNeuron>
 std::optional<knp::core::messaging::SpikeMessage> calculate_lif_population(
     knp::core::Population<LifNeuron> &pop, knp::core::MessageEndpoint &endpoint, size_t step_n)
 {
-    std::vector<knp::core::messaging::SynapticImpactMessage> messages =
-        endpoint.unload_messages<knp::core::messaging::SynapticImpactMessage>(pop.get_uid());
-    knp::core::messaging::SpikeMessage message_out{{pop.get_uid(), step_n}, {}};
-    populations::calculate_pre_impact_population_state(pop, 0, pop.size());
-    populations::impact_population(pop, messages);
-    populations::calculate_post_impact_population_state(pop, message_out, 0, pop.size());
-
-    if (!message_out.neuron_indexes_.empty())
-    {
-        endpoint.send_message(message_out);
-    }
-
-    return message_out;
+    return calculate_any_population(pop, endpoint, step_n);
 }
 
 

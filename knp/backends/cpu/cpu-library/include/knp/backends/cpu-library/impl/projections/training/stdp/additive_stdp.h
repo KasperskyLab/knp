@@ -121,6 +121,8 @@ inline void init_projection(
     using ProjectionType = typename std::decay_t<decltype(projection)>;
     using ProcessingType = typename ProjectionType::SharedSynapseParameters::ProcessingType;
 
+    SPDLOG_DEBUG("Calculating additive stdp projection...");
+
     const auto &stdp_pops = projection.get_shared_parameters().stdp_populations_;
 
     // Spike messages to process as usual.

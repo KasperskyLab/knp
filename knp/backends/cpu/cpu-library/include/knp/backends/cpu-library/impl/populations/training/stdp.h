@@ -38,16 +38,16 @@ namespace knp::backends::cpu::populations::impl::training::stdp
  */
 template <class Synapse>
 void recalculate_synapse_weights(
-    std::vector<knp::synapse_traits::synapse_parameters<
-        knp::synapse_traits::STDP<knp::synapse_traits::STDPSynapticResourceRule, Synapse>> *> &synapse_params)
+    std::vector<std::reference_wrapper<knp::synapse_traits::synapse_parameters<
+        knp::synapse_traits::STDP<knp::synapse_traits::STDPSynapticResourceRule, Synapse>>>> &synapse_params)
 {
     // Synapse weight recalculation.
-    for (auto synapse_ptr : synapse_params)
+    for (auto &synapse : synapse_params)
     {
-        const auto &rule = synapse_ptr->rule_;
+        const auto &rule = synapse.get().rule_;
         const auto syn_w = std::max(rule.synaptic_resource_, 0.F);
         const auto weight_diff = rule.w_max_ - rule.w_min_;
-        synapse_ptr->weight_ = rule.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
+        synapse.get().weight_ = rule.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
     }
 }
 
@@ -55,21 +55,23 @@ void recalculate_synapse_weights(
 /**
  * @brief Get all synapses that are connected to some neuron.
  * @tparam Synapse Synapse type.
- * @param projections_to_pop All projections that lead to neuron's population.
+ * @param projections All projections that lead to neuron's population.
  * @param neuron_index Neuron index.
  * @return Connected synapses.
  */
 template <class Synapse>
-std::vector<synapse_traits::synapse_parameters<Synapse> *> get_all_connected_synapses(
-    const std::vector<core::Projection<Synapse> *> &projections_to_pop, size_t neuron_index)
+std::vector<std::reference_wrapper<synapse_traits::synapse_parameters<Synapse>>> get_all_connected_synapses(
+    std::vector<std::reference_wrapper<core::Projection<Synapse>>> &projections, size_t neuron_index)
 {
-    std::vector<synapse_traits::synapse_parameters<Synapse> *> result;
-    for (auto *projection : projections_to_pop)
+    std::vector<std::reference_wrapper<synapse_traits::synapse_parameters<Synapse>>> result;
+    for (auto &projection : projections)
     {
-        auto synapses = projection->find_synapses(neuron_index, core::Projection<Synapse>::Search::by_postsynaptic);
+        auto synapses =
+            projection.get().find_synapses(neuron_index, core::Projection<Synapse>::Search::by_postsynaptic);
         std::transform(
             synapses.begin(), synapses.end(), std::back_inserter(result),
-            [&projection](auto const &index) { return &std::get<core::synapse_data>((*projection)[index]); });
+            [&projection](auto const &index)
+            { return std::reference_wrapper(std::get<core::synapse_data>(projection.get()[index])); });
     }
     return result;
 }
@@ -148,8 +150,8 @@ inline bool is_point_in_interval(uint64_t interval_begin, uint64_t interval_end,
  */
 template <class Neuron, class Synapse>
 inline void renormalize_resource(
-    std::vector<knp::core::Projection<Synapse> *> const &working_projections, knp::core::Population<Neuron> &population,
-    uint64_t step)
+    std::vector<std::reference_wrapper<knp::core::Projection<Synapse>>> &working_projections,
+    knp::core::Population<Neuron> &population, uint64_t step)
 {
     for (size_t neuron_index = 0; neuron_index < population.size(); ++neuron_index)
     {
@@ -172,9 +174,9 @@ inline void renormalize_resource(
         auto add_resource_value =
             neuron.free_synaptic_resource_ / (synapse_params.size() + neuron.resource_drain_coefficient_);
 
-        for (auto *synapse : synapse_params)
+        for (auto &synapse : synapse_params)
         {
-            synapse->rule_.synaptic_resource_ += add_resource_value;
+            synapse.get().rule_.synaptic_resource_ += add_resource_value;
         }
 
         neuron.free_synaptic_resource_ = 0.0F;

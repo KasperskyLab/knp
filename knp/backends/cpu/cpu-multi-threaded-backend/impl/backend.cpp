@@ -171,7 +171,7 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
                                         ProjectionContainer &proj_ref, knp::core::Step step)
                 {
                     using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
-                    std::vector<knp::core::Projection<SynapseType> *> working_projections;
+                    std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> working_projections;
                     constexpr uint64_t type_index = boost::mp11::mp_find<
                         backends::multi_threaded_cpu::MultiThreadedCPUBackend::SupportedSynapses, SynapseType>();
 
@@ -179,11 +179,11 @@ std::vector<knp::core::messaging::SpikeMessage> MultiThreadedCPUBackend::calcula
                     {
                         if (projection.arg_.index() != type_index) continue;
 
-                        auto *projection_ptr = &(std::get<type_index>(projection.arg_));
-                        if (projection_ptr->is_locked()) continue;
+                        auto &actual_proj = std::get<type_index>(projection.arg_);
+                        if (actual_proj.is_locked()) continue;
 
-                        if (projection_ptr->get_postsynaptic() == pop_ref.get_uid())
-                            working_projections.push_back(projection_ptr);
+                        if (actual_proj.get_postsynaptic() == pop_ref.get_uid())
+                            working_projections.push_back(actual_proj);
                     }
 
                     knp::backends::cpu::populations::train_population(pop_ref, working_projections, message_ref, step);

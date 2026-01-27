@@ -57,6 +57,8 @@ MessageQueue::const_iterator calculate_projection_impl(
 {
     using ProjectionType = knp::core::Projection<DeltaLikeSynapse>;
 
+    SPDLOG_TRACE("Calculating delta synapse projection data for the step = {}", step_n);
+
     training::stdp::init_projection(projection, messages, step_n);
 
     for (const auto &message : messages)
