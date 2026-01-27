@@ -100,9 +100,11 @@ void SingleThreadedCPUBackend::_step()
                 using T = std::decay_t<decltype(arg)>;
                 if constexpr (
                     boost::mp11::mp_find<SupportedPopulations, T>{} == boost::mp11::mp_size<SupportedPopulations>{})
+                {
                     static_assert(
                         knp::meta::always_false_v<T>,
                         "Population is not supported by the single-threaded CPU backend.");
+                }
                 auto message_opt = calculate_population(arg);
             },
             population);

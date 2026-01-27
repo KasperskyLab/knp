@@ -49,9 +49,6 @@ inline void impact_neuron_impl(
         case knp::synapse_traits::OutputType::INHIBITORY_CURRENT:
             neuron.potential_ -= impact.impact_value_;
             break;
-        case knp::synapse_traits::OutputType::DOPAMINE:
-            neuron.dopamine_value_ += impact.impact_value_;
-            break;
         case knp::synapse_traits::OutputType::BLOCKING:
             if (std::signbit(neuron.activity_time_) != std::signbit(impact.impact_value_) ||
                 std::abs(neuron.activity_time_) <= std::abs(impact.impact_value_))
@@ -80,6 +77,7 @@ inline bool calculate_post_impact_single_neuron_state_impl(
         ++neuron.activity_time_;
     }
 
+    // This check must be done separately, else block cant be used here.
     if (neuron.activity_time_ == 0)
     {
         neuron.activity_time_ = std::numeric_limits<decltype(neuron.activity_time_)>::max();

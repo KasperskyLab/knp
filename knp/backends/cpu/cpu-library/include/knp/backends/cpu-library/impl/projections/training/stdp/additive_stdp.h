@@ -173,6 +173,7 @@ inline void modify_weights(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &
     // Update projection parameters.
     for (uint64_t i = 0; i < projection.size(); ++i)
     {
+        SPDLOG_TRACE("Applying STDP rule...");
         auto &proj = projection[i];
         auto &rule = std::get<knp::core::synapse_data>(proj).rule_;
         const auto period = rule.tau_plus_ + rule.tau_minus_;
@@ -180,8 +181,10 @@ inline void modify_weights(knp::core::Projection<AdditiveSTDPSynapse<Synapse>> &
         if (rule.presynaptic_spike_times_.size() >= period && rule.postsynaptic_spike_times_.size() >= period)
         {
             STDPFormula stdp_formula(rule.tau_plus_, rule.tau_minus_, 1, 1);
+            SPDLOG_TRACE("Old weight = {}.", std::get<knp::core::synapse_data>(proj).weight_);
             std::get<knp::core::synapse_data>(proj).weight_ +=
                 stdp_formula(rule.presynaptic_spike_times_, rule.postsynaptic_spike_times_);
+            SPDLOG_TRACE("New weight = {}.", std::get<knp::core::synapse_data>(proj).weight_);
             rule.presynaptic_spike_times_.clear();
             rule.postsynaptic_spike_times_.clear();
         }
