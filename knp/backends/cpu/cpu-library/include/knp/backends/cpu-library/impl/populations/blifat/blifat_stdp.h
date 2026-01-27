@@ -1,5 +1,6 @@
 /**
  * @file blifat_stdp.h
+ * @brief Implementation of stdp in blifat neuron.
  * @kaspersky_support Artiom N.
  * @date 12.12.2025
  * @license Apache 2.0

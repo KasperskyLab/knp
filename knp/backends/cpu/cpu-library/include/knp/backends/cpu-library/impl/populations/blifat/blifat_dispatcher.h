@@ -1,5 +1,6 @@
 /**
  * @file blifat_dispatcher.h
+ * @brief Specification of population interface for blifat neuron population.
  * @kaspersky_support Postnikov D.
  * @date 12.12.2025
  * @license Apache 2.0

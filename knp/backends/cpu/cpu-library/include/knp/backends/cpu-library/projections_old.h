@@ -1,5 +1,6 @@
 /**
  * @file projections_old.h
+ * @brief Legacy interface for working with projections for backend.
  * @kaspersky_support Postnikov D.
  * @date 26.01.2026
  * @license Apache 2.0

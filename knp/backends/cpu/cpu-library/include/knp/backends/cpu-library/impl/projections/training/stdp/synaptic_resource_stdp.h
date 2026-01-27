@@ -1,5 +1,6 @@
 /**
  * @file synaptic_resource_stdp.h
+ * @brief STDP specification for synaptic resource stdp.
  * @kaspersky_support Postnikov D.
  * @date 18.12.2025
  * @license Apache 2.0

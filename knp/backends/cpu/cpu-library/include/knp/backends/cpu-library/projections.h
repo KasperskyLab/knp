@@ -1,5 +1,6 @@
 /**
  * @file projections.h
+ * @brief Interface for working with projections.
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0

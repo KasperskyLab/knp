@@ -1,5 +1,6 @@
 /**
  * @file altai_impl.h
+ * @brief Implementation of altai neuron population.
  * @kaspersky_support Vartenkov A.
  * @date 08.12.2025
  * @license Apache 2.0

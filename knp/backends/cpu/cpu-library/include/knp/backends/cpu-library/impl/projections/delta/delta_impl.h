@@ -1,5 +1,6 @@
 /**
  * @file delta_impl.h
+ * @brief Implementation of delta synapse projection.
  * @kaspersky_support Vartenkov A.
  * @date 10.12.2025
  * @license Apache 2.0

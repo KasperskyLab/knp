@@ -1,5 +1,6 @@
 /**
  * @file populations.h
+ * @brief Interface for working with populations.
  * @kaspersky_support Postnikov D.
  * @date 26.11.2025
  * @license Apache 2.0

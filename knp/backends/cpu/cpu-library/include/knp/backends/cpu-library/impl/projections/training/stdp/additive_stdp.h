@@ -1,5 +1,6 @@
 /**
  * @file additive_stdp.h
+ * @brief STDP specification for additive stdp.
  * @kaspersky_support Artiom N.
  * @date 18.12.2025
  * @license Apache 2.0

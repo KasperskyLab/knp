@@ -1,5 +1,6 @@
 /**
  * @file populations_old.h
+ * @brief Legacy interface for working with populations for backend.
  * @kaspersky_support Postnikov D.
  * @date 26.01.2026
  * @license Apache 2.0

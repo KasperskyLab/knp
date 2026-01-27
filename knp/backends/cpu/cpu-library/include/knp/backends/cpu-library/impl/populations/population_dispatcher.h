@@ -1,5 +1,6 @@
 /**
  * @file population_dispatcher.h
+ * @brief Combined interface of all supported populations.
  * @kaspersky_support Postnikov D.
  * @date 02.12.2025
  * @license Apache 2.0

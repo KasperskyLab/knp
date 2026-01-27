@@ -1,5 +1,6 @@
 /**
  * @file altai_dispatcher.h
+ * @brief Specification of population interface for altai neuron population.
  * @kaspersky_support Postnikov D.
  * @date 08.12.2025
  * @license Apache 2.0

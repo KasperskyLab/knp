@@ -1,5 +1,6 @@
 /**
  * @file delta_dispatcher.h
+ * @brief Specification of projection interface for delta synapse projection.
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0

@@ -1,5 +1,6 @@
 /**
  * @file stdp_dispatcher.h
+ * @brief Combined interface of all supported stdp specifications.
  * @kaspersky_support Postnikov D.
  * @date 21.01.2026
  * @license Apache 2.0

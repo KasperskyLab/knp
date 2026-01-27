@@ -1,5 +1,6 @@
 /**
  * @file blifat_impl.h
+ * @brief Implementation of blifat neuron population.
  * @kaspersky_support Artiom N.
  * @date 12.12.2025
  * @license Apache 2.0

@@ -1,5 +1,6 @@
 /**
  * @file stdp.h
+ * @brief Shared stdp related functions.
  * @kaspersky_support Artiom N.
  * @date 08.12.2025
  * @license Apache 2.0
