@@ -1,5 +1,6 @@
 /**
  * @file projection_dispatcher.h
+ * @brief Combined interface of all supported projections.
  * @kaspersky_support Postnikov D.
  * @date 10.12.2025
  * @license Apache 2.0
