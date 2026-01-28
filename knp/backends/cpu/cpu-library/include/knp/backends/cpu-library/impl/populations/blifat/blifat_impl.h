@@ -36,15 +36,13 @@ inline void calculate_pre_impact_single_neuron_state_impl(
     neuron.postsynaptic_trace_ *= neuron.postsynaptic_trace_decay_;
     neuron.inhibitory_conductance_ *= neuron.inhibitory_conductance_decay_;
 
-    if (neuron.bursting_phase_ == 1)
+    neuron.potential_ *= neuron.potential_decay_;
+    if (1 == neuron.bursting_phase_)
     {
         --neuron.bursting_phase_;
-        neuron.potential_ = neuron.potential_ * neuron.potential_decay_ + neuron.reflexive_weight_;
+        neuron.potential_ += neuron.reflexive_weight_;
     }
-    else
-    {
-        neuron.potential_ *= neuron.potential_decay_;
-    }
+
     neuron.pre_impact_potential_ = neuron.potential_;
 }
 
@@ -60,14 +58,9 @@ inline void calculate_pre_impact_single_neuron_state_impl(
     neuron.dopamine_value_ = 0.0;
     neuron.is_being_forced_ = false;
 
-    if (neuron.bursting_phase_ == 1)
-    {
-        neuron.potential_ = neuron.potential_ * neuron.potential_decay_ + neuron.reflexive_weight_;
-    }
-    else
-    {
-        neuron.potential_ *= neuron.potential_decay_;
-    }
+    neuron.potential_ *= neuron.potential_decay_;
+    if (1 == neuron.bursting_phase_) neuron.potential_ += neuron.reflexive_weight_;
+
     neuron.pre_impact_potential_ = neuron.potential_;
 }
 
@@ -130,16 +123,17 @@ inline bool calculate_post_impact_single_neuron_state_impl(
     {
         // Restore potential that the neuron had before impacts.
         neuron.potential_ = neuron.pre_impact_potential_;
-        if (neuron.total_blocking_period_ < 0)
+    }
+
+    if (neuron.total_blocking_period_ < 0)
+    {
+        ++neuron.total_blocking_period_;
+        if (neuron.total_blocking_period_ == 0)
         {
-            ++neuron.total_blocking_period_;
-            if (neuron.total_blocking_period_ == 0)
-            {
-                neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();
-            }
+            neuron.total_blocking_period_ = std::numeric_limits<int64_t>::max();
         }
     }
-    else
+    else if (neuron.total_blocking_period_ > 0)
     {
         neuron.total_blocking_period_ -= 1;
     }
