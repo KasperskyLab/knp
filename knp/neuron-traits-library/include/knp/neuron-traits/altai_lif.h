@@ -92,6 +92,11 @@ struct default_values<AltAILIF>
     constexpr static float potential_ = 0;
 
     /**
+     * @brief The parameter defines the neuron potential value.
+     */
+    constexpr static float pre_impact_potential_ = 0;
+
+    /**
      * @brief The parameter defines the default value for `activation_threshold_` of AltAILIF neuron.
      */
     constexpr static uint16_t activation_threshold_ = 1;
@@ -113,6 +118,20 @@ struct default_values<AltAILIF>
      * @brief The parameter defines the default value for `potential_reset_value_` of AltAILIF neuron.
      */
     constexpr static uint16_t potential_reset_value_ = 0;
+
+    /**
+     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value is composed from two parameters: static value, and dynamic value.
+     */
+    constexpr static double additional_threshold_ = 0.;
+
+    /**
+     * @brief If this parameter is positive, then -1 is added on each step. If its negative, then 1 is added on each
+     * step. If its equal to 0, it gets infinitely big positive value, as big as it can be. If neuron receives spike,
+     * this parameter is set to be equal to the weight of synapse, where spike came from. When neuron produces a spike,
+     * it will actually be sent further only if this parameter is positive.
+     */
+    constexpr static int64_t activity_time_ = 0;
 };
 
 
@@ -218,6 +237,11 @@ struct neuron_parameters<AltAILIF>
     float potential_ = default_values<AltAILIF>::potential_;
 
     /**
+     * @brief The parameter defines the neuron potential value.
+     */
+    float pre_impact_potential_ = default_values<AltAILIF>::pre_impact_potential_;
+
+    /**
      * @brief The parameter defines the threshold value of neuron potential, after exceeding which a positive spike can
      * be emitted.
      * @details Positive spike is emitted if `potential_` >= `activation_threshold_`
@@ -266,6 +290,21 @@ struct neuron_parameters<AltAILIF>
      * @endcode
      */
     uint16_t potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
+
+    /**
+     * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
+     * @note Current threshold value is composed from three parameters: static value, dynamic with a common algorithm
+     * and dynamic that is based on a specific neuron implementation. This is the third one.
+     */
+    double additional_threshold_ = default_values<AltAILIF>::additional_threshold_;
+
+    /**
+     * @brief If this parameter is positive, then -1 is added on each step. If its negative, then 1 is added on each
+     * step. If its equal to 0, it gets infinitely big positive value, as big as it can be. If neuron receives spike,
+     * this parameter is set to be equal to the weight of synapse, where spike came from. When neuron produces a spike,
+     * it will actually be sent further only if this parameter is positive.
+     */
+    int64_t activity_time_ = default_values<AltAILIF>::activity_time_;
 };
 
 }  // namespace knp::neuron_traits

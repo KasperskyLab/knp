@@ -102,6 +102,7 @@ private:
     struct ProjectionWrapper
     {
         ProjectionVariants arg_;
+        // cppcheck-suppress unusedStructMember
         std::unordered_map<uint64_t, knp::core::messaging::SynapticImpactMessage> messages_;
     };
 
@@ -373,7 +374,9 @@ protected:
         SynapticMessageQueue &message_queue);
 
 private:
+    // cppcheck-suppress unusedStructMember
     PopulationContainer populations_;
+    // cppcheck-suppress unusedStructMember
     ProjectionContainer projections_;
 };
 

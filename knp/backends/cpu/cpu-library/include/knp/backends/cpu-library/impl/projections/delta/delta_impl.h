@@ -1,8 +1,8 @@
 /**
- * @file delta_synapse_projection_impl.h
- * @brief Definition of DeltaSynapse calculation routines.
- * @kaspersky_support Artiom N.
- * @date 21.02.2023
+ * @file delta_impl.h
+ * @brief Implementation of delta synapse projection.
+ * @kaspersky_support Vartenkov A.
+ * @date 10.12.2025
  * @license Apache 2.0
  * @copyright © 2024-2025 AO Kaspersky Lab
  *
@@ -18,16 +18,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #pragma once
 
-#include <knp/core/message_bus.h>
+#include <knp/backends/cpu-library/impl/projections/message_queue.h>
+#include <knp/backends/cpu-library/impl/projections/training/stdp/stdp_dispatcher.h>
+#include <knp/core/message_endpoint.h>
 #include <knp/core/projection.h>
-#include <knp/synapse-traits/delta.h>
-#include <knp/synapse-traits/stdp_synaptic_resource_rule.h>
-
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/fmt.h>
 
 #include <algorithm>
 #include <mutex>
@@ -35,45 +31,36 @@
 #include <utility>
 #include <vector>
 
-#include "additive_stdp_impl.h"
 
+namespace knp::backends::cpu::projections::impl::delta
+{
 
 /**
- * @brief Namespace for CPU backends.
+ * @brief Delta synapse shortcut.
  */
-namespace knp::backends::cpu
-{
+using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
+
 /**
- * @brief Type of the message queue.
+ * @brief STDP Delta synapse shortcut.
  */
-using MessageQueue = std::unordered_map<uint64_t, knp::core::messaging::SynapticImpactMessage>;
+using STDPDeltaSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+
+/**
+ * @brief Additive STDP Delta synapse shortcut.
+ */
+using AdditiveSTDPDeltaSynapse = knp::synapse_traits::AdditiveSTDPDeltaSynapse;
 
 
-template <class ProjectionType>
-constexpr bool is_forcing()
+template <typename DeltaLikeSynapse>
+MessageQueue::const_iterator calculate_projection_impl(
+    knp::core::Projection<DeltaLikeSynapse> &projection, std::vector<core::messaging::SpikeMessage> &messages,
+    MessageQueue &future_messages, size_t step_n)
 {
-    return false;
-}
+    using ProjectionType = knp::core::Projection<DeltaLikeSynapse>;
 
-
-template <>
-constexpr bool is_forcing<knp::core::Projection<synapse_traits::DeltaSynapse>>()
-{
-    return true;
-}
-
-
-template <typename ProjectionType>
-MessageQueue::const_iterator calculate_delta_synapse_projection_data(
-    ProjectionType &projection, std::vector<core::messaging::SpikeMessage> &messages, MessageQueue &future_messages,
-    const size_t step_n,
-    std::function<knp::synapse_traits::synapse_parameters<knp::synapse_traits::DeltaSynapse>(
-        const typename ProjectionType::SynapseParameters &)>
-        sp_getter = [](const typename ProjectionType::SynapseParameters &synapse_params) { return synapse_params; })
-{
     SPDLOG_TRACE("Calculating delta synapse projection data for the step = {}", step_n);
-    using SynapseType = typename ProjectionType::ProjectionSynapseType;
-    WeightUpdateSTDP<SynapseType>::init_projection(projection, messages, step_n);
+
+    training::stdp::init_projection(projection, messages, step_n);
 
     for (const auto &message : messages)
     {
@@ -85,8 +72,8 @@ MessageQueue::const_iterator calculate_delta_synapse_projection_data(
             for (auto synapse_index : synapses)
             {
                 auto &synapse = projection[synapse_index];
-                WeightUpdateSTDP<SynapseType>::init_synapse(std::get<core::synapse_data>(synapse), step_n);
-                const auto &synapse_params = sp_getter(std::get<core::synapse_data>(synapse));
+                training::stdp::init_synapse(std::get<core::synapse_data>(synapse), step_n);
+                const auto &synapse_params = std::get<core::synapse_data>(synapse);
 
                 // The message is sent on step N - 1, received on step N.
                 size_t future_step = synapse_params.delay_ + step_n - 1;
@@ -97,7 +84,8 @@ MessageQueue::const_iterator calculate_delta_synapse_projection_data(
 
                 auto iter = future_messages.find(future_step);
 
-                SPDLOG_TRACE("Synapse index = {}, synapse delay = {}, synapse weight = {}, step = {}, future step = {}",
+                SPDLOG_TRACE(
+                    "Synapse index = {}, synapse delay = {}, synapse weight = {}, step = {}, future step = {}",
                     synapse_index, synapse_params.delay_, synapse_params.weight_, step_n, future_step);
 
                 if (iter != future_messages.end())
@@ -111,7 +99,7 @@ MessageQueue::const_iterator calculate_delta_synapse_projection_data(
                         {projection.get_uid(), step_n},
                         projection.get_presynaptic(),
                         projection.get_postsynaptic(),
-                        is_forcing<ProjectionType>(),
+                        training::stdp::is_forced(projection),
                         {impact}};
                     SPDLOG_TRACE("Add new impact.");
                     future_messages.insert(std::make_pair(future_step, message_out));
@@ -120,20 +108,20 @@ MessageQueue::const_iterator calculate_delta_synapse_projection_data(
         }
     }
 
-    WeightUpdateSTDP<SynapseType>::modify_weights(projection);
+    training::stdp::modify_weights(projection);
+
     return future_messages.find(step_n);
 }
 
 
 template <class DeltaLikeSynapse>
-void calculate_projection_part_impl(
+void calculate_projection_multithreaded_impl(
     knp::core::Projection<DeltaLikeSynapse> &projection,
     const std::unordered_map<knp::core::Step, size_t> &message_in_data, MessageQueue &future_messages, uint64_t step_n,
     uint64_t part_start, uint64_t part_size, std::mutex &mutex)
 {
     size_t part_end = std::min(part_start + part_size, static_cast<uint64_t>(projection.size()));
     std::vector<std::pair<uint64_t, knp::core::messaging::SynapticImpact>> container;
-    WeightUpdateStdpMp<DeltaLikeSynapse>::init_projection_part(projection, message_in_data, step_n);
     for (size_t synapse_index = part_start; synapse_index < part_end; ++synapse_index)
     {
         auto &synapse = projection[synapse_index];
@@ -147,7 +135,10 @@ void calculate_projection_part_impl(
         // Add new impact.
         // The message is sent on step N - 1, received on step N.
         uint64_t key = std::get<core::synapse_data>(synapse).delay_ + step_n - 1;
-        WeightUpdateStdpMp<DeltaLikeSynapse>::init_synapse(std::get<core::synapse_data>(synapse), step_n);
+        if constexpr (std::is_same_v<DeltaLikeSynapse, STDPDeltaSynapse>)
+        {
+            std::get<core::synapse_data>(synapse).rule_.last_spike_step_ = step_n;
+        }
 
         knp::core::messaging::SynapticImpact impact{
             synapse_index, std::get<core::synapse_data>(synapse).weight_ * iter->second,
@@ -176,67 +167,11 @@ void calculate_projection_part_impl(
                 {projection_uid, step_n},
                 postsynaptic_uid,
                 presynaptic_uid,
-                is_forcing<core::Projection<DeltaLikeSynapse>>(),
+                training::stdp::is_forced(projection),
                 {value.second}};
             future_messages.insert(std::make_pair(value.first, message_out));
         }
     }
-    WeightUpdateStdpMp<DeltaLikeSynapse>::modify_weights_part(projection);
 }
 
-
-/**
- * @brief Convert spike vector to unordered map.
- * @param message spike message.
- * @return unordered map of `{index : number of instances}`. Number of instances usually equals `1`.
- */
-inline std::unordered_map<uint64_t, size_t> convert_spikes(const core::messaging::SpikeMessage &message)
-{
-    std::unordered_map<knp::core::Step, size_t> result;
-    for (auto neuron_idx : message.neuron_indexes_)
-    {
-        auto iter = result.find(neuron_idx);
-        if (result.end() == iter)
-        {
-            result.insert({neuron_idx, 1});
-        }
-        else
-        {
-            ++(iter->second);
-        }
-    }
-    return result;
-}
-
-
-template <class DeltaLikeSynapseType>
-void calculate_delta_synapse_projection_impl(
-    knp::core::Projection<DeltaLikeSynapseType> &projection, knp::core::MessageEndpoint &endpoint,
-    MessageQueue &future_messages, size_t step_n)
-{
-    SPDLOG_DEBUG("Calculating delta synapse projection...");
-
-    auto messages = endpoint.unload_messages<core::messaging::SpikeMessage>(projection.get_uid());
-
-    SPDLOG_DEBUG("Messages count = {}...", messages.size());
-
-    #if (SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE)
-    for (const auto &message : messages)
-    {
-            SPDLOG_TRACE("Spike from {} with spiked neurons: {}",
-                std::string(message.header_.sender_uid_),
-                fmt::join(message.neuron_indexes_, ", "));
-    }
-    #endif
-
-    auto out_iter = calculate_delta_synapse_projection_data(projection, messages, future_messages, step_n);
-    if (out_iter != future_messages.end())
-    {
-        SPDLOG_TRACE("Projection is sending an impact message.");
-        // Send a message and remove it from the queue.
-        endpoint.send_message(out_iter->second);
-        future_messages.erase(out_iter);
-    }
-}
-
-}  // namespace knp::backends::cpu
+}  //namespace knp::backends::cpu::projections::impl::delta
