@@ -87,6 +87,7 @@ inline void impact_neuron_impl(
             neuron.total_blocking_period_ = static_cast<decltype(neuron.total_blocking_period_)>(impact.impact_value_);
             break;
         default:
+            SPDLOG_ERROR("Unhandled synapse type.");
             throw std::runtime_error("Unhandled synapse type.");
     }
 }
