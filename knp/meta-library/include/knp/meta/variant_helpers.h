@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdexcept>
 #include <string>
 #include <variant>
 #include <vector>
@@ -58,6 +59,10 @@ void load_from_container(const std::vector<AllVariants> &from_container, ToConta
                 if constexpr (boost::mp11::mp_find<SupportedTypes, T>{} != boost::mp11::mp_size<SupportedTypes>{})
                 {
                     to_container.push_back(typename ToContainer::value_type{arg});
+                }
+                else
+                {
+                    throw std::runtime_error("Type is not supported.");
                 }
             },
             p);

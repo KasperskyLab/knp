@@ -20,10 +20,9 @@
  */
 
 
-#include <knp/backends/cpu-library/altai_lif_population.h>
-#include <knp/backends/cpu-library/blifat_population.h>
-#include <knp/backends/cpu-library/delta_synapse_projection.h>
 #include <knp/backends/cpu-library/init.h>
+#include <knp/backends/cpu-library/populations_old.h>
+#include <knp/backends/cpu-library/projections_old.h>
 #include <knp/backends/cpu-single-threaded/backend.h>
 #include <knp/devices/cpu.h>
 #include <knp/meta/assert_helpers.h>
