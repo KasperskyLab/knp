@@ -1,5 +1,6 @@
 /**
- * @file stdp.h
+ * @file altai_stdp.h
+ * @brief Implementation of stdp in altai neuron.
  * @kaspersky_support Postnikov D.
  * @date 08.12.2025
  * @license Apache 2.0
