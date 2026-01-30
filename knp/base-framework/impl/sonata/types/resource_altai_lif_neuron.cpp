@@ -28,6 +28,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../csv_content.h"
+#include "../highfive.h"
 #include "../load_network.h"
 #include "../save_network.h"
 #include "type_id_defines.h"
@@ -41,7 +43,6 @@ std::string get_neuron_type_name<neuron_traits::SynapticResourceSTDPAltAILIFNeur
 {
     return "knp:SynapticResourceRuleAltAILIFNeuron";
 }
-
 
 template <>
 void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>>(
