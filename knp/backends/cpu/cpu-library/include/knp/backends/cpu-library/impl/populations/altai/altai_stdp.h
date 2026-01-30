@@ -51,7 +51,7 @@ inline void process_spiking_neurons_impl(
         if (neuron_traits::ISIPeriodType::period_started == neuron.isi_status_)
             neuron.stability_ -= neuron.stability_change_at_isi_;
         neuron.additional_threshold_ = 0.0;
-        // Mark contributed synapses
+        // Mark contributed synapses, only spiked synapses counts as contributed.
         for (auto &synapse : synapse_params)
         {
             neuron.additional_threshold_ += synapse.get().weight_ * (synapse.get().weight_ > 0);
@@ -99,6 +99,7 @@ inline void process_spiking_neurons_impl(
         training::stdp::recalculate_synapse_weights<knp::synapse_traits::DeltaSynapse>(synapse_params);
     }
 }
+
 
 template <typename Synapse>
 inline void do_dopamine_plasticity_impl(
