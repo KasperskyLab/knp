@@ -267,7 +267,7 @@ TEST(SingleThreadCpuSuite, ResourceSTDPBLIFATNetwork)
 TEST(SingleThreadCpuSuite, ResourceSTDPAltAILIFNetwork)
 {
     using STDPDeltaProjection = knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
-    using STDP_AltAILIF_Population = knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>;
+    using STDPAltAILIFPopulation = knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>;
 
     // Create an STDP input projection.
     auto stdp_input_projection_gen = [](size_t /*index*/) -> std::optional<STDPDeltaProjection::Synapse>
@@ -284,11 +284,11 @@ TEST(SingleThreadCpuSuite, ResourceSTDPAltAILIFNetwork)
     // Create a single-neuron neural network: input -> input_projection -> population <=> loop_projection.
     knp::testing::STestingBack backend;
 
-    STDP_AltAILIF_Population population{
+    STDPAltAILIFPopulation population{
         knp::core::UID(),
-        [](uint64_t) -> std::optional<STDP_AltAILIF_Population::NeuronParameters>
+        [](uint64_t) -> std::optional<STDPAltAILIFPopulation::NeuronParameters>
         {
-            STDP_AltAILIF_Population::NeuronParameters neuron{{}};
+            STDPAltAILIFPopulation::NeuronParameters neuron{{}};
             neuron.synaptic_resource_threshold_ = 1;
             neuron.free_synaptic_resource_ = 2;
             neuron.isi_max_ = 0;

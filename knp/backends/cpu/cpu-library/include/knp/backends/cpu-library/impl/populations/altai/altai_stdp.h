@@ -55,7 +55,6 @@ inline void process_spiking_neurons_impl(
         for (auto &synapse : synapse_params)
         {
             neuron.additional_threshold_ += synapse.get().weight_ * (synapse.get().weight_ > 0);
-            //TODO point of concern, what if step < dopamine_plasticity_period_ ?
             const bool had_spike = training::stdp::is_point_in_interval(
                 step - synapse.get().rule_.dopamine_plasticity_period_, step,
                 synapse.get().rule_.last_spike_step_ + synapse.get().delay_ - 1);
@@ -151,6 +150,7 @@ inline void do_dopamine_plasticity_impl(
     }
 }
 
+
 inline void train_population_impl(
     knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &population,
     std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
@@ -162,10 +162,8 @@ inline void train_population_impl(
         process_spiking_neurons_impl(message, projections, population, step);
     }
 
-    // 2. Do dopamine plasticity.
     do_dopamine_plasticity_impl(projections, population, step);
 
-    // 3. Renormalize resources if needed.
     training::stdp::renormalize_resource(projections, population, step);
 }
 

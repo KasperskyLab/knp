@@ -44,6 +44,7 @@ std::string get_neuron_type_name<neuron_traits::SynapticResourceSTDPAltAILIFNeur
     return "knp:SynapticResourceRuleAltAILIFNeuron";
 }
 
+
 template <>
 void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>>(
     HighFive::File &file_h5, const core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &population)
@@ -82,7 +83,6 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
     PUT_NEURON_TO_DATASET(population, potential_leak_, group);
     PUT_NEURON_TO_DATASET(population, potential_reset_value_, group);
     // Synaptic rule parameters.
-    // TODO: Do we need to split them into static-dynamic as well? Probably not.
     PUT_NEURON_TO_DATASET(population, free_synaptic_resource_, group);
     PUT_NEURON_TO_DATASET(population, synaptic_resource_threshold_, group);
     PUT_NEURON_TO_DATASET(population, resource_drain_coefficient_, group);
