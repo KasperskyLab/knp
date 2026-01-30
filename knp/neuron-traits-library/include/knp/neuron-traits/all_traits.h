@@ -38,7 +38,7 @@ namespace knp::neuron_traits
 /**
  * @brief Comma-separated list of neuron tags.
  */
-#define ALL_NEURONS BLIFATNeuron, SynapticResourceSTDPBLIFATNeuron, AltAILIF
+#define ALL_NEURONS BLIFATNeuron, SynapticResourceSTDPBLIFATNeuron, AltAILIF, SynapticResourceSTDPAltAILIFNeuron
 
 
 /**
