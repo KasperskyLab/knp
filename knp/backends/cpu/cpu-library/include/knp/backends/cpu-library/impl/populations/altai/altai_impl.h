@@ -24,6 +24,8 @@
 
 #include <limits>
 
+#include "altai_stdp.h"
+
 
 namespace knp::backends::cpu::populations::impl::altai
 {

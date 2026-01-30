@@ -56,12 +56,38 @@ inline void impact_neuron_dispatch(
 
 
 /**
+ * @brief Impact neuron.
+ * @param neuron Neuron.
+ * @param impact Impact message.
+ * @param is_forcing Is impact forced.
+ */
+inline void impact_neuron_dispatch(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &neuron,
+    const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
+{
+    altai::impact_neuron_impl(neuron, impact, is_forcing);
+}
+
+
+/**
  * @brief Calculate post impact state of single neuron.
  * @param neuron Neuron.
  * @return Should neuron produce spike or should not.
  */
 inline bool calculate_post_impact_single_neuron_state_dispatch(
     knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron)
+{
+    return altai::calculate_post_impact_single_neuron_state_impl(neuron);
+}
+
+
+/**
+ * @brief Calculate post impact state of single neuron.
+ * @param neuron Neuron.
+ * @return Should neuron produce spike or should not.
+ */
+inline bool calculate_post_impact_single_neuron_state_dispatch(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &neuron)
 {
     return altai::calculate_post_impact_single_neuron_state_impl(neuron);
 }
@@ -95,6 +121,23 @@ inline void train_population_dispatch(
         &projections,
     const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
 {
+}
+
+
+/**
+ * @brief Train population.
+ * @param population Population.
+ * @param projections Connected projections.
+ * @param message Spiking neurons in population at current step.
+ * @param step Step.
+ */
+inline void train_population_dispatch(
+    knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &population,
+    std::vector<std::reference_wrapper<knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>>
+        &projections,
+    const knp::core::messaging::SpikeMessage &message, knp::core::Step step)
+{
+    altai::train_population_impl(population, projections, message, step);
 }
 
 }  //namespace knp::backends::cpu::populations::impl
