@@ -241,6 +241,17 @@ std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate
 }
 
 
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    core::Population<neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &population)
+{
+    SPDLOG_TRACE(
+        "Calculate resource-based STDP-compatible AltAI-LIF population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_resource_stdp_population<
+        neuron_traits::AltAILIF, synapse_traits::DeltaSynapse, ProjectionContainer>(
+        population, projections_, get_message_endpoint(), get_step());
+}
+
+
 void SingleThreadedCPUBackend::calculate_projection(
     knp::core::Projection<knp::synapse_traits::DeltaSynapse> &projection, SynapticMessageQueue &message_queue)
 {

@@ -42,6 +42,17 @@ inline void calculate_pre_impact_single_neuron_state_dispatch(
 
 
 /**
+ * @brief Calculate pre impact state of single neuron.
+ * @param neuron Neuron.
+ */
+inline void calculate_pre_impact_single_neuron_state_dispatch(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &neuron)
+{
+    altai::calculate_pre_impact_single_neuron_state_impl(neuron);
+}
+
+
+/**
  * @brief Impact neuron.
  * @param neuron Neuron.
  * @param impact Impact message.
