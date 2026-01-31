@@ -120,6 +120,11 @@ struct default_values<AltAILIF>
     constexpr static uint16_t potential_reset_value_ = 0;
 
     /**
+     * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
+     */
+    constexpr static double dopamine_value_ = 0.0;
+
+    /**
      * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
      * @note Current threshold value is composed from two parameters: static value, and dynamic value.
      */
@@ -290,6 +295,11 @@ struct neuron_parameters<AltAILIF>
      * @endcode
      */
     uint16_t potential_reset_value_ = default_values<AltAILIF>::potential_reset_value_;
+
+    /**
+     * @brief The parameter defines a dopamine value used to sum up all incoming dopamine synapse impacts.
+     */
+    double dopamine_value_ = default_values<AltAILIF>::dopamine_value_;
 
     /**
      * @brief The parameter is used for mechanisms that are implemented in specific neuron types.
