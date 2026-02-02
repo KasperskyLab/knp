@@ -42,16 +42,4 @@ void Dataset::split(size_t frames_for_training, size_t frames_for_inference)
     frames_amount_for_inference_ = frames_for_inference;
 }
 
-auto Dataset::get_data_for_training() const -> std::span<const NamedFrame>
-{
-    return {dataset_.begin(), dataset_.begin() + frames_amount_for_training_};
-}
-
-auto Dataset::get_data_for_inference() const -> std::span<const NamedFrame>
-{
-    return {
-        dataset_.begin() + frames_amount_for_training_,
-        dataset_.begin() + frames_amount_for_training_ + frames_amount_for_inference_};
-}
-
 }  // namespace knp::framework::data_processing::classification

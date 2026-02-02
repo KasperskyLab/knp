@@ -90,7 +90,7 @@ std::vector<InferenceResult> EvaluationHelper::process_inference_predictions() c
     for (size_t i = 0; i < predictions_.size(); ++i)
     {
         auto const &prediction = predictions_[i];
-        auto const &cur_data = dataset_.get_data_for_inference()[i];
+        auto const &cur_data = dataset_.get_data_for_inference().first[i];
 
         if (!prediction.votes_)
             ++prediction_results[cur_data.first].false_negatives_;

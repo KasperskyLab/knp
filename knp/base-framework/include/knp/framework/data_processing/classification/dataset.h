@@ -25,7 +25,6 @@
 #include <knp/core/impexp.h>
 #include <knp/core/messaging/messaging.h>
 
-#include <span>
 #include <utility>
 #include <vector>
 
@@ -132,15 +131,23 @@ public:
 
     /**
      * @brief Get training data, consisting of pairs of labels and frames.
-     * @return constant span to training data.
+     * @return Pair of iterators pointing to training data.
      */
-    [[nodiscard]] std::span<const NamedFrame> get_data_for_training() const;
+    [[nodiscard]] auto get_data_for_training() const
+    {
+        return std::pair(dataset_.begin(), dataset_.begin() + frames_amount_for_training_);
+    }
 
     /**
      * @brief Get inference data, consisting of pairs of labels and frames.
-     * @return constant span to inference data.
+     * @return Pair of iterators pointing to inference data.
      */
-    [[nodiscard]] std::span<const NamedFrame> get_data_for_inference() const;
+    [[nodiscard]] auto get_data_for_inference() const
+    {
+        return std::pair(
+            dataset_.begin() + frames_amount_for_training_,
+            dataset_.begin() + frames_amount_for_training_ + frames_amount_for_inference_);
+    }
 
     /**
      * @brief Get the number of steps each frame is distributed to.
