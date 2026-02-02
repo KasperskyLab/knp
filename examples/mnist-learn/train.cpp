@@ -163,7 +163,7 @@ AnnotatedNetwork train_mnist_network(
         [&dataset](size_t step)
         {
             if (step % 20 == 0) std::cout << "Step: " << step << std::endl;
-            return step != dataset.get_steps_required_for_training();
+            return step != dataset.get_steps_amount_for_training();
         });
 
     std::cout << get_time_string() << ": learning finished\n";

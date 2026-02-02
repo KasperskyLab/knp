@@ -66,12 +66,12 @@ int main(int argc, char** argv)
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306364
     data_processing::Dataset dataset;
     dataset.process_labels_and_images(
-        images_stream, labels_stream, images_amount_to_train, classes_amount, input_size, steps_per_image,
-        dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
+        images_stream, labels_stream, images_amount_to_train + images_amount_to_test, classes_amount, input_size,
+        steps_per_image, dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
     dataset.split(images_amount_to_train, images_amount_to_test);
 
-    std::cout << "Processed dataset, training will last " << dataset.get_steps_required_for_training()
-              << " steps, inference " << dataset.get_steps_required_for_inference() << " steps" << std::endl;
+    std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
+              << " steps, inference " << dataset.get_steps_amount_for_training() << " steps" << std::endl;
 
     // Construct network and run training.
     AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);

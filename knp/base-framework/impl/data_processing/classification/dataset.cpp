@@ -29,22 +29,29 @@ namespace knp::framework::data_processing::classification
 
 void Dataset::split(size_t frames_for_training, size_t frames_for_inference)
 {
-    if (data_for_training_.size() < frames_for_inference + frames_for_training)
+    if (dataset_.size() < frames_for_inference + frames_for_training)
     {
         SPDLOG_ERROR(
             "Incorrect split size. Dataset is too small. Required {} frames for training, and {} frames for inference, "
-            "while dataset only has {} frames.",
-            frames_for_training, frames_for_training, data_for_training_.size());
+            "while dataset only have {} frames.",
+            frames_for_training, frames_for_inference, dataset_.size());
         throw std::runtime_error("Dataset is too small.");
     }
 
-    data_for_inference_.insert(
-        data_for_inference_.begin(), data_for_training_.begin() + frames_for_training,
-        data_for_training_.begin() + frames_for_training + frames_for_inference);
-    data_for_training_.resize(frames_for_training);
+    frames_amount_for_training_ = frames_for_training;
+    frames_amount_for_inference_ = frames_for_inference;
+}
 
-    steps_required_for_training_ = steps_per_frame_ * data_for_training_.size();
-    steps_required_for_inference_ = steps_per_frame_ * data_for_inference_.size();
+auto Dataset::get_data_for_training() const -> std::span<const NamedFrame>
+{
+    return {dataset_.begin(), dataset_.begin() + frames_amount_for_training_};
+}
+
+auto Dataset::get_data_for_inference() const -> std::span<const NamedFrame>
+{
+    return {
+        dataset_.begin() + frames_amount_for_training_,
+        dataset_.begin() + frames_amount_for_training_ + frames_amount_for_inference_};
 }
 
 }  // namespace knp::framework::data_processing::classification

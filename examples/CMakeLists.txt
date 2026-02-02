@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.25)
 include(GNUInstallDirs)
 include(knp-functions)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(save-load-networks)
 add_subdirectory(simple-network)

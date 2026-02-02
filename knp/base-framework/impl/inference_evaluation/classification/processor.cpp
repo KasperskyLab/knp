@@ -118,7 +118,7 @@ void InferenceResultsProcessor::process_inference_results(
     knp::core::messaging::SpikeData firing_neuron_indices;
     auto spikes_iter = spikes.begin();
 
-    for (size_t step = 0; step < dataset.get_steps_required_for_inference(); ++step)
+    for (size_t step = 0; step < dataset.get_steps_amount_for_inference(); ++step)
     {
         while (spikes_iter != spikes.end() && spikes_iter->header_.send_time_ == step)
         {
