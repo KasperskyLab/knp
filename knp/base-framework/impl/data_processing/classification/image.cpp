@@ -65,7 +65,6 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> Dataset::make_tr
         const size_t looped_frame_index = frame_index % frames_amount_for_training_;
 
         message.push_back(dataset_[looped_frame_index].first);
-        std::cout << "image label: step " << step << '\n' << *message.rbegin() << std::endl;
         return message;
     };
 }
