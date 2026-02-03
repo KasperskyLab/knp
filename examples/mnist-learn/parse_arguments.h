@@ -1,10 +1,10 @@
 /**
- * @file time_string.cpp
- * @brief Function for converting time to string.
+ * @file parse_arguments.h
+ * @brief Parsing of command line arguments.
  * @kaspersky_support D. Postnikov
- * @date 28.03.2025
+ * @date 03.02.2026
  * @license Apache 2.0
- * @copyright © 2025 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,11 @@
  * limitations under the License.
  */
 
-#include "time_string.h"
+#pragma once
 
-#include <chrono>
+#include <optional>
+
+#include "model_desc.h"
 
 
-std::string get_time_string()
-{
-    auto time_now = std::chrono::system_clock::now();
-    std::time_t c_time = std::chrono::system_clock::to_time_t(time_now);
-    std::string result(std::ctime(&c_time));
-    return result;
-}
+std::optional<ModelDescription> parse_arguments(int argc, char** argv);

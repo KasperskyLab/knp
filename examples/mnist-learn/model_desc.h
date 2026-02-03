@@ -1,10 +1,10 @@
 /**
- * @file time_string.h
- * @brief Function for converting time to string.
+ * @file model_desc.h
+ * @brief Model description.
  * @kaspersky_support D. Postnikov
- * @date 28.03.2025
+ * @date 03.02.2026
  * @license Apache 2.0
- * @copyright © 2025 AO Kaspersky Lab
+ * @copyright © 2024-2025 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,24 @@
  */
 
 #pragma once
-#include <string>
+
+#include <filesystem>
 
 
-/**
- * @brief Converts current time to a string.
- * @return time string.
- */
-std::string get_time_string();
+enum class SupportedModelType
+{
+    BLIFAT,
+    AltAI
+};
+
+
+struct ModelDescription
+{
+    // cppcheck-suppress unusedStructMember
+    SupportedModelType type_;
+    // cppcheck-suppress unusedStructMember
+    size_t train_images_amount_, inference_images_amount_;
+    std::filesystem::path images_file_path_, labels_file_path_;
+};
+
+std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
