@@ -40,6 +40,19 @@ inline void calculate_pre_impact_single_neuron_state_impl(
 }
 
 
+inline void calculate_pre_impact_single_neuron_state_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &neuron)
+{
+    neuron.potential_ =
+        neuron.do_not_save_ ? static_cast<float>(neuron.potential_reset_value_) : std::round(neuron.potential_);
+
+    neuron.dopamine_value_ = 0.0;
+    neuron.is_being_forced_ = false;
+
+    neuron.pre_impact_potential_ = neuron.potential_;
+}
+
+
 inline void impact_neuron_impl(
     knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &neuron,
     const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
@@ -52,6 +65,9 @@ inline void impact_neuron_impl(
         case knp::synapse_traits::OutputType::INHIBITORY_CURRENT:
             neuron.potential_ -= impact.impact_value_;
             break;
+        case knp::synapse_traits::OutputType::DOPAMINE:
+            neuron.dopamine_value_ += impact.impact_value_;
+            break;
         case knp::synapse_traits::OutputType::BLOCKING:
             if (std::signbit(neuron.activity_time_) != std::signbit(impact.impact_value_) ||
                 std::abs(neuron.activity_time_) <= std::abs(impact.impact_value_))
@@ -60,6 +76,19 @@ inline void impact_neuron_impl(
         default:
             SPDLOG_ERROR("Unhandled synapse type.");
             throw std::runtime_error("Unhandled synapse type.");
+    }
+}
+
+
+inline void impact_neuron_impl(
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron> &neuron,
+    const knp::core::messaging::SynapticImpact &impact, bool is_forcing)
+{
+    impact_neuron_impl(
+        static_cast<knp::neuron_traits::neuron_parameters<knp::neuron_traits::AltAILIF> &>(neuron), impact, is_forcing);
+    if (impact.synapse_type_ == synapse_traits::OutputType::EXCITATORY)
+    {
+        neuron.is_being_forced_ |= is_forcing;
     }
 }
 
