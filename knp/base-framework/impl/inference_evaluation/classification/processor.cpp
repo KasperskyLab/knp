@@ -90,7 +90,7 @@ std::vector<InferenceResult> EvaluationHelper::process_inference_predictions() c
     for (size_t i = 0; i < predictions_.size(); ++i)
     {
         auto const &prediction = predictions_[i];
-        auto const &cur_data = dataset_.get_data_for_inference()[i];
+        auto const &cur_data = dataset_.get_data_for_inference().first[i];
 
         if (!prediction.votes_)
             ++prediction_results[cur_data.first].false_negatives_;
@@ -118,7 +118,7 @@ void InferenceResultsProcessor::process_inference_results(
     knp::core::messaging::SpikeData firing_neuron_indices;
     auto spikes_iter = spikes.begin();
 
-    for (size_t step = 0; step < dataset.get_steps_required_for_inference(); ++step)
+    for (size_t step = 0; step < dataset.get_steps_amount_for_inference(); ++step)
     {
         while (spikes_iter != spikes.end() && spikes_iter->header_.send_time_ == step)
         {

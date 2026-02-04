@@ -86,5 +86,3 @@ if (PVS_BINARY)
 else()
     message(WARNING "PVS analyzer was not found, static analysis with PVS Studio disabled.")
 endif()
-
-
