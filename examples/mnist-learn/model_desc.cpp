@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
     stream << "Images file path: " << desc.images_file_path_ << "\n";
     stream << "Labels file path: " << desc.labels_file_path_ << "\n";
 
-    stream << std::flush;
+    stream << "Backend path: " << desc.backend_path_ << "\n";
 
     return stream;
 }

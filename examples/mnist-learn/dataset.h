@@ -1,6 +1,6 @@
 /**
- * @file model_desc.h
- * @brief Model description.
+ * @file dataset.h
+ * @brief Process dataset.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0
@@ -21,23 +21,11 @@
 
 #pragma once
 
-#include <filesystem>
+#include <knp/framework/data_processing/classification/image.h>
+
+#include "model_desc.h"
 
 
-enum class SupportedModelType
-{
-    BLIFAT,
-    AltAI
-};
+using Dataset = knp::framework::data_processing::classification::images::Dataset;
 
-
-struct ModelDescription
-{
-    // cppcheck-suppress unusedStructMember
-    SupportedModelType type_;
-    // cppcheck-suppress unusedStructMember
-    size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_;
-};
-
-std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
+Dataset process_dataset(ModelDescription const& model_desc);

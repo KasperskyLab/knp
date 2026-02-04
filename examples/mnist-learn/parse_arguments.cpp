@@ -37,7 +37,8 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "train_iters,t", po::value<size_t>()->default_value(60000), "amount of images for training")(
         "inference_iters,i", po::value<size_t>()->default_value(10000), "amount of images for inference")(
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
-        "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file");
+        "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
+        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -116,6 +117,17 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     else
     {
         std::cout << "Labels path not specified." << std::endl;
+        std::cout << desc << std::endl;
+        return std::nullopt;
+    }
+
+    if (vm.count("backend"))
+    {
+        model_desc.backend_path_ = vm["backend"].as<std::string>();
+    }
+    else
+    {
+        std::cout << "Backend path not specified." << std::endl;
         std::cout << desc << std::endl;
         return std::nullopt;
     }

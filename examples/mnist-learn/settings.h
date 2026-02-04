@@ -1,6 +1,6 @@
 /**
- * @file model_desc.h
- * @brief Model description.
+ * @file settings.h
+ * @brief Global settings.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0
@@ -21,23 +21,11 @@
 
 #pragma once
 
-#include <filesystem>
+#include <cstddef>
 
-
-enum class SupportedModelType
-{
-    BLIFAT,
-    AltAI
-};
-
-
-struct ModelDescription
-{
-    // cppcheck-suppress unusedStructMember
-    SupportedModelType type_;
-    // cppcheck-suppress unusedStructMember
-    size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_;
-};
-
-std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
+constexpr size_t classes_amount = 10;
+constexpr size_t input_size = 28 * 28;
+constexpr size_t steps_per_image = 15;
+constexpr size_t active_steps = 10;
+constexpr size_t wta_winners_amount = 1;
+constexpr float state_increment_factor = 1 / 255.f;

@@ -1,10 +1,10 @@
 /**
- * @file model_desc.h
- * @brief Model description.
+ * @file construct_network.h
+ * @brief BLIFAT specific network construction.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0
- * @copyright © 2024-2025 AO Kaspersky Lab
+ * @copyright © 2024 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,8 @@
 
 #pragma once
 
-#include <filesystem>
+#include "annotated_network.h"
+#include "model_desc.h"
 
 
-enum class SupportedModelType
-{
-    BLIFAT,
-    AltAI
-};
-
-
-struct ModelDescription
-{
-    // cppcheck-suppress unusedStructMember
-    SupportedModelType type_;
-    // cppcheck-suppress unusedStructMember
-    size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_;
-};
-
-std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
+AnnotatedNetwork construct_network_blifat(const ModelDescription& model_desc);

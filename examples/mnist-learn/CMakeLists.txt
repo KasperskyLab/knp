@@ -27,5 +27,13 @@ endif()
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS program_options REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp model_desc.cpp parse_arguments.cpp)
+add_executable(${PROJECT_NAME}
+    main.cpp
+    model_desc.cpp
+    parse_arguments.cpp
+    model.cpp
+    dataset.cpp
+    models/blifat/construct_network.cpp
+    models/altai/construct_network.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE KNP::BaseFramework::Core Boost::program_options)
