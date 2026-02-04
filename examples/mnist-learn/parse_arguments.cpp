@@ -40,7 +40,10 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
         "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend")(
         "log_path", po::value<std::string>()->default_value(""),
-        "path for putting logs. if no path is specified, no logs will be produced.");
+        "path for putting logs. if no path is specified, no logs will be produced.")(
+        "model_path", po::value<std::string>()->default_value(""),
+        "path for saving trained model. if no path is specified, model wont be saved.");
+
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -132,6 +135,24 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         std::cout << "Backend path not specified." << std::endl;
         std::cout << desc << std::endl;
         return std::nullopt;
+    }
+
+    if (vm.count("log_path"))
+    {
+        model_desc.log_path_ = vm["log_path"].as<std::string>();
+    }
+    else
+    {
+        model_desc.log_path_ = "";
+    }
+
+    if (vm.count("model_path"))
+    {
+        model_desc.model_saving_path_ = vm["model_path"].as<std::string>();
+    }
+    else
+    {
+        model_desc.model_saving_path_ = "";
     }
 
     return model_desc;

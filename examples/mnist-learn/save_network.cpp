@@ -1,10 +1,10 @@
 /**
- * @file model_desc.h
- * @brief Model description.
+ * @file save_network.cpp
+ * @brief Function for saving network.
  * @kaspersky_support D. Postnikov
- * @date 03.02.2026
+ * @date 04.02.2026
  * @license Apache 2.0
- * @copyright © 2024-2025 AO Kaspersky Lab
+ * @copyright © 2024 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,15 @@
 
 #pragma once
 
-#include <filesystem>
+#include "save_network.h"
+
+#include <knp/framework/sonata/network_io.h>
 
 
-enum class SupportedModelType
+void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
 {
-    BLIFAT,
-    AltAI
-};
+    if (model_desc.model_saving_path_.empty()) return;
 
-
-struct ModelDescription
-{
-    // cppcheck-suppress unusedStructMember
-    SupportedModelType type_;
-    // cppcheck-suppress unusedStructMember
-    size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_, log_path_, model_saving_path_;
-};
-
-std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
+    std::filesystem::create_directory(model_desc.model_saving_path_);
+    knp::framework::sonata::save_network(network.network_, model_desc.model_saving_path_);
+}

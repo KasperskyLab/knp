@@ -26,13 +26,14 @@
 #include "dataset.h"
 #include "model.h"
 #include "parse_arguments.h"
+#include "save_network.h"
 
 
 int main(int argc, char** argv)
 {
     std::optional<ModelDescription> model_desc_opt = parse_arguments(argc, argv);
     if (!model_desc_opt.has_value()) return EXIT_FAILURE;
-    ModelDescription& model_desc = model_desc_opt.value();
+    const ModelDescription& model_desc = model_desc_opt.value();
 
     std::cout << "Starting model:\n" << model_desc << std::endl;
 
@@ -42,7 +43,11 @@ int main(int argc, char** argv)
               << std::endl;
 
     AnnotatedNetwork network = construct_network(model_desc);
+
     train_network(network, model_desc, dataset);
+
+    save_network(model_desc, network);
+
     auto inference_spikes = run_inference_on_network(network, model_desc, dataset);
 
     // Evaluate results.

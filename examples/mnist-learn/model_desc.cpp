@@ -45,7 +45,15 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
 
     stream << "Backend path: " << desc.backend_path_ << "\n";
 
-    stream << "Log path: " << desc.log_path_ << "\n";
+    if (desc.log_path_.empty())
+        stream << "Logs wont be saved.\n";
+    else
+        stream << "Log path: " << desc.log_path_ << "\n";
+
+    if (desc.model_saving_path_.empty())
+        stream << "Model wont be saved.\n";
+    else
+        stream << "Model saving path: " << desc.model_saving_path_ << "\n";
 
     return stream;
 }
