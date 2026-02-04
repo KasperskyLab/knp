@@ -21,11 +21,14 @@
 
 #include <iostream>
 
+#include "construct_network.h"
 #include "dataset.h"
 #include "evaluate_results.h"
-#include "model.h"
+#include "finalize_network.h"
 #include "parse_arguments.h"
+#include "run_inference_on_network.h"
 #include "save_network.h"
+#include "train_network.h"
 
 
 int main(int argc, char** argv)

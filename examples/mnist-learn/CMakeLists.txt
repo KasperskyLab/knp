@@ -31,7 +31,10 @@ add_executable(${PROJECT_NAME}
     main.cpp
     model_desc.cpp
     parse_arguments.cpp
-    model.cpp
+    construct_network.cpp
+    train_network.cpp
+    finalize_network.cpp
+    run_inference_on_network.cpp
     dataset.cpp
     evaluate_results.cpp
     save_network.cpp
