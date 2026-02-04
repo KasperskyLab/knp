@@ -20,8 +20,9 @@
  */
 
 #pragma once
-#include "annotated_network.h"
-#include "model_desc.h"
+
+#include <annotated_network.h>
+#include <model_desc.h>
 
 
 void finalize_network_blifat(AnnotatedNetwork& network, const ModelDescription& model_desc);

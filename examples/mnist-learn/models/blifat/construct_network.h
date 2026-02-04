@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "annotated_network.h"
-#include "model_desc.h"
+#include <annotated_network.h>
+#include <model_desc.h>
 
 
 AnnotatedNetwork construct_network_blifat(const ModelDescription& model_desc);
