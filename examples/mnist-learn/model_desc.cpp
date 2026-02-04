@@ -45,5 +45,7 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
 
     stream << "Backend path: " << desc.backend_path_ << "\n";
 
+    stream << "Log path: " << desc.log_path_ << "\n";
+
     return stream;
 }

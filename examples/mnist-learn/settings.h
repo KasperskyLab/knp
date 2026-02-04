@@ -29,3 +29,5 @@ constexpr size_t steps_per_image = 15;
 constexpr size_t active_steps = 10;
 constexpr size_t wta_winners_amount = 1;
 constexpr float state_increment_factor = 1 / 255.f;
+constexpr size_t aggregated_spikes_logging_period = 4e3;
+constexpr size_t projection_weights_logging_period = 1e5;

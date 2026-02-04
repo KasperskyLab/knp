@@ -137,26 +137,24 @@ void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc
     // knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
     knp::framework::monitoring::model::add_spikes_logger(model_executor, pop_names, std::cout);
 
-    /*
     // All loggers go here
-    if (!log_path.empty())
+    if (!model_desc.log_path_.empty())
     {
-        log_stream.open(log_path / "spikes_training.csv", std::ofstream::out);
+        log_stream.open(model_desc.log_path_ / "spikes_training.csv", std::ofstream::out);
         if (log_stream.is_open())
             knp::framework::monitoring::model::add_aggregated_spikes_logger(
                 model, pop_names, model_executor, spike_accumulator, log_stream, aggregated_spikes_logging_period);
         else
-            std::cout << "Couldn't open spikes_training.csv at " << log_path << std::endl;
+            std::cout << "Couldn't open spikes_training.csv at " << model_desc.log_path_ << std::endl;
 
-        weight_stream.open(log_path / "weights.log", std::ofstream::out);
+        weight_stream.open(model_desc.log_path_ / "weights.log", std::ofstream::out);
         if (weight_stream.is_open())
             knp::framework::monitoring::model::add_projection_weights_logger(
-                weight_stream, model_executor, example_network.data_.projections_from_raster_[0],
+                weight_stream, model_executor, network.data_.projections_from_raster_[0],
                 projection_weights_logging_period);
         else
-            std::cout << "Couldn't open weights.csv at " << log_path << std::endl;
+            std::cout << "Couldn't open weights.csv at " << model_desc.log_path_ << std::endl;
     }
-    */
 
     model_executor.start(
         [&dataset](size_t step)
@@ -245,9 +243,9 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
             model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
     }
 
-    /*
     auto pop_names = network.data_.population_names_;
 
+    /*
     // Change names for WTA populations.
     {
         for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
@@ -256,19 +254,17 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
     }
     */
 
-    /*
     // All loggers go here
-    if (!log_path.empty())
+    if (!model_desc.log_path_.empty())
     {
-        log_stream.open(log_path / "spikes_inference.csv", std::ofstream::out);
-        if (!log_stream.is_open()) std::cout << "Couldn't open log file : " << log_path << std::endl;
+        log_stream.open(model_desc.log_path_ / "spikes_inference.csv", std::ofstream::out);
+        if (!log_stream.is_open()) std::cout << "Couldn't open log file : " << model_desc.log_path_ << std::endl;
     }
     if (log_stream.is_open())
     {
         knp::framework::monitoring::model::add_aggregated_spikes_logger(
             model, pop_names, model_executor, spike_accumulator, log_stream, aggregated_spikes_logging_period);
     }
-    */
 
     // Start model.
     model_executor.start(

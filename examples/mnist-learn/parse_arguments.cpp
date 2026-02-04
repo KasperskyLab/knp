@@ -38,7 +38,9 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "inference_iters,i", po::value<size_t>()->default_value(10000), "amount of images for inference")(
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
-        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend");
+        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend")(
+        "log_path", po::value<std::string>()->default_value(""),
+        "path for putting logs. if no path is specified, no logs will be produced.");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);

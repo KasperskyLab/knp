@@ -37,7 +37,7 @@ struct ModelDescription
     SupportedModelType type_;
     // cppcheck-suppress unusedStructMember
     size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_;
+    std::filesystem::path images_file_path_, labels_file_path_, backend_path_, log_path_;
 };
 
 std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);
