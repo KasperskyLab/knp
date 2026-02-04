@@ -33,7 +33,9 @@
 #include <vector>
 
 #include "models/altai/construct_network.h"
+#include "models/altai/finalize_network.h"
 #include "models/blifat/construct_network.h"
+#include "models/blifat/finalize_network.h"
 #include "settings.h"
 
 
@@ -192,6 +194,26 @@ void strip_network_for_inference(
         if (network.data_.inference_internal_projection_.find(proj_uid) !=
             network.data_.inference_internal_projection_.end())
             network.network_.add_projection(std::move(projection));
+    }
+}
+
+
+void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc)
+{
+    switch (model_desc.type_)
+    {
+        case SupportedModelType::BLIFAT:
+        {
+            finalize_network_blifat(network, model_desc);
+            break;
+        }
+        case SupportedModelType::AltAI:
+        {
+            finalize_network_altai(network, model_desc);
+            break;
+        }
+        default:
+            throw std::runtime_error("Unknown model type.");
     }
 }
 

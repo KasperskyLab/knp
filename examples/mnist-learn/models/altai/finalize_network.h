@@ -1,8 +1,8 @@
 /**
- * @file model.h
- * @brief Everything you need to work with model.
+ * @file finalize_network.h
+ * @brief Function for finalizing network after training.
  * @kaspersky_support D. Postnikov
- * @date 03.02.2026
+ * @date 04.02.2026
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
@@ -20,25 +20,8 @@
  */
 
 #pragma once
-
-#include <vector>
-
 #include "annotated_network.h"
-#include "dataset.h"
+#include "model_desc.h"
 
 
-AnnotatedNetwork construct_network(const ModelDescription& model_desc);
-
-
-void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset);
-
-
-void strip_network_for_inference(
-    const knp::core::Backend& backend, AnnotatedNetwork& network, const ModelDescription& model_desc);
-
-
-void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc);
-
-
-std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
-    AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset);
+void finalize_network_altai(AnnotatedNetwork& network, const ModelDescription& model_desc);

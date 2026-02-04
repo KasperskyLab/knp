@@ -36,6 +36,8 @@ add_executable(${PROJECT_NAME}
     evaluate_results.cpp
     save_network.cpp
     models/blifat/construct_network.cpp
-    models/altai/construct_network.cpp)
+    models/blifat/finalize_network.cpp
+    models/altai/construct_network.cpp
+    models/altai/finalize_network.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE KNP::BaseFramework::Core Boost::program_options)

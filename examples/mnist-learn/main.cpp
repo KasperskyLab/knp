@@ -42,6 +42,8 @@ int main(int argc, char** argv)
 
     train_network(network, model_desc, dataset);
 
+    finalize_network(network, model_desc);
+
     save_network(model_desc, network);
 
     auto inference_spikes = run_inference_on_network(network, model_desc, dataset);
