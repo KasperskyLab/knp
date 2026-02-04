@@ -1,6 +1,6 @@
 /**
- * @file save_network.cpp
- * @brief Function for saving network.
+ * @file evaluate_results.h
+ * @brief Function for evaluating inference results.
  * @kaspersky_support D. Postnikov
  * @date 04.02.2026
  * @license Apache 2.0
@@ -19,15 +19,11 @@
  * limitations under the License.
  */
 
-#include "save_network.h"
+#pragma once
 
-#include <knp/framework/sonata/network_io.h>
+#include <vector>
+
+#include "dataset.h"
 
 
-void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
-{
-    if (model_desc.model_saving_path_.empty()) return;
-
-    std::filesystem::create_directory(model_desc.model_saving_path_);
-    knp::framework::sonata::save_network(network.network_, model_desc.model_saving_path_);
-}
+void evaluate_results(const std::vector<knp::core::messaging::SpikeMessage>& inference_spikes, const Dataset& dataset);

@@ -33,6 +33,8 @@ add_executable(${PROJECT_NAME}
     parse_arguments.cpp
     model.cpp
     dataset.cpp
+    evaluate_results.cpp
+    save_network.cpp
     models/blifat/construct_network.cpp
     models/altai/construct_network.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})

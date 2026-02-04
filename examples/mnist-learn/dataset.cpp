@@ -38,5 +38,10 @@ Dataset process_dataset(ModelDescription const& model_desc)
         dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
     dataset.split(model_desc.train_images_amount_, model_desc.inference_images_amount_);
 
+    std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
+              << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps\n"
+              << std::endl;
+
+
     return dataset;
 }

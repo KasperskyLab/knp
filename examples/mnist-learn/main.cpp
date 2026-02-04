@@ -19,11 +19,10 @@
  * limitations under the License.
  */
 
-#include <knp/framework/inference_evaluation/classification/processor.h>
-
 #include <iostream>
 
 #include "dataset.h"
+#include "evaluate_results.h"
 #include "model.h"
 #include "parse_arguments.h"
 #include "save_network.h"
@@ -38,9 +37,6 @@ int main(int argc, char** argv)
     std::cout << "Starting model:\n" << model_desc << std::endl;
 
     Dataset dataset = process_dataset(model_desc);
-    std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
-              << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps\n"
-              << std::endl;
 
     AnnotatedNetwork network = construct_network(model_desc);
 
@@ -50,10 +46,7 @@ int main(int argc, char** argv)
 
     auto inference_spikes = run_inference_on_network(network, model_desc, dataset);
 
-    // Evaluate results.
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306417
-    knp::framework::inference_evaluation::classification::InferenceResultsProcessor inference_processor;
-    inference_processor.process_inference_results(inference_spikes, dataset);
+    evaluate_results(inference_spikes, dataset);
 
-    inference_processor.write_inference_results_to_stream_as_csv(std::cout);
+    return EXIT_SUCCESS;
 }
