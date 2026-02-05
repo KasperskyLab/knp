@@ -1,6 +1,6 @@
 /**
- * @file spike_generators.h
- * @brief Functions creating specific spikes generators.
+ * @file spikes_generators.h
+ * @brief Functions for creating specific spikes generators.
  * @kaspersky_support D. Postnikov
  * @date 05.02.2026
  * @license Apache 2.0
@@ -22,15 +22,19 @@
 #pragma once
 
 #include <dataset.h>
+#include <models/spike_generators.h>
 
 
-std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_images_spike_generator_blifat(
-    const Dataset& dataset);
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
 
 
-std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_labels_spike_generator_blifat(
-    const Dataset& dataset);
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
 
 
-std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_inference_images_spike_generator_blifat(
-    const Dataset& dataset);
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_inference_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);

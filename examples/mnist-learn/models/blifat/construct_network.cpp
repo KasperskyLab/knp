@@ -44,9 +44,9 @@ using ResourceNeuron = knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron;
 using ResourceNeuronData = knp::neuron_traits::neuron_parameters<ResourceNeuron>;
 
 
-// Create network for MNIST.
 // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
-AnnotatedNetwork construct_network_blifat(const ModelDescription &model_desc)
+template <>
+AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription &model_desc)
 {
     AnnotatedNetwork result;
 

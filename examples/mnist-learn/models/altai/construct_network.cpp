@@ -43,8 +43,8 @@ using ResourceNeuron = knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron;
 using ResourceNeuronData = knp::neuron_traits::neuron_parameters<ResourceNeuron>;
 
 
-// Create network for MNIST.
-AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
+template <>
+AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDescription &model_desc)
 {
     AnnotatedNetwork result;
     NetworkConstructor constructor(result);

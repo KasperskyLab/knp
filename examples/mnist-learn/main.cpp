@@ -21,14 +21,33 @@
 
 #include <iostream>
 
-#include "construct_network.h"
 #include "dataset.h"
 #include "evaluate_results.h"
-#include "finalize_network.h"
+#include "models/construct_network.h"
+#include "models/finalize_network.h"
 #include "parse_arguments.h"
 #include "run_inference_on_network.h"
 #include "save_network.h"
 #include "train_network.h"
+
+
+template <typename Neuron>
+void run_model(const ModelDescription& model_desc)
+{
+    Dataset dataset = process_dataset(model_desc);
+
+    AnnotatedNetwork network = construct_network<Neuron>(model_desc);
+
+    train_network<Neuron>(network, model_desc, dataset);
+
+    finalize_network<Neuron>(network, model_desc);
+
+    save_network(model_desc, network);
+
+    auto inference_spikes = run_inference_on_network<Neuron>(network, model_desc, dataset);
+
+    evaluate_results(inference_spikes, dataset);
+}
 
 
 int main(int argc, char** argv)
@@ -39,19 +58,21 @@ int main(int argc, char** argv)
 
     std::cout << "Starting model:\n" << model_desc << std::endl;
 
-    Dataset dataset = process_dataset(model_desc);
-
-    AnnotatedNetwork network = construct_network(model_desc);
-
-    train_network(network, model_desc, dataset);
-
-    finalize_network(network, model_desc);
-
-    save_network(model_desc, network);
-
-    auto inference_spikes = run_inference_on_network(network, model_desc, dataset);
-
-    evaluate_results(inference_spikes, dataset);
+    switch (model_desc.type_)
+    {
+        case SupportedModelType::BLIFAT:
+        {
+            run_model<knp::neuron_traits::BLIFATNeuron>(model_desc);
+            break;
+        }
+        case SupportedModelType::AltAI:
+        {
+            run_model<knp::neuron_traits::AltAILIF>(model_desc);
+            break;
+        }
+        default:
+            throw std::runtime_error("Unknown model type.");
+    }
 
     return EXIT_SUCCESS;
 }

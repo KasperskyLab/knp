@@ -24,7 +24,8 @@
 #include <algorithm>
 
 
-void finalize_network_altai(AnnotatedNetwork& network, const ModelDescription& model_desc)
+template <>
+void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
     // Quantisize weights.
     for (auto proj = network.network_.begin_projections(); proj != network.network_.end_projections(); ++proj)

@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <annotated_network.h>
-#include <model_desc.h>
+#include <models/construct_network.h>
 
 
-AnnotatedNetwork construct_network_blifat(const ModelDescription& model_desc);
+template <>
+AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription& model_desc);

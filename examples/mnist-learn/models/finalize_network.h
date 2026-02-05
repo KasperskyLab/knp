@@ -1,8 +1,8 @@
 /**
- * @file finalize_network.cpp
- * @brief Function for finalizing trained network.
+ * @file finalize_network.h
+ * @brief Function for finalizing network after training.
  * @kaspersky_support D. Postnikov
- * @date 03.02.2026
+ * @date 05.02.2026
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
@@ -19,28 +19,20 @@
  * limitations under the License.
  */
 
+#pragma once
 
-#include "finalize_network.h"
+#include <knp/neuron-traits/all_traits.h>
 
-#include "models/altai/finalize_network.h"
-#include "models/blifat/finalize_network.h"
+#include <annotated_network.h>
+#include <model_desc.h>
 
 
+template <typename Neuron>
 void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
-    switch (model_desc.type_)
-    {
-        case SupportedModelType::BLIFAT:
-        {
-            finalize_network_blifat(network, model_desc);
-            break;
-        }
-        case SupportedModelType::AltAI:
-        {
-            finalize_network_altai(network, model_desc);
-            break;
-        }
-        default:
-            throw std::runtime_error("Unknown model type.");
-    }
+    throw std::runtime_error("Not supported neuron type.");
 }
+
+
+#include "altai/finalize_network.h"
+#include "blifat/finalize_network.h"

@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <annotated_network.h>
-#include <model_desc.h>
+#include <models/finalize_network.h>
 
 
-void finalize_network_altai(AnnotatedNetwork& network, const ModelDescription& model_desc);
+template <>
+void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc);

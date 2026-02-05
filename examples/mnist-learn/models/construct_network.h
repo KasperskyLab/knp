@@ -1,6 +1,6 @@
 /**
- * @file finalize_network.h
- * @brief Function for finalizing trained network.
+ * @file construct_network.h
+ * @brief Network construction.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0
@@ -21,8 +21,17 @@
 
 #pragma once
 
-#include "annotated_network.h"
-#include "model_desc.h"
+#include <knp/neuron-traits/all_traits.h>
+
+#include <annotated_network.h>
+#include <model_desc.h>
 
 
-void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc);
+template <typename Neuron>
+AnnotatedNetwork construct_network(const ModelDescription& model_desc)
+{
+    throw std::runtime_error("Not supported neuron type.");
+}
+
+#include "altai/construct_network.h"
+#include "blifat/construct_network.h"
