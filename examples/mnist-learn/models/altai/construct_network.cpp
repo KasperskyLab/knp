@@ -21,11 +21,11 @@
 
 #include "construct_network.h"
 
-#include <string>
-#include <utility>
-#include <vector>
+#include <models/shared/network_constructor.h>
+#include <models/shared/resource_from_weight.h>
 
-#include "models/shared/resource_from_weight.h"
+#include <string>
+
 #include "settings.h"
 
 
@@ -43,26 +43,14 @@ using ResourceNeuron = knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron;
 using ResourceNeuronData = knp::neuron_traits::neuron_parameters<ResourceNeuron>;
 
 
-// Intermediate population neurons.
-template <class Neuron>
-struct PopulationData
+// Create network for MNIST.
+AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
 {
-    size_t size_;
-    knp::neuron_traits::neuron_parameters<Neuron> neuron_;
-};
+    AnnotatedNetwork result;
+    NetworkConstructor constructor(result);
 
+    for (size_t i = 0; i < classes_amount; ++i) result.data_.wta_borders_.push_back(neurons_per_column * (i + 1));
 
-enum PopIndexes
-{
-    L,
-    OUT,
-    BIAS
-};
-
-
-// Add populations to the network.
-static auto add_subnetwork_populations(AnnotatedNetwork &result)
-{
     ResourceNeuronData default_neuron;
     default_neuron.activation_threshold_ = 8531;
     ResourceNeuronData l_neuron = default_neuron;
@@ -80,57 +68,24 @@ static auto add_subnetwork_populations(AnnotatedNetwork &result)
     // silent synapses
     l_neuron.resource_drain_coefficient_ = 27;
 
-    // chartime * hebbian_plasticity_chartime_ratio
-    // l_neuron.dopamine_plasticity_time_ = 3 * 2.72f;
-
     // threshold_excess_weight_dependent
     l_neuron.synapse_sum_threshold_coefficient_ = 0.217654;
 
-    struct PopulationRole
-    {
-        PopulationData<ResourceNeuron> pd_;
-        bool for_inference_;
-        bool output_;
-        std::string name_;
-    };
 
-    //
-    std::vector<PopulationRole> pop_data{
-        {{classes_amount * neurons_per_column, l_neuron}, true, false, "L"},
-        {{classes_amount, default_neuron}, true, true, "OUT"},
-        {{classes_amount, default_neuron}, false, false, "BIAS"}};
+    const auto &input_pop = constructor.add_population(
+        l_neuron, classes_amount * neurons_per_column, NetworkConstructor::INPUT, true, "INPUT");
+    const auto &output_pop =
+        constructor.add_population(default_neuron, classes_amount, NetworkConstructor::OUTPUT, true, "OUTPUT");
+    const auto &gate_pop =
+        constructor.add_population(default_neuron, classes_amount, NetworkConstructor::NORMAL, false, "GATE");
+    const auto &raster_pop = constructor.add_channeled_population(input_size, true);
+    const auto &target_pop = constructor.add_channeled_population(classes_amount, false);
 
-    std::vector<knp::core::UID> population_uids;
-    for (auto &pop_init_data : pop_data)
-    {
-        // A very simple neuron generator returning a default neuron.
-        auto neuron_generator = [&pop_init_data](size_t index) { return pop_init_data.pd_.neuron_; };
 
-        knp::core::UID uid;
-        result.network_.add_population(ResourceAltAILIFPopulation(uid, neuron_generator, pop_init_data.pd_.size_));
-        population_uids.push_back(uid);
-        result.data_.population_names_[uid] = pop_init_data.name_;
-        if (pop_init_data.for_inference_) result.data_.inference_population_uids_.insert(uid);
-        if (pop_init_data.output_) result.data_.output_uids_.push_back(uid);
-    }
+    result.data_.wta_data_.emplace_back().first.push_back(input_pop.uid_);
 
-    result.data_.wta_data_.emplace_back().first.push_back(population_uids[L]);
-    return std::make_pair(population_uids, pop_data);
-}
-
-// Create network for MNIST.
-AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
-{
-    AnnotatedNetwork result;
-
-    for (size_t i = 0; i < classes_amount; ++i) result.data_.wta_borders_.push_back(neurons_per_column * (i + 1));
-
-    auto [population_uids, pop_data] = add_subnetwork_populations(result);
 
     ResourceSynapseParams R_to_L_synapse;
-    //-weight_inc
-    // R_to_L_synapse.rule_.d_u_ = 0.277539;
-    // w_min and w_max * 1000 because of 8531
     R_to_L_synapse.rule_.dopamine_plasticity_period_ = 10;
     R_to_L_synapse.rule_.w_min_ = -0.253122 * 1000;
     R_to_L_synapse.rule_.w_max_ = 0.0923957 * 1000;
@@ -138,24 +93,20 @@ AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
         resource_from_weight(0, R_to_L_synapse.rule_.w_min_, R_to_L_synapse.rule_.w_max_);
 
 
-    ResourceDeltaProjection R_to_L_projection = knp::framework::projection::creators::all_to_all<ResourceSynapse>(
-        knp::core::UID(false), population_uids[L], input_size, pop_data[L].pd_.size_,
-        [&R_to_L_synapse](size_t, size_t) { return R_to_L_synapse; });
-    result.data_.projections_from_raster_.push_back(R_to_L_projection.get_uid());
-    R_to_L_projection.unlock_weights();  // Trainable
-    result.network_.add_projection(R_to_L_projection);
-    result.data_.inference_internal_projection_.insert(R_to_L_projection.get_uid());
+    auto raster_to_input_proj = constructor.add_projection(
+        R_to_L_synapse, knp::framework::projection::creators::all_to_all<ResourceSynapse>, raster_pop, input_pop, true,
+        false);
+    result.data_.projections_from_raster_.push_back(raster_to_input_proj);
 
     DeltaSynapseParams TARGET_to_L_synapse;
     TARGET_to_L_synapse.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
     TARGET_to_L_synapse.weight_ = 0.179376 * 1000;
     TARGET_to_L_synapse.delay_ = 3;
 
-    DeltaProjection TARGET_to_L_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
-        knp::core::UID(false), population_uids[L], classes_amount, pop_data[L].pd_.size_,
-        [&TARGET_to_L_synapse](size_t, size_t) { return TARGET_to_L_synapse; });
-    result.network_.add_projection(TARGET_to_L_projection);
-    result.data_.projections_from_classes_.push_back(TARGET_to_L_projection.get_uid());
+    auto target_to_l_proj = constructor.add_projection(
+        TARGET_to_L_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, target_pop, input_pop, false,
+        false);
+    result.data_.projections_from_classes_.push_back(target_to_l_proj);
 
 
     DeltaSynapseParams TARGET_to_L_synapse2;
@@ -163,57 +114,48 @@ AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
     TARGET_to_L_synapse2.weight_ = -30 * 1000;
     TARGET_to_L_synapse2.delay_ = 4;
 
-    DeltaProjection TARGET_to_L_projection2 = knp::framework::projection::creators::all_to_all<DeltaSynapse>(
-        knp::core::UID(false), population_uids[L], classes_amount, pop_data[L].pd_.size_,
-        [&TARGET_to_L_synapse2](size_t, size_t) { return TARGET_to_L_synapse2; });
-    result.network_.add_projection(TARGET_to_L_projection2);
-    result.data_.projections_from_classes_.push_back(TARGET_to_L_projection2.get_uid());
+    auto target_to_l_proj2 = constructor.add_projection(
+        TARGET_to_L_synapse2, knp::framework::projection::creators::all_to_all<DeltaSynapse>, target_pop, input_pop,
+        false, false);
+    result.data_.projections_from_classes_.push_back(target_to_l_proj2);
 
 
     DeltaSynapseParams TARGET_to_BIAS_synapse;
     TARGET_to_BIAS_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     TARGET_to_BIAS_synapse.weight_ = 10 * 1000;
 
-    DeltaProjection TARGET_to_BIAS_projection = knp::framework::projection::creators::aligned<DeltaSynapse>(
-        knp::core::UID(false), population_uids[BIAS], classes_amount, pop_data[BIAS].pd_.size_,
-        [&TARGET_to_BIAS_synapse](size_t, size_t) { return TARGET_to_BIAS_synapse; });
-    result.network_.add_projection(TARGET_to_BIAS_projection);
-    result.data_.projections_from_classes_.push_back(TARGET_to_BIAS_projection.get_uid());
+    auto target_to_gate_proj = constructor.add_projection(
+        TARGET_to_BIAS_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, target_pop, gate_pop,
+        false, false);
+    result.data_.projections_from_classes_.push_back(target_to_gate_proj);
 
 
     DeltaSynapseParams L_to_OUT_synapse;
     L_to_OUT_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     L_to_OUT_synapse.weight_ = 10.f * 1000;
 
-    DeltaProjection L_to_OUT_projection =
-        knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            knp::core::UID(false), population_uids[OUT], pop_data[L].pd_.size_, pop_data[OUT].pd_.size_,
-            [&L_to_OUT_synapse](size_t, size_t) { return L_to_OUT_synapse; });
-    result.network_.add_projection(L_to_OUT_projection);
-    result.data_.inference_internal_projection_.insert(L_to_OUT_projection.get_uid());
-    result.data_.wta_data_[0].second.push_back(L_to_OUT_projection.get_uid());
+    knp::core::UID l_to_out_proj = constructor.add_projection(
+        L_to_OUT_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, input_pop, output_pop, false,
+        true);
+    result.data_.wta_data_[0].second.push_back(l_to_out_proj);
 
 
     DeltaSynapseParams OUT_to_BIAS_synapse;
     OUT_to_BIAS_synapse.output_type_ = knp::synapse_traits::OutputType::BLOCKING;
     OUT_to_BIAS_synapse.weight_ = -10.f;
 
-    DeltaProjection OUT_to_BIAS_projection =
-        knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            population_uids[OUT], population_uids[BIAS], pop_data[OUT].pd_.size_, pop_data[BIAS].pd_.size_,
-            [&OUT_to_BIAS_synapse](size_t, size_t) { return OUT_to_BIAS_synapse; });
-    result.network_.add_projection(OUT_to_BIAS_projection);
+    constructor.add_projection(
+        OUT_to_BIAS_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, output_pop, gate_pop, false,
+        false);
 
 
     DeltaSynapseParams BIAS_to_L_synapse;
     BIAS_to_L_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     BIAS_to_L_synapse.weight_ = 10.f * 1000;
 
-    DeltaProjection BIAS_to_L_projection =
-        knp::framework::projection::creators::aligned<knp::synapse_traits::DeltaSynapse>(
-            population_uids[BIAS], population_uids[L], pop_data[BIAS].pd_.size_, pop_data[L].pd_.size_,
-            [&BIAS_to_L_synapse](size_t, size_t) { return BIAS_to_L_synapse; });
-    result.network_.add_projection(BIAS_to_L_projection);
+    constructor.add_projection(
+        BIAS_to_L_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, gate_pop, input_pop, false,
+        false);
 
     // Return created network.
     return result;
