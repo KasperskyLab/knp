@@ -123,25 +123,15 @@ void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc
     // cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
 
-    std::vector<knp::core::UID> wta_uids;
-    {
-        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
-        wta_uids = knp::framework::projection::add_wta_handlers(
-            model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
-    }
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
+    std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
+        model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
 
     auto pop_names = network.data_.population_names_;
 
-    /*
-    // Change names for WTA populations.
-    {
-        for (auto pop = pop_names.begin(); pop != pop_names.end(); ++pop)
-            if (pop->second == "INPUT") pop->second = "INPUT[NO WTA]";
-        for (auto const& uid : wta_uids) pop_names[uid] = "INPUT[WTA]";
-    }
-    */
+    // Add WTA populations for logging.
+    for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
 
-    // knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
     knp::framework::monitoring::model::add_spikes_logger(model_executor, pop_names, std::cout);
 
     // All loggers go here
