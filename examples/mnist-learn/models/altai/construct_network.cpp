@@ -52,24 +52,24 @@ AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
     for (size_t i = 0; i < classes_amount; ++i) result.data_.wta_borders_.push_back(neurons_per_column * (i + 1));
 
     ResourceNeuronData default_neuron;
-    default_neuron.activation_threshold_ = 8531;
+    default_neuron.activation_threshold_ = threshold;
     ResourceNeuronData input_neuron = default_neuron;
-    input_neuron.potential_leak_ = static_cast<uint16_t>(-(1.f - 1.f / 3.f) * 1000);
-    input_neuron.negative_activation_threshold_ = 0;
-    input_neuron.potential_reset_value_ = 0;
+    input_neuron.potential_leak_ = potential_leak;
+    input_neuron.negative_activation_threshold_ = negative_activation_threshold;
+    input_neuron.potential_reset_value_ = potential_reset_value;
 
-    input_neuron.dopamine_plasticity_time_ = 10;
-    input_neuron.isi_max_ = 10;
-    input_neuron.d_h_ = -0.1765261f * 1000;
+    input_neuron.dopamine_plasticity_time_ = dopamine_plasticity_time;
+    input_neuron.isi_max_ = isi_max;
+    input_neuron.d_h_ = d_h;
 
     // stability_resource_change_ratio
-    input_neuron.stability_change_parameter_ = 0.0497573 / 1000;
+    input_neuron.stability_change_parameter_ = stability_change_parameter;
 
     // silent synapses
-    input_neuron.resource_drain_coefficient_ = 27;
+    input_neuron.resource_drain_coefficient_ = resource_drain_coefficient;
 
     // threshold_excess_weight_dependent
-    input_neuron.synapse_sum_threshold_coefficient_ = 0.217654;
+    input_neuron.synapse_sum_threshold_coefficient_ = synapse_sum_threshold_coefficient;
 
 
     const auto &input_pop = constructor.add_population(
@@ -86,9 +86,9 @@ AnnotatedNetwork construct_network_altai(const ModelDescription &model_desc)
 
 
     ResourceSynapseParams raster_to_input_synapse;
-    raster_to_input_synapse.rule_.dopamine_plasticity_period_ = 10;
-    raster_to_input_synapse.rule_.w_min_ = -0.253122 * 1000;
-    raster_to_input_synapse.rule_.w_max_ = 0.0923957 * 1000;
+    raster_to_input_synapse.rule_.dopamine_plasticity_period_ = raster_to_input_synapse_dopamine_plasticity_period;
+    raster_to_input_synapse.rule_.w_min_ = raster_to_input_synapse_w_max;
+    raster_to_input_synapse.rule_.w_max_ = raster_to_input_synapse_w_min;
     raster_to_input_synapse.rule_.synaptic_resource_ =
         resource_from_weight(0, raster_to_input_synapse.rule_.w_min_, raster_to_input_synapse.rule_.w_max_);
 

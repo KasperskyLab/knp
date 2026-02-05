@@ -22,6 +22,23 @@
 
 #include <settings.h>
 
+#include <cstdint>
+
 
 // Number of neurons reserved per a single digit.
 constexpr size_t neurons_per_column = 20;
+
+// Network hyperparameters.
+constexpr uint16_t threshold = 8531;
+constexpr int16_t potential_leak = static_cast<int16_t>(-(1.f - 1.f / 3.f) * 1000);
+constexpr uint16_t negative_activation_threshold = 0;
+constexpr uint16_t potential_reset_value = 0;
+constexpr uint32_t dopamine_plasticity_time = 10;
+constexpr uint32_t isi_max = 10;
+constexpr float d_h = -0.1765261f * 1000;
+constexpr float stability_change_parameter = 0.0497573 / 1000;
+constexpr uint32_t resource_drain_coefficient = 27;
+constexpr float synapse_sum_threshold_coefficient = 0.217654;
+constexpr uint32_t raster_to_input_synapse_dopamine_plasticity_period = 10;
+constexpr float raster_to_input_synapse_w_min = -0.253122 * 1000;
+constexpr float raster_to_input_synapse_w_max = 0.0923957 * 1000;

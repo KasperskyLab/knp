@@ -66,11 +66,11 @@ AnnotatedNetwork construct_network_blifat(const ModelDescription &model_desc)
         input_neuron.d_h_ = hebbian_plasticity;
         input_neuron.dopamine_plasticity_time_ = neuron_dopamine_period;
         input_neuron.synapse_sum_threshold_coefficient_ = threshold_weight_coeff;
-        input_neuron.isi_max_ = 10;
-        input_neuron.min_potential_ = 0;
-        input_neuron.stability_change_parameter_ = 0.05F;
-        input_neuron.resource_drain_coefficient_ = 27;
-        input_neuron.stochastic_stimulation_ = 2.212;
+        input_neuron.isi_max_ = isi_max;
+        input_neuron.min_potential_ = min_potential;
+        input_neuron.stability_change_parameter_ = stability_change_parameter;
+        input_neuron.resource_drain_coefficient_ = resource_drain_coefficient;
+        input_neuron.stochastic_stimulation_ = stochastic_stimulation;
 
         const auto &input_pop =
             constructor.add_population(input_neuron, num_input_neurons, NetworkConstructor::INPUT, true, "INPUT");
