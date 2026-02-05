@@ -31,6 +31,9 @@ namespace knp::core
 Backend::Backend()
     : message_bus_{knp::core::MessageBus::construct_bus()}, message_endpoint_(message_bus_->create_endpoint())
 {
+#if (!defined(NDEBUG))
+    spdlog::set_level(spdlog::level::trace);
+#endif
 }
 
 
