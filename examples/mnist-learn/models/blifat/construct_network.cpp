@@ -89,67 +89,54 @@ AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const Model
         raster_to_input_synapse.rule_.dopamine_plasticity_period_ = synapse_dopamine_period;
         raster_to_input_synapse.rule_.w_min_ = min_synaptic_weight;
         raster_to_input_synapse.rule_.w_max_ = max_synaptic_weight;
-
         auto raster_to_input_proj = constructor.add_projection(
             raster_to_input_synapse, knp::framework::projection::creators::all_to_all<ResourceSynapse>, raster_pop,
             input_pop, true, false);
         result.data_.projections_from_raster_.push_back(raster_to_input_proj);
 
-
         DeltaSynapseData target_to_input_synapse_dopamine;
         target_to_input_synapse_dopamine.weight_ = 0.18;
         target_to_input_synapse_dopamine.delay_ = 3;
         target_to_input_synapse_dopamine.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
-
         auto target_to_input_proj_dopamine = constructor.add_projection(
             target_to_input_synapse_dopamine, knp::framework::projection::creators::aligned<DeltaSynapse>, target_pop,
             input_pop, false, false);
         result.data_.projections_from_classes_.push_back(target_to_input_proj_dopamine);
 
-
         DeltaSynapseData input_to_output_synapse;
         input_to_output_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
         input_to_output_synapse.weight_ = 10;
-
         auto input_to_output_proj = constructor.add_projection(
             input_to_output_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, input_pop, output_pop,
             false, true);
         result.data_.wta_data_[i].second.push_back(input_to_output_proj);
 
-
         DeltaSynapseData output_to_gate_synapse;
         output_to_gate_synapse.weight_ = -10;
         output_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::BLOCKING;
-
         auto output_to_gate_proj = constructor.add_projection(
             output_to_gate_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, output_pop, gate_pop,
             false, false);
 
-
         DeltaSynapseData target_to_gate_synapse;
         target_to_gate_synapse.weight_ = 10.f;
         target_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-
         auto target_to_gate_proj = constructor.add_projection(
             target_to_gate_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, target_pop, gate_pop,
             false, false);
         result.data_.projections_from_classes_.push_back(target_to_gate_proj);
 
-
         DeltaSynapseData gate_to_input_synapse;
         gate_to_input_synapse.weight_ = 10;
         gate_to_input_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-
         auto gate_to_input_proj = constructor.add_projection(
             gate_to_input_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, gate_pop, input_pop,
             false, false);
-
 
         DeltaSynapseData target_to_input_synapse_excitatory;
         target_to_input_synapse_excitatory.weight_ = -30;
         target_to_input_synapse_excitatory.delay_ = 4;
         target_to_input_synapse_excitatory.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
-
         auto target_to_input_proj_excitatory = constructor.add_projection(
             target_to_input_synapse_excitatory, knp::framework::projection::creators::aligned<DeltaSynapse>, target_pop,
             input_pop, false, false);
