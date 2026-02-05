@@ -1,8 +1,8 @@
 /**
  * @file run_inference_on_network.h
  * @brief Function for running inference on network.
- * @kaspersky_support D. Postnikov
- * @date 03.02.2026
+ * @kaspersky_support A. Vartenkov
+ * @date 24.03.2025
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
