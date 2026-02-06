@@ -19,8 +19,8 @@
  * limitations under the License.
  */
 
-#include <models/shared/network_constructor.h>
-#include <models/shared/resource_from_weight.h>
+#include <models/network_constructor.h>
+#include <models/resource_from_weight.h>
 
 #include <string>
 #include <vector>
