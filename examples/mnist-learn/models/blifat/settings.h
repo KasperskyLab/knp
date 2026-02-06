@@ -1,7 +1,7 @@
 /**
- * @file construct_network.cpp
- * @brief Functions for network construction.
- * @kaspersky_support D. Postnikov
+ * @file shared.h
+ * @brief Settings for BLIFAT network.
+ * @kaspersky_support A. Vartenkov
  * @date 28.07.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
@@ -20,10 +20,10 @@
  */
 #pragma once
 
-#include <knp/core/population.h>
-#include <knp/core/projection.h>
-#include <knp/neuron-traits/all_traits.h>
-#include <knp/synapse-traits/all_traits.h>
+#include <settings.h>
+
+#include <cstdint>
+
 
 // Network hyperparameters. You may want to fine-tune these.
 constexpr float default_threshold = 8.571F;
@@ -32,32 +32,27 @@ constexpr float max_synaptic_weight = 0.0924;
 constexpr float base_weight_value = 0.000F;
 constexpr int neuron_dopamine_period = 10;
 constexpr int synapse_dopamine_period = 10;
-constexpr float l_neuron_potential_decay = 1.0 - 1.0 / 3.0;
+constexpr float input_neuron_potential_decay = 1.0 - 1.0 / 3.0;
 constexpr float dopamine_parameter = 0.042F;
 constexpr float hebbian_plasticity = -0.177;
 constexpr float threshold_weight_coeff = 0.218F;
+// Time between spikes in the ISI period.
+constexpr uint32_t isi_max = 10;
+// Minimum potential value.
+constexpr double min_potential = 0;
+// Defines stability fluctuation value.
+constexpr float stability_change_parameter = 0.05F;
+// Defines the number of silent synapses.
+constexpr uint32_t resource_drain_coefficient = 27;
+// Random number in range [0,stochastic_stimulation) that is added each step to the potential.
+constexpr float stochastic_stimulation = 2.212;
 
-//
-// Network geometry.
-//
 
 // Number of neurons reserved per a single digit.
 constexpr size_t neurons_per_column = 20;
 
-// Ten possible digits, one column per each.
-constexpr size_t num_possible_labels = 10;
-
 // All columns are a part of the same population.
-constexpr size_t num_input_neurons = neurons_per_column * num_possible_labels;
+constexpr size_t num_input_neurons = neurons_per_column * classes_amount;
 
-// Number of pixels in width for a single MNIST image.
-constexpr size_t input_size_width = 28;
-
-// Number of pixels in height for a single MNIST image.
-constexpr size_t input_size_height = 28;
-
-// Number of pixels for a single MNIST image.
-constexpr size_t input_size = input_size_width * input_size_height;
-
-// Dense input projection from 28 * 28 image to population of 150 neurons.
-constexpr size_t input_projection_size = input_size * num_input_neurons;
+// How many subnetworks to use.
+constexpr int num_subnetworks = 1;
