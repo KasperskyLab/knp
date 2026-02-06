@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 
@@ -31,7 +32,9 @@ inline float resource_from_weight(float weight, float min_weight, float max_weig
     float eps = 1e-6;
     if (min_weight > max_weight) std::swap(min_weight, max_weight);
     if (weight < min_weight || weight >= max_weight - eps)
-        throw std::logic_error("Weight should not be less than min_weight, more than max_weight or too close to it.");
+        throw std::logic_error(
+            std::string("Weight should not be less than") + std::to_string(min_weight) + ", more than" +
+            std::to_string(max_weight) + "or too close to it. Weight = " + std::to_string(weight));
     double diff = max_weight - min_weight;
     double over = weight - min_weight;
     return static_cast<float>(over * diff / (diff - over));

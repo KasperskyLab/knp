@@ -23,11 +23,27 @@
 
 #include <cstddef>
 
+// Amount of classes, its 10 because this is MNIST, we are predicting numbers from 0 to 9.
 constexpr size_t classes_amount = 10;
+
+// Size of an image, its 28 by 28 pixels.
 constexpr size_t input_size = 28 * 28;
+
+// Amount of steps for each image.
 constexpr size_t steps_per_image = 15;
+
+// Amount of steps out of steps_per_image, during which we are sending image into network in spikes form.
 constexpr size_t active_steps = 10;
+
+// Amount of winners in WTA(winner takes all).
 constexpr size_t wta_winners_amount = 1;
+
+// This is used for transforming images into spikes form.
 constexpr float state_increment_factor = 1 / 255.f;
+
+// Each aggregated_spikes_logging_period steps, all aggregated spikes will be written to a file, it logging is enabled.
 constexpr size_t aggregated_spikes_logging_period = 4e3;
+
+// Each projection_weights_logging_period steps, all projections weights will be written to a file, it logging is
+// enabled.
 constexpr size_t projection_weights_logging_period = 1e5;

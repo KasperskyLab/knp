@@ -44,7 +44,6 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "model_path", po::value<std::string>()->default_value(""),
         "path for saving trained model. if no path is specified, model wont be saved.");
 
-
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);

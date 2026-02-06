@@ -31,7 +31,6 @@ class NetworkConstructor
 public:
     explicit NetworkConstructor(AnnotatedNetwork &network) : network_(network) {}
 
-
     enum PopulationRole
     {
         OUTPUT,
@@ -39,7 +38,6 @@ public:
         NORMAL,
         CHANNELED,
     };
-
 
     struct PopulationInfo
     {
@@ -49,7 +47,6 @@ public:
         knp::core::UID uid_;
         std::string name_;
     };
-
 
     template <typename Neuron>
     [[nodiscard]] const PopulationInfo &add_population(
@@ -61,17 +58,15 @@ public:
             pop_info.uid_, [&neuron](size_t index) { return neuron; }, pop_info.neurons_amount_));
         network_.data_.population_names_[pop_info.uid_] = pop_info.name_;
         if (pop_info.keep_in_inference_) network_.data_.inference_population_uids_.insert(pop_info.uid_);
-        if (pop_info.role_ == OUTPUT) network_.data_.output_uids_.push_back(pop_info.uid_);
+        if (OUTPUT == pop_info.role_) network_.data_.output_uids_.push_back(pop_info.uid_);
         return pops_.emplace_back(pop_info);
     }
-
 
     [[nodiscard]] const PopulationInfo &add_channeled_population(size_t neurons_amount, bool keep_in_inference)
     {
         return pops_.emplace_back(
             PopulationInfo{CHANNELED, keep_in_inference, neurons_amount, knp::core::UID(false), ""});
     }
-
 
     template <typename Synapse, typename Creator>
     knp::core::UID add_projection(

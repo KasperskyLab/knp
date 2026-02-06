@@ -42,6 +42,5 @@ Dataset process_dataset(ModelDescription const& model_desc)
               << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps\n"
               << std::endl;
 
-
     return dataset;
 }
