@@ -33,7 +33,6 @@ add_executable(${PROJECT_NAME}
     parse_arguments.cpp
     dataset.cpp
     evaluate_results.cpp
-    save_network.cpp
     models/blifat/construct_network.cpp
     models/blifat/finalize_network.cpp
     models/blifat/spike_generators.cpp

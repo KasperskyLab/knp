@@ -21,8 +21,16 @@
 
 #pragma once
 
+#include <knp/framework/sonata/network_io.h>
+
 #include "annotated_network.h"
 #include "model_desc.h"
 
 
-void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network);
+inline void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
+{
+    if (model_desc.model_saving_path_.empty()) return;
+
+    std::filesystem::create_directory(model_desc.model_saving_path_);
+    knp::framework::sonata::save_network(network.network_, model_desc.model_saving_path_);
+}
