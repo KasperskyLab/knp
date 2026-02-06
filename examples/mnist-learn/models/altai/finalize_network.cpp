@@ -53,7 +53,6 @@ void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, c
                 float total_max =
                     std::max({std::abs(max_weight), std::abs(min_weight), std::abs<float>(max_threshold)});
                 float scale = 255.f / total_max;
-                std::cout << scale << std::endl;
 
                 for (auto& synapse : proj)
                 {
