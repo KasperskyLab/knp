@@ -19,9 +19,9 @@
  * limitations under the License.
  */
 
-#include "finalize_network.h"
-
 #include <algorithm>
+
+#include "network_functions.h"
 
 
 template <>

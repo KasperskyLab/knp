@@ -19,9 +19,9 @@
  * limitations under the License.
  */
 
-#include "spike_generators.h"
-
 #include <settings.h>
+
+#include "network_functions.h"
 
 
 template <>

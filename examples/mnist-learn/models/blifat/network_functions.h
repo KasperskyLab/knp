@@ -1,8 +1,8 @@
 /**
- * @file finalize_network.h
- * @brief Function for finalizing network after training.
+ * @file network_functions.h
+ * @brief BLIFAT specific network functions.
  * @kaspersky_support D. Postnikov
- * @date 04.02.2026
+ * @date 03.02.2026
  * @license Apache 2.0
  * @copyright © 2024 AO Kaspersky Lab
  *
@@ -21,8 +21,28 @@
 
 #pragma once
 
-#include <models/finalize_network.h>
+#include <dataset.h>
+#include <models/network_functions.h>
+
+
+template <>
+AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription& model_desc);
 
 
 template <>
 void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& network, const ModelDescription& model_desc);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_inference_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);

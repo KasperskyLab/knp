@@ -1,6 +1,6 @@
 /**
- * @file construct_network.h
- * @brief AltAI specific network construction.
+ * @file network_functions.h
+ * @brief AltAI specific network functions.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0
@@ -21,8 +21,28 @@
 
 #pragma once
 
-#include <models/construct_network.h>
+#include <dataset.h>
+#include <models/network_functions.h>
 
 
 template <>
 AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDescription& model_desc);
+
+
+template <>
+void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_images_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_training_labels_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset);
+
+
+template <>
+std::function<knp::core::messaging::SpikeData(knp::core::Step)>
+make_inference_images_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset);

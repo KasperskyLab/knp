@@ -19,14 +19,13 @@
  * limitations under the License.
  */
 
-#include "construct_network.h"
-
 #include <models/shared/network_constructor.h>
 #include <models/shared/resource_from_weight.h>
 
 #include <string>
 #include <vector>
 
+#include "network_functions.h"
 #include "settings.h"
 
 

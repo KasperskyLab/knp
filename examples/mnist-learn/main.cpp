@@ -23,8 +23,7 @@
 
 #include "dataset.h"
 #include "evaluate_results.h"
-#include "models/construct_network.h"
-#include "models/finalize_network.h"
+#include "models/network_functions.h"
 #include "parse_arguments.h"
 #include "run_inference_on_network.h"
 #include "save_network.h"
