@@ -35,14 +35,4 @@ void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& networ
 
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
-make_training_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
-
-
-template <>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);
-
-
-template <>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)>
-make_inference_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);

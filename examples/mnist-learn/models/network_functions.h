@@ -43,23 +43,7 @@ void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_d
 
 
 template <typename Neuron>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_images_spikes_generator(
-    const Dataset& dataset)
-{
-    throw std::runtime_error("Not supported neuron type.");
-}
-
-
-template <typename Neuron>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_labels_spikes_generator(
-    const Dataset& dataset)
-{
-    throw std::runtime_error("Not supported neuron type.");
-}
-
-
-template <typename Neuron>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_inference_images_spikes_generator(
     const Dataset& dataset)
 {
     throw std::runtime_error("Not supported neuron type.");

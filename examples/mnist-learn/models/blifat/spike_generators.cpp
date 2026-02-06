@@ -26,14 +26,6 @@
 
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
-make_training_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset)
-{
-    return dataset.make_training_images_spikes_generator();
-}
-
-
-template <>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset)
 {
     return [&dataset](knp::core::Step step)
@@ -44,12 +36,4 @@ make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Da
         if (local_step == 11) message.push_back(dataset.get_data_for_training().first[step / steps_per_image].first);
         return message;
     };
-}
-
-
-template <>
-std::function<knp::core::messaging::SpikeData(knp::core::Step)>
-make_inference_images_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset)
-{
-    return dataset.make_inference_images_spikes_generator();
 }

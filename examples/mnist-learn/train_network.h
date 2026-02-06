@@ -59,7 +59,7 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
     // Create and fill a channel map.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
-    channel_map.insert({input_image_channel_raster, make_training_images_spikes_generator<Neuron>(dataset)});
+    channel_map.insert({input_image_channel_raster, dataset.make_training_images_spikes_generator()});
     channel_map.insert({input_image_channel_classes, make_training_labels_spikes_generator<Neuron>(dataset)});
 
     return channel_map;

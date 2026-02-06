@@ -32,7 +32,6 @@
 
 #include "annotated_network.h"
 #include "dataset.h"
-#include "models/network_functions.h"
 #include "settings.h"
 
 
@@ -53,7 +52,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
     knp::framework::ModelLoader::InputChannelMap channel_map;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=244944
     knp::core::UID input_image_channel_uid;
-    channel_map.insert({input_image_channel_uid, make_inference_images_spikes_generator<Neuron>(dataset)});
+    channel_map.insert({input_image_channel_uid, dataset.make_inference_images_spikes_generator()});
 
     for (auto i : network.data_.output_uids_) model.add_output_channel(o_channel_uid, i);
     for (auto image_proj_uid : network.data_.projections_from_raster_)
