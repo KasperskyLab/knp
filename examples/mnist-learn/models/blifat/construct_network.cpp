@@ -72,11 +72,11 @@ AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const Model
         input_neuron.stochastic_stimulation_ = stochastic_stimulation;
 
         const auto &input_pop =
-            constructor.add_population(input_neuron, num_input_neurons, NetworkConstructor::INPUT, true, "INPUT");
+            constructor.add_population(input_neuron, num_input_neurons, PopulationRole::INPUT, true, "INPUT");
         const auto &output_pop =
-            constructor.add_population(default_neuron, classes_amount, NetworkConstructor::OUTPUT, true, "OUTPUT");
+            constructor.add_population(default_neuron, classes_amount, PopulationRole::OUTPUT, true, "OUTPUT");
         const auto &gate_pop =
-            constructor.add_population(default_neuron, classes_amount, NetworkConstructor::NORMAL, false, "GATE");
+            constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, false, "GATE");
         const auto &raster_pop = constructor.add_channeled_population(input_size, true);
         const auto &target_pop = constructor.add_channeled_population(classes_amount, false);
 
