@@ -41,7 +41,7 @@ void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, c
                     if (min_weight > params.weight_) min_weight = params.weight_;
                 }
 
-                knp::core::UID post_pop_uid = proj.get_postsynaptic();
+                const knp::core::UID post_pop_uid = proj.get_postsynaptic();
                 auto& pop = std::get<knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>>(
                     network.network_.get_population(post_pop_uid));
 
