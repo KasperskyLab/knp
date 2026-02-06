@@ -22,8 +22,8 @@
 #include "network_functions.h"
 
 
+// BLIFAT model dont have any finalization.
 template <>
 void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
-    // BLIFAT model dont have any finalization.
 }

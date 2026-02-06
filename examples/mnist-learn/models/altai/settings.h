@@ -29,6 +29,8 @@
 constexpr size_t neurons_per_column = 20;
 
 // Network hyperparameters.
+// Some of them are multiplied by 1000 because altai model is scaled up, so it can work without relying on floats for
+// some operations.
 constexpr uint16_t threshold = 8531;
 constexpr int16_t potential_leak = static_cast<int16_t>(-(1.f - 1.f / 3.f) * 1000);
 constexpr uint16_t negative_activation_threshold = 0;
