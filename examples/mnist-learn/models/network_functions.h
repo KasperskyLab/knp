@@ -48,6 +48,3 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_la
 {
     throw std::runtime_error("Not supported neuron type.");
 }
-
-#include "altai/network_functions.h"
-#include "blifat/network_functions.h"

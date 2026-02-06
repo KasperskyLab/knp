@@ -32,7 +32,8 @@
 
 #include "annotated_network.h"
 #include "dataset.h"
-#include "models/network_functions.h"
+#include "models/altai/network_functions.h"
+#include "models/blifat/network_functions.h"
 #include "settings.h"
 
 
