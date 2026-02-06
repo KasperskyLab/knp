@@ -38,9 +38,13 @@ constexpr float hebbian_plasticity = -0.177;
 constexpr float threshold_weight_coeff = 0.218F;
 // Time between spikes in the ISI period.
 constexpr uint32_t isi_max = 10;
+// Minimum potential value.
 constexpr double min_potential = 0;
+// Defines stability fluctuation value.
 constexpr float stability_change_parameter = 0.05F;
+// Defines the number of silent synapses.
 constexpr uint32_t resource_drain_coefficient = 27;
+// Random number in range [0,stochastic_stimulation) that is added each step to the potential.
 constexpr float stochastic_stimulation = 2.212;
 
 

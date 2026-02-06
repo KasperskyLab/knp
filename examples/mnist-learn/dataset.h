@@ -30,6 +30,7 @@ using Dataset = knp::framework::data_processing::classification::images::Dataset
 
 /**
  * @brief Function for processing dataset.
+ * @note Processing means reading actual files, saving them in memory, and splitting data into training and inference.
  * @param model_desc Model description.
  * @return Processed dataset.
  */
