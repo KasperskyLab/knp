@@ -35,6 +35,14 @@
 #include "settings.h"
 
 
+/**
+ * @brief Run inference on network, and record spikes.
+ * @tparam Neuron Neuron type.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ * @return Recorded spikes.
+ */
 template <typename Neuron>
 std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
     AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset)

@@ -26,4 +26,11 @@
 #include "model_desc.h"
 
 
+/**
+ * @brief Parse arguments from command line, and form a model description out of them.
+ * @param argc Arguments amount.
+ * @param argv Arguments values.
+ * @return If parsing failed, or some required parameters are not specified, returns nothing. Otherwise returns model
+ * desciption.
+ */
 std::optional<ModelDescription> parse_arguments(int argc, char** argv);

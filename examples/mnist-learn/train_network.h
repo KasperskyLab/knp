@@ -37,6 +37,13 @@
 #include "settings.h"
 
 
+/**
+ * @brief Build channel map train. Will add input/output channels and add spikes generators.
+ * @param network Annotated network.
+ * @param model Model.
+ * @param dataset Dataset.
+ * @return Channel map.
+ */
 template <typename Neuron>
 knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
     const AnnotatedNetwork& network, knp::framework::Model& model, const Dataset& dataset)
@@ -67,6 +74,12 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
 }
 
 
+/**
+ * @brief Save network parts that are required for inference.
+ * @param backend Training backend.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ */
 inline void strip_network_for_inference(
     const knp::core::Backend& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
@@ -94,6 +107,12 @@ inline void strip_network_for_inference(
 }
 
 
+/**
+ * @brief Train network.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ */
 template <typename Neuron>
 void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset)
 {

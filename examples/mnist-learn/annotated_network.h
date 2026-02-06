@@ -30,6 +30,9 @@
 #include <vector>
 
 
+/**
+ * @brief A network with annotations.
+ */
 struct AnnotatedNetwork
 {
     knp::framework::Network network_;

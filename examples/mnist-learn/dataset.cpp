@@ -28,16 +28,20 @@
 
 Dataset process_dataset(ModelDescription const& model_desc)
 {
+    // Create streams for images and labels.
     std::ifstream images_stream(model_desc.images_file_path_, std::ios::binary);
     std::ifstream labels_stream(model_desc.labels_file_path_, std::ios::in);
 
     Dataset dataset;
+    // Process them.
     dataset.process_labels_and_images(
         images_stream, labels_stream, model_desc.train_images_amount_ + model_desc.inference_images_amount_,
         classes_amount, input_size, steps_per_image,
         dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
+    // Split dataset according to model description.
     dataset.split(model_desc.train_images_amount_, model_desc.inference_images_amount_);
 
+    // Print out results.
     std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
               << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps\n"
               << std::endl;

@@ -38,6 +38,7 @@ void run_model(const ModelDescription& model_desc)
 
     train_network<Neuron>(network, model_desc, dataset);
 
+    // Some type of models need to do some procedures, to be ready for inference.
     finalize_network<Neuron>(network, model_desc);
 
     save_network(model_desc, network);
@@ -50,12 +51,14 @@ void run_model(const ModelDescription& model_desc)
 
 int main(int argc, char** argv)
 {
+    // Parsing command line arguments.
     std::optional<ModelDescription> model_desc_opt = parse_arguments(argc, argv);
     if (!model_desc_opt.has_value()) return EXIT_FAILURE;
     const ModelDescription& model_desc = model_desc_opt.value();
 
     std::cout << "Starting model:\n" << model_desc << std::endl;
 
+    // Starting model according to selected type.
     switch (model_desc.type_)
     {
         case SupportedModelType::BLIFAT:

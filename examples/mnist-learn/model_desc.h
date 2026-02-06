@@ -24,6 +24,9 @@
 #include <filesystem>
 
 
+/**
+ * @brief Supported model types
+ */
 enum class SupportedModelType
 {
     BLIFAT,
@@ -31,6 +34,9 @@ enum class SupportedModelType
 };
 
 
+/*
+ * @brief All parameters that may be changed from command line.
+ */
 struct ModelDescription
 {
     // cppcheck-suppress unusedStructMember
@@ -40,4 +46,11 @@ struct ModelDescription
     std::filesystem::path images_file_path_, labels_file_path_, backend_path_, log_path_, model_saving_path_;
 };
 
+
+/*
+ * @brief Printing helper for model description.
+ * @param stream Stream.
+ * @param desc Model desciption.
+ * @return Stream.
+ */
 std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);

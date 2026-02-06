@@ -28,4 +28,9 @@
 
 using Dataset = knp::framework::data_processing::classification::images::Dataset;
 
+/**
+ * @brief Function for processing dataset.
+ * @param model_desc Model description.
+ * @return Processed dataset.
+ */
 Dataset process_dataset(ModelDescription const& model_desc);

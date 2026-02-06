@@ -26,4 +26,10 @@
 #include "dataset.h"
 
 
+/**
+ * @brief Evaluate results of inference. Will print out metrics.
+ * @param inference_spikes Spikes from inference.
+ * @param dataset Dataset.
+ *
+ */
 void evaluate_results(const std::vector<knp::core::messaging::SpikeMessage>& inference_spikes, const Dataset& dataset);

@@ -27,6 +27,11 @@
 #include "model_desc.h"
 
 
+/**
+ * @brief Will save trained network, if saving is enabled.
+ * @param model_desc Model desciption.
+ * @param network Annotated network.
+ */
 inline void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
 {
     if (model_desc.model_saving_path_.empty()) return;
