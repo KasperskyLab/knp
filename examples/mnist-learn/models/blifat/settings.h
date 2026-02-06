@@ -36,6 +36,7 @@ constexpr float input_neuron_potential_decay = 1.0 - 1.0 / 3.0;
 constexpr float dopamine_parameter = 0.042F;
 constexpr float hebbian_plasticity = -0.177;
 constexpr float threshold_weight_coeff = 0.218F;
+// Time between spikes in the ISI period.
 constexpr uint32_t isi_max = 10;
 constexpr double min_potential = 0;
 constexpr float stability_change_parameter = 0.05F;

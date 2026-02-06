@@ -51,7 +51,7 @@ struct NetworkPopulations
 static NetworkPopulations create_populations(NetworkConstructor &constructor)
 {
     ResourceNeuronData default_neuron;
-    default_neuron.activation_threshold_ = threshold;
+    default_neuron.activation_threshold_ = activation_threshold;
     ResourceNeuronData input_neuron = default_neuron;
     input_neuron.potential_leak_ = potential_leak;
     input_neuron.negative_activation_threshold_ = negative_activation_threshold;
