@@ -35,9 +35,9 @@ constexpr float max_synaptic_weight = 0.0924;
 /// Base weight value.
 constexpr float base_weight_value = 0.000F;
 /// Neuron dopamine period.
-constexpr int neuron_dopamine_period = 10;
+constexpr uint32_t neuron_dopamine_period = 10;
 /// Synapse dopamine period.
-constexpr int synapse_dopamine_period = 10;
+constexpr uint32_t synapse_dopamine_period = 10;
 /// Input neuron potential decay.
 constexpr float input_neuron_potential_decay = 1.0 - 1.0 / 3.0;
 /// Dopamine parameter.
@@ -65,4 +65,4 @@ constexpr size_t neurons_per_column = 20;
 constexpr size_t num_input_neurons = neurons_per_column * classes_amount;
 
 /// How many subnetworks to use.
-constexpr int num_subnetworks = 1;
+constexpr size_t num_subnetworks = 1;
