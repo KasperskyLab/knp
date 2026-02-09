@@ -30,34 +30,48 @@
 #include <vector>
 
 
-/**
- * @brief A network with annotations.
- */
+/// A network with annotations.
 struct AnnotatedNetwork
 {
+    /// Network.
     knp::framework::Network network_;
+
+    /// Annotation struct.
     struct Annotation
     {
+        /// Output uids.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> output_uids_;
+
+        /// Projections from rasterized channeled population.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_raster_;
+
+        /// Projection from classes channeled populations. Aka label populations.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_classes_;
+
+        /// Populations that should be kept in inference.
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_population_uids_;
+
+        /// Projections that should be kept in inference.
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_internal_projection_;
 
-        // For each compound network: a vector of senders and a vector of receivers.
+        /// For each compound network: a vector of senders and a vector of receivers.
         // cppcheck-suppress unusedStructMember
         std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>> wta_data_;
 
+        /// WTA borders, for example 2,4,6.
         // cppcheck-suppress unusedStructMember
         std::vector<size_t> wta_borders_;
+
+        /// Map of population names.
         // cppcheck-suppress unusedStructMember
         std::map<knp::core::UID, std::string> population_names_;
     }
+    /// Annotation to network.
     // cppcheck-suppress unusedStructMember
     data_;
 };

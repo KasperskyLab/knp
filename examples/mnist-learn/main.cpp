@@ -29,6 +29,11 @@
 #include "train_network.h"
 
 
+/**
+ * @brief Run whole model.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ */
 template <typename Neuron>
 void run_model(const ModelDescription& model_desc)
 {
@@ -49,6 +54,12 @@ void run_model(const ModelDescription& model_desc)
 }
 
 
+/**
+ * @brief Main function.
+ * @param argc Argument count.
+ * @param argv Arguments value.
+ * @return Error code.
+ */
 int main(int argc, char** argv)
 {
     // Parsing command line arguments.

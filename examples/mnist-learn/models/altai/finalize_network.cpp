@@ -24,7 +24,11 @@
 #include "network_functions.h"
 
 
-// In AltAI we need to quantisize weights.
+/**
+ * @brief In AltAI we need to quantisize weights.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ */
 template <>
 void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {

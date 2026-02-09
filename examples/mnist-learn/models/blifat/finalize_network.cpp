@@ -22,7 +22,11 @@
 #include "network_functions.h"
 
 
-// BLIFAT model dont have any finalization.
+/**
+ * @brief BLIFAT model dont have any finalization.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ */
 template <>
 void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {

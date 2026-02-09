@@ -24,6 +24,11 @@
 #include "network_functions.h"
 
 
+/**
+ * @brief Sends spike each 11th step in 15 steps loop.
+ * @param dataset Dataset.
+ * @return Callable function on each step.
+ */
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset)

@@ -26,6 +26,7 @@
 #include <string>
 
 
+/// Enum for population roles.
 enum class PopulationRole
 {
     OUTPUT,
@@ -35,21 +36,42 @@ enum class PopulationRole
 };
 
 
+/// Info of population.
 struct PopulationInfo
 {
+    /// Population role.
     PopulationRole role_;
+    /// If this is false, then after training it will be removed for inference.
     bool keep_in_inference_;
+    /// Amount of neurons in population.
     size_t neurons_amount_;
+    /// UID of population.
     knp::core::UID uid_;
+    /// Name of population, used for logs.
     std::string name_;
 };
 
 
+/// Class for helping with network construction.
 class NetworkConstructor
 {
 public:
+    /**
+     * @brief Constructor.
+     * @param network Annotated network.
+     */
     explicit NetworkConstructor(AnnotatedNetwork &network) : network_(network) {}
 
+    /**
+     * @brief Add population to network, and save some of its data.
+     * @tparam Neuron Neuron type.
+     * @param neuron Neuron parameters.
+     * @param neurons_amount Amount of neurons in population.
+     * @param role Population role.
+     * @param keep_in_inference Can population be discarded in inference, or no.
+     * @param name Name for logs.
+     * @return Reference to saved population info.
+     */
     template <typename Neuron>
     [[nodiscard]] const PopulationInfo &add_population(
         const knp::neuron_traits::neuron_parameters<Neuron> &neuron, size_t neurons_amount, PopulationRole role,
@@ -64,12 +86,30 @@ public:
         return pops_.emplace_back(pop_info);
     }
 
+    /**
+     * @brief Add channeled population, its not actually added into network, but rather used for automatic marking.
+     * @param neurons_amount Amount of neurons in population.
+     * @param keep_in_inference Can population be discarded in inference, or no.
+     * @return Reference to saved population info.
+     */
     [[nodiscard]] const PopulationInfo &add_channeled_population(size_t neurons_amount, bool keep_in_inference)
     {
         return pops_.emplace_back(
             PopulationInfo{PopulationRole::CHANNELED, keep_in_inference, neurons_amount, knp::core::UID(false), ""});
     }
 
+    /**
+     * @brief Add projection to network.
+     * @tparam Synapse Synapse type.
+     * @tparam Creator Type of callable creator of synapses.
+     * @param synapse Synapse parameters.
+     * @param creator Callable creator of synapses, usually comes from knp::framework::projection::creators.
+     * @param pop_pre Presynaptic population.
+     * @param pop_post Postsynaptic population.
+     * @param trainable Is projection trainable, or static.
+     * @param have_wta Does projection have wta connected to it.
+     * @return UID of projection.
+     */
     template <typename Synapse, typename Creator>
     knp::core::UID add_projection(
         const knp::synapse_traits::synapse_parameters<Synapse> &synapse, Creator creator, const PopulationInfo &pop_pre,

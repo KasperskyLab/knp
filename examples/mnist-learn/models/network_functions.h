@@ -28,6 +28,12 @@
 #include <model_desc.h>
 
 
+/**
+ * @brief If no neuron made a specialization for its type, throw exception.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model desciption.
+ * @return Constructed network.
+ */
 template <typename Neuron>
 AnnotatedNetwork construct_network(const ModelDescription& model_desc)
 {
@@ -35,6 +41,12 @@ AnnotatedNetwork construct_network(const ModelDescription& model_desc)
 }
 
 
+/**
+ * @brief If no neuron made a specialization for its type, throw exception.
+ * @tparam Neuron Neuron type.
+ * @param network Annotated network.
+ * @param model_desc Model description.
+ */
 template <typename Neuron>
 void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
@@ -42,6 +54,12 @@ void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_d
 }
 
 
+/**
+ * @brief If no neuron made a specialization for its type, throw exception.
+ * @tparam Neuron Neuron type.
+ * @param dataset Dataset.
+ * @return Callable function on each step.
+ */
 template <typename Neuron>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_labels_spikes_generator(
     const Dataset& dataset)

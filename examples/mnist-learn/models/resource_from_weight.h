@@ -26,6 +26,13 @@
 #include <utility>
 
 
+/**
+ * @brief Calculate resource from weight.
+ * @param weight Weight.
+ * @param min_weight Minimal weight.
+ * @param max_weight Maximum weight.
+ * @return Calculated resource.
+ */
 inline float resource_from_weight(float weight, float min_weight, float max_weight)
 {
     // Max weight is only possible with infinite resource, so we should select a value less than that.

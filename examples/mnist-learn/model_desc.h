@@ -24,9 +24,7 @@
 #include <filesystem>
 
 
-/**
- * @brief Supported model types
- */
+/// Supported model types.
 enum class SupportedModelType
 {
     BLIFAT,
@@ -34,20 +32,39 @@ enum class SupportedModelType
 };
 
 
-/*
- * @brief All parameters that may be changed from command line.
- */
+/// All parameters that may be changed from command line.
 struct ModelDescription
 {
+    /// Model type.
     // cppcheck-suppress unusedStructMember
     SupportedModelType type_;
+
+    /// Amount of images for training.
     // cppcheck-suppress unusedStructMember
-    size_t train_images_amount_, inference_images_amount_;
-    std::filesystem::path images_file_path_, labels_file_path_, backend_path_, log_path_, model_saving_path_;
+    size_t train_images_amount_;
+
+    /// Amount of images for inference.
+    // cppcheck-suppress unusedStructMember
+    size_t inference_images_amount_;
+
+    /// Path to binary images file.
+    std::filesystem::path images_file_path_;
+
+    /// Path to images labels file.
+    std::filesystem::path labels_file_path_;
+
+    /// Path to backend, excluding platform specific name parts, like .so, .dll and etc.
+    std::filesystem::path backend_path_;
+
+    /// Path to folder for saving detailed logs.
+    std::filesystem::path log_path_;
+
+    /// Path to folder for saving trained model in sonata format.
+    std::filesystem::path model_saving_path_;
 };
 
 
-/*
+/**
  * @brief Printing helper for model description.
  * @param stream Stream.
  * @param desc Model desciption.

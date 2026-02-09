@@ -28,24 +28,34 @@
 #include "settings.h"
 
 
-// A list of short type names to make reading easier.
-using DeltaSynapseParams = knp::synapse_traits::synapse_parameters<knp::synapse_traits::DeltaSynapse>;
-using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
+/// Short name for delta synapse.
 using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
+/// Short name for delta synapse parameters.
+using DeltaSynapseParams = knp::synapse_traits::synapse_parameters<DeltaSynapse>;
+/// Short name for delta synapse projection.
+using DeltaProjection = knp::core::Projection<DeltaSynapse>;
+/// Short name for STDP delta synapse.
 using ResourceSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
-using ResourceDeltaProjection = knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
-using ResourceSynapseData = ResourceDeltaProjection::Synapse;
+/// Short name for STDP delta synapse params.
 using ResourceSynapseParams = knp::synapse_traits::synapse_parameters<ResourceSynapse>;
-using AltAILIFPopulation = knp::core::Population<knp::neuron_traits::AltAILIF>;
-using ResourceAltAILIFPopulation = knp::core::Population<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>;
-using ResourceNeuron = knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron;
-using ResourceNeuronData = knp::neuron_traits::neuron_parameters<ResourceNeuron>;
+/// Short name for STDP AltAILIF neuron parameters.
+using ResourceNeuronData =
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron>;
 
 
-// Structure just to store populations.
+/// Structure just to store populations.
 struct NetworkPopulations
 {
-    const PopulationInfo &input_pop_, output_pop_, gate_pop_, raster_pop_, target_pop_;
+    /// Input population.
+    const PopulationInfo &input_pop_;
+    /// Output population.
+    const PopulationInfo &output_pop_;
+    /// Gate population. Used for training.
+    const PopulationInfo &gate_pop_;
+    /// Population for rasterized images.
+    const PopulationInfo &raster_pop_;
+    /// Population for images labels.
+    const PopulationInfo &target_pop_;
 };
 
 

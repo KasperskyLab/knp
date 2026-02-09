@@ -26,6 +26,7 @@
 #include "model_desc.h"
 
 
+/// Short name for dataset class.
 using Dataset = knp::framework::data_processing::classification::images::Dataset;
 
 /**

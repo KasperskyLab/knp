@@ -25,14 +25,17 @@
 #include <models/network_functions.h>
 
 
+/// Specification of network construction for AltAILIF neuron.
 template <>
 AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDescription& model_desc);
 
 
+/// Specification of network finalization for AltAILIF neuron.
 template <>
 void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc);
 
 
+/// Specification of training labels spikes generator for AltAILIF neuron.
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset);

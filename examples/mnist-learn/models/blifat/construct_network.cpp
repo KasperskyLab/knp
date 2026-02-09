@@ -29,24 +29,33 @@
 #include "settings.h"
 
 
-// A list of short type names to make reading easier.
-using DeltaSynapseData = knp::synapse_traits::synapse_parameters<knp::synapse_traits::DeltaSynapse>;
-using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
+/// Short name for delta synapse.
 using DeltaSynapse = knp::synapse_traits::DeltaSynapse;
+/// Short name for delta synapse parameters.
+using DeltaSynapseParams = knp::synapse_traits::synapse_parameters<DeltaSynapse>;
+/// Short name for delta synapse projection.
+using DeltaProjection = knp::core::Projection<DeltaSynapse>;
+/// Short name for STDP delta synapse.
 using ResourceSynapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
-using ResourceDeltaProjection = knp::core::Projection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
-using ResourceSynapseData = ResourceDeltaProjection::Synapse;
+/// Short name for STDP delta synapse params.
 using ResourceSynapseParams = knp::synapse_traits::synapse_parameters<ResourceSynapse>;
-using BlifatPopulation = knp::core::Population<knp::neuron_traits::BLIFATNeuron>;
-using ResourceBlifatPopulation = knp::core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
-using ResourceNeuron = knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron;
-using ResourceNeuronData = knp::neuron_traits::neuron_parameters<ResourceNeuron>;
+/// Short name for STDP BLIFAT neuron parameters.
+using ResourceNeuronData = knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
 
 
-// Structure just to store populations.
+/// Structure just to store populations.
 struct NetworkPopulations
 {
-    const PopulationInfo &input_pop_, output_pop_, gate_pop_, raster_pop_, target_pop_;
+    /// Input population.
+    const PopulationInfo &input_pop_;
+    /// Output population.
+    const PopulationInfo &output_pop_;
+    /// Gate population. Used for training.
+    const PopulationInfo &gate_pop_;
+    /// Population for rasterized images.
+    const PopulationInfo &raster_pop_;
+    /// Population for images labels.
+    const PopulationInfo &target_pop_;
 };
 
 
@@ -101,7 +110,7 @@ static void create_projections(
     // Marking created projection, rasterized image will go into it.
     network.data_.projections_from_raster_.push_back(raster_to_input_proj);
 
-    DeltaSynapseData target_to_input_synapse_dopamine;
+    DeltaSynapseParams target_to_input_synapse_dopamine;
     target_to_input_synapse_dopamine.weight_ = 0.18;
     target_to_input_synapse_dopamine.delay_ = 3;
     target_to_input_synapse_dopamine.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
@@ -111,7 +120,7 @@ static void create_projections(
     // Marking created projection, labels will go into it.
     network.data_.projections_from_classes_.push_back(target_to_input_proj_dopamine);
 
-    DeltaSynapseData input_to_output_synapse;
+    DeltaSynapseParams input_to_output_synapse;
     input_to_output_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     input_to_output_synapse.weight_ = 10;
     auto input_to_output_proj = constructor.add_projection(
@@ -120,14 +129,14 @@ static void create_projections(
     // Connecting created projection as receiver to WTA.
     network.data_.wta_data_.back().second.push_back(input_to_output_proj);
 
-    DeltaSynapseData output_to_gate_synapse;
+    DeltaSynapseParams output_to_gate_synapse;
     output_to_gate_synapse.weight_ = -10;
     output_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::BLOCKING;
     auto output_to_gate_proj = constructor.add_projection(
         output_to_gate_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, pops.output_pop_,
         pops.gate_pop_, false, false);
 
-    DeltaSynapseData target_to_gate_synapse;
+    DeltaSynapseParams target_to_gate_synapse;
     target_to_gate_synapse.weight_ = 10.f;
     target_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     auto target_to_gate_proj = constructor.add_projection(
@@ -136,14 +145,14 @@ static void create_projections(
     // Marking created projection, labels will go into it.
     network.data_.projections_from_classes_.push_back(target_to_gate_proj);
 
-    DeltaSynapseData gate_to_input_synapse;
+    DeltaSynapseParams gate_to_input_synapse;
     gate_to_input_synapse.weight_ = 10;
     gate_to_input_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     auto gate_to_input_proj = constructor.add_projection(
         gate_to_input_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, pops.gate_pop_,
         pops.input_pop_, false, false);
 
-    DeltaSynapseData target_to_input_synapse_excitatory;
+    DeltaSynapseParams target_to_input_synapse_excitatory;
     target_to_input_synapse_excitatory.weight_ = -30;
     target_to_input_synapse_excitatory.delay_ = 4;
     target_to_input_synapse_excitatory.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
