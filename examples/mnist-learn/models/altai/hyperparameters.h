@@ -20,9 +20,10 @@
  */
 #pragma once
 
-#include <global_config.h>
-
 #include <cstdint>
+
+// cppcheck-suppress missingInclude
+#include "global_config.h"
 
 
 /// Number of neurons reserved per a single digit.

@@ -21,8 +21,10 @@
 
 #pragma once
 
-#include <dataset.h>
-#include <models/network_functions.h>
+// cppcheck-suppress missingInclude
+#include "dataset.h"
+// cppcheck-suppress missingInclude
+#include "models/network_functions.h"
 
 
 template <>

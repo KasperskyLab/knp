@@ -20,10 +20,11 @@
  */
 
 #pragma once
-#include <annotated_network.h>
-
 #include <list>
 #include <string>
+
+// cppcheck-suppress missingInclude
+#include "annotated_network.h"
 
 
 /// Enum for population roles.

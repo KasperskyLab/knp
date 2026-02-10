@@ -23,9 +23,12 @@
 
 #include <knp/neuron-traits/all_traits.h>
 
-#include <annotated_network.h>
-#include <dataset.h>
-#include <model_desc.h>
+// cppcheck-suppress missingInclude
+#include "annotated_network.h"
+// cppcheck-suppress missingInclude
+#include "dataset.h"
+// cppcheck-suppress missingInclude
+#include "model_desc.h"
 
 
 /**

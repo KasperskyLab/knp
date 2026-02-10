@@ -19,8 +19,8 @@
  * limitations under the License.
  */
 
-#include <global_config.h>
-
+// cppcheck-suppress missingInclude
+#include "global_config.h"
 #include "network_functions.h"
 
 

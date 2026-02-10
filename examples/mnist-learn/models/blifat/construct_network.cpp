@@ -19,13 +19,14 @@
  * limitations under the License.
  */
 
-#include <models/network_constructor.h>
-#include <models/resource_from_weight.h>
-
 #include <string>
 #include <vector>
 
 #include "hyperparameters.h"
+// cppcheck-suppress missingInclude
+#include "models/network_constructor.h"
+// cppcheck-suppress missingInclude
+#include "models/resource_from_weight.h"
 #include "network_functions.h"
 
 
