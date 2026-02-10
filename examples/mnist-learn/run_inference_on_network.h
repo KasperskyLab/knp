@@ -32,7 +32,7 @@
 
 #include "annotated_network.h"
 #include "dataset.h"
-#include "settings.h"
+#include "global_parameters.h"
 
 
 /**

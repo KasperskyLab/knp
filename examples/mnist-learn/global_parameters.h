@@ -1,6 +1,6 @@
 /**
- * @file settings.h
- * @brief Global settings.
+ * @file global_parameters.h
+ * @brief Global parameters.
  * @kaspersky_support D. Postnikov
  * @date 03.02.2026
  * @license Apache 2.0

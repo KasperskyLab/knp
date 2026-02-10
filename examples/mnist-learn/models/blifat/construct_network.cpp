@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "network_functions.h"
-#include "settings.h"
+#include "network_parameters.h"
 
 
 /// Short name for delta synapse.
