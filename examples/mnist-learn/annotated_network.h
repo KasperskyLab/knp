@@ -1,10 +1,10 @@
 /**
- * @file construct_network.h
- * @brief Functions for network construction.
- * @kaspersky_support A. Vartenkov
- * @date 03.12.2024
+ * @file annotated_network.h
+ * @brief Network with annotations.
+ * @kaspersky_support D. Postnikov
+ * @date 03.02.2026
  * @license Apache 2.0
- * @copyright © 2024-2025 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 #include <knp/framework/network.h>
 
-#include <filesystem>
 #include <map>
 #include <set>
 #include <string>
@@ -31,31 +30,48 @@
 #include <vector>
 
 
+/// A network with annotations.
 struct AnnotatedNetwork
 {
+    /// Network.
     knp::framework::Network network_;
+
+    /// Annotation struct.
     struct Annotation
     {
+        /// Output uids.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> output_uids_;
+
+        /// Projections from rasterized channeled population.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_raster_;
+
+        /// Projection from classes channeled populations. Aka label populations.
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_classes_;
+
+        /// Populations that should be kept in inference.
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_population_uids_;
+
+        /// Projections that should be kept in inference.
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_internal_projection_;
 
-        // For each compound network: a vector of senders and a vector of receivers.
+        /// For each compound network: a vector of senders and a vector of receivers.
         // cppcheck-suppress unusedStructMember
         std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>> wta_data_;
+
+        /// WTA borders, for example 2,4,6.
+        // cppcheck-suppress unusedStructMember
+        std::vector<size_t> wta_borders_;
+
+        /// Map of population names.
         // cppcheck-suppress unusedStructMember
         std::map<knp::core::UID, std::string> population_names_;
     }
+    /// Annotation to network.
     // cppcheck-suppress unusedStructMember
     data_;
 };
-
-
-AnnotatedNetwork create_example_network(int num_compound_networks);

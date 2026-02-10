@@ -1,0 +1,39 @@
+/**
+ * @file save_network.h
+ * @brief Function for saving network.
+ * @kaspersky_support D. Postnikov
+ * @date 04.02.2026
+ * @license Apache 2.0
+ * @copyright © 2026 AO Kaspersky Lab
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include <knp/framework/sonata/network_io.h>
+
+#include "annotated_network.h"
+#include "model_desc.h"
+
+
+/**
+ * @brief Will save trained network, if saving is enabled.
+ * @param model_desc Model desciption.
+ * @param network Annotated network.
+ */
+inline void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
+{
+    std::filesystem::create_directory(model_desc.model_saving_path_);
+    knp::framework::sonata::save_network(network.network_, model_desc.model_saving_path_);
+}

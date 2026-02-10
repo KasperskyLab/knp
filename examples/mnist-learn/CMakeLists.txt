@@ -17,15 +17,27 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.22)
 project(mnist_learn_example)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-find_package(Boost COMPONENTS program_options REQUIRED )
-
-# Need to check if the example build is inside the Kaspersky Neuromorphic Platform tree.
+# Need to check if the example build inside KNP tree.
 if (NOT TARGET KNP::BaseFramework::Core)
     find_package(knp-base-framework REQUIRED)
 endif()
 
-add_executable(mnist_learn_example main.cpp construct_network.cpp train.cpp inference.cpp time_string.cpp)
-target_link_libraries(mnist_learn_example PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES})
+find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS program_options REQUIRED)
+
+add_executable(${PROJECT_NAME}
+    main.cpp
+    model_desc.cpp
+    parse_arguments.cpp
+    dataset.cpp
+    evaluate_results.cpp
+    models/blifat/construct_network.cpp
+    models/blifat/finalize_network.cpp
+    models/blifat/spike_generators.cpp
+    models/altai/construct_network.cpp
+    models/altai/finalize_network.cpp
+    models/altai/spike_generators.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE KNP::BaseFramework::Core Boost::program_options)

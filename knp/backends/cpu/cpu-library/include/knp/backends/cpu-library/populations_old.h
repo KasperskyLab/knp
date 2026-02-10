@@ -75,7 +75,7 @@ std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> find_pro
 
 /**
  * @brief Make one execution step for a population of any neurons.
- * @tparam BlifatLikeNeuron type of a neuron with BLIFAT-like parameters.
+ * @tparam Neuron type of a neuron.
  * @param pop population to update.
  * @param endpoint message endpoint used for message exchange.
  * @param step_n execution step.

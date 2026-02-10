@@ -1,10 +1,10 @@
 /**
- * @file time_string.h
- * @brief Function for converting time to string.
+ * @file finalize_network.cpp
+ * @brief Function for finalizing network after training.
  * @kaspersky_support D. Postnikov
- * @date 28.03.2025
+ * @date 04.02.2026
  * @license Apache 2.0
- * @copyright © 2025 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,15 @@
  * limitations under the License.
  */
 
-#pragma once
-#include <string>
+#include "network_functions.h"
 
 
 /**
- * @brief Converts current time to a string.
- * @return time string.
+ * @brief BLIFAT model doesn't have any finalization.
+ * @param network Annotated network.
+ * @param model_desc Model description.
  */
-std::string get_time_string();
+template <>
+void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& network, const ModelDescription& model_desc)
+{
+}

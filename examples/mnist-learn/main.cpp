@@ -1,10 +1,10 @@
 /**
  * @file main.cpp
- * @brief Example of training a MNIST network
- * @kaspersky_support A. Vartenkov
- * @date 30.08.2024
+ * @brief Example of training a MNIST network.
+ * @kaspersky_support D. Postnikov
+ * @date 03.02.2026
  * @license Apache 2.0
- * @copyright © 2024-2025 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,73 +19,72 @@
  * limitations under the License.
  */
 
-#include <knp/framework/inference_evaluation/classification/processor.h>
-
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 
-#include "inference.h"
-#include "shared_network.h"
-#include "time_string.h"
-#include "train.h"
+#include "dataset.h"
+#include "evaluate_results.h"
+#include "parse_arguments.h"
+#include "run_inference_on_network.h"
+#include "save_network.h"
+#include "train_network.h"
 
-constexpr size_t active_steps = 10;
-constexpr size_t steps_per_image = 15;
-constexpr float state_increment_factor = 1.f / 255;
-constexpr size_t images_amount_to_train = 60000;
-constexpr size_t images_amount_to_test = 10000;
-constexpr size_t classes_amount = 10;
 
-namespace data_processing = knp::framework::data_processing::classification::images;
-namespace inference_evaluation = knp::framework::inference_evaluation::classification;
+/**
+ * @brief Run whole model.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ */
+template <typename Neuron>
+void run_model(const ModelDescription& model_desc)
+{
+    Dataset dataset = process_dataset(model_desc);
 
+    AnnotatedNetwork network = construct_network<Neuron>(model_desc);
+
+    train_network<Neuron>(network, model_desc, dataset);
+
+    // Some type of models need to do some procedures, to be ready for inference.
+    finalize_network<Neuron>(network, model_desc);
+
+    if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
+
+    auto inference_spikes = run_inference_on_network<Neuron>(network, model_desc, dataset);
+
+    evaluate_results(inference_spikes, dataset);
+}
+
+
+/**
+ * @brief Main function.
+ * @param argc Argument count.
+ * @param argv Arguments value.
+ * @return Error code.
+ */
 int main(int argc, char** argv)
 {
-    if (argc < 3 || argc > 4)
+    // Parsing command line arguments.
+    std::optional<ModelDescription> model_desc_opt = parse_arguments(argc, argv);
+    if (!model_desc_opt.has_value()) return EXIT_FAILURE;
+    const ModelDescription& model_desc = model_desc_opt.value();
+
+    std::cout << "Starting model:\n" << model_desc << std::endl;
+
+    // Starting model according to selected type.
+    switch (model_desc.type_)
     {
-        std::cerr << "You need to provide 2[3] arguments,\n1: path to images raw data\n2: path to images labels\n[3]: "
-                     "path to folder for logs"
-                  << std::endl;
-        return EXIT_FAILURE;
+        case SupportedModelType::BLIFAT:
+        {
+            run_model<knp::neuron_traits::BLIFATNeuron>(model_desc);
+            break;
+        }
+        case SupportedModelType::AltAI:
+        {
+            run_model<knp::neuron_traits::AltAILIF>(model_desc);
+            break;
+        }
+        default:
+            throw std::runtime_error("Unknown model type.");
     }
-
-    std::filesystem::path images_file_path = argv[1];
-    std::filesystem::path labels_file_path = argv[2];
-
-    std::filesystem::path log_path;
-    if (4 == argc) log_path = argv[3];
-
-    // Defines path to backend, on which to run a network.
-    std::filesystem::path path_to_backend =
-        std::filesystem::path(argv[0]).parent_path() / "knp-cpu-multi-threaded-backend";
-
-    std::ifstream images_stream(images_file_path, std::ios::binary);
-    std::ifstream labels_stream(labels_file_path, std::ios::in);
-
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306364
-    data_processing::Dataset dataset;
-    dataset.process_labels_and_images(
-        images_stream, labels_stream, images_amount_to_train + images_amount_to_test, classes_amount, input_size,
-        steps_per_image, dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
-    dataset.split(images_amount_to_train, images_amount_to_test);
-
-    std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
-              << " steps, inference " << dataset.get_steps_amount_for_training() << " steps" << std::endl;
-
-    // Construct network and run training.
-    AnnotatedNetwork trained_network = train_mnist_network(path_to_backend, dataset, log_path);
-
-    // Run inference for the same network.
-    auto spikes = run_mnist_inference(path_to_backend, trained_network, dataset, log_path);
-    std::cout << get_time_string() << ": inference finished  -- output spike count is " << spikes.size() << std::endl;
-
-    // Evaluate results.
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=306417
-    inference_evaluation::InferenceResultsProcessor inference_processor;
-    inference_processor.process_inference_results(spikes, dataset);
-
-    inference_processor.write_inference_results_to_stream_as_csv(std::cout);
 
     return EXIT_SUCCESS;
 }
