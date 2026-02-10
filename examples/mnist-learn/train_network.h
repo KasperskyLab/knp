@@ -32,7 +32,7 @@
 
 #include "annotated_network.h"
 #include "dataset.h"
-#include "global_parameters.h"
+#include "global_config.h"
 #include "models/altai/network_functions.h"
 #include "models/blifat/network_functions.h"
 

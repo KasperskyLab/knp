@@ -46,7 +46,7 @@ void run_model(const ModelDescription& model_desc)
     // Some type of models need to do some procedures, to be ready for inference.
     finalize_network<Neuron>(network, model_desc);
 
-    save_network(model_desc, network);
+    if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
     auto inference_spikes = run_inference_on_network<Neuron>(network, model_desc, dataset);
 

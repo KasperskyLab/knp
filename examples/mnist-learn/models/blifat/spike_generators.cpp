@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include <global_parameters.h>
+#include <global_config.h>
 
 #include "network_functions.h"
 

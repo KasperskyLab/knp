@@ -23,7 +23,7 @@
 
 #include <fstream>
 
-#include "global_parameters.h"
+#include "global_config.h"
 
 
 Dataset process_dataset(ModelDescription const& model_desc)

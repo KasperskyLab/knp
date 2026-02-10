@@ -1,6 +1,6 @@
 /**
- * @file network_parameters.h
- * @brief AltAI network parameters.
+ * @file hyperparameters.h
+ * @brief AltAI network hyperparameters.
  * @kaspersky_support D. Postnikov
  * @date 28.07.2025
  * @license Apache 2.0
@@ -20,7 +20,7 @@
  */
 #pragma once
 
-#include <global_parameters.h>
+#include <global_config.h>
 
 #include <cstdint>
 
