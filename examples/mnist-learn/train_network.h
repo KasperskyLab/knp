@@ -1,6 +1,6 @@
 /**
  * @file train_network.h
- * @brief Function for training network.
+ * @brief Function for network training.
  * @kaspersky_support A. Vartenkov
  * @date 24.03.2025
  * @license Apache 2.0

@@ -23,7 +23,7 @@
 
 
 /**
- * @brief BLIFAT model dont have any finalization.
+ * @brief BLIFAT model doesnt have any finalization.
  * @param network Annotated network.
  * @param model_desc Model description.
  */

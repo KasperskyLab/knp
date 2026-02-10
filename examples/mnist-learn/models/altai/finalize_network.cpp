@@ -25,7 +25,7 @@
 
 
 /**
- * @brief In AltAI we need to quantisize weights.
+ * @brief In AltAI we need to quantize weights.
  * @param network Annotated network.
  * @param model_desc Model description.
  */
