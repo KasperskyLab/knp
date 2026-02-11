@@ -99,8 +99,8 @@ static void create_projections(
     // Synapse creation.
     ResourceSynapseParams raster_to_input_synapse;
     raster_to_input_synapse.rule_.dopamine_plasticity_period_ = raster_to_input_synapse_dopamine_plasticity_period;
-    raster_to_input_synapse.rule_.w_min_ = raster_to_input_synapse_w_max;
-    raster_to_input_synapse.rule_.w_max_ = raster_to_input_synapse_w_min;
+    raster_to_input_synapse.rule_.w_max_ = raster_to_input_synapse_w_max;
+    raster_to_input_synapse.rule_.w_min_ = raster_to_input_synapse_w_min;
     raster_to_input_synapse.rule_.synaptic_resource_ =
         resource_from_weight(0, raster_to_input_synapse.rule_.w_min_, raster_to_input_synapse.rule_.w_max_);
     // Creating projection out of synapse.
@@ -114,21 +114,21 @@ static void create_projections(
     target_to_input_synapse_dopamine.output_type_ = knp::synapse_traits::OutputType::DOPAMINE;
     target_to_input_synapse_dopamine.weight_ = 0.179376 * 1000;
     target_to_input_synapse_dopamine.delay_ = 3;
-    auto target_to_l_proj_dopamine = constructor.add_projection(
+    auto target_to_input_proj_dopamine = constructor.add_projection(
         target_to_input_synapse_dopamine, knp::framework::projection::creators::aligned<DeltaSynapse>, pops.target_pop_,
         pops.input_pop_, false, false);
     // Marking created projection, labels will go into it.
-    network.data_.projections_from_classes_.push_back(target_to_l_proj_dopamine);
+    network.data_.projections_from_classes_.push_back(target_to_input_proj_dopamine);
 
     DeltaSynapseParams target_to_input_synapse_excitatory;
     target_to_input_synapse_excitatory.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     target_to_input_synapse_excitatory.weight_ = -30 * 1000;
     target_to_input_synapse_excitatory.delay_ = 4;
-    auto target_to_l_proj_excitatory = constructor.add_projection(
+    auto target_to_input_proj_excitatory = constructor.add_projection(
         target_to_input_synapse_excitatory, knp::framework::projection::creators::all_to_all<DeltaSynapse>,
         pops.target_pop_, pops.input_pop_, false, false);
     // Marking created projection, labels will go into it.
-    network.data_.projections_from_classes_.push_back(target_to_l_proj_excitatory);
+    network.data_.projections_from_classes_.push_back(target_to_input_proj_excitatory);
 
     DeltaSynapseParams target_to_gate_synapse;
     target_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
@@ -142,11 +142,11 @@ static void create_projections(
     DeltaSynapseParams input_to_output_synapse;
     input_to_output_synapse.output_type_ = knp::synapse_traits::OutputType::EXCITATORY;
     input_to_output_synapse.weight_ = 10.f * 1000;
-    knp::core::UID l_to_output_proj = constructor.add_projection(
+    knp::core::UID input_to_output_proj = constructor.add_projection(
         input_to_output_synapse, knp::framework::projection::creators::aligned<DeltaSynapse>, pops.input_pop_,
         pops.output_pop_, false, true);
     // Connecting created projection as receiver to WTA.
-    network.data_.wta_data_.back().second.push_back(l_to_output_proj);
+    network.data_.wta_data_.back().second.push_back(input_to_output_proj);
 
     DeltaSynapseParams output_to_gate_synapse;
     output_to_gate_synapse.output_type_ = knp::synapse_traits::OutputType::BLOCKING;
