@@ -23,13 +23,13 @@
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/sonata/network_io.h>
+#include <knp/framework/visualizer/visualize_network.h>
 
 #include <iostream>
 
 #include <boost/program_options.hpp>
 
 #include "inference.h"
-#include "visualize_network.h"
 
 
 // Namespace for program options.
@@ -75,12 +75,14 @@ int main(int argc, char **argv)
         // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
         knp::framework::Network network = knp::framework::sonata::load_network(network_path);
         // Constructs a network graph.
-        const NetworkGraph net_graph(network);
+        const knp::framework::NetworkGraph net_graph(network);
         // Prints descriptions of graph connections.
-        print_network_description(net_graph);
+        knp::framework::print_network_description(net_graph);
         // Draws a subgraph in the OpenCV window.
         // Press `Esc` to exit the OpenCV window.
-        position_network_test(NetworkGraph(network), divide_graph_by_connectivity(net_graph)[0], {1000, 700});
+        knp::framework::position_network_test(
+            knp::framework::NetworkGraph(network), knp::framework::divide_graph_by_connectivity(net_graph)[0],
+            {1000, 700});
     }
 
     // If `task=infer`, the function loads a network and runs inference.

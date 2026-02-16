@@ -49,8 +49,8 @@ VisualGraph::VisualGraph(const std::vector<int> &nodes, const std::vector<std::v
 }
 
 
-// We show graph using a following physical model: all nodes repel each other, all connected nodes are connected 
-// as if by springs of a fixed length. There is also a drag force to dampen oscillations, it's calculated 
+// We show graph using a following physical model: all nodes repel each other, all connected nodes are connected
+// as if by springs of a fixed length. There is also a drag force to dampen oscillations, it's calculated
 // independently. This function calculates forces between two graph nodes.
 cv::Vec2d VisualGraph::get_force(const PhysicsPoint &target, const PhysicsPoint &influence, bool has_edge) const
 {

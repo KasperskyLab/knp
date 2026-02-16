@@ -19,9 +19,8 @@
  * limitations under the License.
  */
 
-#include "visualize_network.h"
-
 #include <knp/framework/network.h>
+#include <knp/framework/visualizer/visualize_network.h>
 
 #include <spdlog/spdlog.h>
 
@@ -33,6 +32,11 @@
 #include <opencv2/imgproc.hpp>
 
 #include "graph_physics.h"
+
+
+// TODO: Draw network as a set of subgraphs.
+namespace knp::framework
+{
 
 /**
  * @brief Adjacency list is a representation of a graph where there is a list of adjacent nodes for each node.
@@ -404,7 +408,7 @@ std::vector<std::vector<int>> divide_graph_by_connectivity(const NetworkGraph &g
     std::unordered_set<int> remaining_nodes;
     std::vector<std::vector<int>> connected_sets;
     std::unordered_set<int> ignored_nodes{static_cast<int>(adj_list.size() - 1)};
-    for (int i = 0; i < adj_list.size(); ++i) remaining_nodes.insert(i);
+    for (size_t i = 0; i < adj_list.size(); ++i) remaining_nodes.insert(i);
 
     remaining_nodes.erase(static_cast<int>(adj_list.size()) - 1);  // delete input node
     while (!remaining_nodes.empty())
@@ -512,4 +516,4 @@ std::vector<cv::Point2i> position_network(
     return result;
 }
 
-// TODO: Draw network as a set of subgraphs.
+}  // namespace knp::framework

@@ -1,6 +1,6 @@
 /**
  * @file visualize_network.h
- * @brief Functions for graph visualization. 
+ * @brief Functions for graph visualization.
  * @warning Most of the functions are not well-tested or stable yet.
  * @date 26.07.2024
  * @license Apache 2.0
@@ -29,10 +29,15 @@
 
 
 /**
- * @brief Network description structure for drawing. 
+ * @brief Framework namespace.
+ */
+namespace knp::framework
+{
+/**
+ * @brief Network description structure for drawing.
  * @note You can use this to check network structure.
  */
-struct NetworkGraph
+struct KNP_DECLSPEC NetworkGraph
 {
 public:
     /**
@@ -49,11 +54,13 @@ public:
         /**
          * @brief Population UID.
          */
+        // cppcheck-suppress unusedStructMember
         knp::core::UID uid_;
 
         /**
          * @brief Population name.
          */
+        // cppcheck-suppress unusedStructMember
         std::string name_;
 
         /**
@@ -66,6 +73,7 @@ public:
     /**
      * @brief Node vector.
      */
+    // cppcheck-suppress unusedStructMember
     std::vector<Node> nodes_;
 
     /**
@@ -94,11 +102,13 @@ public:
         /**
          * @brief Projection UID.
          */
+        // cppcheck-suppress unusedStructMember
         knp::core::UID uid_;
 
         /**
          * @brief Projection name.
          */
+        // cppcheck-suppress unusedStructMember
         std::string name_;
 
         /**
@@ -111,6 +121,7 @@ public:
     /**
      * @brief Edge vector.
      */
+    // cppcheck-suppress unusedStructMember
     std::vector<Edge> edges_;
 
     /**
@@ -125,7 +136,7 @@ public:
  * @brief Print node and edge connections.
  * @param graph network graph.
  */
-void print_network_description(const NetworkGraph &graph);
+KNP_DECLSPEC void print_network_description(const NetworkGraph &graph);
 
 
 /**
@@ -133,7 +144,7 @@ void print_network_description(const NetworkGraph &graph);
  * @note The function prints information not in a human-friendly manner.
  * @param graph network graph.
  */
-void print_modified_network_description(const NetworkGraph &graph);
+KNP_DECLSPEC void print_modified_network_description(const NetworkGraph &graph);
 
 
 /**
@@ -141,7 +152,7 @@ void print_modified_network_description(const NetworkGraph &graph);
  * @param graph network graph.
  * @return vector of subgraphs presented by node indexes.
  */
-std::vector<std::vector<int>> divide_graph_by_connectivity(const NetworkGraph &graph);
+std::vector<std::vector<int>> KNP_DECLSPEC divide_graph_by_connectivity(const NetworkGraph &graph);
 
 
 /**
@@ -153,7 +164,7 @@ std::vector<std::vector<int>> divide_graph_by_connectivity(const NetworkGraph &g
  * @param num_iterations number of iterations for the positioning algorithm.
  * @return node positions.
  */
-std::vector<cv::Point2i> position_network(
+KNP_DECLSPEC std::vector<cv::Point2i> position_network(
     const NetworkGraph &graph, const std::vector<int> &nodes, cv::Size screen_size, int margin, int num_iterations);
 
 
@@ -164,5 +175,6 @@ std::vector<cv::Point2i> position_network(
  * @param screen_size output image size.
  * @param margin size of borders in pixels.
  */
-void position_network_test(
+KNP_DECLSPEC void position_network_test(
     const NetworkGraph &graph, const std::vector<int> &nodes, const cv::Size &screen_size, int margin = 50);
+}  // namespace knp::framework
