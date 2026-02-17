@@ -21,6 +21,8 @@
 
 #include "parse_arguments.h"
 
+#include <spdlog/spdlog.h>
+
 #include <iostream>
 #include <string>
 
@@ -42,7 +44,8 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "log_path", po::value<std::string>()->default_value(""),
         "path for putting logs. if no path is specified, no logs will be produced.")(
         "model_path", po::value<std::string>()->default_value(""),
-        "path for saving trained model. if no path is specified, model wont be saved.");
+        "path for saving trained model. if no path is specified, model wont be saved.")(
+        "spdlog_level", po::value<std::string>()->default_value("info"), "spdlog logging level.");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -152,6 +155,23 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     else
     {
         model_desc.model_saving_path_ = "";
+    }
+
+    if (vm.count("spdlog_level"))
+    {
+        model_desc.spdlog_level_ = spdlog::level::from_str(vm["spdlog_level"].as<std::string>());
+        if (model_desc.spdlog_level_ == spdlog::level::off)
+        {
+            std::cout << "Spdlog logging level is incorrect." << std::endl;
+            std::cout << desc << std::endl;
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        std::cout << "Spdlog logging level not specified." << std::endl;
+        std::cout << desc << std::endl;
+        return std::nullopt;
     }
 
     return model_desc;

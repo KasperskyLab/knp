@@ -61,6 +61,10 @@ struct ModelDescription
 
     /// Path to folder for saving trained model in sonata format.
     std::filesystem::path model_saving_path_;
+
+    /// Spdlog logging level.
+    // cppcheck-suppress unusedStructMember
+    int spdlog_level_;
 };
 
 
