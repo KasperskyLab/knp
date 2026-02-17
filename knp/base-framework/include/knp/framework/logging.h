@@ -1,6 +1,6 @@
 /**
  * @file logging.h
- * @brief Global logging settings.
+ * @brief Global logging API settings.
  * @kaspersky_support Postnikov D.
  * @date 17.02.2026
  * @license Apache 2.0

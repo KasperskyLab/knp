@@ -1,6 +1,6 @@
 /**
  * @file logging.cpp
- * @brief Global logging settings.
+ * @brief Global logging API settings.
  * @kaspersky_support Postnikov D.
  * @date 17.02.2026
  * @license Apache 2.0
@@ -73,7 +73,7 @@ std::string level_to_str(Level level)
 Level str_to_level(std::string_view str)
 {
     if (str == "none") return none;
-    auto level = spdlog::level::from_str(str.begin());
+    const auto level = spdlog::level::from_str(str.begin());
     if (level == spdlog::level::off)
     {
         SPDLOG_ERROR("Could not convert string to level.");

@@ -21,8 +21,6 @@
 
 #include "model_desc.h"
 
-#include <spdlog/spdlog.h>
-
 std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
 {
     stream << "Model type: ";
