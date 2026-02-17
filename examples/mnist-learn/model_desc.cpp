@@ -57,9 +57,5 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
     else
         stream << "Model saving path: " << desc.model_saving_path_ << "\n";
 
-    stream << "Spdlog logging level: "
-           << spdlog::level::to_string_view(static_cast<spdlog::level::level_enum>(desc.spdlog_level_)).begin() << "\n";
-
-
     return stream;
 }

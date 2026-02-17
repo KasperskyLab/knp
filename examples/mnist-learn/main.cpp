@@ -19,8 +19,6 @@
  * limitations under the License.
  */
 
-#include <spdlog/spdlog.h>
-
 #include <iostream>
 
 #include "dataset.h"
@@ -68,8 +66,6 @@ int main(int argc, char** argv)
     std::optional<ModelDescription> model_desc_opt = parse_arguments(argc, argv);
     if (!model_desc_opt.has_value()) return EXIT_FAILURE;
     const ModelDescription& model_desc = model_desc_opt.value();
-
-    spdlog::set_level(static_cast<spdlog::level::level_enum>(model_desc.spdlog_level_));
 
     std::cout << "Starting model:\n" << model_desc << std::endl;
 
