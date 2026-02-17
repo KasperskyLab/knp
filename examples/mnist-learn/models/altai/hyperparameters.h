@@ -35,7 +35,7 @@ constexpr size_t neurons_per_column = 20;
 /// Activation threshold.
 constexpr uint16_t activation_threshold = 8531;
 /// Potential leak.
-constexpr int16_t potential_leak = static_cast<int16_t>(-(1.f - 1.f / 3.f) * 1000);
+constexpr int16_t potential_leak = 0;
 /// Negative activation threshold.
 constexpr uint16_t negative_activation_threshold = 0;
 /// Potential reset value.
