@@ -75,6 +75,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/inference_evaluation/perfomance_metrics.cpp
     impl/inference_evaluation/classification/processor.cpp
     impl/observer.cpp
+    impl/logging.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
