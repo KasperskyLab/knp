@@ -72,6 +72,11 @@ std::string level_to_str(Level level)
 
 Level str_to_level(std::string_view str)
 {
+    if (str.empty())
+    {
+        SPDLOG_ERROR("String is empty.");
+        return none;
+    }
     if (str == "none") return none;
     const auto level = spdlog::level::from_str(str.begin());
     if (level == spdlog::level::off)
