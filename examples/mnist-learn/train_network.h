@@ -125,7 +125,7 @@ void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc
     knp::framework::BackendLoader backend_loader;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(
-        model, backend_loader.load(model_desc.backend_path_), std::move(channel_map));
+        model, backend_loader.load(model_desc.training_backend_path_), std::move(channel_map));
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=260375
     knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);

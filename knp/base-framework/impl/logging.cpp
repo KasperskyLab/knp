@@ -78,7 +78,7 @@ Level str_to_level(std::string_view str)
         return none;
     }
     if (str == "none") return none;
-    const auto level = spdlog::level::from_str(str.begin());
+    const auto level = spdlog::level::from_str(std::string(str));
     if (level == spdlog::level::off)
     {
         SPDLOG_ERROR("Could not convert string to level.");
