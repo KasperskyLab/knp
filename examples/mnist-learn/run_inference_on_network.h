@@ -67,7 +67,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
         model.add_input_channel(input_image_channel_uid, image_proj_uid);
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(
-        model, backend_loader.load(model_desc.backend_path_), std::move(channel_map));
+        model, backend_loader.load(model_desc.inference_backend_path_), std::move(channel_map));
 
     // Receives a link to the output channel object (out_channel) from
     // the model executor (model_executor) by the output channel ID (o_channel_uid).

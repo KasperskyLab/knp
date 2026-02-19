@@ -40,7 +40,10 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "inference_iters,i", po::value<size_t>()->default_value(10000), "amount of images for inference")(
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
-        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend")(
+        "training_backend", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"),
+        "path to backend which will be used in training")(
+        "inference_backend", po::value<std::string>(),
+        "path to backend which will be used in inference. if its not provided, training_backend will be used instead")(
         "extensive_logs_path", po::value<std::string>()->default_value(""),
         "path for putting extensive logs. if no path is specified, no extensive logs will be produced.")(
         "model_path", po::value<std::string>()->default_value(""),
@@ -129,15 +132,24 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         return std::nullopt;
     }
 
-    if (vm.count("backend"))
+    if (vm.count("training_backend"))
     {
-        model_desc.backend_path_ = vm["backend"].as<std::string>();
+        model_desc.training_backend_path_ = vm["training_backend"].as<std::string>();
     }
     else
     {
-        std::cout << "Backend path not specified." << std::endl;
+        std::cout << "Training backend path not specified." << std::endl;
         std::cout << desc << std::endl;
         return std::nullopt;
+    }
+
+    if (vm.count("inference_backend"))
+    {
+        model_desc.inference_backend_path_ = vm["inference_backend"].as<std::string>();
+    }
+    else
+    {
+        model_desc.inference_backend_path_ = model_desc.training_backend_path_;
     }
 
     if (vm.count("log_path"))

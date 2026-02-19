@@ -43,7 +43,8 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
     stream << "Images file path: " << desc.images_file_path_ << "\n";
     stream << "Labels file path: " << desc.labels_file_path_ << "\n";
 
-    stream << "Backend path: " << desc.backend_path_ << "\n";
+    stream << "Backend path for training: " << desc.training_backend_path_ << "\n";
+    stream << "Backend path for inference: " << desc.inference_backend_path_ << "\n";
 
     if (desc.log_path_.empty())
         stream << "Logs wont be saved.\n";
