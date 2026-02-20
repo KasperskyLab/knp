@@ -25,7 +25,7 @@
 
 
 /**
- * @brief In AltAI we need to quantize weights and remove WTA.
+ * @brief In AltAI we need to reconstruct network for inference without WTA, and quantize weights.
  * @param backend Backend used for training.
  * @param network Annotated network.
  * @param model_desc Model description.
@@ -34,6 +34,28 @@ template <>
 void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
     const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
+    auto data_ranges = backend->get_network_data();
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
+    network.network_ = knp::framework::Network();
+
+    for (auto& iter = *data_ranges.population_range.first; iter != *data_ranges.population_range.second; ++iter)
+    {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
+        auto population = *iter;
+        knp::core::UID pop_uid = std::visit([](const auto& p) { return p.get_uid(); }, population);
+        if (network.data_.inference_population_uids_.find(pop_uid) != network.data_.inference_population_uids_.end())
+            network.network_.add_population(std::move(population));
+    }
+    for (auto& iter = *data_ranges.projection_range.first; iter != *data_ranges.projection_range.second; ++iter)
+    {
+        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
+        auto projection = *iter;
+        knp::core::UID proj_uid = std::visit([](const auto& p) { return p.get_uid(); }, projection);
+        if (network.data_.inference_internal_projection_.find(proj_uid) !=
+            network.data_.inference_internal_projection_.end())
+            network.network_.add_projection(std::move(projection));
+    }
+
     for (auto proj = network.network_.begin_projections(); proj != network.network_.end_projections(); ++proj)
     {
         std::visit(

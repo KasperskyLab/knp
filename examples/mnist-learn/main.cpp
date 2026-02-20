@@ -50,7 +50,6 @@ void run_model(const ModelDescription& model_desc)
         prepare_network_for_inference<Neuron>(training_backend, network, model_desc);
     }
 
-
     if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
     std::vector<knp::core::messaging::SpikeMessage> inference_spikes;
