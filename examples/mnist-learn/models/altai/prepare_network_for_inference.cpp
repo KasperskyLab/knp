@@ -56,6 +56,28 @@ void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
             network.network_.add_projection(std::move(projection));
     }
 
+    // Replace WTA with normal projections.
+    for (const auto& wta_data : network.data_.wta_data_)
+    {
+        for (const auto& sender : wta_data.first)
+        {
+            for (const auto& receiver : wta_data.second)
+            {
+                std::visit(
+                    [&network, &sender, &receiver](auto& proj)
+                    {
+                        knp::core::UID uid;
+                        auto proj_copy =
+                            std::remove_reference_t<decltype(proj)>(uid, sender, proj.get_postsynaptic(), proj);
+                        network.network_.remove_projection(receiver);
+                        network.network_.add_projection(proj_copy);
+                    },
+                    network.network_.get_projection(receiver));
+            }
+        }
+    }
+    network.data_.wta_data_.clear();
+
     for (auto proj = network.network_.begin_projections(); proj != network.network_.end_projections(); ++proj)
     {
         std::visit(
