@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <memory>
+
 // cppcheck-suppress missingInclude
 #include "dataset.h"
 // cppcheck-suppress missingInclude
@@ -32,9 +34,10 @@ template <>
 AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDescription& model_desc);
 
 
-/// Specification of network finalization for AltAILIF neuron.
+/// Specification of network preparation for inference for AltAILIF neuron.
 template <>
-void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc);
+void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
+    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc);
 
 
 /// Specification of training labels spikes generator for AltAILIF neuron.

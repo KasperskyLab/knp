@@ -41,14 +41,23 @@ void run_model(const ModelDescription& model_desc)
 
     AnnotatedNetwork network = construct_network<Neuron>(model_desc);
 
-    train_network<Neuron>(network, model_desc, dataset);
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
+    knp::framework::BackendLoader backend_loader;
+    {
+        std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_path_);
+        train_network<Neuron>(training_backend, network, model_desc, dataset);
 
-    // Some type of models need to do some procedures, to be ready for inference.
-    finalize_network<Neuron>(network, model_desc);
+        prepare_network_for_inference<Neuron>(training_backend, network, model_desc);
+    }
+
 
     if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
-    auto inference_spikes = run_inference_on_network<Neuron>(network, model_desc, dataset);
+    std::vector<knp::core::messaging::SpikeMessage> inference_spikes;
+    {
+        std::shared_ptr<knp::core::Backend> inference_backend = backend_loader.load(model_desc.inference_backend_path_);
+        inference_spikes = run_inference_on_network<Neuron>(inference_backend, network, model_desc, dataset);
+    }
 
     evaluate_results(inference_spikes, dataset);
 }

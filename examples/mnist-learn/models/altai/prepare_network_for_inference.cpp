@@ -1,8 +1,8 @@
 /**
- * @file finalize_network.cpp
- * @brief Function for finalizing network after training.
+ * @file prepare_network_for_inference.cpp
+ * @brief Function for preparing network for inference after training.
  * @kaspersky_support D. Postnikov
- * @date 04.02.2026
+ * @date 20.02.2026
  * @license Apache 2.0
  * @copyright © 2026 AO Kaspersky Lab
  *
@@ -25,12 +25,14 @@
 
 
 /**
- * @brief In AltAI we need to quantize weights.
+ * @brief In AltAI we need to quantize weights and remove WTA.
+ * @param backend Backend used for training.
  * @param network Annotated network.
  * @param model_desc Model description.
  */
 template <>
-void finalize_network<knp::neuron_traits::AltAILIF>(AnnotatedNetwork& network, const ModelDescription& model_desc)
+void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
+    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
 {
     for (auto proj = network.network_.begin_projections(); proj != network.network_.end_projections(); ++proj)
     {

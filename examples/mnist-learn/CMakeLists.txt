@@ -34,10 +34,10 @@ add_executable(${PROJECT_NAME}
     dataset.cpp
     evaluate_results.cpp
     models/blifat/construct_network.cpp
-    models/blifat/finalize_network.cpp
+    models/blifat/prepare_network_for_inference.cpp
     models/blifat/spike_generators.cpp
     models/altai/construct_network.cpp
-    models/altai/finalize_network.cpp
+    models/altai/prepare_network_for_inference.cpp
     models/altai/spike_generators.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE KNP::BaseFramework::Core Boost::program_options)
