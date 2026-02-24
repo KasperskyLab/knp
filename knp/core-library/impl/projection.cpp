@@ -126,23 +126,6 @@ Projection<SynapseType>::Projection(UID uid, UID presynaptic_uid, UID postsynapt
 
 template <typename SynapseType>
 Projection<SynapseType>::Projection(
-    UID uid, UID presynaptic_uid, UID postsynaptic_uid, const Projection<SynapseType> &projection)
-    : base_{uid},
-      presynaptic_uid_(presynaptic_uid),
-      postsynaptic_uid_(postsynaptic_uid),
-      parameters_(projection.parameters_)
-{
-    SPDLOG_DEBUG(
-        "Creating projection with UID = {}, presynaptic UID = {}, postsynaptic UID = {}. It is a copy of projection "
-        "with UID = {}.",
-        std::string(get_uid()), std::string(presynaptic_uid_), std::string(postsynaptic_uid_),
-        std::string(projection.get_uid()));
-    reindex();
-}
-
-
-template <typename SynapseType>
-Projection<SynapseType>::Projection(
     UID presynaptic_uid, UID postsynaptic_uid, SynapseGenerator generator,  //!OCLINT(Parameters used)
     size_t num_iterations)                                                  //!OCLINT(Parameters used)
     : presynaptic_uid_(presynaptic_uid), postsynaptic_uid_(postsynaptic_uid)

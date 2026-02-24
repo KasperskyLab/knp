@@ -19,6 +19,8 @@
  * limitations under the License.
  */
 
+#include <knp/framework/projection/creators.h>
+
 #include <algorithm>
 
 #include "network_functions.h"
@@ -66,9 +68,12 @@ void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
                 std::visit(
                     [&network, &sender, &receiver](auto& proj)
                     {
-                        knp::core::UID uid;
+                        using ProjType = std::remove_reference_t<decltype(proj)>;
+                        using SynapseType = typename ProjType::ProjectionSynapseType;
                         auto proj_copy =
-                            std::remove_reference_t<decltype(proj)>(uid, sender, proj.get_postsynaptic(), proj);
+                            knp::framework::projection::creators::clone_projection<SynapseType, SynapseType>(
+                                proj, [&proj](size_t index) { return std::get<knp::core::synapse_data>(proj[index]); },
+                                sender, proj.get_postsynaptic());
                         network.network_.remove_projection(receiver);
                         network.network_.add_projection(proj_copy);
                     },

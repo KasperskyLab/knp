@@ -180,16 +180,6 @@ public:
 
 
     /**
-     * @brief Construct a copy of projection with new presynaptic and postsynaptic UIDs.
-     * @param uid projection UID.
-     * @param presynaptic_uid presynaptic population UID.
-     * @param postsynaptic_uid postsynaptic population UID.
-     * @param projection projection to copy.
-     */
-    Projection(UID uid, UID presynaptic_uid, UID postsynaptic_uid, const Projection<SynapseType> &projection);
-
-
-    /**
      * @brief Construct a projection by running a synapse generator a given number of times.
      * @param presynaptic_uid presynaptic population UID.
      * @param postsynaptic_uid postsynaptic population UID.
