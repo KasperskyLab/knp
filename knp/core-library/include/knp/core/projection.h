@@ -178,7 +178,6 @@ public:
      */
     Projection(UID uid, UID presynaptic_uid, UID postsynaptic_uid);
 
-
     /**
      * @brief Construct a projection by running a synapse generator a given number of times.
      * @param presynaptic_uid presynaptic population UID.
