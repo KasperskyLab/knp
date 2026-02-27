@@ -1,6 +1,6 @@
 /**
- * @file train_network.h
- * @brief Function for network training.
+ * @file training.h
+ * @brief Functions for training.
  * @kaspersky_support A. Vartenkov
  * @date 24.03.2025
  * @license Apache 2.0
@@ -26,6 +26,7 @@
 #include <knp/framework/projection/wta.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,6 +40,7 @@
 
 /**
  * @brief Build channel map train. Will add input/output channels and add spikes generators.
+ * @tparam Neuron Neuron type.
  * @param network Annotated network.
  * @param model Model.
  * @param dataset Dataset.
@@ -75,57 +77,25 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
 
 
 /**
- * @brief Save network parts that are required for inference.
- * @param backend Training backend.
- * @param network Annotated network.
- * @param model_desc Model description.
- */
-inline void strip_network_for_inference(
-    const knp::core::Backend& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
-{
-    auto data_ranges = backend.get_network_data();
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
-    network.network_ = knp::framework::Network();
-
-    for (auto& iter = *data_ranges.population_range.first; iter != *data_ranges.population_range.second; ++iter)
-    {
-        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
-        auto population = *iter;
-        knp::core::UID pop_uid = std::visit([](const auto& p) { return p.get_uid(); }, population);
-        if (network.data_.inference_population_uids_.find(pop_uid) != network.data_.inference_population_uids_.end())
-            network.network_.add_population(std::move(population));
-    }
-    for (auto& iter = *data_ranges.projection_range.first; iter != *data_ranges.projection_range.second; ++iter)
-    {
-        // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
-        auto projection = *iter;
-        knp::core::UID proj_uid = std::visit([](const auto& p) { return p.get_uid(); }, projection);
-        if (network.data_.inference_internal_projection_.find(proj_uid) !=
-            network.data_.inference_internal_projection_.end())
-            network.network_.add_projection(std::move(projection));
-    }
-}
-
-
-/**
  * @brief Train network.
+ * @tparam Neuron Neuron type.
+ * @param backend Backend for training.
  * @param network Annotated network.
  * @param model_desc Model description.
  * @param dataset Dataset.
  */
 template <typename Neuron>
-void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset)
+void train_network(
+    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc,
+    const Dataset& dataset)
 {
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train<Neuron>(network, model, dataset);
 
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
-    knp::framework::BackendLoader backend_loader;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
-    knp::framework::ModelExecutor model_executor(
-        model, backend_loader.load(model_desc.training_backend_path_), std::move(channel_map));
+    knp::framework::ModelExecutor model_executor(model, backend, std::move(channel_map));
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=260375
     knp::framework::monitoring::model::add_status_logger(model_executor, model, std::cout, 1);
@@ -172,8 +142,24 @@ void train_network(AnnotatedNetwork& network, const ModelDescription& model_desc
             if (step % 20 == 0) std::cout << "Step: " << step << std::endl;
             return step != dataset.get_steps_amount_for_training();
         });
+}
 
-    // TOOD this is temporary solution. backend should be loaded only once, not twice, so this line can be moved to
-    // main.
-    strip_network_for_inference(*model_executor.get_backend(), network, model_desc);
+
+/**
+ * @brief Train model.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ * @param network Annotated network.
+ * @param backend_loader Backend loader.
+ */
+template <typename Neuron>
+void train_model(
+    const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
+    knp::framework::BackendLoader& backend_loader)
+{
+    std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_path_);
+    train_network<Neuron>(training_backend, network, model_desc, dataset);
+
+    prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
 }

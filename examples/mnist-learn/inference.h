@@ -1,6 +1,6 @@
 /**
- * @file run_inference_on_network.h
- * @brief Function for running inference on network.
+ * @file inference.h
+ * @brief Functions for inference.
  * @kaspersky_support A. Vartenkov
  * @date 24.03.2025
  * @license Apache 2.0
@@ -26,6 +26,7 @@
 #include <knp/framework/projection/wta.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -38,17 +39,17 @@
 /**
  * @brief Run inference on network, and record spikes.
  * @tparam Neuron Neuron type.
+ * @param backend Backend for inference.
  * @param network Annotated network.
  * @param model_desc Model description.
  * @param dataset Dataset.
  * @return Recorded spikes.
  */
 template <typename Neuron>
-std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
-    AnnotatedNetwork& network, const ModelDescription& model_desc, const Dataset& dataset)
+std::vector<knp::core::messaging::SpikeMessage> infer_network(
+    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc,
+    const Dataset& dataset)
 {
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
-    knp::framework::BackendLoader backend_loader;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
 
@@ -66,8 +67,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
     for (auto image_proj_uid : network.data_.projections_from_raster_)
         model.add_input_channel(input_image_channel_uid, image_proj_uid);
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
-    knp::framework::ModelExecutor model_executor(
-        model, backend_loader.load(model_desc.inference_backend_path_), std::move(channel_map));
+    knp::framework::ModelExecutor model_executor(model, backend, std::move(channel_map));
 
     // Receives a link to the output channel object (out_channel) from
     // the model executor (model_executor) by the output channel ID (o_channel_uid).
@@ -117,4 +117,23 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
         spikes.begin(), spikes.end(),
         [](const auto& sm1, const auto& sm2) { return sm1.header_.send_time_ < sm2.header_.send_time_; });
     return spikes;
+}
+
+
+/**
+ * @brief Run inference on model, and record spikes.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ * @param network Annotated network.
+ * @param backend_loader Backend loader.
+ * @return Recorded spikes.
+ */
+template <typename Neuron>
+std::vector<knp::core::messaging::SpikeMessage> infer_model(
+    const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
+    knp::framework::BackendLoader& backend_loader)
+{
+    std::shared_ptr<knp::core::Backend> inference_backend = backend_loader.load(model_desc.inference_backend_path_);
+    return infer_network<Neuron>(inference_backend, network, model_desc, dataset);
 }

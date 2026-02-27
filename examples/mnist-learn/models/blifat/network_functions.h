@@ -21,20 +21,26 @@
 
 #pragma once
 
+#include <memory>
+
 // cppcheck-suppress missingInclude
 #include "dataset.h"
 // cppcheck-suppress missingInclude
 #include "models/network_functions.h"
 
 
+/// Specification of network construction for BLIFAT neuron.
 template <>
 AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription& model_desc);
 
 
+/// Specification of network preparation for inference for BLIFAT neuron.
 template <>
-void finalize_network<knp::neuron_traits::BLIFATNeuron>(AnnotatedNetwork& network, const ModelDescription& model_desc);
+void prepare_network_for_inference<knp::neuron_traits::BLIFATNeuron>(
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network);
 
 
+/// Specification of training labels spikes generator for AltAILIF neuron.
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset);

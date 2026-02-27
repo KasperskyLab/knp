@@ -69,12 +69,12 @@ template <typename SynapseType>
 
 
 /**
- * @brief Create a synapse generator that distributes connections evenly between neurons of presynaptic and 
+ * @brief Create a synapse generator that distributes connections evenly between neurons of presynaptic and
  * postsynaptic populations.
- * @details Synapse generator creates connections between neurons of two populations, 
+ * @details Synapse generator creates connections between neurons of two populations,
  * where the population with the smaller size has consecutive connections with neurons from the other population.
  * The number of connections for each neuron in the smaller population is determined by its size.
- * For example, if the presynaptic population has 2 neurons and the postsynaptic population has 4 neurons, 
+ * For example, if the presynaptic population has 2 neurons and the postsynaptic population has 4 neurons,
  * the generator will create synapses as follows: 0-0, 0-1, 1-2, 1-3.
  * @tparam SynapseType projection synapse type.
  * @param presynaptic_pop_size presynaptic population neuron count.
@@ -113,9 +113,9 @@ template <typename SynapseType>
 
 
 /**
- * @brief Create a synapse generator that connects each presynaptic population neuron to each postsynaptic population 
+ * @brief Create a synapse generator that connects each presynaptic population neuron to each postsynaptic population
  * neuron with exception of neurons whose indexes are the same.
- * @details For example, if the population size is 3, the generator will create synapses as follows: 0-1, 0-2, 1-0, 
+ * @details For example, if the population size is 3, the generator will create synapses as follows: 0-1, 0-2, 1-0,
  * 1-2, 2-0, 2-1.
  * @pre Population sizes must be equal.
  * @tparam SynapseType projection synapse type.
@@ -420,8 +420,7 @@ private:
 template <typename DestinationSynapseType, typename SourceSynapseType>
 [[nodiscard]] typename knp::core::Projection<DestinationSynapseType>::SynapseGenerator clone_projection(
     const knp::core::Projection<SourceSynapseType> &source_proj,
-    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<DestinationSynapseType>)
+    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen)
 {
     return [&source_proj,
             syn_gen](size_t index) -> std::optional<typename knp::core::Projection<DestinationSynapseType>::Synapse>

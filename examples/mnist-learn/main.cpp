@@ -23,10 +23,10 @@
 
 #include "dataset.h"
 #include "evaluate_results.h"
+#include "inference.h"
 #include "parse_arguments.h"
-#include "run_inference_on_network.h"
 #include "save_network.h"
-#include "train_network.h"
+#include "training.h"
 
 
 /**
@@ -41,14 +41,13 @@ void run_model(const ModelDescription& model_desc)
 
     AnnotatedNetwork network = construct_network<Neuron>(model_desc);
 
-    train_network<Neuron>(network, model_desc, dataset);
-
-    // Some type of models need to do some procedures, to be ready for inference.
-    finalize_network<Neuron>(network, model_desc);
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
+    knp::framework::BackendLoader backend_loader;
+    train_model<Neuron>(model_desc, dataset, network, backend_loader);
 
     if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
-    auto inference_spikes = run_inference_on_network<Neuron>(network, model_desc, dataset);
+    auto inference_spikes = infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 
     evaluate_results(inference_spikes, dataset);
 }
