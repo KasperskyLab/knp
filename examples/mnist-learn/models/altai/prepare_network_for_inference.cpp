@@ -29,12 +29,12 @@
 /**
  * @brief In AltAI we need to reconstruct network for inference without WTA, and quantize weights.
  * @param backend Backend used for training.
- * @param network Annotated network.
  * @param model_desc Model description.
+ * @param network Annotated network.
  */
 template <>
 void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
-    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network)
 {
     auto data_ranges = backend->get_network_data();
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
@@ -105,9 +105,9 @@ void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
                     max_threshold =
                         std::max<uint16_t>(max_threshold, neuron.activation_threshold_ + neuron.additional_threshold_);
 
-                float total_max =
+                const float total_max =
                     std::max({std::abs(max_weight), std::abs(min_weight), std::abs<float>(max_threshold)});
-                float scale = 255.f / total_max;
+                const float scale = 255.f / total_max;
 
                 for (auto& synapse : proj)
                 {

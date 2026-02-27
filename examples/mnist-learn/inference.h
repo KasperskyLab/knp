@@ -1,6 +1,6 @@
 /**
- * @file run_inference_on_network.h
- * @brief Function for running inference on network.
+ * @file inference.h
+ * @brief Functions for inference.
  * @kaspersky_support A. Vartenkov
  * @date 24.03.2025
  * @license Apache 2.0
@@ -46,7 +46,7 @@
  * @return Recorded spikes.
  */
 template <typename Neuron>
-std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
+std::vector<knp::core::messaging::SpikeMessage> infer_network(
     const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc,
     const Dataset& dataset)
 {
@@ -117,4 +117,23 @@ std::vector<knp::core::messaging::SpikeMessage> run_inference_on_network(
         spikes.begin(), spikes.end(),
         [](const auto& sm1, const auto& sm2) { return sm1.header_.send_time_ < sm2.header_.send_time_; });
     return spikes;
+}
+
+
+/**
+ * @brief Run inference on model, and record spikes.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ * @param network Annotated network.
+ * @param backend_loader Backend loader.
+ * @return Recorded spikes.
+ */
+template <typename Neuron>
+std::vector<knp::core::messaging::SpikeMessage> infer_model(
+    const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
+    knp::framework::BackendLoader& backend_loader)
+{
+    std::shared_ptr<knp::core::Backend> inference_backend = backend_loader.load(model_desc.inference_backend_path_);
+    return infer_network<Neuron>(inference_backend, network, model_desc, dataset);
 }

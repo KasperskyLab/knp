@@ -37,7 +37,7 @@ AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDesc
 /// Specification of network preparation for inference for AltAILIF neuron.
 template <>
 void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
-    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc);
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network);
 
 
 /// Specification of training labels spikes generator for AltAILIF neuron.

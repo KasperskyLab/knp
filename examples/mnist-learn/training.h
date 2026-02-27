@@ -1,6 +1,6 @@
 /**
- * @file train_network.h
- * @brief Function for network training.
+ * @file training.h
+ * @brief Functions for training.
  * @kaspersky_support A. Vartenkov
  * @date 24.03.2025
  * @license Apache 2.0
@@ -40,6 +40,7 @@
 
 /**
  * @brief Build channel map train. Will add input/output channels and add spikes generators.
+ * @tparam Neuron Neuron type.
  * @param network Annotated network.
  * @param model Model.
  * @param dataset Dataset.
@@ -77,6 +78,7 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
 
 /**
  * @brief Train network.
+ * @tparam Neuron Neuron type.
  * @param backend Backend for training.
  * @param network Annotated network.
  * @param model_desc Model description.
@@ -140,4 +142,24 @@ void train_network(
             if (step % 20 == 0) std::cout << "Step: " << step << std::endl;
             return step != dataset.get_steps_amount_for_training();
         });
+}
+
+
+/**
+ * @brief Train model.
+ * @tparam Neuron Neuron type.
+ * @param model_desc Model description.
+ * @param dataset Dataset.
+ * @param network Annotated network.
+ * @param backend_loader Backend loader.
+ */
+template <typename Neuron>
+void train_model(
+    const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
+    knp::framework::BackendLoader& backend_loader)
+{
+    std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_path_);
+    train_network<Neuron>(training_backend, network, model_desc, dataset);
+
+    prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
 }

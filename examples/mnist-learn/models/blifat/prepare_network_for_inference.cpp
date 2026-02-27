@@ -25,12 +25,12 @@
 /**
  * @brief In BLIFAT we need to just reconstruct network for inference.
  * @param backend Backend used for training.
- * @param network Annotated network.
  * @param model_desc Model description.
+ * @param network Annotated network.
  */
 template <>
 void prepare_network_for_inference<knp::neuron_traits::BLIFATNeuron>(
-    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network)
 {
     auto data_ranges = backend->get_network_data();
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801

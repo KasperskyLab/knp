@@ -50,12 +50,12 @@ AnnotatedNetwork construct_network(const ModelDescription& model_desc)
  * @brief If no neuron made a specialization for its type, throw exception.
  * @tparam Neuron Neuron type.
  * @param backend Backend used for training.
- * @param network Annotated network.
  * @param model_desc Model description.
+ * @param network Annotated network.
  */
 template <typename Neuron>
 void prepare_network_for_inference(
-    const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc)
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network)
 {
     throw std::runtime_error("Not supported neuron type.");
 }
