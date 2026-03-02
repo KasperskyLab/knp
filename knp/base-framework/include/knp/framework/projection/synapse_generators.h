@@ -153,9 +153,8 @@ template <typename SynapseType>
  */
 template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator one_to_one(
-    size_t population_size,
-    parameters_generators::SynGen1ParamType<SynapseType> syn_gen =
-        std::bind(parameters_generators::default_synapse_gen_2param<SynapseType>, std::placeholders::_1, 0))
+    size_t population_size, parameters_generators::SynGen1ParamType<SynapseType> syn_gen =
+                                parameters_generators::default_synapse_gen_1param<SynapseType>)
 {
     return [syn_gen](size_t index) -> std::optional<typename knp::core::Projection<SynapseType>::Synapse>
     { return std::make_tuple(syn_gen(index), index, index); };
@@ -421,7 +420,8 @@ private:
 template <typename DestinationSynapseType, typename SourceSynapseType>
 [[nodiscard]] typename knp::core::Projection<DestinationSynapseType>::SynapseGenerator clone_projection(
     const knp::core::Projection<SourceSynapseType> &source_proj,
-    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen)
+    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen =
+        parameters_generators::default_synapse_gen_1param<DestinationSynapseType>)
 {
     return [&source_proj,
             syn_gen](size_t index) -> std::optional<typename knp::core::Projection<DestinationSynapseType>::Synapse>

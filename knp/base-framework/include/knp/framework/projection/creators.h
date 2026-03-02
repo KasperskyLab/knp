@@ -139,7 +139,7 @@ template <typename SynapseType>
 [[nodiscard]] knp::core::Projection<SynapseType> one_to_one(
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t population_size,
     parameters_generators::SynGen1ParamType<SynapseType> syn_gen =
-        std::bind(parameters_generators::default_synapse_gen_2param<SynapseType>, std::placeholders::_1, 0))
+        parameters_generators::default_synapse_gen_1param<SynapseType>)
 {
     return knp::core::Projection<SynapseType>(
         presynaptic_uid, postsynaptic_uid, synapse_generators::one_to_one<SynapseType>(population_size, syn_gen),
