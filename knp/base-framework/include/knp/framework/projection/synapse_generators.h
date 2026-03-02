@@ -55,7 +55,7 @@ template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator all_to_all(
     size_t presynaptic_pop_size, size_t postsynaptic_pop_size,
     const parameters_generators::SynGen2ParamsType<SynapseType> &syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return [presynaptic_pop_size, postsynaptic_pop_size,
             syn_gen](size_t index) -> std::optional<typename knp::core::Projection<SynapseType>::Synapse>
@@ -86,7 +86,7 @@ template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator aligned(
     size_t presynaptic_pop_size, size_t postsynaptic_pop_size,
     parameters_generators::SynGen2ParamsType<SynapseType> const &syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return [presynaptic_pop_size, postsynaptic_pop_size,
             syn_gen](size_t index) -> std::optional<typename knp::core::Projection<SynapseType>::Synapse>
@@ -126,7 +126,7 @@ template <typename SynapseType>
 template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator exclusive(
     size_t populations_size, parameters_generators::SynGen2ParamsType<SynapseType> const &syn_gen =
-                                 parameters_generators::default_synapse_gen<SynapseType>)
+                                 parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return
         [populations_size, syn_gen](size_t index) -> std::optional<typename knp::core::Projection<SynapseType>::Synapse>
@@ -153,8 +153,9 @@ template <typename SynapseType>
  */
 template <typename SynapseType>
 [[nodiscard]] typename knp::core::Projection<SynapseType>::SynapseGenerator one_to_one(
-    size_t population_size, parameters_generators::SynGen1ParamType<SynapseType> syn_gen = std::bind(
-                                parameters_generators::default_synapse_gen<SynapseType>, std::placeholders::_1, 0))
+    size_t population_size,
+    parameters_generators::SynGen1ParamType<SynapseType> syn_gen =
+        std::bind(parameters_generators::default_synapse_gen_2param<SynapseType>, std::placeholders::_1, 0))
 {
     return [syn_gen](size_t index) -> std::optional<typename knp::core::Projection<SynapseType>::Synapse>
     { return std::make_tuple(syn_gen(index), index, index); };
@@ -241,7 +242,7 @@ public:
     FixedProbability(
         size_t presynaptic_pop_size, size_t postsynaptic_pop_size, double connection_probability,
         parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-            parameters_generators::default_synapse_gen<SynapseType>)
+            parameters_generators::default_synapse_gen_2param<SynapseType>)
         : presynaptic_pop_size_(presynaptic_pop_size),
           postsynaptic_pop_size_(postsynaptic_pop_size),
           connection_probability_(connection_probability),
@@ -324,7 +325,7 @@ public:
     FixedNumberPost(
         size_t presynaptic_pop_size, size_t postsynaptic_pop_size,
         std::function<typename knp::core::Projection<SynapseType>::SynapseParameters(size_t index0, size_t index1)>
-            syn_gen = parameters_generators::default_synapse_gen<SynapseType>)
+            syn_gen = parameters_generators::default_synapse_gen_2param<SynapseType>)
         : presynaptic_pop_size_(presynaptic_pop_size),
           postsynaptic_pop_size_(postsynaptic_pop_size),
           syn_gen_(syn_gen),
@@ -375,7 +376,7 @@ public:
     FixedNumberPre(
         size_t presynaptic_pop_size, size_t postsynaptic_pop_size,
         std::function<typename knp::core::Projection<SynapseType>::SynapseParameters(size_t index0, size_t index1)>
-            syn_gen = parameters_generators::default_synapse_gen<SynapseType>)
+            syn_gen = parameters_generators::default_synapse_gen_2param<SynapseType>)
         : presynaptic_pop_size_(presynaptic_pop_size),
           postsynaptic_pop_size_(postsynaptic_pop_size),
           syn_gen_(syn_gen),

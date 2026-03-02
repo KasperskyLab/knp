@@ -58,7 +58,7 @@ template <typename SynapseType>
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
     size_t postsynaptic_pop_size,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return knp::core::Projection<SynapseType>(
         presynaptic_uid, postsynaptic_uid,
@@ -88,7 +88,7 @@ template <typename SynapseType>
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
     size_t postsynaptic_pop_size,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return knp::core::Projection<SynapseType>(
         presynaptic_uid, postsynaptic_uid,
@@ -115,7 +115,7 @@ template <typename SynapseType>
 [[nodiscard]] knp::core::Projection<SynapseType> exclusive(
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t pops_size,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return knp::core::Projection<SynapseType>(
         presynaptic_uid, postsynaptic_uid, synapse_generators::exclusive<SynapseType>(pops_size, syn_gen),
@@ -139,7 +139,7 @@ template <typename SynapseType>
 [[nodiscard]] knp::core::Projection<SynapseType> one_to_one(
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t population_size,
     parameters_generators::SynGen1ParamType<SynapseType> syn_gen =
-        std::bind(parameters_generators::default_synapse_gen<SynapseType>, std::placeholders::_1, 0))
+        std::bind(parameters_generators::default_synapse_gen_2param<SynapseType>, std::placeholders::_1, 0))
 {
     return knp::core::Projection<SynapseType>(
         presynaptic_uid, postsynaptic_uid, synapse_generators::one_to_one<SynapseType>(population_size, syn_gen),
@@ -212,7 +212,7 @@ template <typename SynapseType>
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
     size_t postsynaptic_pop_size, double connection_probability,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     const auto proj_size = presynaptic_pop_size * postsynaptic_pop_size;
     auto fp = synapse_generators::FixedProbability<SynapseType>{
@@ -270,7 +270,7 @@ template <typename SynapseType>
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
     size_t postsynaptic_pop_size, size_t neurons_count,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     const auto proj_size = presynaptic_pop_size * neurons_count;
 
@@ -302,7 +302,7 @@ template <typename SynapseType>
     const knp::core::UID &presynaptic_uid, const knp::core::UID &postsynaptic_uid, size_t presynaptic_pop_size,
     size_t postsynaptic_pop_size, size_t neurons_count,
     parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     const auto proj_size = postsynaptic_pop_size * neurons_count;
 
@@ -332,7 +332,8 @@ template <typename SynapseType>
 template <typename DestinationSynapseType, typename SourceSynapseType>
 [[nodiscard]] knp::core::Projection<DestinationSynapseType> clone_projection(
     const knp::core::Projection<SourceSynapseType> &source_proj,
-    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen,
+    parameters_generators::SynGen1ParamType<DestinationSynapseType> syn_gen =
+        parameters_generators::default_synapse_gen_1param<DestinationSynapseType>,
     const std::optional<knp::core::UID> &presynaptic_uid = std::nullopt,
     const std::optional<knp::core::UID> &postsynaptic_uid = std::nullopt)
 {
