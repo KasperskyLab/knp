@@ -23,6 +23,8 @@
 
 #include <knp/neuron-traits/all_traits.h>
 
+#include <memory>
+
 // cppcheck-suppress missingInclude
 #include "annotated_network.h"
 // cppcheck-suppress missingInclude
@@ -47,11 +49,13 @@ AnnotatedNetwork construct_network(const ModelDescription& model_desc)
 /**
  * @brief If no neuron made a specialization for its type, throw exception.
  * @tparam Neuron Neuron type.
- * @param network Annotated network.
+ * @param backend Backend used for training.
  * @param model_desc Model description.
+ * @param network Annotated network.
  */
 template <typename Neuron>
-void finalize_network(AnnotatedNetwork& network, const ModelDescription& model_desc)
+void prepare_network_for_inference(
+    const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network)
 {
     throw std::runtime_error("Not supported neuron type.");
 }

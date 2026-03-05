@@ -271,7 +271,7 @@ public:
 public:
     /**
      * @brief Connect presynaptic and postsynaptic populations and add projection to the network.
-     * @details The method makes connections between each presynaptic population (source) neuron 
+     * @details The method makes connections between each presynaptic population (source) neuron
      * to each postsynaptic population (destination) neuron.
      * @tparam SourceNeuronType type of the presynaptic population neuron.
      * @tparam DestinationNeuronType type of the postsynaptic population neuron.
@@ -285,7 +285,7 @@ public:
     knp::core::UID connect_populations(
         const core::Population<SourceNeuronType> &src, const core::Population<DestinationNeuronType> &dst,
         typename projection::parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-            projection::parameters_generators::default_synapse_gen<SynapseType>)
+            projection::parameters_generators::default_synapse_gen_2param<SynapseType>)
     {
         const auto &[src_uid, dst_uid] = get_populations_uid(src, dst);
         auto new_proj =
