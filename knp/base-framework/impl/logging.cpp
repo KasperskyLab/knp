@@ -27,7 +27,7 @@
 namespace knp::framework::logging
 {
 
-spdlog::level::level_enum convert_level_to_spdlog_level(Level level)
+KNP_DECLSPEC spdlog::level::level_enum convert_level_to_spdlog_level(Level level)
 {
     auto spdlog_level = static_cast<spdlog::level::level_enum>(level);
     if (spdlog_level >= spdlog::level::level_enum::n_levels)
@@ -39,7 +39,7 @@ spdlog::level::level_enum convert_level_to_spdlog_level(Level level)
 }
 
 
-Level convert_spdlog_level_to_level(spdlog::level::level_enum spdlog_level)
+KNP_DECLSPEC Level convert_spdlog_level_to_level(spdlog::level::level_enum spdlog_level)
 {
     auto level = static_cast<Level>(spdlog_level);
     if (level > none)
@@ -51,26 +51,26 @@ Level convert_spdlog_level_to_level(spdlog::level::level_enum spdlog_level)
 }
 
 
-void set_level(Level level)
+KNP_DECLSPEC void set_level(Level level)
 {
     spdlog::set_level(convert_level_to_spdlog_level(level));
 }
 
 
-Level get_level()
+KNP_DECLSPEC Level get_level()
 {
     return convert_spdlog_level_to_level(spdlog::get_level());
 }
 
 
-std::string level_to_str(Level level)
+KNP_DECLSPEC std::string level_to_str(Level level)
 {
     if (level == none) return "none";
     return spdlog::level::to_string_view(convert_level_to_spdlog_level(level)).begin();
 }
 
 
-Level str_to_level(std::string_view str)
+KNP_DECLSPEC Level str_to_level(std::string_view str)
 {
     if (str.empty())
     {

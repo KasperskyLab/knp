@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <knp/core/impexp.h>
+
 #include <string>
 
 
@@ -52,14 +54,14 @@ enum Level : int
  * @brief Set level of logging.
  * @param level Logging level.
  */
-void set_level(Level level);
+KNP_DECLSPEC void set_level(Level level);
 
 
 /**
  * @brief Get level of logging.
  * @return Logging level.
  */
-Level get_level();
+KNP_DECLSPEC Level get_level();
 
 
 /**
@@ -67,7 +69,7 @@ Level get_level();
  * @param level Logging level.
  * @return Converted string.
  */
-std::string level_to_str(Level level);
+KNP_DECLSPEC std::string level_to_str(Level level);
 
 
 /**
@@ -75,6 +77,6 @@ std::string level_to_str(Level level);
  * @param str Level string.
  * @return Converted logging level.
  */
-Level str_to_level(std::string_view str);
+KNP_DECLSPEC Level str_to_level(std::string_view str);
 
 }  //namespace knp::framework::logging
