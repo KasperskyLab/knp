@@ -28,6 +28,12 @@
 
 Dataset process_dataset(ModelDescription const& model_desc)
 {
+    // Check if files exist.
+    if (!std::filesystem::exists(model_desc.images_file_path_))
+        throw std::runtime_error("Provided images file does not exists.");
+    else if (!std::filesystem::exists(model_desc.labels_file_path_))
+        throw std::runtime_error("Provided labels file does not exists.");
+
     // Create streams for images and labels.
     std::ifstream images_stream(model_desc.images_file_path_, std::ios::binary);
     std::ifstream labels_stream(model_desc.labels_file_path_, std::ios::in);
