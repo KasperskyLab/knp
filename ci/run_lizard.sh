@@ -19,8 +19,6 @@
 # limitations under the License.
 
 
-pip3 install --break-system-packages lizard
-
 echo "Running lizard on knp."
 lizard -C 10 -a 4 -T nloc=50 -T token_count=300 knp -w
 
