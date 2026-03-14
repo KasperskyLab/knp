@@ -30,20 +30,22 @@
  */
 struct PhysicsPoint
 {
-    // cppcheck-suppress unusedStructMember
     /**
      * @brief Point index.
      */
+    // cppcheck-suppress unusedStructMember
     int index_;
 
     /**
      * @brief Point position.
      */
+    // cppcheck-suppress unusedStructMember
     cv::Vec2d pos_;
 
     /**
      * @brief Point velocity.
      */
+    // cppcheck-suppress unusedStructMember
     cv::Vec2d vel_;
 };
 
@@ -87,16 +89,23 @@ public:
 
 private:
     // Data.
+    // cppcheck-suppress unusedStructMember
     std::vector<std::vector<size_t>> base_graph_;
     // Edges. If `true`, then there is an edge.
+    // cppcheck-suppress unusedStructMember
     std::vector<std::vector<bool>> edges_mat_;
     // Positions and velocities of the nodes.
+    // cppcheck-suppress unusedStructMember
     std::vector<PhysicsPoint> points_;
 
     // Hyperparameters.
+    // cppcheck-suppress unusedStructMember
     double spring_strength_ = 1.0f;
+    // cppcheck-suppress unusedStructMember
     double spring_len_ = 1.0f;
+    // cppcheck-suppress unusedStructMember
     double repel_coeff_ = 0.3f;
+    // cppcheck-suppress unusedStructMember
     double resistance_ = 1.0f;
 
     // Calculate force from one graph point to another. Force consists of "repel", "spring" and "resistance" components.

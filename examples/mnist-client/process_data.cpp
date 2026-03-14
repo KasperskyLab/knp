@@ -33,11 +33,11 @@
 
 /**
  * @brief Filesystem namespace alias.
- */ 
+ */
 namespace fs = std::filesystem;
 
 
-/** 
+/**
  * @brief Visualize data instances.
  * @param data vector of flattened images.
  * @param size output image size.
@@ -59,7 +59,7 @@ cv::Mat draw_data(const std::vector<unsigned char> &data, const cv::Size &size)
 }
 
 
-/** 
+/**
  * @brief Turn data frames into spikes.
  * @param buf data frame.
  * @param num_levels number of intensity levels that the original interval of `0 - 255` gets divided into.
@@ -67,7 +67,7 @@ cv::Mat draw_data(const std::vector<unsigned char> &data, const cv::Size &size)
  */
 std::vector<std::vector<bool>> image_to_spikes(std::vector<unsigned char> &buf, int num_levels, int num_frames_all)
 {
-    double delta = 256.0 / num_levels;
+    const double delta = 256.0 / num_levels;
     std::vector<std::vector<bool>> result(num_frames_all);
     for (size_t frame_num = 0; frame_num < std::min(num_frames_all, num_levels); ++frame_num)
     {
@@ -91,6 +91,7 @@ std::vector<std::vector<unsigned char>> read_images_from_file(const fs::path &pa
     std::ifstream file_stream(path_to_data, std::ios::binary);
     std::vector<unsigned char> buffer;
     std::vector<std::vector<unsigned char>> result;
+
     while (file_stream.good())
     {
         buffer.resize(input_size);
@@ -103,7 +104,7 @@ std::vector<std::vector<unsigned char>> read_images_from_file(const fs::path &pa
 
 
 /**
- * @brief Convert binary files to boolean vectors, one for each step. 
+ * @brief Convert binary files to boolean vectors, one for each step.
  * @note The function only works for small datasets, such as MNIST. Dataset is considered small if it fits into RAM.
  * @param path_to_data path to binary data file.
  * @param input_size size of input buffer.

@@ -174,7 +174,7 @@ public:  // NOLINT
 #if defined(_MSC_VER)
                 neurons_.emplace_back(std::move(neuron.value()));
 #else
-                neurons_.template emplace_back(std::move(neuron.value()));
+                neurons_.template emplace_back<>(std::move(neuron.value()));
 #endif
             }
         }
