@@ -106,7 +106,6 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
      */
     float synapse_sum_threshold_coefficient_ = 0.0F;
 
-
     /**
      * @brief Time parameter for dopamine plasticity.
      */

@@ -152,7 +152,7 @@ KNP_DECLSPEC void print_modified_network_description(const NetworkGraph &graph);
  * @param graph network graph.
  * @return vector of subgraphs presented by node indexes.
  */
-std::vector<std::vector<int>> KNP_DECLSPEC divide_graph_by_connectivity(const NetworkGraph &graph);
+KNP_DECLSPEC std::vector<std::vector<int>> divide_graph_by_connectivity(const NetworkGraph &graph);
 
 
 /**

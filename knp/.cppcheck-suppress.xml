@@ -4,6 +4,8 @@
     <!-- Skip "unused members" in the interface structures -->
     <id>unusedStructMember</id>
     <fileName>knp/core-library/include/*</fileName>
+    <fileName>knp/neuron-traits-library/include/knp/neuron-traits/*</fileName>
+    <fileName>knp/synapse-traits-library/include/knp/synapse-traits/*</fileName>
   </suppress>
   <suppress>
     <!-- Skip incorrect cpp-check working with literals -->

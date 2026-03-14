@@ -30,7 +30,7 @@ using BLIFATParams = knp::neuron_traits::neuron_parameters<knp::neuron_traits::B
 using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
 using Synapse = DeltaProjection::Synapse;
 
-const auto neurons_count = 5;
+const auto neurons_count = 10;
 const auto synapses_count = 20;
 
 
@@ -70,6 +70,6 @@ TEST(FrameworkSuite, VisualizerTest)
     const knp::framework::NetworkGraph net_graph(network);
 
     knp::framework::print_network_description(net_graph);
-    // knp::framework::position_network_test(knp::framework::NetworkGraph(network),
-    //                                       knp::framework::divide_graph_by_connectivity(net_graph)[0], {1000, 700});
+    knp::framework::position_network_test(
+        knp::framework::NetworkGraph(network), knp::framework::divide_graph_by_connectivity(net_graph)[0], {1, 2});
 }
