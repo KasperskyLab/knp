@@ -1,0 +1,18 @@
+{
+    "directories": [
+        {
+            "directory": "knp",
+            "nloc": 50,
+            "cyclomatic_complexity": 10,
+            "token_count": 300,
+            "parameter_count": 4
+        },
+        {
+            "directory": "examples",
+            "nloc": 100,
+            "cyclomatic_complexity": 15,
+            "token_count": 500,
+            "parameter_count": 6
+        }
+    ]
+}
