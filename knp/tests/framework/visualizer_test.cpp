@@ -37,7 +37,7 @@ const auto synapses_count = 20;
 auto create_entities()
 {
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> population1(
-        [=](size_t index) -> BLIFATParams
+        [](size_t index) -> BLIFATParams
         {
             BLIFATParams params;
             params.potential_ = static_cast<double>(index);
@@ -47,7 +47,7 @@ auto create_entities()
 
     DeltaProjection projection1(
         knp::core::UID{}, knp::core::UID{},
-        [=](size_t index) -> std::optional<Synapse>
+        [](size_t index) -> std::optional<Synapse>
         {
             const uint32_t id_from = index;
             const uint32_t id_to = index;
