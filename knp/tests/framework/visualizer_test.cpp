@@ -71,5 +71,5 @@ TEST(FrameworkSuite, VisualizerTest)
 
     knp::framework::print_network_description(net_graph);
     // knp::framework::position_network_test(knp::framework::NetworkGraph(network),
-    //                                       knp::framework::divide_graph_by_connectivity(net_graph)[0], {1000, 700});
+    //                                      knp::framework::divide_graph_by_connectivity(net_graph)[0], {1, 3});
 }
