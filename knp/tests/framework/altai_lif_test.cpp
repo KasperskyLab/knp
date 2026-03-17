@@ -1,6 +1,6 @@
 /**
- * @file backend_loader_test.cpp
- * @brief Backend loading testing.
+ * @file altai_lif_test.cpp
+ * @brief AltAI LIF neuron test.
  * @kaspersky_support Artiom N.
  * @date 17.03.2023
  * @license Apache 2.0
@@ -78,7 +78,7 @@ NeuronLog run_altai_neuron(
     backend._init();
     auto &pop = *backend.begin_populations();
     NeuronLog result;
-    auto &neuron_ref = std::get<knp::core::Population<knp::neuron_traits::AltAILIF>>(pop)[neuron_index];
+    const auto &neuron_ref = std::get<knp::core::Population<knp::neuron_traits::AltAILIF>>(pop)[neuron_index];
     for (size_t step = 0; step < steps; ++step)
     {
         const knp::core::messaging::MessageHeader header{in_uid, step};

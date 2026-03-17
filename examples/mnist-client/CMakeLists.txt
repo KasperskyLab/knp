@@ -41,10 +41,8 @@ endif()
 project(mnist-client)
 add_executable(mnist-client
     main.cpp
-    graph_physics.cpp
     inference.cpp
     process_data.cpp
-    visualize_network.cpp
 )
 
 target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core ${OpenCV_LIBS} ${Boost_LIBRARIES})

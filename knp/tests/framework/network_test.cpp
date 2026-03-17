@@ -36,7 +36,7 @@ const auto neurons_count = 10;
 const auto synapses_count = 10;
 
 
-auto create_entities()
+static auto create_entities()
 {
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> population1(
         [=](size_t index) -> BLIFATParams

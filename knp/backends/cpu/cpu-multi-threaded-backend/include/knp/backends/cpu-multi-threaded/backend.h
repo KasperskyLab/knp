@@ -37,7 +37,6 @@
 #include <variant>
 #include <vector>
 
-#include <boost/asio.hpp>
 #include <boost/config.hpp>
 #include <boost/dll/alias.hpp>
 #include <boost/mp11.hpp>

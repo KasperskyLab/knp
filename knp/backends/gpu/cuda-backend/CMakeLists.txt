@@ -49,7 +49,8 @@ include(clang-tidy)
 include(knp-functions)
 
 find_package(CUDAToolkit REQUIRED)
-find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS system filesystem REQUIRED)
+
+find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
 
 file(GLOB_RECURSE ${PROJECT_NAME}_headers include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/*.h)
 file(GLOB_RECURSE ${PROJECT_NAME}_cuda_headers include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/*.cuh)
