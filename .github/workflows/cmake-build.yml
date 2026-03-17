@@ -91,7 +91,7 @@ jobs:
         timeout-minutes: 180
 
       - name: Analyze C++ code with lizard
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.sh
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.py
         continue-on-error: true
 
       - name: Analyze Python code with PyLint
