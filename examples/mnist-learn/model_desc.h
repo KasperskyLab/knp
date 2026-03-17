@@ -53,8 +53,11 @@ struct ModelDescription
     /// Path to images labels file.
     std::filesystem::path labels_file_path_;
 
-    /// Path to backend, excluding platform specific name parts, like .so, .dll and etc.
-    std::filesystem::path backend_path_;
+    /// Path to backend for training, excluding platform specific name parts, like .so, .dll and etc.
+    std::filesystem::path training_backend_path_;
+
+    /// Path to backend for inference, excluding platform specific name parts, like .so, .dll and etc.
+    std::filesystem::path inference_backend_path_;
 
     /// Path to folder for saving detailed logs.
     std::filesystem::path log_path_;

@@ -29,11 +29,23 @@
 #include <vector>
 
 
-TEST(ProjectionSynapsesParametersGenerators, Default)
+TEST(ProjectionSynapsesParametersGenerators, Default1Param)
 {
     const typename knp::core::Projection<knp::synapse_traits::DeltaSynapse>::SynapseParameters def_syn;
-    const auto new_syn =
-        knp::framework::projection::parameters_generators::default_synapse_gen<knp::synapse_traits::DeltaSynapse>(0, 0);
+    const auto new_syn = knp::framework::projection::parameters_generators::default_synapse_gen_1param<
+        knp::synapse_traits::DeltaSynapse>(0);
+
+    ASSERT_EQ(def_syn.weight_, new_syn.weight_);
+    ASSERT_EQ(def_syn.delay_, new_syn.delay_);
+    ASSERT_EQ(def_syn.output_type_, new_syn.output_type_);
+}
+
+
+TEST(ProjectionSynapsesParametersGenerators, Default2Param)
+{
+    const typename knp::core::Projection<knp::synapse_traits::DeltaSynapse>::SynapseParameters def_syn;
+    const auto new_syn = knp::framework::projection::parameters_generators::default_synapse_gen_2param<
+        knp::synapse_traits::DeltaSynapse>(0, 0);
 
     ASSERT_EQ(def_syn.weight_, new_syn.weight_);
     ASSERT_EQ(def_syn.delay_, new_syn.delay_);

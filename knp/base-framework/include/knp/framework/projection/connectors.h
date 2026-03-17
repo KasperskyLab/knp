@@ -36,8 +36,8 @@ namespace knp::framework::projection
 
 /**
  * @brief Connect presynaptic and postsynaptic populations.
- * @details The function makes connections between each presynaptic population (source) neuron to each postsynaptic population
- * (destination) neuron.
+ * @details The function makes connections between each presynaptic population (source) neuron to each postsynaptic
+ * population (destination) neuron.
  * @tparam SourceNeuronType type of the presynaptic population neuron.
  * @tparam DestinationNeuronType type of the postsynaptic population neuron.
  * @tparam SynapseType new projection synapse type.
@@ -50,7 +50,7 @@ template <typename SynapseType, typename SourceNeuronType, typename DestinationN
 [[nodiscard]] typename core::Projection<SynapseType> connect_populations(
     const core::Population<SourceNeuronType> &src, const core::Population<DestinationNeuronType> &dst,
     typename parameters_generators::SynGen2ParamsType<SynapseType> syn_gen =
-        parameters_generators::default_synapse_gen<SynapseType>)
+        parameters_generators::default_synapse_gen_2param<SynapseType>)
 {
     return creators::all_to_all<SynapseType>(src.get_uid(), dst.get_uid(), src.size(), dst.size(), syn_gen);
 }

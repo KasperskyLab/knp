@@ -21,6 +21,8 @@
 
 #include "parse_arguments.h"
 
+#include <knp/framework/logging.h>
+
 #include <iostream>
 #include <string>
 
@@ -38,11 +40,16 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "inference_iters,i", po::value<size_t>()->default_value(10000), "amount of images for inference")(
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
-        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "path to backend")(
-        "log_path", po::value<std::string>()->default_value(""),
-        "path for putting logs. if no path is specified, no logs will be produced.")(
+        "training_backend", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"),
+        "path to backend which will be used in training")(
+        "inference_backend", po::value<std::string>(),
+        "path to backend which will be used in inference. if its not provided, training_backend will be used instead")(
+        "extensive_logs_path", po::value<std::string>()->default_value(""),
+        "path for putting extensive logs. if no path is specified, no extensive logs will be produced.")(
         "model_path", po::value<std::string>()->default_value(""),
-        "path for saving trained model. if no path is specified, model wont be saved.");
+        "path for saving trained model. if no path is specified, model wont be saved.")(
+        "logging_level,l", po::value<std::string>()->default_value("info"),
+        "logging level. allowed options are: trace, debug, info, warn, error, critical, none");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -125,15 +132,24 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         return std::nullopt;
     }
 
-    if (vm.count("backend"))
+    if (vm.count("training_backend"))
     {
-        model_desc.backend_path_ = vm["backend"].as<std::string>();
+        model_desc.training_backend_path_ = vm["training_backend"].as<std::string>();
     }
     else
     {
-        std::cout << "Backend path not specified." << std::endl;
+        std::cout << "Training backend path not specified." << std::endl;
         std::cout << desc << std::endl;
         return std::nullopt;
+    }
+
+    if (vm.count("inference_backend"))
+    {
+        model_desc.inference_backend_path_ = vm["inference_backend"].as<std::string>();
+    }
+    else
+    {
+        model_desc.inference_backend_path_ = model_desc.training_backend_path_;
     }
 
     if (vm.count("log_path"))
@@ -152,6 +168,21 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     else
     {
         model_desc.model_saving_path_ = "";
+    }
+
+    if (vm.count("logging_level"))
+    {
+        knp::framework::logging::Level logging_level =
+            knp::framework::logging::str_to_level(vm["logging_level"].as<std::string>());
+        knp::framework::logging::set_level(logging_level);
+        std::cout << "Set logging level to \"" << knp::framework::logging::level_to_str(logging_level) << "\""
+                  << std::endl;
+    }
+    else
+    {
+        std::cout << "Logging level not specified." << std::endl;
+        std::cout << desc << std::endl;
+        return std::nullopt;
     }
 
     return model_desc;

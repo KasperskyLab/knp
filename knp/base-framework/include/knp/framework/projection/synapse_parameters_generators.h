@@ -64,19 +64,32 @@ using SynGenOptional2ParamsType =
 
 
 /**
- * @brief Default generator of synapse parameters.
+ * @brief Default generator of synapse parameters for 1 parameters.
  * @tparam SynapseType synapse type.
  * @return synapse parameters.
  */
 template <typename SynapseType>
-typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_gen(size_t, size_t)  // NOLINT
+typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_gen_1param(size_t)  // NOLINT
 {
     return typename knp::core::Projection<SynapseType>::SynapseParameters();
 }
 
 
 /**
- * @brief The CopySynapseGen class is a definition of a synapse generator that copies parameters of the specified synapse.
+ * @brief Default generator of synapse parameters for 2 parameters.
+ * @tparam SynapseType synapse type.
+ * @return synapse parameters.
+ */
+template <typename SynapseType>
+typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_gen_2param(size_t, size_t)  // NOLINT
+{
+    return typename knp::core::Projection<SynapseType>::SynapseParameters();
+}
+
+
+/**
+ * @brief The CopySynapseGen class is a definition of a synapse generator that copies parameters of the specified
+ * synapse.
  * @tparam SynapseType synapse type.
  */
 template <typename SynapseType>
