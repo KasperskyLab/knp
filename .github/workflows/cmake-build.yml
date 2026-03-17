@@ -90,6 +90,10 @@ jobs:
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V
         timeout-minutes: 180
 
+      - name: Analyze C++ code with lizard
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.sh
+        continue-on-error: true
+
       - name: Analyze Python code with PyLint
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
 

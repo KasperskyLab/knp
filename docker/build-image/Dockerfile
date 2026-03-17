@@ -141,7 +141,7 @@ EOT
 
 # COPY "${OCLINT_FILE}" .
 RUN \
-  pip3 install --break-system-packages gcovr pytest \
+  pip3 install --break-system-packages gcovr pytest lizard\
   && pip3 uninstall --break-system-packages -y certifi \
 #  && tar xf "${OCLINT_FILE}" \
 #  && rsync -a oclint-22.02/* /usr/local/ \
