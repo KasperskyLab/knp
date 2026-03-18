@@ -66,7 +66,10 @@ int main(int argc, char** argv)
     if (!model_desc_opt.has_value()) return EXIT_FAILURE;
     const ModelDescription& model_desc = model_desc_opt.value();
 
-    std::cout << "Starting model:\n" << model_desc << std::endl;
+    std::cout << "Model description:\n"
+              << model_desc << "\nPress ENTER to accept parameters and start model." << std::endl;
+    std::cin.get();
+    std::cout << "Starting model." << std::endl;
 
     // Starting model according to selected type.
     switch (model_desc.type_)
