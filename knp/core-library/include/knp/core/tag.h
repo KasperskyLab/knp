@@ -95,7 +95,6 @@ public:
      */
     const auto &operator[](const std::string &name) const { return get_tag(name); }
 
-
     /**
      * @brief Check if tag is specified.
      * @return `true` if no tag is specified, `false` otherwise.
