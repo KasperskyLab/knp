@@ -27,6 +27,7 @@
 #include <knp/neuron-traits/all_traits.h>
 
 #include <functional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -156,6 +157,20 @@ public:  // NOLINT
     {
         return base_.tags_.template get_tag<std::vector<TagMap>>("neuron_tags")[index];
     }
+
+
+    /**
+     * @brief Get name tag.
+     * @return Population name.
+     */
+    [[nodiscard]] const std::string &get_name() const { return base_.tags_.template get_tag<std::string>("name"); }
+
+    /**
+     * @brief Get name tag.
+     * @return Population name.
+     */
+    void set_name(std::string_view name) { base_.tags_["name"] = name; }
+
 
 public:  // NOLINT
     /**
