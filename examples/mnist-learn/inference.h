@@ -85,7 +85,9 @@ std::vector<knp::core::messaging::SpikeMessage> infer_network(
     std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
         model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
 
-    auto pop_names = network.data_.population_names_;
+    std::map<knp::core::UID, std::string> pop_names;
+    for (const auto& pop : network.network_.get_populations())
+        std::visit([&pop_names](const auto& pop) { pop_names[pop.get_uid()] = pop.get_name(); }, pop);
 
     // Add WTA populations for logging.
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
