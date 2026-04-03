@@ -29,6 +29,7 @@
  */
 namespace knp::framework
 {
+
 bool NetworkValidator::run_validators(const Network& network)
 {
     SPDLOG_INFO("Starting network validators...");

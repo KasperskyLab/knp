@@ -29,10 +29,12 @@
  */
 namespace knp::framework::network_validators
 {
+
 std::string Connectivity::get_name() const
 {
     return "Network connectivity validator";
 }
+
 
 bool Connectivity::run_validation(const Network& network)
 {
