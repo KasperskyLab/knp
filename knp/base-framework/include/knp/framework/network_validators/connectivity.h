@@ -31,7 +31,7 @@
  */
 namespace knp::framework::network_validators
 {
-class KNP_DECLSPEC Connectivity final : Base
+class KNP_DECLSPEC Connectivity final : public Base
 {
 public:
     [[nodiscard]] std::string get_name() const override;
