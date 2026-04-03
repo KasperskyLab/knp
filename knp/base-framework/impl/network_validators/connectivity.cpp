@@ -36,6 +36,83 @@ std::string Connectivity::get_name() const
 
 bool Connectivity::run_validation(const Network& network)
 {
-    return true;
+    bool result = true;
+
+    /*
+     * We will store a pair of bools for each population, first bool will be true if there is a projection coming out of
+     * this population, and second bool will be true if there is a projection coming in this population.
+     */
+    std::map<knp::core::UID, std::pair<bool, bool>> populations_info;
+
+    /*
+     * Same idea here but for projections.
+     */
+    std::map<knp::core::UID, std::pair<bool, bool>> projections_info;
+
+    const auto& populations = network.get_populations();
+    const auto& projections = network.get_projections();
+
+    // Fill empty populations info.
+    for (const auto& population_variant : populations)
+    {
+        std::visit(
+            [&populations_info](auto&& population) {
+                populations_info[population.get_uid()] = {false, false};
+            },
+            population_variant);
+    }
+
+    // Fill projections and populations info.
+    for (const auto& projection_variant : projections)
+    {
+        std::visit(
+            [&projections_info, &populations_info, &result](auto&& projection)
+            {
+                bool presynaptic_pop_not_empty = static_cast<bool>(projection.get_presynaptic());
+                bool postsynaptic_pop_not_empty = static_cast<bool>(projection.get_postsynaptic());
+                projections_info[projection.get_uid()] = {presynaptic_pop_not_empty, postsynaptic_pop_not_empty};
+                if (presynaptic_pop_not_empty)
+                {
+                    populations_info[projection.get_presynaptic()].second = true;
+                }
+                else
+                {
+                    result = false;
+                    SPDLOG_ERROR(
+                        "Projection {} does not have presynaptic connection.", std::string(projection.get_uid()));
+                }
+
+                if (postsynaptic_pop_not_empty)
+                {
+                    populations_info[projection.get_postsynaptic()].first = true;
+                }
+                else
+                {
+                    result = false;
+                    SPDLOG_ERROR(
+                        "Projection {} does not have postsynaptic connection.", std::string(projection.get_uid()));
+                }
+            },
+            projection_variant);
+    }
+
+    //Check if all populations are connected.
+    for (const auto& population_info : populations_info)
+    {
+        if (!population_info.second.first)
+        {
+            result = false;
+            SPDLOG_ERROR(
+                "Population {} does not have any projection coming out of it.", std::string(population_info.first));
+        }
+        if (!population_info.second.second)
+        {
+            result = false;
+            SPDLOG_ERROR(
+                "Population {} does not have any projection coming in it.", std::string(population_info.first));
+        }
+    }
+
+    return result;
 }
 }  //namespace knp::framework::network_validators
