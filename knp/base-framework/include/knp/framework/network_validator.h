@@ -34,9 +34,18 @@
  */
 namespace knp::framework
 {
+
+/**
+ * @brief Class for storing validators and running them on specified network.
+ */
 class KNP_DECLSPEC NetworkValidator final
 {
 public:
+    /**
+     * @brief Function to add a validator.
+     * @tparam ValidatorType Validator type.
+     * @param validator Validator.
+     */
     template <typename ValidatorType>
     void add_validator(ValidatorType&& validator)
     {
@@ -47,6 +56,11 @@ public:
         validators_.push_back(std::make_unique<DecayedT>(std::forward<ValidatorType>(validator)));
     }
 
+    /**
+     * @brief Run stored validators on specified network.
+     * @param network Network to run validators on.
+     * @return Result of validations, if alteast one validator fails, returned value is 'false', otherwise 'true'
+     */
     [[nodiscard]] bool run_validators(const Network& network);
 
 private:

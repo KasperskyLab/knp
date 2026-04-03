@@ -19,8 +19,6 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include "network_validation.h"
 
 #include <knp/framework/network_validator.h>

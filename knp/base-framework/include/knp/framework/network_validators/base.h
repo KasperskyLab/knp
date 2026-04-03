@@ -31,16 +31,62 @@
  */
 namespace knp::framework::network_validators
 {
+
+/**
+ * @brief Base class for all validators. Every validator should publicly inherit this class.
+ */
 class KNP_DECLSPEC Base
 {
 public:
+    /**
+     * @brief Empty constructor.
+     */
     Base() = default;
+
+
+    /**
+     * @brief Copy constructor.
+     */
     Base(const Base&) = default;
+
+
+    /**
+     * @brief Copy asignment operator.
+     * @return Original class instance.
+     */
     Base& operator=(const Base&) = default;
+
+    /**
+     * @brief Move constructor.
+     */
     Base(Base&&) = default;
+
+    /**
+     * @brief Move asignment operator.
+     * @return Original class instance.
+     */
     Base& operator=(Base&&) = default;
+
+
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~Base() = default;
+
+
+    /**
+     * @brief Get name of validator for logs.
+     * @return Validator name.
+     */
     [[nodiscard]] virtual std::string get_name() const = 0;
+
+
+    /**
+     * @brief Run validation on specified network.
+     * @note If there is any kind of warning or error, result should be 'false'.
+     * @param network Network for validation.
+     * @return Result of validation.
+     */
     [[nodiscard]] virtual bool run_validation(const Network& network) = 0;
 };
 }  //namespace knp::framework::network_validators

@@ -31,10 +31,26 @@
  */
 namespace knp::framework::network_validators
 {
+
+/**
+ * @brief Validator of network connectivity.
+ * @details Checks if all populations and projections are connected.
+ */
 class KNP_DECLSPEC Connectivity final : public Base
 {
 public:
+    /**
+     * @brief Get name of validator for logs.
+     * @return Validator name.
+     */
     [[nodiscard]] std::string get_name() const override;
+
+
+    /**
+     * @brief Run connectivity validation on specified network.
+     * @param network Network for validation.
+     * @return Result of validation.
+     */
     [[nodiscard]] bool run_validation(const Network& network) override;
 };
 }  //namespace knp::framework::network_validators
