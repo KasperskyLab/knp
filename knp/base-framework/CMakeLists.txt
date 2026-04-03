@@ -60,6 +60,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/output_channel.cpp
     impl/synchronization.cpp
     impl/monitoring/model.cpp
+    impl/network_validator.cpp
     impl/projection/wta.cpp
     impl/sonata/save_network.cpp
     impl/sonata/load_network.cpp
@@ -75,6 +76,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/data_processing/classification/image.cpp
     impl/inference_evaluation/perfomance_metrics.cpp
     impl/inference_evaluation/classification/processor.cpp
+    impl/network_validators/connectivity.cpp
     impl/observer.cpp
     impl/logging.cpp
     impl/visualizer/graph_physics.cpp
