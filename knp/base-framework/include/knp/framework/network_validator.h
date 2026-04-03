@@ -47,7 +47,7 @@ public:
         validators_.push_back(std::make_unique<DecayedT>(std::forward<ValidatorType>(validator)));
     }
 
-    bool run_validators(const Network& network);
+    [[nodiscard]] bool run_validators(const Network& network);
 
 private:
     std::vector<std::unique_ptr<network_validators::Base>> validators_;
