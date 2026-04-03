@@ -19,6 +19,8 @@
  * limitations under the License.
  */
 
+#include <knp/framework/network_validator.h>
+
 #include <iostream>
 
 #include "dataset.h"
@@ -40,6 +42,14 @@ void run_model(const ModelDescription& model_desc)
     Dataset dataset = process_dataset(model_desc);
 
     AnnotatedNetwork network = construct_network<Neuron>(model_desc);
+
+    knp::framework::NetworkValidator validator;
+    validator.add_validator(knp::framework::network_validators::Connectivity());
+    bool validation_result = validator.run_validators(network.network_);
+    if (!validation_result)
+    {
+        throw std::runtime_error("Network validation failed.");
+    }
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
