@@ -27,7 +27,6 @@
 #include <knp/neuron-traits/all_traits.h>
 
 #include <functional>
-#include <string>
 #include <utility>
 #include <vector>
 
