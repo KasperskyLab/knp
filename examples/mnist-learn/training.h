@@ -24,6 +24,7 @@
 #include <knp/framework/model_executor.h>
 #include <knp/framework/monitoring/model.h>
 #include <knp/framework/projection/wta.h>
+#include <knp/framework/tags/name.h>
 
 #include <map>
 #include <memory>
@@ -89,6 +90,12 @@ void train_network(
     const std::shared_ptr<knp::core::Backend>& backend, AnnotatedNetwork& network, const ModelDescription& model_desc,
     const Dataset& dataset)
 {
+    // Save populations names.
+    std::map<knp::core::UID, std::string> pop_names;
+    for (const auto& pop : network.network_.get_populations())
+        std::visit(
+            [&pop_names](const auto& pop) { pop_names[pop.get_uid()] = knp::framework::tags::get_name_tag(pop); }, pop);
+
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
 
@@ -109,11 +116,6 @@ void train_network(
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
     std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
         model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
-
-    std::map<knp::core::UID, std::string> pop_names;
-    for (const auto& pop : network.network_.get_populations())
-        std::visit([&pop_names](const auto& pop) { pop_names[pop.get_uid()] = pop.get_name(); }, pop);
-
     // Add WTA populations for logging.
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
 

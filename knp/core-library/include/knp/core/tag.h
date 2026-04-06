@@ -96,10 +96,19 @@ public:
     const auto &operator[](const std::string &name) const { return get_tag(name); }
 
     /**
-     * @brief Check if tag is specified.
+     * @brief Check if no tag is specified.
      * @return `true` if no tag is specified, `false` otherwise.
      */
     [[nodiscard]] bool empty() const noexcept { return tags_.empty(); }
+
+
+    /**
+     * @brief Check if tag is specified.
+     * @param name Tag name that will be searched.
+     * @return `true` if tag is specified, `false` otherwise.
+     */
+    [[nodiscard]] bool exists(const std::string &name) const noexcept { return tags_.find(name) != tags_.end(); }
+
 
 private:
     std::map<std::string, std::any> tags_{};

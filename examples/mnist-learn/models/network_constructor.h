@@ -20,6 +20,8 @@
  */
 
 #pragma once
+#include <knp/framework/tags/name.h>
+
 #include <list>
 #include <string>
 #include <utility>
@@ -82,7 +84,7 @@ public:
         PopulationInfo pop_info{role, keep_in_inference, neurons_amount, {}, name};
         auto pop = knp::core::Population<Neuron>(
             pop_info.uid_, [&neuron](size_t index) { return neuron; }, pop_info.neurons_amount_);
-        pop.set_name(pop_info.name_);
+        knp::framework::tags::set_name_tag(pop, pop_info.name_);
         network_.network_.add_population(std::move(pop));
         if (pop_info.keep_in_inference_) network_.data_.inference_population_uids_.insert(pop_info.uid_);
         if (PopulationRole::OUTPUT == pop_info.role_) network_.data_.output_uids_.push_back(pop_info.uid_);
