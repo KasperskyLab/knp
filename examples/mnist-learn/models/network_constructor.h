@@ -20,8 +20,11 @@
  */
 
 #pragma once
+#include <knp/framework/tags/name.h>
+
 #include <list>
 #include <string>
+#include <utility>
 
 // cppcheck-suppress missingInclude
 #include "annotated_network.h"
@@ -79,9 +82,10 @@ public:
         bool keep_in_inference, const std::string &name)
     {
         PopulationInfo pop_info{role, keep_in_inference, neurons_amount, {}, name};
-        network_.network_.add_population(knp::core::Population<Neuron>(
-            pop_info.uid_, [&neuron](size_t index) { return neuron; }, pop_info.neurons_amount_));
-        network_.data_.population_names_[pop_info.uid_] = pop_info.name_;
+        auto pop = knp::core::Population<Neuron>(
+            pop_info.uid_, [&neuron](size_t index) { return neuron; }, pop_info.neurons_amount_);
+        knp::framework::tags::set_name(pop, pop_info.name_);
+        network_.network_.add_population(std::move(pop));
         if (pop_info.keep_in_inference_) network_.data_.inference_population_uids_.insert(pop_info.uid_);
         if (PopulationRole::OUTPUT == pop_info.role_) network_.data_.output_uids_.push_back(pop_info.uid_);
         return pops_.emplace_back(pop_info);

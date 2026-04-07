@@ -66,10 +66,6 @@ struct AnnotatedNetwork
         /// WTA borders, for example 2,4,6.
         // cppcheck-suppress unusedStructMember
         std::vector<size_t> wta_borders_;
-
-        /// Map of population names.
-        // cppcheck-suppress unusedStructMember
-        std::map<knp::core::UID, std::string> population_names_;
     }
     /// Annotation to network.
     // cppcheck-suppress unusedStructMember
