@@ -30,7 +30,7 @@ TEST(NameTag, DefaultName)
     knp::core::UID uid;
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> pop(
         uid, knp::framework::population::neurons_generators::make_default<knp::neuron_traits::BLIFATNeuron>(), 0);
-    ASSERT_EQ(knp::framework::tags::get_name_tag(pop), std::string(uid));
+    ASSERT_EQ(knp::framework::tags::get_name(pop), std::string(uid));
 }
 
 
@@ -38,6 +38,6 @@ TEST(NameTag, SetGetName)
 {
     knp::core::Population<knp::neuron_traits::BLIFATNeuron> pop(
         knp::framework::population::neurons_generators::make_default<knp::neuron_traits::BLIFATNeuron>(), 0);
-    knp::framework::tags::set_name_tag(pop, "test_name");
-    ASSERT_EQ(knp::framework::tags::get_name_tag(pop), "test_name");
+    knp::framework::tags::set_name(pop, "test_name");
+    ASSERT_EQ(knp::framework::tags::get_name(pop), "test_name");
 }

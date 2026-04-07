@@ -44,7 +44,7 @@ constexpr char name_tag[]{"name"};
  *
  */
 template <typename Type>
-[[nodiscard]] std::string get_name_tag(const Type& object)
+[[nodiscard]] std::string get_name(const Type& object)
 {
     if (object.get_tags().exists(name_tag))
     {
@@ -61,7 +61,7 @@ template <typename Type>
  * @param name Name.
  */
 template <typename Type>
-void set_name_tag(Type& object, std::string_view name)
+void set_name(Type& object, std::string_view name)
 {
     object.get_tags()[name_tag] = std::string(name);
 }

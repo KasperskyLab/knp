@@ -94,7 +94,7 @@ void train_network(
     std::map<knp::core::UID, std::string> pop_names;
     for (const auto& pop : network.network_.get_populations())
         std::visit(
-            [&pop_names](const auto& pop) { pop_names[pop.get_uid()] = knp::framework::tags::get_name_tag(pop); }, pop);
+            [&pop_names](const auto& pop) { pop_names[pop.get_uid()] = knp::framework::tags::get_name(pop); }, pop);
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
