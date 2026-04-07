@@ -175,6 +175,11 @@ jobs:
             platform_version: ${{ matrix.boost_platform_version }}
             toolset: ${{ matrix.boost_toolset }}
 
+      - name: Install OpenCV
+        uses: Dovyski/setup-opencv-action@v1.1
+        with:
+          opencv-version: '4.0.0'
+
       - name: Configure CMake
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
