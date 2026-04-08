@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "common.h"
@@ -52,7 +53,15 @@ struct uid_from_python
             py::extract<std::vector<uint8_t>>(py::object(py::handle<>(py::borrowed(obj))).attr("bytes"));
         boost::uuids::uuid* res = new (storage) boost::uuids::uuid;
 
-        memcpy(res->data, &ba.front(), ba.size());
+        if (ba.size() != res->size())
+        {
+            const auto error_message = "UUID byte array must contain exactly " + std::to_string(res->size()) +
+                                       " bytes, got " + std::to_string(ba.size()) + ".";
+            PyErr_SetString(PyExc_ValueError, error_message.c_str());
+            py::throw_error_already_set();
+        }
+
+        std::copy(ba.begin(), ba.end(), res->begin());
         data->convertible = storage;
     }
 };
