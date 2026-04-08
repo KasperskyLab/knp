@@ -37,7 +37,7 @@ bool NetworkValidator::run_validators(const Network& network)
     bool all_passed = true;
     for (auto& validator : validators_)
     {
-        SPDLOG_INFO("[{}]:", validator->get_name());
+        SPDLOG_INFO("Running \"{}\"", validator->get_name());
         all_passed &= validator->run_validation(network);
     }
 

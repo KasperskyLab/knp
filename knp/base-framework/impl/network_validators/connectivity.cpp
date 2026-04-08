@@ -61,6 +61,7 @@ bool Connectivity::run_validation(const Network& network)
             [&populations_info](auto&& population) {
                 populations_info[population.get_uid()] = {false, false};
             },
+
             population_variant);
     }
 
@@ -77,22 +78,16 @@ bool Connectivity::run_validation(const Network& network)
                 {
                     populations_info[projection.get_presynaptic()].second = true;
                 }
-                else
-                {
-                    result = false;
-                    SPDLOG_ERROR(
-                        "Projection {} does not have presynaptic connection.", std::string(projection.get_uid()));
-                }
 
                 if (postsynaptic_pop_not_empty)
                 {
                     populations_info[projection.get_postsynaptic()].first = true;
                 }
-                else
+
+                if (!presynaptic_pop_not_empty && !postsynaptic_pop_not_empty)
                 {
                     result = false;
-                    SPDLOG_ERROR(
-                        "Projection {} does not have postsynaptic connection.", std::string(projection.get_uid()));
+                    SPDLOG_ERROR("Projection {} does not have any connections.", std::string(projection.get_uid()));
                 }
             },
             projection_variant);
@@ -101,17 +96,10 @@ bool Connectivity::run_validation(const Network& network)
     //Check if all populations are connected.
     for (const auto& population_info : populations_info)
     {
-        if (!population_info.second.first)
+        if (!population_info.second.first && !population_info.second.second)
         {
             result = false;
-            SPDLOG_ERROR(
-                "Population {} does not have any projection coming out of it.", std::string(population_info.first));
-        }
-        if (!population_info.second.second)
-        {
-            result = false;
-            SPDLOG_ERROR(
-                "Population {} does not have any projection coming in it.", std::string(population_info.first));
+            SPDLOG_ERROR("Population {} does not have any projection connections.", std::string(population_info.first));
         }
     }
 
