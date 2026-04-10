@@ -19,26 +19,16 @@
  * limitations under the License.
  */
 
-#include <knp/framework/network_validators/connectivity.h>
+#include <knp/framework/network_validation/types.h>
+#include <knp/framework/network_validation/validators/connectivity.h>
 
-#include <spdlog/spdlog.h>
 
-
-/**
- * @brief Network validators namespace.
- */
-namespace knp::framework::network_validators
+namespace knp::framework::network_validation
 {
 
-std::string Connectivity::get_name() const
+std::vector<Report> Connectivity::operator()(const Network& network)
 {
-    return "Network connectivity validator";
-}
-
-
-bool Connectivity::run_validation(const Network& network)
-{
-    bool result = true;
+    std::vector<Report> report;
 
     /*
      * We will store a pair of bools for each population, first bool will be true if there is a projection coming out of
@@ -61,7 +51,6 @@ bool Connectivity::run_validation(const Network& network)
             [&populations_info](auto&& population) {
                 populations_info[population.get_uid()] = {false, false};
             },
-
             population_variant);
     }
 
@@ -69,7 +58,7 @@ bool Connectivity::run_validation(const Network& network)
     for (const auto& projection_variant : projections)
     {
         std::visit(
-            [&projections_info, &populations_info, &result](auto&& projection)
+            [&projections_info, &populations_info, &report](auto&& projection)
             {
                 bool presynaptic_pop_not_empty = static_cast<bool>(projection.get_presynaptic());
                 bool postsynaptic_pop_not_empty = static_cast<bool>(projection.get_postsynaptic());
@@ -86,8 +75,9 @@ bool Connectivity::run_validation(const Network& network)
 
                 if (!presynaptic_pop_not_empty && !postsynaptic_pop_not_empty)
                 {
-                    result = false;
-                    SPDLOG_ERROR("Projection {} does not have any connections.", std::string(projection.get_uid()));
+                    report.push_back(
+                        {ReportSeverity::error, "Projection " + std::string(projection.get_uid()) +
+                                                    " does not have any connected populations."});
                 }
             },
             projection_variant);
@@ -98,11 +88,13 @@ bool Connectivity::run_validation(const Network& network)
     {
         if (!population_info.second.first && !population_info.second.second)
         {
-            result = false;
-            SPDLOG_ERROR("Population {} does not have any projection connections.", std::string(population_info.first));
+            report.push_back(
+                {ReportSeverity::error, "Population " + std::string(population_info.first) +
+                                            " does not have any projections connected to it."});
         }
     }
 
-    return result;
+    return report;
 }
-}  //namespace knp::framework::network_validators
+
+}  // namespace knp::framework::network_validation

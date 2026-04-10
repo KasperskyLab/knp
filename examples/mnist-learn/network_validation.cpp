@@ -21,16 +21,13 @@
 
 #include "network_validation.h"
 
-#include <knp/framework/network_validator.h>
+#include <knp/framework/network_validation/runner.h>
+#include <knp/framework/network_validation/validators/connectivity.h>
 
 
 void validate_network(const knp::framework::Network& network)
 {
-    knp::framework::NetworkValidator validator;
-    validator.add_validator(knp::framework::network_validators::Connectivity());
-    bool validation_result = validator.run_validators(network);
-    if (!validation_result)
-    {
-        throw std::runtime_error("Network validation failed.");
-    }
+    knp::framework::network_validation::Runner validations_runner;
+    validations_runner.add_validator("Connectivity validator", knp::framework::network_validation::Connectivity());
+    validations_runner.run_validators(network);
 }

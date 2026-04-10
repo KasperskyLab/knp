@@ -21,36 +21,30 @@
 
 #pragma once
 
-#include <knp/framework/network_validators/base.h>
+#include <knp/framework/network_validation/types.h>
 
-#include <string>
+#include <vector>
 
 
 /**
- * @brief Network validators namespace.
+ * @brief Network validation namespace.
  */
-namespace knp::framework::network_validators
+namespace knp::framework::network_validation
 {
 
 /**
- * @brief Validator of network connectivity.
- * @details Checks if all populations and projections are connected.
+ * @brief Connectivity validator functor.
+ * @note It will test if there are no populations/projections that are not connected to anything.
  */
-class KNP_DECLSPEC Connectivity final : public Base
+class Connectivity
 {
 public:
     /**
-     * @brief Get name of validator for logs.
-     * @return Validator name.
-     */
-    [[nodiscard]] std::string get_name() const override;
-
-
-    /**
      * @brief Run connectivity validation on specified network.
      * @param network Network for validation.
-     * @return Result of validation.
+     * @return Report.
      */
-    [[nodiscard]] bool run_validation(const Network& network) override;
+    std::vector<Report> operator()(const Network& network);
 };
-}  //namespace knp::framework::network_validators
+
+}  // namespace knp::framework::network_validation

@@ -26,7 +26,6 @@
 
 /**
  * @brief Run validation on specified network.
- * @note Throws exception if validation fails.
  * @param network Network for validation.
  */
 void validate_network(const knp::framework::Network& network);
