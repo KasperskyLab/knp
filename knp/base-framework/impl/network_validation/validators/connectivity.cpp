@@ -76,8 +76,10 @@ std::vector<Report> Connectivity::operator()(const Network& network)
                 if (!presynaptic_pop_not_empty && !postsynaptic_pop_not_empty)
                 {
                     report.push_back(
-                        {ReportSeverity::error, "Projection " + std::string(projection.get_uid()) +
-                                                    " does not have any connected populations."});
+                        {ReportSeverity::error,
+                         "Projection " + std::string(projection.get_uid()) +
+                             " does not have any connected populations.",
+                         projection_not_connected});
                 }
             },
             projection_variant);
@@ -89,8 +91,9 @@ std::vector<Report> Connectivity::operator()(const Network& network)
         if (!population_info.second.first && !population_info.second.second)
         {
             report.push_back(
-                {ReportSeverity::error, "Population " + std::string(population_info.first) +
-                                            " does not have any projections connected to it."});
+                {ReportSeverity::error,
+                 "Population " + std::string(population_info.first) + " does not have any projections connected to it.",
+                 population_not_connected});
         }
     }
 

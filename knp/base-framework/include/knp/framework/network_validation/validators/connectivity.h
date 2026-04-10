@@ -40,6 +40,16 @@ class Connectivity
 {
 public:
     /**
+     * @brief Internal error codes.
+     */
+    enum ErrorCode
+    {
+        population_not_connected,
+        projection_not_connected,
+    };
+
+
+    /**
      * @brief Run connectivity validation on specified network.
      * @param network Network for validation.
      * @return Report.

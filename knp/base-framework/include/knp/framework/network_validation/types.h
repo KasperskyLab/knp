@@ -61,6 +61,13 @@ struct Report
      */
     // cppcheck-suppress unusedStructMember
     std::string message_;
+
+
+    /**
+     * @brief Internal code error.
+     */
+    // cppcheck-suppress unusedStructMember
+    uint32_t code_;
 };
 
 

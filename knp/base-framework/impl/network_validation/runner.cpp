@@ -52,13 +52,13 @@ void Runner::log_reports(const std::vector<Report>& reports)
         switch (report.severity_)
         {
             case ReportSeverity::info:
-                SPDLOG_INFO(report.message_);
+                SPDLOG_INFO("[{}] {}", report.code_, report.message_);
                 break;
             case ReportSeverity::warning:
-                SPDLOG_WARN(report.message_);
+                SPDLOG_WARN("[{}] {}", report.code_, report.message_);
                 break;
             case ReportSeverity::error:
-                SPDLOG_ERROR(report.message_);
+                SPDLOG_ERROR("[{}] {}", report.code_, report.message_);
                 break;
             default:
                 throw std::logic_error("Unknown severity level.");
