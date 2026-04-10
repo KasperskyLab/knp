@@ -45,54 +45,83 @@ void Runner::add_validator(std::string_view name, NetworkValidator validator)
 }
 
 
+void Runner::log_reports(const std::vector<Report>& reports)
+{
+    for (const auto& report : reports)
+    {
+        switch (report.severity_)
+        {
+            case ReportSeverity::info:
+                SPDLOG_INFO(report.message_);
+                break;
+            case ReportSeverity::warning:
+                SPDLOG_WARN(report.message_);
+                break;
+            case ReportSeverity::error:
+                SPDLOG_ERROR(report.message_);
+                break;
+            default:
+                throw std::logic_error("Unknown severity level.");
+        }
+    }
+}
+
+
 std::vector<Runner::ValidatorReport> Runner::run_validators(const Network& network)
 {
     std::vector<ValidatorReport> reports;
 
     if (population_validators_.size())
     {
-        SPDLOG_INFO("Starting population validators...");
+        SPDLOG_INFO("Starting population validators.");
         for (auto& validator : population_validators_)
         {
-            SPDLOG_INFO("Running \"{}\"...", validator.first);
+            SPDLOG_INFO("Running \"{}\".", validator.first);
             std::vector<Report> validator_report;
             for (const auto& pop : network.get_populations())
             {
-                auto current_report = validator.second(pop);
+                auto current_reports = validator.second(pop);
+                log_reports(current_reports);
                 validator_report.insert(
-                    validator_report.end(), std::make_move_iterator(current_report.begin()),
-                    std::make_move_iterator(current_report.end()));
+                    validator_report.end(), std::make_move_iterator(current_reports.begin()),
+                    std::make_move_iterator(current_reports.end()));
             }
             reports.push_back({validator.first, std::move(validator_report)});
         }
+        SPDLOG_INFO("Finished population validators.");
     }
 
     if (projection_validators_.size())
     {
-        SPDLOG_INFO("Starting projection validators...");
+        SPDLOG_INFO("Starting projection validators.");
         for (auto& validator : projection_validators_)
         {
-            SPDLOG_INFO("Running \"{}\"...", validator.first);
+            SPDLOG_INFO("Running \"{}\".", validator.first);
             std::vector<Report> validator_report;
             for (const auto& proj : network.get_projections())
             {
-                auto current_report = validator.second(proj);
+                auto current_reports = validator.second(proj);
+                log_reports(current_reports);
                 validator_report.insert(
-                    validator_report.end(), std::make_move_iterator(current_report.begin()),
-                    std::make_move_iterator(current_report.end()));
+                    validator_report.end(), std::make_move_iterator(current_reports.begin()),
+                    std::make_move_iterator(current_reports.end()));
             }
             reports.push_back({validator.first, std::move(validator_report)});
         }
+        SPDLOG_INFO("Finished projection validators.");
     }
 
     if (network_validators_.size())
     {
-        SPDLOG_INFO("Starting network validators...");
+        SPDLOG_INFO("Starting network validators.");
         for (auto& validator : network_validators_)
         {
-            SPDLOG_INFO("Running \"{}\"...", validator.first);
-            reports.push_back({validator.first, validator.second(network)});
+            SPDLOG_INFO("Running \"{}\".", validator.first);
+            auto current_reports = validator.second(network);
+            log_reports(current_reports);
+            reports.push_back({validator.first, current_reports});
         }
+        SPDLOG_INFO("Finished network validators.");
     }
 
     return reports;

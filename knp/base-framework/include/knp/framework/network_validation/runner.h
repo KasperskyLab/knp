@@ -92,6 +92,8 @@ public:
     std::vector<ValidatorReport> run_validators(const Network& network);
 
 private:
+    static void log_reports(const std::vector<Report>& reports);
+
     // cppcheck-suppress unusedStructMember
     std::vector<std::pair<std::string, PopulationValidator>> population_validators_;
     // cppcheck-suppress unusedStructMember
