@@ -25,9 +25,9 @@
 #include <knp/core/impexp.h>
 
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 
 /**
@@ -70,9 +70,6 @@ protected:
      */
     std::function<BackendCreateFunction> make_creator(const std::filesystem::path &backend_path);
 
-private:
-    // std::filesystem::path doesn't work on any compilers.
-    std::unordered_map<std::string, std::function<BackendCreateFunction>> creators_;
 };
 
 }  // namespace knp::framework
