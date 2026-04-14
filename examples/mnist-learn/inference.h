@@ -28,6 +28,8 @@
 
 #include <map>
 #include <memory>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -83,6 +85,7 @@ std::vector<knp::core::messaging::SpikeMessage> infer_network(
     model_executor.get_backend()->stop_learning();
 
     std::ofstream log_stream;
+    std::ofstream raw_spikes_stream;
 
     // This variable should have the same lifetime as model_executor, or else UB.
     //  cppcheck-suppress variableScope
@@ -96,6 +99,42 @@ std::vector<knp::core::messaging::SpikeMessage> infer_network(
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
 
     knp::framework::monitoring::model::add_spikes_logger(model_executor, pop_names, std::cout);
+
+    if (!model_desc.log_path_.empty())
+    {
+        std::filesystem::create_directories(model_desc.log_path_);
+        raw_spikes_stream.open(model_desc.log_path_ / "spikes_inference_raw.csv", std::ofstream::out);
+        if (!raw_spikes_stream.is_open())
+        {
+            std::cout << "Couldn't open raw inference spikes log file : " << model_desc.log_path_ << std::endl;
+        }
+        else
+        {
+            raw_spikes_stream << "send_time,sender_name,sender_uid,neuron_index" << std::endl;
+
+            std::vector<knp::core::UID> all_senders_uids(pop_names.size());
+            std::transform(
+                pop_names.begin(), pop_names.end(), all_senders_uids.begin(),
+                [](const auto& sender) -> knp::core::UID { return sender.first; });
+
+            model_executor.add_observer<knp::core::messaging::SpikeMessage>(
+                [&raw_spikes_stream, &pop_names](const std::vector<knp::core::messaging::SpikeMessage>& messages)
+                {
+                    for (const auto& message : messages)
+                    {
+                        const auto name_iter = pop_names.find(message.header_.sender_uid_);
+                        const std::string sender_name =
+                            name_iter == pop_names.end() ? "UNKNOWN" : name_iter->second;
+                        for (const auto neuron_index : message.neuron_indexes_)
+                        {
+                            raw_spikes_stream << message.header_.send_time_ << "," << sender_name << ","
+                                              << message.header_.sender_uid_ << "," << neuron_index << std::endl;
+                        }
+                    }
+                },
+                all_senders_uids);
+        }
+    }
 
     // All loggers go here
     if (!model_desc.log_path_.empty())

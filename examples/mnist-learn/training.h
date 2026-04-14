@@ -28,6 +28,8 @@
 
 #include <map>
 #include <memory>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -124,6 +126,8 @@ void train_network(
     // All loggers go here
     if (!model_desc.log_path_.empty())
     {
+        std::filesystem::create_directories(model_desc.log_path_);
+
         log_stream.open(model_desc.log_path_ / "spikes_training.csv", std::ofstream::out);
         if (log_stream.is_open())
             knp::framework::monitoring::model::add_aggregated_spikes_logger(
