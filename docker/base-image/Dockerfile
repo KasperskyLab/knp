@@ -80,3 +80,6 @@ RUN rm -rf /tmp/*
 
 COPY LICENSE.txt .
 COPY NOTICE.txt .
+
+COPY start.sh /start.sh
+RUN chmod +x /start.sh && /start.sh
