@@ -1,6 +1,6 @@
 /**
- * @file types.h
- * @brief Validators helper types.
+ * @file validator_types.h
+ * @brief Validator types.
  * @kaspersky_support David P.
  * @date 08.04.2026
  * @license Apache 2.0
@@ -22,10 +22,7 @@
 #pragma once
 
 #include <knp/framework/network.h>
-
-#include <string>
-#include <vector>
-
+#include <knp/framework/network_validation/report.h>
 
 /**
  * @brief Network validation namespace.
@@ -34,58 +31,20 @@ namespace knp::framework::network_validation
 {
 
 /**
- * @brief Severity of report.
- */
-enum ReportSeverity
-{
-    info,
-    warning,
-    error
-};
-
-
-/**
- * @brief Report of validator.
- */
-struct Report
-{
-    /**
-     * @brief Severity of report.
-     */
-    // cppcheck-suppress unusedStructMember
-    ReportSeverity severity_;
-
-
-    /**
-     * @brief Message of report.
-     */
-    // cppcheck-suppress unusedStructMember
-    std::string message_;
-
-
-    /**
-     * @brief Internal code error.
-     */
-    // cppcheck-suppress unusedStructMember
-    uint32_t code_;
-};
-
-
-/**
  * @brief Validator for populations.
  */
-using PopulationValidator = std::function<std::vector<Report>(const Network::AllPopulationVariants& population)>;
+using PopulationValidator = std::function<Report(const Network::AllPopulationVariants& population)>;
 
 
 /**
  * @brief Validator for projections.
  */
-using ProjectionValidator = std::function<std::vector<Report>(const Network::AllProjectionVariants& projection)>;
+using ProjectionValidator = std::function<Report(const Network::AllProjectionVariants& projection)>;
 
 
 /**
  * @brief Validator for network.
  */
-using NetworkValidator = std::function<std::vector<Report>(const Network& network)>;
+using NetworkValidator = std::function<Report(const Network& network)>;
 
 }  // namespace knp::framework::network_validation

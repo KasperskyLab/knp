@@ -21,9 +21,11 @@
 
 #pragma once
 
-#include <knp/framework/network_validation/types.h>
+#include <knp/framework/network.h>
+#include <knp/framework/network_validation/report.h>
 
-#include <vector>
+#include <string>
+#include <system_error>
 
 
 /**
@@ -48,13 +50,31 @@ public:
         projection_not_connected,
     };
 
+    /**
+     * @brief Get error category for this class.
+     * @return Error category.
+     */
+    static const std::error_category& error_category() noexcept;
+
+    /**
+     * @brief Convert ErrorCode to standard error_code.
+     * @param error Error code.
+     * @return Converted error code.
+     */
+    static std::error_code make_error_code(ErrorCode error) noexcept;
+
+    /**
+     * @brief Get default name of validator.
+     * @return Name.
+     */
+    static std::string get_default_name();
 
     /**
      * @brief Run connectivity validation on specified network.
      * @param network Network for validation.
      * @return Report.
      */
-    std::vector<Report> operator()(const Network& network);
+    Report operator()(const Network& network);
 };
 
 }  // namespace knp::framework::network_validation

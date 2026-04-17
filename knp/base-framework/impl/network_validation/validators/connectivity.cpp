@@ -19,16 +19,72 @@
  * limitations under the License.
  */
 
-#include <knp/framework/network_validation/types.h>
 #include <knp/framework/network_validation/validators/connectivity.h>
+
+#include <spdlog/spdlog.h>
 
 
 namespace knp::framework::network_validation
 {
 
-std::vector<Report> Connectivity::operator()(const Network& network)
+namespace
 {
-    std::vector<Report> report;
+class ConnectivityErrorCategory : public std::error_category
+{
+    [[nodiscard]] const char* name() const noexcept override { return "ConnectivityValidatorError"; }
+    [[nodiscard]] std::string message(int error) const override
+    {
+        switch (static_cast<Connectivity::ErrorCode>(error))
+        {
+            case Connectivity::population_not_connected:
+                return "Population is not connected";
+            case Connectivity::projection_not_connected:
+                return "Projection is not connected";
+            default:
+                return "Unknown error";
+        }
+    }
+};
+
+
+constexpr std::string_view get_error_template(Connectivity::ErrorCode error_code)
+{
+    switch (error_code)
+    {
+        case Connectivity::projection_not_connected:
+            return "Projection {} does not have any connected populations.";
+        case Connectivity::population_not_connected:
+            return "Population {} does not have any projections connected to it.";
+        default:
+            return "Unknown error code.";
+    }
+}
+
+}  // namespace
+
+
+const std::error_category& Connectivity::error_category() noexcept
+{
+    static ConnectivityErrorCategory instance;
+    return instance;
+}
+
+
+std::error_code Connectivity::make_error_code(ErrorCode error) noexcept
+{
+    return {static_cast<int>(error), error_category()};
+}
+
+
+std::string Connectivity::get_default_name()
+{
+    return "Connectivity validator";
+}
+
+
+Report Connectivity::operator()(const Network& network)
+{
+    Report report;
 
     /*
      * We will store a pair of bools for each population, first bool will be true if there is a projection coming out of
@@ -76,24 +132,23 @@ std::vector<Report> Connectivity::operator()(const Network& network)
                 if (!presynaptic_pop_not_empty && !postsynaptic_pop_not_empty)
                 {
                     report.push_back(
-                        {ReportSeverity::error,
-                         "Projection " + std::string(projection.get_uid()) +
-                             " does not have any connected populations.",
-                         projection_not_connected});
+                        {IssueSeverity::error,
+                         fmt::format(get_error_template(projection_not_connected), std::string(projection.get_uid())),
+                         make_error_code(projection_not_connected)});
                 }
             },
             projection_variant);
     }
 
-    //Check if all populations are connected.
+    // Check if all populations are connected.
     for (const auto& population_info : populations_info)
     {
         if (!population_info.second.first && !population_info.second.second)
         {
             report.push_back(
-                {ReportSeverity::error,
-                 "Population " + std::string(population_info.first) + " does not have any projections connected to it.",
-                 population_not_connected});
+                {IssueSeverity::error,
+                 fmt::format(get_error_template(population_not_connected), std::string(population_info.first)),
+                 make_error_code(population_not_connected)});
         }
     }
 
