@@ -152,9 +152,9 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         model_desc.inference_backend_path_ = model_desc.training_backend_path_;
     }
 
-    if (vm.count("log_path"))
+    if (vm.count("extensive_logs_path"))
     {
-        model_desc.log_path_ = vm["log_path"].as<std::string>();
+        model_desc.log_path_ = vm["extensive_logs_path"].as<std::string>();
     }
     else
     {

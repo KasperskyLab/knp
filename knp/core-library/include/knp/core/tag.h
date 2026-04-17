@@ -48,6 +48,14 @@ public:
     [[nodiscard]] std::any &get_tag(const std::string &name) { return tags_[name]; }
 
     /**
+     * @brief Get tag value by tag name.
+     * @note Const function.
+     * @param name tag name.
+     * @return tag value.
+     */
+    [[nodiscard]] const std::any &get_tag(const std::string &name) const { return tags_.at(name); }
+
+    /**
      * @brief Get tag value by tag name and value type.
      * @tparam T tag value type.
      * @param name tag name.
@@ -60,6 +68,19 @@ public:
     }
 
     /**
+     * @brief Get tag value by tag name and value type.
+     * @note Const function.
+     * @tparam T tag value type.
+     * @param name tag name.
+     * @return tag value.
+     */
+    template <typename T>
+    [[nodiscard]] const std::decay_t<T> &get_tag(const std::string &name) const
+    {
+        return std::any_cast<const std::decay_t<T> &>(tags_.at(name));
+    }
+
+    /**
      * @brief Return tag value.
      * @param name tag name.
      * @return tag value.
@@ -67,10 +88,27 @@ public:
     auto &operator[](const std::string &name) { return get_tag(name); }
 
     /**
-     * @brief Check if tag is specified. 
+     * @brief Return tag value.
+     * @note Const function.
+     * @param name tag name.
+     * @return tag value.
+     */
+    const auto &operator[](const std::string &name) const { return get_tag(name); }
+
+    /**
+     * @brief Check if no tag is specified.
      * @return `true` if no tag is specified, `false` otherwise.
      */
     [[nodiscard]] bool empty() const noexcept { return tags_.empty(); }
+
+
+    /**
+     * @brief Check if tag is specified.
+     * @param name Tag name that will be searched.
+     * @return `true` if tag is specified, `false` otherwise.
+     */
+    [[nodiscard]] bool exists(const std::string &name) const noexcept { return tags_.find(name) != tags_.end(); }
+
 
 private:
     std::map<std::string, std::any> tags_{};
