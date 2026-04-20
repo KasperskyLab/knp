@@ -16,22 +16,17 @@
 
 ARG KNP_IMAGE_VERSION=2.0.0
 ARG TARGETPLATFORM
-FROM gcc:14.1.0
+FROM gcc:14.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /azp
 
-RUN <<EOT
-  echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
-  export DEBIAN_VERSION=debian$(cat /etc/debian_version | sed 's/\..*//')
-
-  echo "BASE IMAGE VERSION: ${KNP_IMAGE_VERSION}"
-  echo "TARGETPLATFORM: ${TARGETPLATFORM}"
-
-  {
-    apt-get update \
-    && apt-get -y --no-install-recommends --show-progress install \
+RUN \
+  echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
+  && export DEBIAN_VERSION=debian$(cat /etc/debian_version | sed 's/\..*//') \
+  && apt-get update \
+  && apt-get -y --no-install-recommends --show-progress install \
       apt-transport-https \
       build-essential \
       ca-certificates \
@@ -59,14 +54,12 @@ RUN <<EOT
       valgrind \
       wget \
       zip \
-      $(apt list|awk '/boost.*1.81.*-dev/ {print($1);}')
-  } || { echo "Apt install failed!" >&2; exit 1; }
-
-  apt-get clean
-
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+      $(apt list|awk '/boost.*1.81.*-dev/ {print($1);}') \
+  && apt-get clean \
+  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+     gpg --dearmor | tee /etc/apt/keyrings/docker.gpg > /dev/null \
   && add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        "deb [arch=$(echo ${TARGETPLATFORM}|cut -f2 -d/)] https://download.docker.com/linux/ubuntu \
         mantic \
         stable" \
   && export VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r) \
@@ -74,7 +67,6 @@ RUN <<EOT
   && curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-`uname -s`-`uname -m` -o "${DESTINATION}" \
   && chmod +x ${DESTINATION} \
   && ln -sf ${DESTINATION} /usr/bin/docker-compose
-EOT
 
 RUN rm -rf /tmp/*
 
@@ -82,4 +74,6 @@ COPY LICENSE.txt .
 COPY NOTICE.txt .
 
 COPY start.sh /start.sh
-RUN chmod +x /start.sh && /start.sh
+RUN chmod +x /start.sh
+
+ENTRYPOINT ["/start.sh"]
