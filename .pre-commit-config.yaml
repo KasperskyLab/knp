@@ -118,9 +118,9 @@ repos:
     rev: "v0.6.13"
     hooks:
       - id: cmake-format
-        args: ["--config", "knp/.cmake-format.yaml"]
+        args: ["--config", ".cmake-format.yaml"]
       - id: cmake-lint
-        args: ["--config-files", "knp/.cmake-format.yaml"]
+        args: ["--config-files", ".cmake-format.yaml"]
 
   #
   # Python
