@@ -6,18 +6,20 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - 'docker/build-image/**'
+      - 'docker/**'
       - '.github/workflows/docker-build-image.yml'
   pull_request:
     branches: [ "master" ]
     paths:
-      - 'docker/build-image/**'
+      - 'docker/**'
       - '.github/workflows/docker-build-image.yml'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Images Version
+        run: echo "KNP_IMAGE_VERSION=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
       - name: Set up Docker
         uses: docker/setup-docker-action@v5
         with:
@@ -37,6 +39,17 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push the base Docker image for Kaspersky Neuromorphic Platform
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: "{{defaultContext}}:docker/base-image"
+          load: true
+          push: true
+          tags: ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
+          build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
+          timeout-minutes: 180
+          continue-on-error: false
       - name: Build and push the Docker image for Kaspersky Neuromorphic Platform build
         uses: docker/build-push-action@v6
         with:
@@ -44,6 +57,7 @@ jobs:
           context: "{{defaultContext}}:docker/build-image"
           load: true
           push: true
-          tags: ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest
+          build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
+          tags: ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
           timeout-minutes: 180
           continue-on-error: false
