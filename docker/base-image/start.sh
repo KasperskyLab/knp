@@ -24,15 +24,6 @@ set -e
 
 CUDA_VERSION="12.9"
 
-echo "[INFO] Checking for CUDA..."
-
-if command -v nvcc >/dev/null 2>&1; then
-    echo "[OK] CUDA already installed:"
-    nvcc --version
-    exit 0
-fi
-
-echo "[WARN] CUDA not found. Installing..."
 
 function install_cuda_debian() {
     export DEBIAN_VERSION=debian$(cat /etc/debian_version | sed 's/\..*//')
@@ -53,11 +44,20 @@ function install_cuda_debian() {
     echo "[INFO] CUDA installation complete."
 }
 
-export PATH=/usr/local/cuda-${CUDA_VERSION}/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_VERSION}/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 if [ "x$(uname -m)" = "xx86_64" ]; then
-    install_cuda_debian
+    echo "[INFO] Checking for CUDA..."
+
+    export PATH=/usr/local/cuda-${CUDA_VERSION}/bin${PATH:+:${PATH}}
+    export LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_VERSION}/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+    if command -v nvcc >/dev/null 2>&1; then
+        echo "[OK] CUDA already installed:"
+        nvcc --version
+    else
+        echo "[WARN] CUDA not found. Installing..."
+        install_cuda_debian
+    fi
 
     if command -v nvcc >/dev/null 2>&1; then
         nvcc --version
