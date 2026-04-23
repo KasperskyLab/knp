@@ -41,6 +41,7 @@ namespace knp::framework::monitoring
 {
 /**
  * @brief Functor for message processing.
+ * 
  * @tparam Message type of messages the functor processes.
  */
 template <class Message>
@@ -49,7 +50,9 @@ using MessageProcessor = std::function<void(const std::vector<Message> &)>;
 
 /**
  * @brief The MessageObserver class is a definition of an observer that receives messages and processes them.
+ * 
  * @tparam Message message type that is processed by an observer.
+ * 
  * @note Use this class for statistics calculation or for information output.
  */
 template <class Message>
@@ -58,6 +61,7 @@ class MessageObserver
 public:
     /**
      * @brief Constructor.
+     * 
      * @param endpoint endpoint from which to get messages.
      * @param processor functor to process messages.
      * @param uid observer UID.
@@ -75,12 +79,14 @@ public:
     
     /**
      * @brief Move constructor for observer.
+     * 
      * @param other other observer.
      */
     MessageObserver(MessageObserver<Message> &&other) noexcept = default;
 
     /**
      * @brief Subscribe to messages.
+     * 
      * @param entities message senders.
      */
     void subscribe(const std::vector<core::UID> &entities) { endpoint_.subscribe<Message>(base_data_.uid_, entities); }
@@ -97,6 +103,7 @@ public:
 
     /**
      * @brief Get observer UID.
+     * 
      * @return Observer UID.
      */
     [[nodiscard]] knp::core::UID get_uid() const { return base_data_.uid_; }

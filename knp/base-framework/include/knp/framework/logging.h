@@ -29,53 +29,91 @@
 /**
  * @brief Logging namespace.
  */
+/**
+ * @brief Logging utilities for the KNP framework.
+ *
+ * @details The namespace provides a thin wrapper around *spdlog* that maps the framework‑specific `Level` enum 
+ * to spdlog’s logging levels and offers convenient conversion functions.
+ */
 namespace knp::framework::logging
 {
 
+
 /**
- * @brief Levels of logging. Each level includes all levels below it including itself. So for example "warn" will
- * enable "warn","error","critical", "none".
- * @note This enum have direct mapping to spdlog's logging levels.
+ * @brief Logging levels.
  *
+ * @details Each level implicitly enables all levels that are numerically lower. For example, setting the level to 
+ * `warn` enables logging for `warn`, `error`, `critical` and `none`.  The values correspond directly to spdlog’s 
+ * levels. The special value `none` disables logging completely.
+ *
+ * @note This enum has a one‑to‑one mapping to spdlog’s logging levels.
  */
 enum Level : int
 {
+    /**
+     * @brief Trace‑level messages.
+     */
     trace,
+    /**
+     * @brief Debug-level messages.
+     */
     debug,
+    /**
+     * @brief Informational messages.
+     */
     info,
+    /**
+     * @brief Warning messages.
+     */
     warn,
+    /**
+     * @brief Error messages.
+     */
     error,
+    /**
+     * @brief Critical error messages.
+     */
     critical,
+    /**
+     * @brief Logging disabled.
+     */
     none
 };
 
 
 /**
- * @brief Set level of logging.
- * @param level Logging level.
+ * @brief Set the global logging level.
+ *
+ * @param level logging level to apply.
  */
 KNP_DECLSPEC void set_level(Level level);
 
 
 /**
- * @brief Get level of logging.
- * @return Logging level.
+ * @brief Retrieve the current global logging level.
+ *
+ * @return current logging level.
  */
 KNP_DECLSPEC Level get_level();
 
 
 /**
- * @brief Convert level to string.
- * @param level Logging level.
- * @return Converted string.
+ * @brief Convert a logging level to its string representation.
+ *
+ * @param level logging level to convert.
+ *
+ * @return string that represents the given level; returns `none` for the @ref Level::none level.
  */
 KNP_DECLSPEC std::string level_to_str(Level level);
 
 
 /**
- * @brief Convert string to level.
- * @param str Level string.
- * @return Converted logging level.
+ * @brief Convert a string to a logging level.
+ *
+ * @param str string that specifies a logging level.
+ *
+ * @return logging level corresponding to the string; returns `none` if the string is empty, 
+ * equals `none`, or cannot be parsed.
  */
 KNP_DECLSPEC Level str_to_level(std::string_view str);
 

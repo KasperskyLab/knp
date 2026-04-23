@@ -29,6 +29,7 @@ namespace knp::synapse_traits
 
 /**
  * @brief Types of synapses. This parameter is used for projection-population interaction.
+ * 
  * @todo Improve descriptions.
  * Maybe split this enum.
  */

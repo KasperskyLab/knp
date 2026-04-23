@@ -31,17 +31,25 @@ namespace knp::framework::tags
 {
 
 /**
- * @brief Tag name for setting names.
+ * @brief Tag name used to store an object's human‑readable name.
+ *
+ * @details The literal `name` is the key under which a string tag is placed in the object's @ref TagMap. It is used 
+ * by the helper functions below.
  */
 constexpr char name_tag[]{"name"};
 
 
 /**
- * @brief Get name tag.
- * @tparam Type Object type.
- * @param object Object from which we want to retrieve name.
- * @return If name was specified in object, it is returned, otherwise UID is returned.
+ * @brief Retrieve the object tag value by name.
  *
+ * @tparam Type object type.
+ *
+ * @param object object from which the name is requested.
+ *
+ * @return tag value if the tag name is present in the object; otherwise the object's UID converted to a string.
+ *
+ * @details The function checks whether the object's tag map contains @ref name_tag. If it does, the stored tag value 
+ * is returned. When the tag is absent, the object's unique identifier is used as a fallback.
  */
 template <typename Type>
 [[nodiscard]] std::string get_name(const Type& object)
@@ -55,10 +63,15 @@ template <typename Type>
 
 
 /**
- * @brief Set name tag.
- * @tparam Type Object type.
- * @param object Object in which we want to set name.
- * @param name Name.
+ * @brief Assign a tag value to an object's tag.
+ *
+ * @tparam Type object type.
+ *
+ * @param object object whose tag value will be set.
+ * @param name value to assign.
+ *
+ * @details The function overwrites any existing value associated with @ref name_tag and stores a copy of @p name 
+ * as a string in the object's @ref TagMap.
  */
 template <typename Type>
 void set_name(Type& object, std::string_view name)

@@ -34,6 +34,7 @@ namespace knp::synapse_traits
 {
 /**
  * @brief Delta synapse.
+ * 
  * @note Use as a template parameter only.
  */
 struct DeltaSynapse;
@@ -52,6 +53,7 @@ struct default_values<DeltaSynapse>
 
     /**
      * @brief Synaptic delay default value.
+     * 
      * @note Value of `1` is the least delay possible.
      */
     constexpr static uint32_t delay_ = 1;
@@ -76,12 +78,14 @@ struct synapse_parameters<DeltaSynapse>
 
     /**
      * @brief Synaptic delay.
+     * 
      * @details Delay of `N` means that a spike sent on step `X` will be received on step `X + N`.
      */
     uint32_t delay_ = default_values<DeltaSynapse>::delay_;
 
     /**
      * @brief Synapse type.
+     * 
      * @details Various types have different influences on neuron parameters, as defined by neuron
      * function.
      */

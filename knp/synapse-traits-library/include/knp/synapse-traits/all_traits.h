@@ -42,6 +42,7 @@ namespace knp::synapse_traits
 
 /**
  * @brief List of synapse types.
+ * 
  * @details To add a new synapse type to the list, define it in the ALL_SYNAPSES macro. For example,
  * @code{.cpp}
  * #define ALL_SYNAPSES DeltaSynapse, AdditiveSTDPDeltaSynapse

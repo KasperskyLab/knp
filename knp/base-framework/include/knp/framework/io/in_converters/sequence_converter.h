@@ -43,9 +43,11 @@ namespace knp::framework::io::input
 /**
  * @brief The SequenceConverter class is a definition of a stream-like converter that converts a list of input values
  * into spike messages.
+ * 
+ * @tparam ValueType type of values received from an input stream.
+ * 
  * @details For example, `SequenceConverter<float> converter{interpreter_with_threshold<float>(1.0f)}`
  * constructs a converter that interprets the input data as a spike if it is equal or greater than the threshold value.
- * @tparam ValueType type of values received from an input stream.
  */
 template <class ValueType>
 class SequenceConverter
@@ -53,6 +55,7 @@ class SequenceConverter
 public:
     /**
      * @brief Sequence converter constructor.
+     * 
      * @param interpret function that determines if the unprocessed value is a spike or not.
      * @param stream stream from which to receive data.
      * @param data_size size of input projection.
@@ -65,7 +68,9 @@ public:
 
     /**
      * @brief Call a function that converts data from the input stream into spike messages with spiked neuron indexes.
+     * 
      * @param step current step (not used in the converter).
+     * 
      * @return vector of spiked neuron indexes.
      */
     core::messaging::SpikeData operator()(core::Step step = 0)
@@ -89,14 +94,17 @@ public:
 public:
     /**
      * @brief Get input stream.
+     * 
      * @return stream.
      */
     [[nodiscard]] std::istream &get_stream() { return *stream_; }
 
     /**
      * @brief Set input data size.
-     * @details The `size` value must correspond to the size of an input projection.
+     * 
      * @param size input data size.
+     * 
+     * @details The `size` value must correspond to the size of an input projection.
      */
     void set_size(size_t size) { data_size_ = size; }
 

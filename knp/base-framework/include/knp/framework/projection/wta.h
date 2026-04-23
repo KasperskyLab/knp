@@ -36,14 +36,17 @@ namespace knp::framework::projection
 
 /**
  * @brief Add Winner-Takes-All (WTA) handlers to a network.
- * @details The WTA handlers are added for each compound network specified in @p wta_data which contains pairs of senders 
- * and receivers. @p borders specifies the borders for the WTA behavior, and @p winners_amount specifies the number 
- * of winners to select.
+ * 
  * @param executor model executor to which the WTA handlers will be added.
  * @param winners_amount number of winners to select for each WTA group.
  * @param borders borders for the WTA behavior, which determine the scope of the WTA competition.
  * @param wta_data vector of pairs, where each pair contains a vector of senders and a vector of receivers for a compound network.
+ * 
  * @return vector of UIDs for the added WTA handlers.
+ * 
+ * @details The WTA handlers are added for each compound network specified in @p wta_data which contains pairs of senders 
+ * and receivers. @p borders specifies the borders for the WTA behavior, and @p winners_amount specifies the number 
+ * of winners to select.
  */
 KNP_DECLSPEC std::vector<knp::core::UID> add_wta_handlers(
     knp::framework::ModelExecutor& executor, size_t winners_amount, const std::vector<size_t>& borders,

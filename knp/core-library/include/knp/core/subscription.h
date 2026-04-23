@@ -35,6 +35,7 @@ namespace knp::core
 
 /**
  * @brief The Subscription class is used for message exchange between the network entities.
+ * 
  * @tparam MessageT type of messages that are exchanged via the subscription.
  */
 template <class MessageT>
@@ -59,6 +60,7 @@ public:
 public:
     /**
      * @brief Subscription constructor.
+     * 
      * @param receiver receiver UID.
      * @param senders list of sender UIDs.
      */
@@ -66,35 +68,45 @@ public:
 
     /**
      * @brief Get list of sender UIDs.
+     * 
      * @return senders UIDs.
      */
     [[nodiscard]] const UidSet &get_senders() const { return senders_; }
 
     /**
      * @brief Get UID of the entity that receives messages via the subscription.
+     * 
      * @return UID.
      */
     [[nodiscard]] UID get_receiver_uid() const { return receiver_; }
 
     /**
      * @brief Unsubscribe from a sender.
-     * @details If a sender is not associated with the subscription, the method doesn't do anything.
+     * 
      * @param uid sender UID.
+     * 
      * @return number of senders deleted from subscription.
+     * 
+     * @details If a sender is not associated with the subscription, the method doesn't do anything.
      */
     size_t remove_sender(const UID &uid) { return senders_.erase(uid); }
 
     /**
      * @brief Add a sender with the given UID to the subscription.
-     * @details If a sender is already associated with the subscription, the method doesn't do anything.
+     * 
      * @param uid UID of the new sender.
+     * 
      * @return number of senders added.
+     * 
+     * @details If a sender is already associated with the subscription, the method doesn't do anything.
      */
     size_t add_sender(const UID &uid) { return senders_.insert(uid).second; }
 
     /**
      * @brief Add several senders to the subscription.
+     * 
      * @param senders vector of sender UIDs.
+     * 
      * @return number of senders added.
      */
     size_t add_senders(const std::vector<UID> &senders)
@@ -106,7 +118,9 @@ public:
 
     /**
      * @brief Check if a sender with the given UID exists.
+     * 
      * @param uid sender UID.
+     * 
      * @return `true` if the sender with the given UID exists, `false` if the sender with the given UID doesn't exist.
      */
     [[nodiscard]] bool has_sender(const UID &uid) const { return senders_.find(uid) != senders_.end(); }
@@ -114,24 +128,30 @@ public:
 public:
     /**
      * @brief Add a message to the subscription.
+     * 
      * @param message message to add.
+     * 
      * @note Move method.
      */
     void add_message(MessageType &&message) { messages_.push_back(std::move(message)); }
     /**
      * @brief Add a message to the subscription.
+     * 
      * @param message constant message to add.
+     * 
      * @note Copy method.
      */
     void add_message(const MessageType &message) { messages_.push_back(message); }
 
     /**
      * @brief Get all messages.
+     * 
      * @return reference to message container.
      */
     MessageContainerType &get_messages() { return messages_; }
     /**
      * @brief Get all messages.
+     * 
      * @return constant reference to message container.
      */
     const MessageContainerType &get_messages() const { return messages_; }

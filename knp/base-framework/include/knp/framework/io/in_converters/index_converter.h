@@ -50,6 +50,7 @@ class KNP_DECLSPEC IndexConverter
 public:
     /**
      * @brief Create converter with a delimiter.
+     * 
      * @param stream stream from which to receive data.
      * @param delim character that delimits spiked neuron indexes.
      */
@@ -60,7 +61,9 @@ public:
 
     /**
      * @brief Call a function that converts data from the input stream into spike messages with spiked neuron indexes.
+     * 
      * @param step current step (not used in the converter).
+     * 
      * @return vector of spiked neuron indexes.
      */
     core::messaging::SpikeData operator()(core::Step step = 0) const;
@@ -68,6 +71,7 @@ public:
 public:
     /**
      * @brief Get input stream.
+     * 
      * @return stream.
      */
     [[nodiscard]] std::istream &get_stream() { return *stream_; }

@@ -50,6 +50,7 @@ class KNP_DECLSPEC ModelExecutor
 public:
     /**
      * @brief ModelExecutor constructor.
+     * 
      * @param model model to run.
      * @param backend pointer to backend on which you want to run the model.
      * @param i_map input channel map.
@@ -70,6 +71,7 @@ public:
 
     /**
      * @brief Start model execution.
+     * 
      * @param run_predicate predicate that stops running if the `false` value is returned.
      */
     void start(core::Backend::RunPredicate run_predicate);
@@ -82,7 +84,9 @@ public:
 public:
     /**
      * @brief Add observer to executor.
+     * 
      * @tparam Message type of messages to observe.
+     * 
      * @param message_processor functor to process received messages.
      * @param senders list of observed entities.
      */
@@ -103,6 +107,7 @@ public:
 
     /**
      * @brief Add spike message handler to the model executor.
+     * 
      * @param message_handler_function functor to process spike messages.
      * @param senders list of entities sending messages to the handler.
      * @param receivers list of entities receiving messages from the handler.
@@ -124,18 +129,21 @@ public:
 
     /**
      * @brief Get pointer to backend object.
+     * 
      * @return shared pointer to `Backend` object.
      */
     std::shared_ptr<core::Backend> get_backend() { return loader_.get_backend(); }
 
     /**
      * @brief Get message handlers vector.
+     * 
      * @return Message handlers vector.
      */
     [[nodiscard]] auto const &get_message_handlers() const { return message_handlers_; }
 
     /**
      * @brief Get model loader object.
+     * 
      * @return reference to `ModelLoader` object.
      */
     auto &get_loader() { return loader_; }

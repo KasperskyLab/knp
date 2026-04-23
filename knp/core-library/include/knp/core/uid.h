@@ -46,6 +46,7 @@ namespace knp::core
 
 /**
  * @brief UID generator for entities.
+ * 
  * @details You can use this class for debugging. UID is displayed as a 128-bit number.
  */
 class continuously_uid_generator
@@ -53,11 +54,13 @@ class continuously_uid_generator
 public:
     /**
      * @brief Generate next UID.
+     * 
      * @return Boost UUID object.
      */
     ::boost::uuids::uuid operator()() const;
     /**
      * @brief Reset UID counter.
+     * 
      * @param initial_value UID value from which to restart the counter.
      */
     static void reset(uint64_t initial_value = 1);
@@ -80,8 +83,10 @@ struct UID
 {
     /**
      * @brief Generate a random UID.
+     * 
      * @param random boolean value that takes the values `true` or `false`.
      *        If `true`, the constructor generates a random UID. If `false`, the constructor generates a null UID.
+     * 
      * @todo Optimize it.
      */
     explicit UID(bool random) : tag(random ? uid_generator()() : ::boost::uuids::nil_uuid()) {}
@@ -93,17 +98,20 @@ struct UID
 
     /**
      * @brief Create a UID from `boost::uuids::uuid`.
+     * 
      * @param guid constant value to copy to UID.
      */
     explicit UID(const ::boost::uuids::uuid &guid) : tag(guid) {}
     /**
      * @brief Create a UID from `boost::uuids::uuid`.
+     * 
      * @param guid value to store as a UID.
      */
     explicit UID(::boost::uuids::uuid &&guid) : tag(guid) {}
 
     /**
      * @brief Create a UID from an array of 16 uint8_t integers.
+     * 
      * @param guid_value value to store as a UID.
      */
     explicit UID(const std::array<
@@ -115,25 +123,30 @@ struct UID
 
     /**
      * @brief Constructor that creates a copy of an existing UID.
+     * 
      * @details The constructor copies all attribute values of the existing UID to the new UID.
      */
     UID(const UID &) = default;
 
     /**
      * @brief Convert UID to `boost::uuids::uuid`.
-     * @details Constant method.
+     * 
      * @return stored UID value.
+     * 
+     * @details Constant method.
      */
     operator const ::boost::uuids::uuid &() const { return tag; }
 
     /**
      * @brief Convert UID to `boost::uuids::uuid`.
+     * 
      * @return stored UID value.
      */
     operator ::boost::uuids::uuid &() { return tag; }
 
     /**
      * @brief Convert UID to string.
+     * 
      * @return string representation of the UID.
      */
     explicit operator ::std::string() const
@@ -145,27 +158,34 @@ struct UID
 
     /**
      * @brief Check if UID is valid.
+     * 
      * @return `true` if UID is a non-zero value.
      */
     explicit operator bool() const { return !tag.is_nil(); }
 
     /**
      * @brief Check if the current UID is less than the specified UID.
+     * 
      * @param uid UID to compare to the current UID.
+     * 
      * @return `true` if the current UID is less than the specified UID.
      */
     bool operator<(const UID &uid) const { return uid.tag < tag; }
 
     /**
      * @brief Check if two UIDs are the same.
+     * 
      * @param uid UID to compare to the current UID.
+     * 
      * @return `true` if both UIDs are the same.
      */
     bool operator==(const UID &uid) const { return uid.tag == tag; }
 
     /**
      * @brief Check if two UIDs are different.
+     * 
      * @param uid UID to compare to the current UID.
+     * 
      * @return `true` if the UIDs are different.
      */
     bool operator!=(const UID &uid) const { return uid.tag != tag; }
@@ -179,8 +199,10 @@ struct UID
 
 /**
  * @brief Send UID to an output stream.
+ * 
  * @param s output stream.
  * @param uid UID to send to the output stream.
+ * 
  * @return modified stream.
  */
 inline ::std::ostream &operator<<(std::ostream &s, const UID &uid)
@@ -191,8 +213,10 @@ inline ::std::ostream &operator<<(std::ostream &s, const UID &uid)
 
 /**
  * @brief Get UID from an input stream.
+ * 
  * @param s input stream.
  * @param uid UID to get from the input stream.
+ * 
  * @return modified stream.
  */
 inline ::std::istream &operator>>(std::istream &s, UID &uid)
@@ -209,7 +233,9 @@ struct uid_hash
 {
     /**
      * @brief Get a hash value of the specified UID.
+     * 
      * @param uid UID to convert to a hash value.
+     * 
      * @return UID hash value.
      */
     auto operator()(const UID &uid) const { return boost::hash<boost::uuids::uuid>()(uid.tag); }

@@ -38,9 +38,11 @@ namespace knp::meta
 /**
  * @brief Load elements from one container of all variants to another container that contains a subset of all
  * variants.
+ * 
  * @tparam SupportedTypes subset of variants.
  * @tparam AllVariants all supported variants.
  * @tparam ToContainer target container.
+ * 
  * @param from_container source container.
  * @param to_container target container.
  */
@@ -72,8 +74,10 @@ void load_from_container(const std::vector<AllVariants> &from_container, ToConta
 
 /**
  * @brief Convert from one set of arguments to another.
- * @note This is is a helper structure. Use `variant_cast` instead.
+ * 
  * @tparam FromArgs source variant arguments.
+ * 
+ * @note This is is a helper structure. Use `variant_cast` instead.
  */
 template <class... FromArgs>
 struct variant_cast_proxy
@@ -84,7 +88,9 @@ struct variant_cast_proxy
     std::variant<FromArgs...> v;
     /**
      * @brief Cast operator.
+     * 
      * @tparam ToArgs target variant parameters.
+     * 
      * @return Same value as source, cast to a different variant.
      */
     template <class... ToArgs>
@@ -97,8 +103,11 @@ struct variant_cast_proxy
 
 /**
  * @brief Cast from one variant type to another.
+ * 
  * @tparam Args source variant arguments
+ * 
  * @param v source value.
+ * 
  * @return Source value cast to `variant_cast_proxy`. `variant_cast_proxy` then implicitly converts the value to target
  * variant.
  */

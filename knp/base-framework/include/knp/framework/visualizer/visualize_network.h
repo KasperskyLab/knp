@@ -33,15 +33,24 @@
  */
 namespace knp::framework
 {
+
 /**
- * @brief Network description structure for drawing.
+ * @brief Network description structure used for visualization.
+ *
+ * @details The structure stores a flat list of population nodes and projection edges, together with their identifiers, 
+ * names and types. It is constructed from a @ref Network object and then used by the visualizer to build adjacency lists, 
+ * draw sub‑graphs and compute node positions.
+ * 
  * @note You can use this to check network structure.
  */
 struct KNP_DECLSPEC NetworkGraph
 {
 public:
     /**
-     * @brief Node description structure.
+     * @brief Description of a population node.
+     *
+     * @details Each node corresponds to a population in the original network. The fields store the population size, its 
+     * unique identifier, a human‑readable name and the neuron type index (used only for drawing legends).
      */
     struct Node
     {
@@ -71,13 +80,16 @@ public:
     };
 
     /**
-     * @brief Node vector.
+     * @brief Vector of population nodes.
      */
     // cppcheck-suppress unusedStructMember
     std::vector<Node> nodes_;
 
     /**
-     * @brief Edge description structure.
+     * @brief Description of a projection edge.
+     *
+     * @details An edge connects a source population (@p index_from_) to a target population (@p index_to_). It stores the
+     *  projection size, its UID, a readable name and the synapse type index (used for color‑coding in the visualizer).
      */
     struct Edge
     {
@@ -119,61 +131,91 @@ public:
     };
 
     /**
-     * @brief Edge vector.
+     * @brief Vector of projection edges.
      */
     // cppcheck-suppress unusedStructMember
     std::vector<Edge> edges_;
 
     /**
      * @brief Build network graph from a network.
+     * 
      * @param network source network for a graph.
+     * 
+     * @details Populations are added as nodes and projections as edges. The constructor extracts UIDs, names and sizes from
+     *  the network.
      */
     explicit NetworkGraph(const knp::framework::Network &network);
 };
 
 
 /**
- * @brief Print node and edge connections.
+ * @brief Print node and edge connections of a network graph.
+ *
  * @param graph network graph.
+ *
+ * @details The function writes a textual description of each node (population) and its incoming and outgoing edges to `stdout`.
+ * It is primarily useful for debugging the connectivity extraction logic.
  */
 KNP_DECLSPEC void print_network_description(const NetworkGraph &graph);
 
 
 /**
  * @brief Print whole network information.
- * @note The function prints information not in a human-friendly manner.
+ * 
  * @param graph network graph.
+ * 
+ * @note The output format is not intended for end‑users; it is a raw dump useful for developers.
  */
 KNP_DECLSPEC void print_modified_network_description(const NetworkGraph &graph);
 
 
 /**
- * @brief Divide network graph into subgraphs.
+ * @brief Divide a network graph into independent sub‑graphs.
+ *
  * @param graph network graph.
- * @return vector of subgraphs presented by node indexes.
+ *
+ * @return vector of sub‑graphs, each represented by a list of node indexes.
+ *
+ * @details The function builds an adjacency list, creates a reverse list for fast inbound look‑ups, and then repeatedly 
+ * extracts maximal connected components (ignoring the artificial input node). The resulting sets are sorted for 
+ * deterministic ordering.
  */
 KNP_DECLSPEC std::vector<std::vector<int>> divide_graph_by_connectivity(const NetworkGraph &graph);
 
 
 /**
- * @brief Position a subgraph for drawing.
- * @param graph network graph.
- * @param nodes connected subgraph nodes.
+ * @brief Compute positions of nodes in a sub‑graph.
+ *
+ * @param graph full network graph.
+ * @param nodes indexes of the nodes that belong to the sub‑graph.
  * @param screen_size output window size.
- * @param margin border size for network graph.
- * @param num_iterations number of iterations for the positioning algorithm.
- * @return node positions.
+ * @param margin border size for the network graph, in pixels.
+ * @param num_iterations number of iterations for the force‑directed layout algorithm.
+ *
+ * @return coordinates of the nodes after layout.
+ *
+ * @details The function runs the physics‑based layout for @p num_iterations steps and then rescales the resulting positions 
+ * to fit inside @p screen_size with the requested @p margin.
  */
 KNP_DECLSPEC std::vector<cv::Point2i> position_network(
     const NetworkGraph &graph, const std::vector<int> &nodes, cv::Size screen_size, int margin, int num_iterations);
 
 
 /**
- * @brief Draw a subgraph in process of its positioning.
+ * @brief Visualize the iterative positioning of a sub‑graph.
+ *
  * @param graph base network graph.
- * @param nodes connected subgraph nodes.
+ * @param nodes indexes of the nodes that belong to the sub‑graph.
  * @param screen_size output image size.
- * @param margin size of borders in pixels.
+ * @param margin size of borders in pixels (default = 50).
+ *
+ * @details The function opens an OpenCV window and repeatedly:
+ *          1. Scales the current graph to the screen
+ *          2. Draws the annotated sub‑graph
+ *          3. Displays the image
+ *          4. Advances the physics simulation by one iteration.
+ * 
+ * @note Press **Esc** to exit the visualization.         
  */
 KNP_DECLSPEC void position_network_test(
     const NetworkGraph &graph, const std::vector<int> &nodes, const cv::Size &screen_size, int margin = 50);

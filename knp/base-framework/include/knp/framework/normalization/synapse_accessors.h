@@ -34,6 +34,7 @@ namespace knp::framework::normalization
 
 /**
  * @brief The WeightAccessor class is a definition of an interface that provides access to synapse weight parameter (`weight_`).
+ * 
  * @tparam SynapseType type of the synapse to access.
  */
 template <typename SynapseType>
@@ -50,13 +51,16 @@ struct WeightAccessor
 
     /**
      * @brief Get synapse weight.
+     * 
      * @param syn_params synapse parameters.
+     * 
      * @return value of the synapse weight.
      */
     WeightType operator()(const SynapseParametersType &syn_params) const { return syn_params.weight_; }
 
     /**
      * @brief Correct the synapse weight.
+     * 
      * @param syn_params synapse parameters.
      * @param weight new synapse weight value to set.
      */

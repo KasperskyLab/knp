@@ -28,18 +28,24 @@
 
 
 /**
- * @brief Namespace for CPU backends.
+ * @brief Namespace for CPU backend functions.
  */
 namespace knp::backends::cpu
 {
 
 /**
- * @brief Make one execution step for a projection of delta synapses.
- * @tparam DeltaLikeSynapseType type of a synapse that requires synapse weight and delay as parameters.
- * @param proj projection to update.
- * @param endpoint message endpoint used for message exchange.
- * @param future_messages message queue to process via endpoint.
- * @param step_n execution step.
+ * @brief Execute one simulation step for a projection of delta synapses.
+ *
+ * @tparam DeltaLikeSynapseType type of a synapse that possesses Delta‑like parameters.
+ *
+ * @param proj projection to calculate.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param future_messages queue that stores messages to be processed in future steps.
+ * @param step_n current simulation step number.
+ *
+ * @details This function is a thin wrapper that forwards all arguments to 
+ * @ref projections::calculate_projection, which performs the actual computation for the delta
+ * synapse projection.
  */
 template <class DeltaLikeSynapseType>
 void calculate_delta_synapse_projection(

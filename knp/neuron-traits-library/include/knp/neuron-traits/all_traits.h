@@ -43,6 +43,7 @@ namespace knp::neuron_traits
 
 /**
  * @brief List of neuron types.
+ * 
  * @details To add a new neuron type to the list, define it in the ALL_NEURONS macro. For example,
  * @code{.cpp}
  * #define ALL_NEURONS BLIFATNeuron, IzhikevichNeuron

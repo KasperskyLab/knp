@@ -32,6 +32,7 @@ namespace knp::framework::coordinates
 {
 /**
  * @brief Type of coordinate generator.
+ * 
  * @param index neuron index.
  */
 using CoordinateGenerator = std::function<std::any(size_t index)>;

@@ -30,6 +30,7 @@ namespace knp::neuron_traits
 
 /**
  * @brief Structure for neuron parameters.
+ * 
  * @tparam NeuronType type of neurons.
  */
 template <typename NeuronType>
@@ -37,6 +38,7 @@ struct neuron_parameters;
 
 /**
  * @brief Structure for neuron default values.
+ * 
  * @tparam NeuronType type of neurons.
  */
 template <typename NeuronType>

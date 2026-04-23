@@ -33,16 +33,22 @@
 
 
 /**
- * @brief Namespace for CPU backend's populations.
+ * @brief Namespace for CPU backend population functions.
  */
 namespace knp::backends::cpu::populations
 {
 
 /**
  * @brief Partially calculate population before it receives synaptic impact messages.
- * @param population Population to update.
- * @param start Index of the first neuron to calculate.
- * @param end Index of the last neuron to calculate.
+ * 
+ * @note The 'end' parameter is exclusive, that is a neuron with the specified 'end' index is not calculated. 
+ * 
+ * @tparam Neuron type of neurons stored in the population.
+ * 
+ * @param population population to calculate.
+ * @param start index of the first neuron to calculate.
+ * @param end index of the last neuron to calculate.
+ * 
  */
 template <class Neuron>
 void calculate_pre_impact_population_state(knp::core::Population<Neuron> &population, size_t start, size_t end)
@@ -56,9 +62,13 @@ void calculate_pre_impact_population_state(knp::core::Population<Neuron> &popula
 
 
 /**
- * @brief Impact population.
- * @param population Population.
- * @param messages Impact messages.
+ * @brief Dispatch synaptic impact messages to population.
+ * 
+ * @tparam Neuron type of neurons stored in the population.
+ * 
+ * @param population population to impact.
+ * @param messages synaptic impact messages to dispatch.
+ * 
  */
 template <class Neuron>
 void impact_population(
@@ -77,10 +87,19 @@ void impact_population(
 
 /**
  * @brief Partially calculate population after it receives synaptic impact messages.
- * @param population population to update.
+ * 
+ * @note The 'end' parameter is exclusive, that is a neuron with the specified 'end' index is not calculated. 
+ * 
+ * @details The function iterates over the neurons in the range `[start, end)`. If a neuron produces a spike, then 
+ * its index is appended to the message defined in the `message` parameter.
+ * 
+ * @tparam Neuron type of neurons stored in the population.
+ * 
+ * @param population population to calculate.
  * @param message output spike message to update.
- * @param start index of the first neuron to update.
- * @param end index of the last neuron to update.
+ * @param start index of the first neuron to calculate.
+ * @param end index of the last neuron to calculate.
+ * 
  */
 template <class Neuron>
 void calculate_post_impact_population_state(
@@ -98,11 +117,16 @@ void calculate_post_impact_population_state(
 
 
 /**
- * @brief Train population.
- * @param population Population.
- * @param projections Connected projections.
- * @param message Spiking neurons in population at current step.
- * @param step Step.
+ * @brief Train the population for the given simulation step.
+ * 
+ * @tparam Neuron type of neurons stored in the population.
+ * @tparam Synapse type of synapses used in the connected projections.
+ * 
+ * @param population population to train.
+ * @param projections connected projections that send synaptic impacts.
+ * @param message spiking neurons in the population at the current step.
+ * @param step simulation step for which the training is performed.
+ * 
  */
 template <class Neuron, class Synapse>
 void train_population(

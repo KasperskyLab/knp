@@ -41,9 +41,12 @@ namespace creators
 {
 /**
  * @brief Generate a population that gets parameter values from a container.
- * @param container container with neuron parameter values.
+ * 
  * @tparam NeuronType neuron type.
  * @tparam Container container type.
+ * 
+ * @param container container with neuron parameter values.
+ *
  * @return population.
  */
 template <typename NeuronType, template <typename...> class Container>
@@ -57,11 +60,16 @@ template <typename NeuronType, template <typename...> class Container>
 
 /**
  * @brief Generate a population with random neuron parameter values.
- * @details This generator uses MT19937 RNG with uniform integer distribution.
- * @warning Neuron parameter values are absolutely random: generator doesn't pay attention to the limits.
- * @param neuron_count number of neurons in a population.
+ * 
  * @tparam NeuronType type of neuron parameters.
+ * 
+ * @param neuron_count number of neurons in a population.
+ * 
  * @return population.
+ * 
+ * @details This generator uses MT19937 RNG with uniform integer distribution.
+ * 
+ * @warning Neuron parameter values are absolutely random: generator doesn't pay attention to the limits.
  */
 template <typename NeuronType>
 [[nodiscard]] typename core::Population<NeuronType> make_random(size_t neuron_count)
@@ -72,8 +80,11 @@ template <typename NeuronType>
 
 /**
  * @brief Generate a population with default neuron parameter values.
- * @param neuron_count number of neurons in a population.
+ * 
  * @tparam NeuronType type of neuron parameters.
+ * 
+ * @param neuron_count number of neurons in a population.
+ * 
  * @return population.
  */
 template <typename NeuronType>
@@ -85,9 +96,12 @@ template <typename NeuronType>
 
 /**
  * @brief Generate a population that clones neuron parameter values from the specified neuron.
+ * 
+ * @tparam NeuronType type of neuron parameters.
+ * 
  * @param neuron_count number of neurons in a population.
  * @param source_neuron source neuron from which to clone parameters.
- * @tparam NeuronType type of neuron parameters.
+ * 
  * @return population.
  */
 template <typename NeuronType>

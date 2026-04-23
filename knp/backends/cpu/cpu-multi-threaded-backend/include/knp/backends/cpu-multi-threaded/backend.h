@@ -97,21 +97,25 @@ public:
     using SupportedProjections = boost::mp11::mp_transform<knp::core::Projection, SupportedSynapses>;
     /**
      * @brief Population variant that contains any population type specified in `SupportedPopulations`.
+     * 
      * @details `PopulationVariants` takes the value of `std::variant<PopulationType_1,..., PopulationType_n>`, where
      * `PopulationType_[1..n]` is the population type specified in `SupportedPopulations`. \n
      * For example, if `SupportedPopulations` contains BLIFATNeuron and IzhikevichNeuron types,
      * then `PopulationVariants = std::variant<BLIFATNeuron, IzhikevichNeuron>`. \n
      * `PopulationVariants` retains the same order of message types as defined in `SupportedPopulations`.
+     * 
      * @see ALL_NEURONS.
      */
     using PopulationVariants = boost::mp11::mp_rename<SupportedPopulations, std::variant>;
     /**
      * @brief Projection variant that contains any projection type specified in `SupportedProjections`.
+     * 
      * @details `ProjectionVariants` takes the value of `std::variant<ProjectionType_1,..., ProjectionType_n>`, where
      * `ProjectionType_[1..n]` is the projection type specified in `SupportedProjections`. \n
      * For example, if `SupportedProjections` contains DeltaSynapse and AdditiveSTDPSynapse types,
      * then `ProjectionVariants = std::variant<DeltaSynapse, AdditiveSTDPSynapse>`. \n
      * `ProjectionVariants` retains the same order of message types as defined in `SupportedProjections`.
+     * 
      * @see ALL_SYNAPSES.
      */
     using ProjectionVariants = boost::mp11::mp_rename<SupportedProjections, std::variant>;
@@ -145,6 +149,7 @@ public:
 
     /**
      * @brief Get a set of iterators for projections and populations.
+     * 
      * @return `DataRanges` structure containing iterators.
      */
     [[nodiscard]] DataRanges get_network_data() const override;
@@ -163,9 +168,11 @@ public:
 public:
     /**
      * @brief Default constructor for multi-threaded CPU backend.
+     * 
      * @param thread_count number of threads.
      * @param population_part_size number of synapses that are calculated in a single thread.
      * @param projection_part_size number of neurons that are calculated in a single thread.
+     * 
      * @note If `thread_count` equals `0`, then the number of threads is calculated automatically.
      */
     explicit MultiThreadedCPUBackend(
@@ -173,6 +180,7 @@ public:
         size_t projection_part_size = default_projection_part_size);
     /**
      * @brief Destructor for multi-threaded CPU backend.
+     * 
      * @note All threads are stopped and joined on destruction by an internal thread pool object.
      */
     ~MultiThreadedCPUBackend() override = default;
@@ -180,6 +188,7 @@ public:
 public:
     /**
      * @brief Create an object of the multi-threaded CPU backend.
+     * 
      * @return shared pointer to backend object.
      */
     static std::shared_ptr<MultiThreadedCPUBackend> create();
@@ -187,26 +196,31 @@ public:
 public:
     /**
      * @brief Define if plasticity is supported.
+     * 
      * @return `true` if plasticity is supported, `false` if plasticity is not supported.
      */
     [[nodiscard]] bool plasticity_supported() const override { return true; }
     /**
      * @brief Get type names of supported neurons.
+     * 
      * @return vector of supported neuron type names.
      */
     [[nodiscard]] std::vector<std::string> get_supported_neurons() const override;
     /**
      * @brief Get type names of supported synapses.
+     * 
      * @return vector of supported synapse type names.
      */
     [[nodiscard]] std::vector<std::string> get_supported_synapses() const override;
     /**
      * @brief Get indexes of supported projections.
+     * 
      * @return vector of supported type indexes.
      */
     [[nodiscard]] std::vector<size_t> get_supported_projection_indexes() const override;
     /**
      * @brief Get indexes of supported populations.
+     * 
      * @return vector of supported type indexes.
      */
     [[nodiscard]] std::vector<size_t> get_supported_population_indexes() const override;
@@ -214,68 +228,82 @@ public:
 public:
     /**
      * @brief Load populations to the backend.
+     * 
      * @param populations vector of populations to load.
      */
     void load_populations(const std::vector<PopulationVariants> &populations);
 
     /**
      * @brief Load projections to the backend.
+     * 
      * @param projections vector of projections to load.
      */
     void load_projections(const std::vector<ProjectionVariants> &projections);
 
     /**
      * @brief Add projections to backend.
-     * @throw exception if the `projections` parameter contains unsupported projection types.
+     * 
      * @param projections projections to add.
+     * 
+     * @throw exception if the `projections` parameter contains unsupported projection types.
      */
     void load_all_projections(const std::vector<knp::core::AllProjectionsVariant> &projections) override;
 
     /**
      * @brief Add populations to backend.
-     * @throw exception if the `populations` parameter contains unsupported population types.
+     * 
      * @param populations populations to add.
+     * 
+     * @throw exception if the `populations` parameter contains unsupported population types.
      */
     void load_all_populations(const std::vector<knp::core::AllPopulationsVariant> &populations) override;
 
 public:
     /**
      * @brief Get an iterator pointing to the first element of the population loaded to backend.
+     * 
      * @return population iterator.
      */
     [[nodiscard]] PopulationIterator begin_populations();
     /**
      * @brief Get an iterator pointing to the first element of the population loaded to backend.
+     * 
      * @return constant population iterator.
      */
     [[nodiscard]] PopulationConstIterator begin_populations() const;
     /**
      * @brief Get an iterator pointing to the last element of the population.
+     * 
      * @return iterator.
      */
     [[nodiscard]] PopulationIterator end_populations();
     /**
      * @brief Get a constant iterator pointing to the last element of the population.
+     * 
      * @return iterator.
      */
     [[nodiscard]] PopulationConstIterator end_populations() const;
     /**
      * @brief Get an iterator pointing to the first element of the projection loaded to backend.
+     * 
      * @return projection iterator.
      */
     [[nodiscard]] ProjectionIterator begin_projections();
     /**
      * @brief Get an iterator pointing to the first element of the projection loaded to backend.
+     * 
      * @return constant projection iterator.
      */
     [[nodiscard]] ProjectionConstIterator begin_projections() const;
     /**
      * @brief Get an iterator pointing to the last element of the projection.
+     * 
      * @return iterator.
      */
     [[nodiscard]] ProjectionIterator end_projections();
     /**
      * @brief Get a constant iterator pointing to the last element of the projection.
+     * 
      * @return iterator.
      */
     [[nodiscard]] ProjectionConstIterator end_projections() const;
@@ -283,12 +311,14 @@ public:
 public:
     /**
      * @brief Remove projections with given UIDs from the backend.
+     * 
      * @param uids UIDs of projections to remove.
      */
     void remove_projections(const std::vector<knp::core::UID> &uids) override {}
 
     /**
      * @brief Remove populations with given UIDs from the backend.
+     * 
      * @param uids UIDs of populations to remove.
      */
     void remove_populations(const std::vector<knp::core::UID> &uids) override {}
@@ -296,7 +326,9 @@ public:
 public:
     /**
      * @brief Get a list of devices supported by the backend.
+     * 
      * @return list of devices.
+     * 
      * @see Device.
      */
     [[nodiscard]] std::vector<std::unique_ptr<knp::core::Device>> get_devices() const override;

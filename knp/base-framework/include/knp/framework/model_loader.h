@@ -53,6 +53,7 @@ public:
 public:
     /**
      * @brief Model loader constructor.
+     * 
      * @param backend pointer to backend to which you want to load the model.
      * @param i_map input channel map.
      */
@@ -73,6 +74,7 @@ public:
 public:
     /**
      * @brief Write model to backend.
+     * 
      * @param model model to load.
      */
     void load(knp::framework::Model &model);
@@ -80,50 +82,67 @@ public:
 public:
     /**
      * @brief Get reference to output channel.
+     * 
      * @param channel_uid channel UID.
+     * 
      * @return reference to output channel.
+     * 
      * @throw std::runtime_error if there is no channel with a given UID.
      */
     io::output::OutputChannel &get_output_channel(const core::UID &channel_uid);
     /**
      * @brief Get reference to output channel.
-     * @note Constant method.
+     * 
      * @param channel_uid channel UID.
+     * 
      * @return reference to output channel.
+     * 
+     * @note Constant method.
+     * 
      * @throw std::runtime_error if there is no channel with a given UID.
      */
     const io::output::OutputChannel &get_output_channel(const core::UID &channel_uid) const;
 
     /**
      * @brief Get reference to input channel by its UID.
+     * 
      * @param channel_uid channel UID.
+     * 
      * @return reference to input channel.
+     * 
      * @throw std::runtime_error if no channel with the given UID exists.
      */
     io::input::InputChannel &get_input_channel(const core::UID &channel_uid);
     /**
      * @brief Get reference to input channel by its UID.
-     * @note Constant method.
+     * 
      * @param channel_uid channel UID.
+     * 
      * @return reference to input channel.
+     * 
+     * @note Constant method.
+     * 
      * @throw std::runtime_error if no channel with the given UID exists.
      */
     const io::input::InputChannel &get_input_channel(const core::UID &channel_uid) const;
 
     /**
      * @brief Get input channels.
+     * 
      * @return tuple of input channel vectors.
      */
     auto &get_inputs() noexcept { return in_channels_; }
 
     /**
      * @brief Get output channels.
+     * 
      * @return tuple of output channel vectors.
      */
     auto &get_outputs() noexcept { return out_channels_; }
 
     /**
      * @brief Get pointer to backend object.
+     * 
      * @return shared pointer to `Backend` object.
      */
     std::shared_ptr<core::Backend> get_backend() { return backend_; }

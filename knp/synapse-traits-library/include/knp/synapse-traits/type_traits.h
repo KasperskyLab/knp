@@ -29,6 +29,7 @@ namespace knp::synapse_traits
 
 /**
  * @brief Structure for synapse parameters.
+ * 
  * @tparam SynapseType type of synapses.
  */
 template <typename SynapseType>
@@ -37,6 +38,7 @@ struct synapse_parameters;
 
 /**
  * @brief Structure for synapse default values.
+ * 
  * @tparam SynapseType type of synapses.
  */
 template <typename SynapseType>
@@ -45,6 +47,7 @@ struct default_values;
 
 /**
  * @brief Structure for parameters shared between synapses.
+ * 
  * @tparam SynapseType type of synapses.
  */
 template <typename SynapseType>

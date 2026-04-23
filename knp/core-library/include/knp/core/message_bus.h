@@ -51,24 +51,28 @@ class MessageBus
 public:
     /**
      * @brief Create a CPU-based message bus.
+     * 
      * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_cpu_bus();
 
     /**
      * @brief Create a ZMQ-based message bus.
+     * 
      * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_zmq_bus();
 
     /**
      * @brief Create a message bus with default implementation.
+     * 
      * @return shared pointer to message bus.
      */
     static std::shared_ptr<MessageBus> construct_bus() { return construct_cpu_bus(); }
 
     /**
      * @brief Default message bus constructor is deleted.
+     * 
      * @note Use one of the static functions above.
      */
     MessageBus() = delete;
@@ -86,19 +90,23 @@ public:
 public:
     /**
      * @brief Create a new endpoint that sends and receives messages through the message bus.
+     * 
      * @return new endpoint.
+     * 
      * @see MessageEndpoint.
      */
     [[nodiscard]] MessageEndpoint create_endpoint();
 
     /**
      * @brief Route some messages.
+     * 
      * @return number of messages routed during the step.
      */
     size_t step();
 
     /**
      * @brief Route messages.
+     * 
      * @return number of messages routed.
      */
     size_t route_messages();
@@ -106,7 +114,9 @@ public:
 protected:
     /**
      * @brief Message bus constructor with a specialized implementation.
+     * 
      * @param impl message bus implementation.
+     * 
      * @note Currently two implementations are available: ZMQ and CPU.
      */
     explicit MessageBus(std::unique_ptr<messaging::impl::MessageBusImpl> &&impl);

@@ -35,7 +35,9 @@ namespace knp::synapse_traits
 
 /**
  * @brief STDP rule with synaptic resource parameters.
+ * 
  * @tparam SynapseType synapse type linked with rule.
+ * 
  * @note Author of the synaptic resource - Mikhail Kiselev.
  */
 template <typename SynapseType>
@@ -60,6 +62,7 @@ struct STDPSynapticResourceRule
     float w_max_ = 1;
     /**
      * @brief Resource decreasing constant.
+     * 
      * @note The `d_u_` value must be equal or greater than `0`.
      */
     float d_u_ = 0;
@@ -88,6 +91,7 @@ struct STDPSynapticResourceRule
 
 /**
  * @brief Shared parameters for the resource STDP.
+ * 
  * @tparam SynapseType synapse type linked with resource-based STDP rule.
  */
 template <typename SynapseType>

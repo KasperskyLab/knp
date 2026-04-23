@@ -34,6 +34,7 @@ namespace knp::synapse_traits
 {
 /**
  * @brief STDP additive rule parameters.
+ * 
  * @note Parameters for the `W(x)` function by Zhang et al. 1998.
  */
 template <typename SynapseType>

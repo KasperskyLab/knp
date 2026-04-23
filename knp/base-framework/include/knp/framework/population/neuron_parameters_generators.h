@@ -40,9 +40,12 @@ namespace neurons_generators
 
 /**
  * @brief Generate neurons from a container with parameter values.
- * @param container container with neuron parameter values.
+ * 
  * @tparam NeuronType neuron type.
  * @tparam Container container type.
+ * 
+ * @param container container with neuron parameter values.
+ * 
  * @return neuron parameters generator.
  */
 template <typename NeuronType, template <typename...> class Container>
@@ -56,9 +59,12 @@ template <typename NeuronType, template <typename...> class Container>
 
 /**
  * @brief Generate neurons with random parameter values.
- * @details This generator uses MT19937 RNG with uniform integer distribution.
- * @warning Neuron parameter values are absolutely random: generator doesn't pay attention to the limits.
+ * 
  * @tparam NeuronType type of neuron parameters.
+ * 
+ * @details This generator uses MT19937 RNG with uniform integer distribution.
+ * 
+ * @warning Neuron parameter values are absolutely random: generator doesn't pay attention to the limits.
  */
 template <typename NeuronType>
 class MakeRandom
@@ -71,7 +77,9 @@ public:
 
     /**
      * @brief Call operator.
+     * 
      * @param index neuron index.
+     * 
      * @return optional neuron parameters.
      */
     [[nodiscard]] typename core::Population<NeuronType>::NeuronParameters operator()(size_t index)
@@ -89,7 +97,9 @@ private:
 
 /**
  * @brief Generate neurons with default neuron parameter values.
+ * 
  * @tparam NeuronType type of neuron parameters.
+ * 
  * @return neuron parameters generator.
  */
 template <typename NeuronType>
@@ -102,8 +112,11 @@ template <typename NeuronType>
 
 /**
  * @brief Generate neurons which parameter values are cloned from a specified neuron.
- * @param source_neuron source neuron from which to clone parameters.
+ * 
  * @tparam NeuronType type of neuron parameters.
+ * 
+ * @param source_neuron source neuron from which to clone parameters.
+ * 
  * @return neuron parameters generator.
  */
 template <typename NeuronType>

@@ -33,15 +33,27 @@
 #include "impl/projections/projection_dispatcher.h"
 
 
+/**
+ * @brief Namespace for CPU backend projection functions.
+ */
 namespace knp::backends::cpu::projections
 {
 
 /**
- * @brief Calculate projection.
- * @param projection Projection.
- * @param endpoint Projection endpoint.
- * @param future_messages Future messages queue.
- * @param step_n Step number.
+ * @brief Calculate a synapse projection for the given simulation step.
+ *
+ * @tparam Synapse type of a synapse that possesses Delta‑like parameters.
+ *
+ * @param projection projection to calculate.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param future_messages queue that stores messages to be sent in future steps.
+ * @param step_n current simulation step number.
+ *
+ * @details First, the function unloads all spike messages addressed to the projection from
+ * the message endpoint. Then the function processes the unloaded spike messages together with 
+ * any pending `future_messages` and returns an iterator to the first impact message that should be
+ *  sent immediately. If such a message exists, the function sends it via the message endpoint
+ *  and removes it from `future_messages`.
  */
 template <typename Synapse>
 void calculate_projection(
@@ -73,16 +85,20 @@ void calculate_projection(
 
 
 /**
- * @brief Process a part of projection synapses in multithreaded way.
- * @pre TODO Get rid of this function. Its here just so multi threaded backend will work.
- * @tparam Synapse type of a synapse that requires synapse weight and delay as parameters.
- * @param projection projection to receive the message.
+ * @brief Process a part of projection synapses in a multi-threaded way.
+ *
+ * @todo Get rid of this function. This function exists only to keep the multi-threaded backend functional.
+ *
+ * @tparam Synapse type of synapses stored in the projection.
+ *
+ * @param projection projection that will receive the processed messages.
  * @param message_in_data processed spike data for the projection.
  * @param future_messages queue of future messages.
- * @param step_n current step.
+ * @param step_n current simulation step.
  * @param part_start index of the starting synapse.
  * @param part_size number of synapses to process.
- * @param mutex mutex.
+ * @param mutex mutex used for synchronization.
+ *
  */
 template <class Synapse>
 void calculate_projection_multithreaded(

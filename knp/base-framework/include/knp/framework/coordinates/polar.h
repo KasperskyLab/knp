@@ -47,6 +47,7 @@ constexpr char coordinate_array_tag_name[]{"polar_coordinates_array"};
 
 /**
  * @brief Polar coordinates.
+ * 
  * @tparam CoordinateType coordinate value type.
  * @tparam DegreeOrRadian coordinate angle type.
  */
@@ -63,6 +64,7 @@ public:
 
     /**
      * @brief Constructor that uses radius and phi values.
+     * 
      * @param radius radial distance.
      * @param phi polar angle.
      */
@@ -73,24 +75,28 @@ public:
 
     /**
      * @brief Get radius value.
+     * 
      * @return radial distance.
      */
     constexpr CoordinateType const& radius() const { return this->template get<0>(); }
 
     /**
      * @brief Get phi value.
+     * 
      * @return polar angle.
      */
     constexpr CoordinateType const& phi() const { return this->template get<1>(); }
 
     /**
      * @brief Set radius value.
+     * 
      * @param v radius value.
      */
     void radius(CoordinateType const& v) { return this->template set<0>(v); }  // NOLINT
 
     /**
      * @brief Set phi value.
+     * 
      * @param v phi value.
      */
     void phi(CoordinateType const& v) { return this->template set<1>(v); }  // NOLINT
@@ -114,6 +120,7 @@ constexpr char coordinate_array_tag_name[]{"spherical_coordinates_array"};
 
 /**
  * @brief Spherical coordinates.
+ * 
  * @tparam CoordinateType coordinate value type.
  * @tparam DegreeOrRadian coordinate angle type.
  */
@@ -130,6 +137,7 @@ public:
 
     /**
      * @brief Constructor that uses radius, theta, and phi values.
+     * 
      * @param radius radial distance.
      * @param theta polar angle.
      * @param phi azimuthal angle.
@@ -141,36 +149,42 @@ public:
 
     /**
      * @brief Get radius value.
+     * 
      * @return radial distance.
      */
     constexpr CoordinateType const& radius() const { return this->template get<0>(); }
 
     /**
      * @brief Get theta value.
+     * 
      * @return polar angle.
      */
     constexpr CoordinateType const& theta() const { return this->template get<1>(); }
 
     /**
      * @brief Get phi value.
+     * 
      * @return azimuthal angle.
      */
     constexpr CoordinateType const& phi() const { return this->template get<2>(); }
 
     /**
      * @brief Set radius value.
+     * 
      * @param v radius value.
      */
     void radius(CoordinateType const& v) { return this->template set<0>(v); }  // NOLINT
 
     /**
      * @brief Set theta value.
+     * 
      * @param v theta value.
      */
     void theta(CoordinateType const& v) { return this->template set<1>(v); }  // NOLINT
 
     /**
      * @brief Set phi value.
+     * 
      * @param v phi value.
      */
     void phi(CoordinateType const& v) { return this->template set<2>(v); }  // NOLINT

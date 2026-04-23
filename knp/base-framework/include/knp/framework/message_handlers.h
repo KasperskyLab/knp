@@ -40,6 +40,7 @@ namespace knp::framework::modifier
 /**
  * @brief The KWtaRandomHandler class is a definition of a message handler functor that processes 
  * spike messages and selects random N spikes out of the whole set.
+ * 
  * @note The modifier processes only one message per step.
  */
 class KNP_DECLSPEC KWtaRandomHandler
@@ -47,8 +48,10 @@ class KNP_DECLSPEC KWtaRandomHandler
 public:
     /**
      * @brief Functor constructor.
+     * 
      * @param winners_number maximum number of groups to pass spikes further.
      * @param seed random generator seed.
+     * 
      * @note The constructor uses `mt19937` generator algorithm for random number generation.
      */
     explicit KWtaRandomHandler(size_t winners_number = 1, int seed = 0)
@@ -58,8 +61,11 @@ public:
 
     /**
      * @brief Call operator to process a number of messages and return indexes of spiked neurons.
+     * 
      * @param messages vector of spike messages.
+     * 
      * @return random indexes of no more than N spiked neurons.
+     * 
      * @note It is assumed that the method receives no more than one message per step. 
      * Therefore, all messages except the first one in the `messages` parameter are ignored.
      */
@@ -74,8 +80,10 @@ private:
 /**
  * @brief The GroupWtaRandomHandler class is a definition of a message handler functor that 
  * passes spikes further from no more than a fixed number of groups at once.
+ * 
  * @details The functor divides spike messages into groups, then sorts the groups in the 
  * descending order based on the number of spikes.
+ * 
  * @note If the last place in the top N is shared between groups, the functor selects randomly 
  * among these groups.
  */
@@ -84,13 +92,15 @@ class KNP_DECLSPEC GroupWtaRandomHandler
 public:
     /**
      * @brief Functor constructor.
-     * @note For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
-     * is {2, 4}, the set of spike messages will be divided into the following groups: 
-     * [0, 1], [2, 3], and [4, 5].
+     * 
      * @param group_borders vector of spike message indexes that define right borders for 
      * each group.
      * @param num_winning_groups maximum number of groups that can pass their spikes further.
      * @param seed random generator seed.
+     * 
+     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * is {2, 4}, the set of spike messages will be divided into the following groups: 
+     * [0, 1], [2, 3], and [4, 5].
      */
     explicit GroupWtaRandomHandler(
         const std::vector<size_t> &group_borders, size_t num_winning_groups = 1, int seed = 0)
@@ -102,7 +112,9 @@ public:
     /**
      * @brief Call operator to divide spike messages into groups, sort them by number of spikes 
      * and return indexes of spiked neurons from the top N groups.
+     * 
      * @param messages vector of spike messages.
+     * 
      * @return set of indexes of spikes neurons from the top N groups.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);
@@ -118,6 +130,7 @@ private:
 /**
  * @brief The KWtaPerGroup class is a definition of a message handler functor that passes 
  * further N spikes from each group.
+ * 
  * @details Input messages are divided into groups.
  */
 class KNP_DECLSPEC KWtaPerGroup
@@ -125,13 +138,15 @@ class KNP_DECLSPEC KWtaPerGroup
 public:
     /**
      * @brief Functor constructor.
-     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
-     * is {2, 4}, the set of spike messages will be divided into the following groups: 
-     * [0, 1], [2, 3], and [4, 5]. 
+     *  
      * @param group_borders vector of spike message indexes that define right borders for 
      * each group.
      * @param winners_per_group number of spikes to pass further from each group.
      * @param seed random generator seed.
+     * 
+     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * is {2, 4}, the set of spike messages will be divided into the following groups: 
+     * [0, 1], [2, 3], and [4, 5].
      */
     explicit KWtaPerGroup(const std::vector<size_t> &group_borders, size_t winners_per_group = 1, int seed = 0)
         : group_borders_(group_borders), winners_per_group_(winners_per_group), random_engine_(seed)
@@ -142,7 +157,9 @@ public:
     /**
      * @brief Call operator to divide spike messages into groups and return random N indexes of 
      * spiked messages from each group.
+     * 
      * @param messages vector of spike messages.
+     * 
      * @return set of random N indexes of spiked messages.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);
@@ -163,7 +180,9 @@ public:
     /**
      * @brief Call operator to receive a vector of messages and return a set of indexes of 
      * all spiked neurons.
+     * 
      * @param messages vector of spike messages.
+     * 
      * @return vector of neuron indexes that spiked in at least one message.
      */
     knp::core::messaging::SpikeData operator()(const std::vector<knp::core::messaging::SpikeMessage> &messages);

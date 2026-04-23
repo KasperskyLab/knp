@@ -32,16 +32,20 @@ namespace knp::framework::sonata
 {
 /**
  * @brief Save network to disk.
- * @note The network is saved in the SONATA format.
+ * 
  * @param network network to save.
  * @param dir directory to save the network.
+ * 
+ * @note The network is saved in the SONATA format.
  */
 KNP_DECLSPEC void save_network(const Network &network, const std::filesystem::path &dir);
 
 
 /**
  * @brief Load network from disk.
+ * 
  * @param config_path path to network configuration file.
+ * 
  * @return loaded network.
  */
 KNP_DECLSPEC Network load_network(const std::filesystem::path &config_path);

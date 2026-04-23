@@ -37,30 +37,35 @@ struct KNP_DECLSPEC InferenceResult
 {
     /**
      * @brief Number of true positives for the class.
+     * 
      * @details A true positive occurs when the model correctly predicts the class.
      */
     size_t true_positives_ = 0;
 
     /**
      * @brief Number of false negatives for the class.
+     * 
      * @details A false negative occurs when the model fails to predict the class when it is present.
      */
     size_t false_negatives_ = 0;
 
     /**
      * @brief Number of false positives for the class.
+     * 
      * @details A false positive occurs when the model predicts the class when it is not present.
      */
     size_t false_positives_ = 0;
 
     /**
      * @brief Number of true negatives for the class.
+     * 
      * @details A true negative occurs when the model correctly fails to predict the class when it is not present.
      */
     size_t true_negatives_ = 0;
 
     /**
      * @brief Get total votes for the class.
+     * 
      * @return total votes for the class, which is the sum of true positives, false negatives, false positives, and true negatives.
      */
     [[nodiscard]] size_t get_total_votes() const { return true_positives_ + false_negatives_ + false_positives_; }

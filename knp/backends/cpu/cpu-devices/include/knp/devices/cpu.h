@@ -31,6 +31,7 @@
 
 /**
  * @namespace knp::devices
+ * 
  * @brief Namespace for implementation of concrete devices.
  */
 
@@ -68,6 +69,7 @@ public:
 
     /**
      * @brief CPU device move operator.
+     * 
      * @return reference to CPU instance.
      */
     CPU &operator=(CPU &&) noexcept;
@@ -80,24 +82,28 @@ public:
 public:
     /**
      * @brief Get device type.
+     * 
      * @return device type.
      */
     [[nodiscard]] knp::core::DeviceType get_type() const override;
 
     /**
      * @brief Get device name.
+     * 
      * @return device name in the arbitrary format.
      */
     [[nodiscard]] const std::string get_name() const override;
 
     /**
      * @brief Get CPU device socket number.
+     * 
      * @return socket number.
      */
     [[nodiscard]] uint32_t get_socket_number() const;
 
     /**
      * @brief Get power consumption details for the device.
+     * 
      * @return amount of consumed power.
      */
     [[nodiscard]] float get_power() const override;
@@ -120,6 +126,7 @@ private:
 
 /**
  * @brief List all processors on which backend can be initialized.
+ * 
  * @return vector of CPUs.
  */
 KNP_DECLSPEC std::vector<CPU> list_processors();

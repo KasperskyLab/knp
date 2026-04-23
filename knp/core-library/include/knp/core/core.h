@@ -27,6 +27,7 @@
 
 /**
  * @namespace knp
+ * 
  * @brief General framework namespace.
  */
 
@@ -38,6 +39,7 @@ namespace knp::core
 {
 /**
  * @brief Common parameters for several different entities.
+ * 
  * @details For example, BaseData is used in entities of Backend, Device, Population and Projection classes.
  */
 struct BaseData
@@ -54,6 +56,7 @@ struct BaseData
 #if defined(__GNUC__) || defined(__clang__)
 /**
  * @brief Attribute for alignment.
+ * 
  * @return none.
  */
 __attribute__((aligned(sizeof(size_t) * 8)));

@@ -37,16 +37,19 @@ namespace knp::meta
 
 /**
  * @brief Template used to determine if two arbitrary types are not the same at the compile stage.
- * @details `mp_neq` takes the value of `true` if the types are not the same, otherwise `mp_neq` takes the value of
- * `false`.
+ * 
  * @tparam T1 first arbitrary type to compare.
  * @tparam T2 second arbitrary type to compare.
+ * 
+ * @details `mp_neq` takes the value of `true` if the types are not the same, otherwise `mp_neq` takes the value of
+ * `false`.
  */
 template <class T1, class T2>
 using mp_neq = boost::mp11::mp_bool<T1::value != T2::value>;
 
 /**
  * @brief List of types from the global type list that are used in the local type list.
+ * 
  * @tparam AllList global list of types.
  * @tparam L local list of types (subset of `AllList`).
  */
@@ -55,6 +58,7 @@ using mp_flt = boost::mp11::mp_filter_q<boost::mp11::mp_bind_front<mp_neq, boost
 
 /**
  * @brief Index array for types from the global type list that are used in the local type list.
+ * 
  * @tparam AllList global list of types.
  * @tparam L local list of types (subset of `AllList`).
  */
@@ -76,8 +80,10 @@ using mp_supported_indexes =
 
 /**
  * @brief Get supported type indexes.
+ * 
  * @tparam AllTypes global list of types.
  * @tparam SupportedTypes local list of types.
+ * 
  * @return vector with indexes of supported types.
  */
 template <typename AllTypes, typename SupportedTypes>
@@ -94,10 +100,13 @@ std::vector<size_t> get_supported_type_indexes()
 
 /**
  * @brief Get names of supported object types.
- * @param type_names container (usually a tuple) of type names.
+ * 
  * @tparam AllTypes global list of types.
  * @tparam SupportedTypes local list of types.
  * @tparam NamesType container type (automatically derived from `type_names` if not specified).
+ * 
+ * @param type_names container (usually a tuple) of type names.
+ * 
  * @return vector of type names.
  */
 template <typename AllTypes, typename SupportedTypes, typename NamesType>

@@ -39,6 +39,7 @@ namespace parameters_generators
 
 /**
  * @brief Two parameters (index, index) generator type.
+ * 
  * @tparam SynapseType synapse type which parameters need to be generated.
  */
 template <typename SynapseType>
@@ -47,6 +48,7 @@ using SynGen2ParamsType = std::function<typename knp::core::Projection<SynapseTy
 
 /**
  * @brief One parameter (index) generator type.
+ * 
  * @tparam SynapseType synapse type which parameters need to be generated.
  */
 template <typename SynapseType>
@@ -55,6 +57,7 @@ using SynGen1ParamType = std::function<typename knp::core::Projection<SynapseTyp
 
 /**
  * @brief Two parameters (index, index) generator type with optional result.
+ * 
  * @tparam SynapseType synapse type which parameters need to be generated.
  */
 template <typename SynapseType>
@@ -64,9 +67,13 @@ using SynGenOptional2ParamsType =
 
 
 /**
- * @brief Default generator of synapse parameters for 1 parameters.
- * @tparam SynapseType synapse type.
- * @return synapse parameters.
+ * @brief Generate default synapse parameters for a synapse with the specified index.
+ *
+ * @tparam SynapseType synapse type for which parameters are generated.
+ *
+ * @param size_t synapse index.
+ *
+ * @return default‑constructed synapse parameters.
  */
 template <typename SynapseType>
 typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_gen_1param(size_t)  // NOLINT
@@ -76,9 +83,13 @@ typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_g
 
 
 /**
- * @brief Default generator of synapse parameters for 2 parameters.
- * @tparam SynapseType synapse type.
- * @return synapse parameters.
+ * @brief Generate default synapse parameters for a synapse that connects neurons with specified indexes.
+ *
+ * @tparam SynapseType synapse type for which parameters are generated.
+ *
+ * @param size_t indexes of presynaptic and postsynaptic neurons.
+ *
+ * @return default‑constructed synapse parameters.
  */
 template <typename SynapseType>
 typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_gen_2param(size_t, size_t)  // NOLINT
@@ -90,6 +101,7 @@ typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_g
 /**
  * @brief The CopySynapseGen class is a definition of a synapse generator that copies parameters of the specified
  * synapse.
+ * 
  * @tparam SynapseType synapse type.
  */
 template <typename SynapseType>
@@ -103,12 +115,14 @@ public:
 
     /**
      * @brief Copy synapse constructor.
+     * 
      * @param base_synapse synapse parameters to copy.
      */
     explicit CopySynapseGen(const SynapseParametersType& base_synapse) : base_synapse_(base_synapse) {}
 
     /**
      * @brief Generation operator.
+     * 
      * @return synapse parameters that are the same as the source synapse parameters.
      */
     SynapseParametersType operator()(size_t, size_t) const  // NOLINT

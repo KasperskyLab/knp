@@ -33,6 +33,7 @@ namespace knp::backends::cpu_executors
 {
 /**
  * @brief The ThreadPoolExecutor class is a definition of the interface to thread pool used for thread execution.
+ * 
  * @note Use `boost::asio::post(executor, task)` to queue more tasks.\n
  * Use `join()` to wait for task execution.
  */
@@ -41,7 +42,9 @@ class ThreadPoolExecutor
 public:
     /**
      * @brief Construct pool executor.
+     * 
      * @param context thread pool context.
+     * 
      * @note Lifetime of thread pool context should be at least as long as lifetime of this class object.
      */
     explicit ThreadPoolExecutor(ThreadPoolContext &context)
@@ -51,17 +54,21 @@ public:
 
     /**
      * @brief Get thread pool context.
+     * 
      * @return thread pool context.
      */
     [[nodiscard]] ThreadPoolContext &context() { return context_; }
 
     /**
      * @brief Use functions from the `asio` library.
-     * @note Do not call this method directly. Use `boost::asio::post` function to call the `post` method.
+     * 
      * @tparam Func function type.
      * @tparam Alloc allocator type.
+     * 
      * @param function function to add to task queue.
      * @param allocator allocator.
+     * 
+     * @note Do not call this method directly. Use `boost::asio::post` function to call the `post` method.
      */
     template <class Func, class Alloc>
     void post(Func function, const Alloc &allocator) const
@@ -74,6 +81,7 @@ public:
 
     /**
      * @brief Wait for all tasks to finish.
+     * 
      * @note The method does not join threads.
      */
     void join() const

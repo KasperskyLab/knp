@@ -23,21 +23,25 @@
 
 /**
  * @name _KNP_SYMBOL_IMPORT
+ * 
  * @brief Symbols import macro.
  */
 
 /**
  * @name _KNP_SYMBOL_EXPORT
+ * 
  * @brief Symbols export macro.
  */
 
 /**
  * @name _KNP_SYMBOL_LOCAL
+ * 
  * @brief Local symbol.
  */
 
 /**
  * @name _KNP_SYMBOL_EXTERN
+ * 
  * @brief External symbol.
  */
 

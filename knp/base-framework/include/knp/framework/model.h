@@ -51,6 +51,7 @@ class KNP_DECLSPEC Model
 public:
     /**
      * @brief Model constructor.
+     * 
      * @param network network to use in the model.
      */
     explicit Model(knp::framework::Network &&network) : network_(std::move(network)) {}
@@ -58,12 +59,15 @@ public:
 public:
     /**
      * @brief Get model UID.
+     * 
      * @return model UID.
      */
     [[nodiscard]] const knp::core::UID &get_uid() const { return base_.uid_; }
     /**
      * @brief Get tags used by the model.
+     * 
      * @return model tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] auto &get_tags() { return base_.tags_; }
@@ -71,18 +75,22 @@ public:
 public:
     /**
      * @brief Get network associated with the model.
+     * 
      * @return network.
      */
     [[nodiscard]] knp::framework::Network &get_network() { return network_; }
     /**
      * @brief Get network associated with the model.
-     * @note Constant method.
+     * 
      * @return network.
+     * 
+     * @note Constant method.
      */
     [[nodiscard]] const knp::framework::Network &get_network() const { return network_; }
 
     /**
      * @brief Add an input channel to the network.
+     * 
      * @param channel_uid UID of the input channel.
      * @param projection_uid UID of the projection which will be connected to the channel.
      */
@@ -90,6 +98,7 @@ public:
 
     /**
      * @brief Add an input channel to the network.
+     * 
      * @param channel_uid UID of the input channel.
      * @param projection projection which will be connected to the channel.
      */
@@ -101,6 +110,7 @@ public:
 
     /**
      * @brief Add an output channel to the network.
+     * 
      * @param channel_uid UID of the channel object.
      * @param population_uid UID of the population which will be connected to the channel.
      */
@@ -108,6 +118,7 @@ public:
 
     /**
      * @brief Add an output channel to the network.
+     * 
      * @param channel_uid UID of the channel object.
      * @param population population which will be connected to the channel.
      */
@@ -119,11 +130,13 @@ public:
 
     /**
      * @brief Get all input channels UIDs.
+     * 
      * @return map of input channels to projections.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_input_channels() const;
     /**
      * @brief Get all output channels UIDs.
+     * 
      * @return map of output channels to populations.
      */
     const std::unordered_multimap<core::UID, core::UID, core::uid_hash> &get_output_channels() const;

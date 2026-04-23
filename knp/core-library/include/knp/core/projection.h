@@ -65,9 +65,12 @@ enum SynapseElementAccess
 
 /**
  * @brief The Projection class is a definition of similar connections between the neurons of two populations.
- * @todo This class should later be divided to interface and implementation classes.
+ * 
  * @tparam SynapseType type of synapses the projection contains.
+ * 
  * @see ALL_SYNAPSES.
+ * 
+ * @todo This class should later be divided to interface and implementation classes.
  */
 template <class SynapseType>
 class Projection final
@@ -109,6 +112,7 @@ public:
 public:
     /**
      * @brief Shared synapse parameters for the non-STDP variant of the projection.
+     * 
      * @tparam SynapseT projection synapse type.
      */
     template <typename SynapseT>
@@ -122,6 +126,7 @@ public:
 
     /**
      * @brief Structure for the parameters shared between synapses for STDP.
+     * 
      * @tparam Rule STDP rule type.
      * @tparam SynapseT synapse type.
      */
@@ -166,12 +171,14 @@ public:
 public:
     /**
      * @brief Construct an empty projection.
+     * 
      * @param presynaptic_uid UID of the presynaptic population.
      * @param postsynaptic_uid UID of the postsynaptic population.
      */
     Projection(UID presynaptic_uid, UID postsynaptic_uid);
     /**
      * @brief Construct an empty projection.
+     * 
      * @param uid projection UID.
      * @param presynaptic_uid UID of the presynaptic population.
      * @param postsynaptic_uid UID of the postsynaptic population.
@@ -180,6 +187,7 @@ public:
 
     /**
      * @brief Construct a projection by running a synapse generator a given number of times.
+     * 
      * @param presynaptic_uid presynaptic population UID.
      * @param postsynaptic_uid postsynaptic population UID.
      * @param generator function that generates synapse parameters: `params_`, `id_from_`, `id_to_`.
@@ -189,6 +197,7 @@ public:
 
     /**
      * @brief Construct a projection by running a synapse generator a given number of times.
+     * 
      * @param uid projection UID.
      * @param presynaptic_uid presynaptic population UID.
      * @param postsynaptic_uid postsynaptic population UID.
@@ -200,20 +209,25 @@ public:
 public:
     /**
      * @brief Get projection UID.
+     * 
      * @return projection UID.
      */
     [[nodiscard]] const UID &get_uid() const { return base_.uid_; }
 
     /**
      * @brief Get tags used by the projection.
+     * 
      * @return projection tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] auto &get_tags() { return base_.tags_; }
 
     /**
      * @brief Get tags used by the projection.
+     * 
      * @return projection tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] const auto &get_tags() const { return base_.tags_; }
@@ -221,39 +235,48 @@ public:
 public:
     /**
      * @brief Get parameter values of a synapse with the given index.
+     * 
      * @param index synapse index.
+     * 
      * @return synapse parameters and indexes.
      */
     [[nodiscard]] Synapse &operator[](size_t index) { return parameters_[index]; }
 
     /**
      * @brief Get parameter values of a synapse with the given index.
-     * @details Constant method.
+     * 
      * @param index synapse index.
+     * 
      * @return synapse parameters and indexes.
+     * 
+     * @note Constant method.
      */
     [[nodiscard]] const Synapse &operator[](size_t index) const { return parameters_[index]; }
 
     /**
      * @brief Get an iterator pointing to the first element of the projection.
+     * 
      * @return constant projection iterator.
      */
     [[nodiscard]] auto begin() const { return parameters_.cbegin(); }
 
     /**
      * @brief Get an iterator pointing to the first element of the projection.
+     * 
      * @return projection iterator.
      */
     [[nodiscard]] auto begin() { return parameters_.begin(); }
 
     /**
      * @brief Get an iterator pointing to the last element of the projection.
+     * 
      * @return constant iterator.
      */
     [[nodiscard]] auto end() const { return parameters_.cend(); }
 
     /**
      * @brief Get an iterator pointing to the last element of the projection.
+     * 
      * @return iterator.
      */
     [[nodiscard]] auto end() { return parameters_.end(); }
@@ -261,18 +284,21 @@ public:
 public:
     /**
      * @brief Count number of synapses in the projection.
+     * 
      * @return number of synapses.
      */
     [[nodiscard]] size_t size() const { return parameters_.size(); }
 
     /**
      * @brief Get UID of the associated population from which this projection receives spikes.
+     * 
      * @return UID of the presynaptic population.
      */
     [[nodiscard]] const UID &get_presynaptic() const { return presynaptic_uid_; }
 
     /**
      * @brief Get UID of the associated population to which this projection sends signals.
+     * 
      * @return UID of the postsynaptic population.
      */
     [[nodiscard]] const UID &get_postsynaptic() const { return postsynaptic_uid_; }
@@ -294,16 +320,20 @@ public:
 
     /**
      * @brief Find synapses that originate from a neuron with the given index.
+     * 
      * @param neuron_index index of a neuron.
      * @param search_method search by presynaptic or postsynaptic neuron.
+     * 
      * @return indexes of all synapses associated with the specified presynaptic neuron.
      */
     [[nodiscard]] std::vector<size_t> find_synapses(size_t neuron_index, Search search_method) const;
 
     /**
      * @brief Append connections to the existing projection.
+     * 
      * @param generator synapse generation function.
      * @param num_iterations number of iterations to run the synapse generator.
+     * 
      * @return number of synapses added to the projection, which can be less or equal to the `num_iterations` value.
      */
     size_t add_synapses(SynapseGenerator generator, size_t num_iterations);
@@ -315,27 +345,34 @@ public:
 
     /**
      * @brief Remove a synapse with the given index from the projection.
+     * 
      * @param index index of the synapse to remove.
      */
     void remove_synapse(size_t index);
 
     /**
      * @brief Remove synapses according to a given criterion.
+     * 
      * @param predicate functor that receives a synapse and returns `true` if the synapse must be deleted.
+     * 
      * @return number of deleted synapses.
      */
     size_t remove_synapse_if(std::function<bool(const Synapse &)> predicate);
 
     /**
      * @brief Remove all synapses that lead to a neuron with the given index.
+     * 
      * @param neuron_index index of the postsynaptic neuron which related synapses must be deleted.
+     * 
      * @return number of deleted synapses.
      */
     size_t remove_postsynaptic_neuron_synapses(size_t neuron_index);
 
     /**
      * @brief Remove all synapses that receive signals from a neuron with the given index.
+     * 
      * @param neuron_index index of the presynaptic neuron which related synapses must be deleted.
+     * 
      * @return number of deleted synapses.
      */
     size_t remove_presynaptic_neuron_synapses(size_t neuron_index);
@@ -353,6 +390,7 @@ public:
 
     /**
      * @brief Determine if the synapse weight change is locked.
+     * 
      * @return `true` if the synapse weight change is locked, `false` if the synapse weight change is not locked.
      */
     bool is_locked() const { return is_locked_; }
@@ -360,13 +398,16 @@ public:
 public:
     /**
      * @brief Get parameters shared between all synapses.
+     * 
      * @return shared parameters.
      */
     SharedSynapseParameters &get_shared_parameters() { return shared_parameters_; }
     /**
      * @brief Get parameters shared between all synapses.
-     * @note Constant method.
+     * 
      * @return shared parameters.
+     * 
+     * @note Constant method.
      */
     const SharedSynapseParameters &get_shared_parameters() const { return shared_parameters_; }
 
@@ -429,6 +470,7 @@ private:
 
 /**
  * @brief List of projection types based on synapse types specified in `knp::synapse_traits::AllSynapses`.
+ * 
  * @details `AllProjections` takes the value of `Projection<SynapseType_1>, Projection<SynapseType_2>, ...,
  * Projection<SynapseType_n>`, where `SynapseType_[1..n]` is the synapse type specified in
  * `knp::synapse_traits::AllSynapses`. \n For example, if `knp::synapse_traits::AllSynapses` contains DeltaSynapse and
@@ -438,11 +480,13 @@ using AllProjections = boost::mp11::mp_transform<knp::core::Projection, knp::syn
 
 /**
  * @brief Projection variant that contains any projection type specified in `AllProjections`.
+ * 
  * @details `AllProjectionVariants` takes the value of `std::variant<ProjectionType_1,..., ProjectionType_n>`, where
  * `ProjectionType_[1..n]` is the projection type specified in `AllProjections`. \n For example, if `AllProjections`
  * contains DeltaSynapse and AdditiveSTDPSynapse types, then `AllProjectionVariants = std::variant<DeltaSynapse,
  * AdditiveSTDPSynapse>`. \n `AllProjectionVariants` retains the same order of message types as defined in
  * `AllProjections`.
+ * 
  * @see ALL_SYNAPSES.
  */
 using AllProjectionsVariant = boost::mp11::mp_rename<AllProjections, std::variant>;

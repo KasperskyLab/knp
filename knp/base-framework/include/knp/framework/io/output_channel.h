@@ -45,6 +45,7 @@ class KNP_DECLSPEC OutputChannel
 public:
     /**
      * @brief Base output channel constructor.
+     * 
      * @param channel_uid output channel UID.
      * @param endpoint endpoint to use for message exchange.
      */
@@ -61,12 +62,15 @@ public:
 public:
     /**
      * @brief Get backend UID.
+     * 
      * @return backend UID.
      */
     [[nodiscard]] const auto &get_uid() const { return base_.uid_; }
     /**
      * @brief Get tags used by the backend.
+     * 
      * @return backend tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] auto &get_tags() { return base_.tags_; }
@@ -74,15 +78,19 @@ public:
 public:
     /**
      * @brief Unload spike messages from the endpoint into the message buffer.
-     * @details You should call the method before reading data from the channel.
+     * 
      * @return vector of spikes.
+     * 
+     * @details You should call the method before reading data from the channel.
      */
     std::vector<core::messaging::SpikeMessage> update();
 
     /**
      * @brief Read a specified interval of messages from sorted internal message buffer.
+     * 
      * @param starting_step step from which the method starts reading spike messages.
      * @param final_step step after which the method stops reading spike messages.
+     * 
      * @return vector of messages sent on the specified interval of steps.
      */
     std::vector<core::messaging::SpikeMessage> read_some_from_buffer(core::Step starting_step, core::Step final_step);
@@ -107,10 +115,12 @@ protected:
 
 /**
  * @brief Read all accumulated spike messages from subscription and convert them to output data.
+ * 
  * @param output_channel output channel object.
  * @param converter data converter.
  * @param step_from network step from which the method starts reading spike messages.
  * @param step_to network step after which the method stops reading spike messages.
+ * 
  * @return output data in the required format.
  */
 template <typename ResultType>

@@ -30,19 +30,29 @@
 
 
 /**
- * @brief Namespace for CPU backend's populations.
+ * @brief Namespace for CPU backend functions.
  */
 namespace knp::backends::cpu
 {
 
+
 /**
- * @brief Find projection by type and postsynaptic uid.
+ * @brief Find projections of a given synapse type that target a specific postsynaptic population.
+ * 
  * @tparam SynapseType synapse type.
- * @tparam ProjectionContainer projection container.
- * @param projections projections.
- * @param post_uid postsynaptic uid.
- * @param exclude_locked should projections with locked weights be exluded or not.
- * @return found projections.
+ * @tparam ProjectionContainer type of a projection container.
+ *
+ * @param projections container of projections to search.
+ * @param post_uid UID of the postsynaptic population to match.
+ * @param exclude_locked flag that determines whether projections with locked weights are omitted.
+ *
+ * @return vector of references to the matching projections.
+ *
+ * @details The function iterates over `projections`, skips entries whose variant index does not
+ * match the specified synapse type, and extracts the concrete `Projection<SynapseType>`.  
+ * Projections whose `is_locked()` flag is true are excluded when `exclude_locked` is set.  
+ * Finally, only projections whose postsynaptic population UID matches `post_uid` are added to the result.
+ *
  */
 template <class SynapseType, class ProjectionContainer>
 std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> find_projection_by_type_and_postsynaptic(
@@ -74,12 +84,22 @@ std::vector<std::reference_wrapper<knp::core::Projection<SynapseType>>> find_pro
 
 
 /**
- * @brief Make one execution step for a population of any neurons.
- * @tparam Neuron type of a neuron.
+ * @brief Execute one simulation step for a population of arbitrary neurons.
+ *
+ * @tparam Neuron type of neurons stored in the population.
+ *
  * @param pop population to update.
- * @param endpoint message endpoint used for message exchange.
- * @param step_n execution step.
- * @return indexes of spiked neurons.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param step_n current execution step number.
+ *
+ * @return spike message containing the indexes of neurons that emitted a spike during this step.
+ *
+ * @details The function unloads all synaptic impact messages addressed to the population from 
+ * the message endpoint. Then the function calculates pre-impact state 
+ * (@ref populations::calculate_pre_impact_population_state), dispatches synaptic impact messages
+ * (@ref populations::impact_population), and calculates post-impact state 
+ * (@ref populations::calculate_post_impact_population_state). If any spikes were generated, 
+ * the functions sends a spike message back through the message endpoint.
  */
 template <class Neuron>
 std::optional<core::messaging::SpikeMessage> calculate_any_population(
@@ -102,12 +122,19 @@ std::optional<core::messaging::SpikeMessage> calculate_any_population(
 
 
 /**
- * @brief Make one execution step for a population of BLIFAT neurons.
- * @tparam BlifatLikeNeuron type of a neuron with BLIFAT-like parameters.
+ * @brief Execute one simulation step for a population of BLIFAT‑like neurons.
+ *
+ * @tparam BlifatLikeNeuron type of a neuron that possesses BLIFAT‑like parameters.
+ *
  * @param pop population to update.
- * @param endpoint message endpoint used for message exchange.
- * @param step_n execution step.
- * @return indexes of spiked neurons.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param step_n current execution step number.
+ *
+ * @return spike message containing the indexes of neurons that emitted a spike during this step.
+ *
+ * @details This function is a thin wrapper around @ref calculate_any_population. It forwards the provided population,
+ *  message endpoint, and step number to the generic implementation, thereby reusing the full simulation pipeline.
+ *
  */
 template <class BlifatLikeNeuron>
 std::optional<core::messaging::SpikeMessage> calculate_blifat_population(
@@ -118,12 +145,19 @@ std::optional<core::messaging::SpikeMessage> calculate_blifat_population(
 
 
 /**
- * @brief Calculate LIF population.
+ * @brief Execute one simulation step for a population of LIF neurons.
+ *
  * @tparam LifNeuron LIF neuron type.
- * @param pop population to calculate.
- * @param endpoint endpoint to use for message exchange.
- * @param step_n current step.
- * @return spike message with indexes of spiked neurons if population is emitting one.
+ *
+ * @param pop population to update.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param step_n current execution step number.
+ *
+ * @return spike message containing the indexes of neurons that emitted a spike during this step.
+ *
+ * @details This function simply forwards the call to @ref calculate_any_population, reusing the 
+ * generic simulation pipeline.
+ *
  */
 template <class LifNeuron>
 std::optional<knp::core::messaging::SpikeMessage> calculate_lif_population(
@@ -133,16 +167,30 @@ std::optional<knp::core::messaging::SpikeMessage> calculate_lif_population(
 }
 
 
-/**
- * @brief Make one execution step for a population of `SynapticResourceSTDPNeuron` neurons.
- * @tparam BlifatLikeNeuron type of a neuron with BLIFAT-like parameters.
+ /**
+ * @brief Execute one simulation step for a population of `SynapticResourceSTDPNeuron` neurons.
+ *
+ * @tparam BlifatLikeNeuron type of a neuron with BLIFAT‑like parameters.
  * @tparam BaseSynapseType base synapse type.
  * @tparam ProjectionContainer type of a projection container.
+ *
  * @param pop population to update.
- * @param container projection container from backend.
- * @param endpoint message endpoint used for message exchange.
- * @param step_n execution step.
- * @return message containing indexes of spiked neurons.
+ * @param container projection container supplied by the backend.
+ * @param endpoint message endpoint used for loading and sending messages.
+ * @param step_n current execution step number.
+ *
+ * @return spike message containing the indexes of neurons that emitted a spike during this step.
+ *
+ * @details The function unloads all synaptic impact messages addressed to the population from 
+ * the message endpoint. Then the function calculates pre-impact state 
+ * (@ref populations::calculate_pre_impact_population_state), dispatches synaptic impact messages
+ * (@ref populations::impact_population), and calculates post-impact state 
+ * (@ref populations::calculate_post_impact_population_state). 
+ * The function then retrieves projections of the `SynapticResourceSTDPDeltaSynapse` type that 
+ * target the population, optionally excluding locked ones. 
+ * Finally, the function trains the population with the generated spike message and sends the spike 
+ * message back through the message endpoint if any neurons spiked.
+
  */
 template <class BlifatLikeNeuron, class BaseSynapseType, class ProjectionContainer>
 std::optional<core::messaging::SpikeMessage> calculate_resource_stdp_population(
