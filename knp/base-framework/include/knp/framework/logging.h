@@ -27,9 +27,6 @@
 
 
 /**
- * @brief Logging namespace.
- */
-/**
  * @brief Logging utilities for the KNP framework.
  *
  * @details The namespace provides a thin wrapper around *spdlog* that maps the framework‑specific `Level` enum 
