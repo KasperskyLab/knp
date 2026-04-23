@@ -33,7 +33,7 @@ namespace knp::framework::tags
 /**
  * @brief Tag name used to store an object's human‑readable name.
  *
- * @details The literal `name` is the key under which a string tag is placed in the object's @ref TagMap. It is used 
+ * @details The literal `name` is the key under which a string tag is placed in the object's `TagMap`. It is used 
  * by the helper functions below.
  */
 constexpr char name_tag[]{"name"};
@@ -71,7 +71,7 @@ template <typename Type>
  * @param name value to assign.
  *
  * @details The function overwrites any existing value associated with @ref name_tag and stores a copy of @p name 
- * as a string in the object's @ref TagMap.
+ * as a string in the object's `TagMap`.
  */
 template <typename Type>
 void set_name(Type& object, std::string_view name)

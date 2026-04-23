@@ -71,8 +71,6 @@ using SynGenOptional2ParamsType =
  *
  * @tparam SynapseType synapse type for which parameters are generated.
  *
- * @param size_t synapse index.
- *
  * @return default‑constructed synapse parameters.
  */
 template <typename SynapseType>
@@ -86,8 +84,6 @@ typename knp::core::Projection<SynapseType>::SynapseParameters default_synapse_g
  * @brief Generate default synapse parameters for a synapse that connects neurons with specified indexes.
  *
  * @tparam SynapseType synapse type for which parameters are generated.
- *
- * @param size_t indexes of presynaptic and postsynaptic neurons.
  *
  * @return default‑constructed synapse parameters.
  */
