@@ -42,17 +42,12 @@ class KNP_DECLSPEC Executor
 {
 public:
     /**
-     * @brief Type of validator's UID.
-     */
-    using ValidatorUID = knp::core::UID;
-
-    /**
      * @brief Add validator to run later.
      * @param validator Population validator.
      * @param name Validator's display name.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(std::string name, PopulationValidator validator);
+    knp::core::UID add_validator(std::string name, PopulationValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -60,7 +55,7 @@ public:
      * @param validator Population validator.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(PopulationValidator validator);
+    knp::core::UID add_validator(PopulationValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -68,7 +63,7 @@ public:
      * @param name Validator's display name.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(std::string name, ProjectionValidator validator);
+    knp::core::UID add_validator(std::string name, ProjectionValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -76,7 +71,7 @@ public:
      * @param validator Projection validator.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(ProjectionValidator validator);
+    knp::core::UID add_validator(ProjectionValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -84,7 +79,7 @@ public:
      * @param name Validator's display name.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(std::string name, NetworkValidator validator);
+    knp::core::UID add_validator(std::string name, NetworkValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -92,7 +87,7 @@ public:
      * @param validator Network validator.
      * @return Validator UID.
      */
-    ValidatorUID add_validator(NetworkValidator validator);
+    knp::core::UID add_validator(NetworkValidator validator);
 
     /**
      * @brief Validator's report info. Contains name and report.
@@ -103,7 +98,7 @@ public:
          * @brief UID.
          */
         // cppcheck-suppress unusedStructMember
-        ValidatorUID uid_;
+        knp::core::UID uid_;
 
         /**
          * @brief Display name.
@@ -129,11 +124,11 @@ private:
     static void log_report(const Report& report);
 
     // cppcheck-suppress unusedStructMember
-    std::map<ValidatorUID, std::pair<std::string, PopulationValidator>> population_validators_;
+    std::map<knp::core::UID, std::pair<std::string, PopulationValidator>> population_validators_;
     // cppcheck-suppress unusedStructMember
-    std::map<ValidatorUID, std::pair<std::string, ProjectionValidator>> projection_validators_;
+    std::map<knp::core::UID, std::pair<std::string, ProjectionValidator>> projection_validators_;
     // cppcheck-suppress unusedStructMember
-    std::map<ValidatorUID, std::pair<std::string, NetworkValidator>> network_validators_;
+    std::map<knp::core::UID, std::pair<std::string, NetworkValidator>> network_validators_;
 };
 
 }  // namespace knp::framework::network_validation

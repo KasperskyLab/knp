@@ -28,7 +28,7 @@
 namespace knp::framework::network_validation
 {
 
-Executor::ValidatorUID Executor::add_validator(std::string name, PopulationValidator validator)
+knp::core::UID Executor::add_validator(std::string name, PopulationValidator validator)
 {
     knp::core::UID uid;
     population_validators_[uid] = {std::move(name), std::move(validator)};
@@ -36,7 +36,7 @@ Executor::ValidatorUID Executor::add_validator(std::string name, PopulationValid
 }
 
 
-Executor::ValidatorUID Executor::add_validator(PopulationValidator validator)
+knp::core::UID Executor::add_validator(PopulationValidator validator)
 {
     knp::core::UID uid;
     population_validators_[uid] = {
@@ -45,7 +45,7 @@ Executor::ValidatorUID Executor::add_validator(PopulationValidator validator)
 }
 
 
-Executor::ValidatorUID Executor::add_validator(std::string name, ProjectionValidator validator)
+knp::core::UID Executor::add_validator(std::string name, ProjectionValidator validator)
 {
     knp::core::UID uid;
     projection_validators_[uid] = {std::move(name), std::move(validator)};
@@ -53,7 +53,7 @@ Executor::ValidatorUID Executor::add_validator(std::string name, ProjectionValid
 }
 
 
-Executor::ValidatorUID Executor::add_validator(ProjectionValidator validator)
+knp::core::UID Executor::add_validator(ProjectionValidator validator)
 {
     knp::core::UID uid;
     projection_validators_[uid] = {
@@ -62,7 +62,7 @@ Executor::ValidatorUID Executor::add_validator(ProjectionValidator validator)
 }
 
 
-Executor::ValidatorUID Executor::add_validator(std::string name, NetworkValidator validator)
+knp::core::UID Executor::add_validator(std::string name, NetworkValidator validator)
 {
     knp::core::UID uid;
     network_validators_[uid] = {std::move(name), std::move(validator)};
@@ -70,7 +70,7 @@ Executor::ValidatorUID Executor::add_validator(std::string name, NetworkValidato
 }
 
 
-Executor::ValidatorUID Executor::add_validator(NetworkValidator validator)
+knp::core::UID Executor::add_validator(NetworkValidator validator)
 {
     knp::core::UID uid;
     network_validators_[uid] = {
