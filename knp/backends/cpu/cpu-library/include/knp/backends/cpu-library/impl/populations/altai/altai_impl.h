@@ -69,9 +69,12 @@ inline void impact_neuron_impl(
             neuron.dopamine_value_ += impact.impact_value_;
             break;
         case knp::synapse_traits::OutputType::BLOCKING:
-            if (std::signbit(neuron.activity_time_) != std::signbit(impact.impact_value_) ||
+            if (std::signbit(static_cast<double>(neuron.activity_time_)) !=
+                    std::signbit(static_cast<double>(impact.impact_value_)) ||
                 std::abs(neuron.activity_time_) <= std::abs(impact.impact_value_))
+            {
                 neuron.activity_time_ = static_cast<decltype(neuron.activity_time_)>(impact.impact_value_);
+            }
             break;
         default:
             SPDLOG_ERROR("Unhandled synapse type.");
