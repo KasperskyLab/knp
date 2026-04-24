@@ -28,54 +28,53 @@
 namespace knp::framework::network_validation
 {
 
-template <typename ContainerT>
-static void make_unique_name(std::string& name, const ContainerT& container)
-{
-    auto is_unique = [&container](const std::string& str)
-    {
-        return std::find_if(
-                   container.begin(), container.end(), [&str](const auto& elem) { return elem.second.first == str; }) ==
-               container.end();
-    };
-
-    if (is_unique(name))
-    {
-        return;
-    }
-
-    unsigned counter = 1;
-    std::string candidate;
-    do
-    {
-        candidate = name + " #" + std::to_string(counter++);
-    } while (!is_unique(candidate));
-
-    name = std::move(candidate);
-}
-
 Executor::ValidatorUID Executor::add_validator(std::string name, PopulationValidator validator)
 {
-    make_unique_name(name, population_validators_);
     knp::core::UID uid;
     population_validators_[uid] = {std::move(name), std::move(validator)};
     return uid;
 }
 
 
+Executor::ValidatorUID Executor::add_validator(PopulationValidator validator)
+{
+    knp::core::UID uid;
+    population_validators_[uid] = {
+        "Populations validator #" + std::to_string(population_validators_.size()), std::move(validator)};
+    return uid;
+}
+
+
 Executor::ValidatorUID Executor::add_validator(std::string name, ProjectionValidator validator)
 {
-    make_unique_name(name, projection_validators_);
     knp::core::UID uid;
     projection_validators_[uid] = {std::move(name), std::move(validator)};
     return uid;
 }
 
 
+Executor::ValidatorUID Executor::add_validator(ProjectionValidator validator)
+{
+    knp::core::UID uid;
+    projection_validators_[uid] = {
+        "Projections validator #" + std::to_string(projection_validators_.size()), std::move(validator)};
+    return uid;
+}
+
+
 Executor::ValidatorUID Executor::add_validator(std::string name, NetworkValidator validator)
 {
-    make_unique_name(name, network_validators_);
     knp::core::UID uid;
     network_validators_[uid] = {std::move(name), std::move(validator)};
+    return uid;
+}
+
+
+Executor::ValidatorUID Executor::add_validator(NetworkValidator validator)
+{
+    knp::core::UID uid;
+    network_validators_[uid] = {
+        "Network validator #" + std::to_string(network_validators_.size()), std::move(validator)};
     return uid;
 }
 

@@ -76,12 +76,6 @@ std::error_code Connectivity::make_error_code(ErrorCode error) noexcept
 }
 
 
-std::string Connectivity::get_default_name()
-{
-    return "Connectivity validator";
-}
-
-
 Report Connectivity::operator()(const Network& network)
 {
     Report report;

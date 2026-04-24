@@ -64,12 +64,6 @@ public:
     static std::error_code make_error_code(ErrorCode error) noexcept;
 
     /**
-     * @brief Get default name of validator.
-     * @return Name.
-     */
-    static std::string get_default_name();
-
-    /**
      * @brief Run connectivity validation on specified network.
      * @param network Network for validation.
      * @return Report.

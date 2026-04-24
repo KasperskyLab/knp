@@ -56,11 +56,27 @@ public:
 
     /**
      * @brief Add validator to run later.
+     * @note Automatically generates name.
+     * @param validator Population validator.
+     * @return Validator UID.
+     */
+    ValidatorUID add_validator(PopulationValidator validator);
+
+    /**
+     * @brief Add validator to run later.
      * @param validator Projection validator.
      * @param name Validator's display name.
      * @return Validator UID.
      */
     ValidatorUID add_validator(std::string name, ProjectionValidator validator);
+
+    /**
+     * @brief Add validator to run later.
+     * @note Automatically generates name.
+     * @param validator Projection validator.
+     * @return Validator UID.
+     */
+    ValidatorUID add_validator(ProjectionValidator validator);
 
     /**
      * @brief Add validator to run later.
@@ -71,15 +87,12 @@ public:
     ValidatorUID add_validator(std::string name, NetworkValidator validator);
 
     /**
-     * @brief Add validator with default name.
-     * @param validator Validator.
+     * @brief Add validator to run later.
+     * @note Automatically generates name.
+     * @param validator Network validator.
      * @return Validator UID.
      */
-    template <typename ValidatorT>
-    ValidatorUID add_validator(ValidatorT&& validator)
-    {
-        return add_validator(validator.get_default_name(), std::forward<ValidatorT>(validator));
-    }
+    ValidatorUID add_validator(NetworkValidator validator);
 
     /**
      * @brief Validator's report info. Contains name and report.
