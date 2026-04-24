@@ -47,8 +47,7 @@ static void make_unique_name(std::string& name, const ContainerT& container)
     std::string candidate;
     do
     {
-        candidate = name + " #" + std::to_string(counter);
-        ++counter;
+        candidate = name + " #" + std::to_string(counter++);
     } while (!is_unique(candidate));
 
     name = std::move(candidate);
