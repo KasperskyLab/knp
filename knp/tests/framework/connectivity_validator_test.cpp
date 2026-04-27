@@ -20,7 +20,7 @@
  */
 
 #include <knp/framework/network.h>
-#include <knp/framework/network_validation/runner.h>
+#include <knp/framework/network_validation/executor.h>
 #include <knp/framework/network_validation/validators/connectivity.h>
 #include <knp/framework/population/neuron_parameters_generators.h>
 
@@ -38,14 +38,18 @@ TEST(ConnectivityValidator, ErrorCodes)
     network.add_projection(
         knp::core::Projection<knp::synapse_traits::DeltaSynapse>(knp::core::UID(false), knp::core::UID(false)));
 
-    knp::framework::network_validation::Runner runner;
-    runner.add_validator("Connectivity validator", knp::framework::network_validation::Connectivity());
+    knp::framework::network_validation::Executor executor;
+    executor.add_validator(knp::framework::network_validation::Connectivity());
 
-    auto reports = runner.run_validators(network);
+    auto reports = executor.run_validators(network);
     ASSERT_EQ(reports.size(), 1);
     ASSERT_EQ(reports[0].report_.size(), 2);
-    ASSERT_EQ(reports[0].report_[0].severity_, knp::framework::network_validation::error);
-    ASSERT_EQ(reports[0].report_[0].code_, knp::framework::network_validation::Connectivity::projection_not_connected);
-    ASSERT_EQ(reports[0].report_[1].severity_, knp::framework::network_validation::error);
-    ASSERT_EQ(reports[0].report_[1].code_, knp::framework::network_validation::Connectivity::population_not_connected);
+    ASSERT_EQ(reports[0].report_[0].severity_, knp::framework::network_validation::IssueSeverity::error);
+    ASSERT_EQ(
+        reports[0].report_[0].code_.value(),
+        knp::framework::network_validation::Connectivity::projection_not_connected);
+    ASSERT_EQ(reports[0].report_[1].severity_, knp::framework::network_validation::IssueSeverity::error);
+    ASSERT_EQ(
+        reports[0].report_[1].code_.value(),
+        knp::framework::network_validation::Connectivity::population_not_connected);
 }
