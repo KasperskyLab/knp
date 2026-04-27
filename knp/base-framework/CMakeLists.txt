@@ -60,6 +60,8 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/output_channel.cpp
     impl/synchronization.cpp
     impl/monitoring/model.cpp
+    impl/network_validation/executor.cpp
+    impl/network_validation/validators/connectivity.cpp
     impl/projection/wta.cpp
     impl/sonata/save_network.cpp
     impl/sonata/load_network.cpp

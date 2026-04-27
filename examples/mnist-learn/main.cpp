@@ -24,6 +24,7 @@
 #include "dataset.h"
 #include "evaluate_results.h"
 #include "inference.h"
+#include "network_validation.h"
 #include "parse_arguments.h"
 #include "save_network.h"
 #include "training.h"
@@ -40,6 +41,8 @@ void run_model(const ModelDescription& model_desc)
     Dataset dataset = process_dataset(model_desc);
 
     AnnotatedNetwork network = construct_network<Neuron>(model_desc);
+
+    validate_network(network.network_);
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
