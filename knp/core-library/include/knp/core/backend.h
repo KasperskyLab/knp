@@ -355,7 +355,7 @@ public:
         /**
          * @brief Dereference a value iterator.
          * 
-         * @return Copy of `Type`.
+         * @return Copy of @p Type.
          */
         virtual Type operator*() const = 0;
 

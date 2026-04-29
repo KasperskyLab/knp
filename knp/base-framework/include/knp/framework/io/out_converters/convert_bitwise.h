@@ -41,7 +41,7 @@ namespace knp::framework::io::output
  * 
  * @return bool vector.
  * 
- * @details For example, a method, where `output_size` equals 6 and `message_list` contains messages `{0, 2}`, `{2, 4}`,
+ * @details For example, a method, where @p output_size equals 6 and @p message_list contains messages `{0, 2}`, `{2, 4}`,
  * `{1, 2}`, returns a boolean vector `{true, true, true, false, true, false}`.
  */
 std::vector<bool> KNP_DECLSPEC

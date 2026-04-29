@@ -67,7 +67,7 @@ public:
      * @return random indexes of no more than N spiked neurons.
      * 
      * @note It is assumed that the method receives no more than one message per step. 
-     * Therefore, all messages except the first one in the `messages` parameter are ignored.
+     * Therefore, all messages except the first one in @p messages are ignored.
      */
     knp::core::messaging::SpikeData operator()(std::vector<knp::core::messaging::SpikeMessage> &messages);
 
@@ -98,7 +98,7 @@ public:
      * @param num_winning_groups maximum number of groups that can pass their spikes further.
      * @param seed random generator seed.
      * 
-     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If @p group_borders 
      * is {2, 4}, the set of spike messages will be divided into the following groups: 
      * [0, 1], [2, 3], and [4, 5].
      */
@@ -144,7 +144,7 @@ public:
      * @param winners_per_group number of spikes to pass further from each group.
      * @param seed random generator seed.
      * 
-     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If `group_borders` 
+     * @details For example, we have a set of spike messages 0, 1, 2, 3, 4, 5. If @P group_borders 
      * is {2, 4}, the set of spike messages will be divided into the following groups: 
      * [0, 1], [2, 3], and [4, 5].
      */

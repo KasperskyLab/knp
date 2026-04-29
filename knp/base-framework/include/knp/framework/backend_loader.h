@@ -55,7 +55,7 @@ public:
      * 
      * @param backend_path path to backend.
      * 
-     * @return `true` if the library pointed by `backend_path` is a backend.
+     * @return `true` if the library pointed by @p backend_path is a backend.
      */
     static bool is_backend(const std::filesystem::path &backend_path);
 

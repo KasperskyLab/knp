@@ -375,7 +375,7 @@ template <typename SynapseType>
  * @param postsynaptic_uid optional postsynaptic population UID.
  * @param syn_gen generator of synapse parameters.
  * 
- * @return projection of the `DestinationSynapseType` synapses.
+ * @return projection of the @p DestinationSynapseType synapses.
  * 
  * @details Source and target projections can have different types. In this case, synapse parameters will not be cloned.
  * The new projection has the same presynaptic and postsynaptic population UIDs as the source

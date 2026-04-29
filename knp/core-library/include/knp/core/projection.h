@@ -334,7 +334,7 @@ public:
      * @param generator synapse generation function.
      * @param num_iterations number of iterations to run the synapse generator.
      * 
-     * @return number of synapses added to the projection, which can be less or equal to the `num_iterations` value.
+     * @return number of synapses added to the projection, which can be less or equal to the @p num_iterations value.
      */
     size_t add_synapses(SynapseGenerator generator, size_t num_iterations);
 

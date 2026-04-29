@@ -104,7 +104,7 @@ public:
      * 
      * @param size input data size.
      * 
-     * @details The `size` value must correspond to the size of an input projection.
+     * @details The @p size value must correspond to the size of an input projection.
      */
     void set_size(size_t size) { data_size_ = size; }
 

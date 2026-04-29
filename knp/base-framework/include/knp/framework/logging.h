@@ -99,7 +99,7 @@ KNP_DECLSPEC Level get_level();
  *
  * @param level logging level to convert.
  *
- * @return string that represents the given level; returns `none` for the @ref Level::none level.
+ * @return string that represents the given level.
  */
 KNP_DECLSPEC std::string level_to_str(Level level);
 
@@ -109,7 +109,7 @@ KNP_DECLSPEC std::string level_to_str(Level level);
  *
  * @param str string that specifies a logging level.
  *
- * @return logging level corresponding to the string; returns `none` if the string is empty, 
+ * @return logging level corresponding to the string; returns "none" if the string is empty, 
  * equals `none`, or cannot be parsed.
  */
 KNP_DECLSPEC Level str_to_level(std::string_view str);

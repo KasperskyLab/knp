@@ -234,6 +234,16 @@
  */
 
 /**
+ * @dir /knp/base-framework/include/knp/framework/tags
+ * @brief Directory for common tags headers.
+ */
+
+ /**
+ * @dir /knp/base-framework/include/knp/framework/visualizer
+ * @brief Directory for network visualizer headers.
+ */
+
+/**
  * @dir /knp/base-framework/include/knp/framework/sonata
  * @brief Directory for SONATA format headers.
  */

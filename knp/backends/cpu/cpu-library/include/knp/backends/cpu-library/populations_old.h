@@ -48,10 +48,10 @@ namespace knp::backends::cpu
  *
  * @return vector of references to the matching projections.
  *
- * @details The function iterates over `projections`, skips entries whose variant index does not
+ * @details The function iterates over @p projections, skips entries whose variant index does not
  * match the specified synapse type, and extracts the concrete `Projection<SynapseType>`.  
- * Projections whose `is_locked()` flag is true are excluded when `exclude_locked` is set.  
- * Finally, only projections whose postsynaptic population UID matches `post_uid` are added to the result.
+ * Projections whose `is_locked()` flag is true are excluded when @p exclude_locked is set.  
+ * Finally, only projections whose postsynaptic population UID matches @p post_uid are added to the result.
  *
  */
 template <class SynapseType, class ProjectionContainer>
@@ -168,7 +168,7 @@ std::optional<knp::core::messaging::SpikeMessage> calculate_lif_population(
 
 
  /**
- * @brief Execute one simulation step for a population of `SynapticResourceSTDPNeuron` neurons.
+ * @brief Execute one simulation step for a population of @ref neuron_traits::SynapticResourceSTDPNeuron neurons.
  *
  * @tparam BlifatLikeNeuron type of a neuron with BLIFAT‑like parameters.
  * @tparam BaseSynapseType base synapse type.
@@ -186,7 +186,7 @@ std::optional<knp::core::messaging::SpikeMessage> calculate_lif_population(
  * (@ref populations::calculate_pre_impact_population_state), dispatches synaptic impact messages
  * (@ref populations::impact_population), and calculates post-impact state 
  * (@ref populations::calculate_post_impact_population_state). 
- * The function then retrieves projections of the `SynapticResourceSTDPDeltaSynapse` type that 
+ * The function then retrieves projections of the @ref synapse_traits::SynapticResourceSTDPDeltaSynapse type that 
  * target the population, optionally excluding locked ones. 
  * Finally, the function trains the population with the generated spike message and sends the spike 
  * message back through the message endpoint if any neurons spiked.

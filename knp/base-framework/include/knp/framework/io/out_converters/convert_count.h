@@ -41,7 +41,7 @@ namespace knp::framework::io::output
  * 
  * @return vector.
  * 
- * @details For example, a method, where `output_size` equals 6 and `message_list` contains messages `{0, 2}`, `{2, 4}`,
+ * @details For example, a method, where @p output_size equals 6 and @p message_list contains messages `{0, 2}`, `{2, 4}`,
  * `{1, 2}`, will return a vector `{1, 1, 3, 0, 1, 0}`.
  */
 std::vector<size_t> KNP_DECLSPEC

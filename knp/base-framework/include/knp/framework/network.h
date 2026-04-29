@@ -149,7 +149,7 @@ public:
     /**
      * @brief Add a population to the network.
      * 
-     * @tparam PopulationType type of population to add (derived automatically from `population` if not specified).
+     * @tparam PopulationType type of population to add (derived automatically from @p population if not specified).
      * 
      * @param population population to add.
      */
@@ -158,7 +158,7 @@ public:
     /**
      * @brief Add a population to the network.
      * 
-     * @tparam PopulationType type of population to add (derived automatically from `population` if not specified).
+     * @tparam PopulationType type of population to add (derived automatically from @p population if not specified).
      * 
      * @param population population to add.
      */
