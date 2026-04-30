@@ -63,6 +63,8 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
+          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
+          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:v2.0.${{ github.run_number }}" >> $GITHUB_ENV
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -83,28 +85,29 @@ jobs:
           -S .
 
       - name: Build
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ KNP_BUILD_IMAGE_NAME }} cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
         timeout-minutes: 180
 
       - name: C++ tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests ${{ KNP_BUILD_IMAGE_NAME }} ctest -V
         timeout-minutes: 180
 
+      # TODO: run before configure?
       - name: Analyze C++ code with lizard
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.py
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ KNP_BUILD_IMAGE_NAME }} ci/run_lizard.py
         continue-on-error: true
 
       - name: Analyze Python code with PyLint
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ KNP_BUILD_IMAGE_NAME }} ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
 
       - name: Analyze Python code with Bandit
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ KNP_BUILD_IMAGE_NAME }} /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
 
       - name: Python tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework kasperskydh/knp-build-image pytest
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework ${{ KNP_BUILD_IMAGE_NAME }} pytest
 
       - name: Create deb packages
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} kasperskydh/knp-build-image cpack -G DEB
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} ${{ KNP_BUILD_IMAGE_NAME }} cpack -G DEB
         timeout-minutes: 180
 
       - name: Upload deb packages
@@ -178,7 +181,7 @@ jobs:
       - name: Install OpenCV via vcpkg
         if: matrix.c_compiler == 'cl'
         run: vcpkg install opencv:x64-windows
-  
+
       - name: Configure CMake
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
