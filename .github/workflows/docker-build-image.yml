@@ -6,12 +6,14 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - 'docker/**'
+      - 'docker/base-image/**'
+      - 'docker/build-image/**'
       - '.github/workflows/docker-build-image.yml'
   pull_request:
     branches: [ "master" ]
     paths:
-      - 'docker/**'
+      - 'docker/base-image/**'
+      - 'docker/build-image/**'
       - '.github/workflows/docker-build-image.yml'
 
 jobs:
