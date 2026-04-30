@@ -67,7 +67,7 @@ jobs:
       - name: Set environment
         run: |
           echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
-          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}" >> $GITHUB_ENV
+          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image" >> $GITHUB_ENV
           
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -80,7 +80,7 @@ jobs:
       #    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
       - name: Show build parameters
         run: |
-          echo "KNP_IMAGE_VERSION = ${{ env.KNP_IMAGE_VERSION }}"
+          echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
           echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
           echo "KNP_SDK_IMAGE_NAME = ${{ env.KNP_SDK_IMAGE_NAME }}"
       - name: Configure
@@ -130,8 +130,8 @@ jobs:
             KNP_IMAGE_VERSION=${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:latest
+            ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
+            ${{ env.KNP_SDK_IMAGE_NAME }}:latest
           timeout-minutes: 180
           continue-on-error: false
       - name: Upload deb packages
@@ -157,15 +157,15 @@ jobs:
 
       # Set up a matrix to run:
       matrix:
-        os: [macos-13, windows-2022]
+        os: [macos-26, windows-2022]
         build_type: [Debug]
         c_compiler: [clang, cl]
         include:
-          - os: macos-13
+          - os: macos-26
             c_compiler: clang
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
-            boost_platform_version: 13
+            boost_platform_version: 26
             boost_toolset: clang
           - os: windows-2022
             c_compiler: cl
