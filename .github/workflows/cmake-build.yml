@@ -63,8 +63,9 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
           echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
-          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:v2.0.${{ github.run_number }}" >> $GITHUB_ENV
+          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}" >> $GITHUB_ENV
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -110,16 +111,32 @@ jobs:
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} ${{ KNP_BUILD_IMAGE_NAME }} cpack -G DEB
         timeout-minutes: 180
 
+      - name: Create SDK Docker image
+        if: matrix.c_compiler == 'gcc'
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/${{ matrix.arch }}
+          context: "{{defaultContext}}:docker/sdk-image"
+          load: true
+          push: true
+          build-args: |
+            KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
+            KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
+          tags: |
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:latest
+          timeout-minutes: 180
+          continue-on-error: false
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkg-deb-${{ matrix.arch }}
           path: ${{ steps.strings.outputs.build-output-dir }}/_packages/
 
       - name: Upload Python wheel
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkg-python-${{ matrix.arch }}
           path: ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/dist/knp-*.whl
