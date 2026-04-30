@@ -15,6 +15,7 @@
 # limitations under the License.
 
 ARG KNP_IMAGE_VERSION=2.0.0
+ARG KNP_PACKAGES_DIR
 ARG TARGETPLATFORM
 FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
 
@@ -34,3 +35,8 @@ RUN \
   && chsh -s $(which zsh) \
   && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
   && cd /knp
+
+COPY NOTICE.txt .
+COPY ${PACKAGES_DIR}/*.deb /knp
+
+RUN DEBIAN_FRONTEND=noninteractive dpkg -i /knp/*.deb

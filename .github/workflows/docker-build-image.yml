@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Images Version
-        run: echo "KNP_IMAGE_VERSION=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
+        run: echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
       - name: Set up Docker
         uses: docker/setup-docker-action@v5
         with:
@@ -46,7 +46,9 @@ jobs:
           context: "{{defaultContext}}:docker/base-image"
           load: true
           push: true
-          tags: ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
+          tags: |
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:latest
           build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
           timeout-minutes: 180
           continue-on-error: false
@@ -58,6 +60,8 @@ jobs:
           load: true
           push: true
           build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
-          tags: ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
+          tags: |
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest
           timeout-minutes: 180
           continue-on-error: false
