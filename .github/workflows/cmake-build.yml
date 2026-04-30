@@ -57,18 +57,18 @@ jobs:
       - name: Set git options
         run: git config --global --add safe.directory "*"
         shell: bash
-      - name: Set environment
-        run: |
-          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
-          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
-          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}" >> $GITHUB_ENV      
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
-
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+      - name: Set environment
+        run: |
+          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
+          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}" >> $GITHUB_ENV
+          
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
       #            linux/386, linux/arm/v7, linux/arm/v6
@@ -127,10 +127,10 @@ jobs:
           load: true
           push: true
           build-args: |
-            KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
+            KNP_IMAGE_VERSION=${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:latest
           timeout-minutes: 180
           continue-on-error: false
