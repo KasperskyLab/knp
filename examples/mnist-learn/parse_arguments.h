@@ -27,10 +27,14 @@
 
 
 /**
- * @brief Parse arguments from command line, and form a model description out of them.
- * @param argc Arguments amount.
- * @param argv Arguments values.
- * @return If parsing failed, or some required parameters are not specified, returns nothing. Otherwise returns model
- * desciption.
+ * @brief Parse command-line arguments and configure model parameters.
+ * 
+ * @details This function processes command-line arguments, validates the configuration, and populates the @ref ModelDescription 
+ * structure. 
+ * 
+ * @param argc number of command-line arguments.
+ * @param argv array of command-line argument strings.
+ * @return @ref ModelDescription containing parsed configuration parameters; nothing if parsing failed, help was requested, 
+ * or required parameters are missing.
  */
 std::optional<ModelDescription> parse_arguments(int argc, char** argv);

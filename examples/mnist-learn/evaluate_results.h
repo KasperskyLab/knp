@@ -27,9 +27,12 @@
 
 
 /**
- * @brief Evaluate results of inference. Will print out metrics.
- * @param inference_spikes Spikes from inference.
- * @param dataset Dataset.
- *
+ * @brief Evaluate inference results and display classification metrics.
+ * 
+ * @details This function processes spike data generated during inference operations, compares the results against ground truth labels 
+ * from the dataset, and prints detailed classification performance metrics to standard output.
+ * 
+ * @param inference_spikes vector of spike messages generated during inference.
+ * @param dataset dataset used for inference.
  */
 void evaluate_results(const std::vector<knp::core::messaging::SpikeMessage>& inference_spikes, const Dataset& dataset);
