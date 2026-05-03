@@ -24,19 +24,32 @@
 #include <spdlog/spdlog.h>
 
 #include <functional>
+#include <unordered_map>
 
 #include <boost/dll/import.hpp>
 
 
 namespace knp::framework
 {
+namespace
+{
+auto &get_backend_creators()
+{
+    // Keep imported backend libraries loaded for the process lifetime.
+    // Python and C++ backend objects can outlive a particular BackendLoader instance.
+    static auto *creators =
+        new std::unordered_map<std::string, std::function<BackendLoader::BackendCreateFunction>>();
+    return *creators;
+}
+}  // namespace
 
 std::function<BackendLoader::BackendCreateFunction> BackendLoader::make_creator(
     const std::filesystem::path &backend_path)
 {
-    auto creator_iter = creators_.find(backend_path.string());
+    auto &creators = get_backend_creators();
+    auto creator_iter = creators.find(backend_path.string());
 
-    if (creator_iter != creators_.end())
+    if (creator_iter != creators.end())
     {
         return creator_iter->second;
     }
@@ -48,7 +61,7 @@ std::function<BackendLoader::BackendCreateFunction> BackendLoader::make_creator(
 
     SPDLOG_DEBUG("Created backend creator.");
 
-    creators_[backend_path.string()] = creator;
+    creators[backend_path.string()] = creator;
 
     return creator;
 }
