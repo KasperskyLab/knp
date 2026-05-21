@@ -36,3 +36,9 @@ class BrokenUUID(uuid.UUID):
 def test_uid_rejects_uuid_with_invalid_bytes_size() -> None:
     with pytest.raises(ValueError, match="exactly 16 bytes"):
         UID(BrokenUUID(bytes=b"\x00" * 16))
+
+
+def test_uid_accepts_uuid() -> None:
+    uuid_value = uuid.uuid4()
+
+    assert str(UID(uuid_value)) == str(uuid_value)
