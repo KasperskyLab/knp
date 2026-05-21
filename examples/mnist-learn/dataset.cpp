@@ -28,26 +28,27 @@
 
 Dataset process_dataset(ModelDescription const& model_desc)
 {
-    // Check if files exist.
+    // Check if required files exist.
     if (!std::filesystem::exists(model_desc.images_file_path_))
         throw std::runtime_error("Provided images file does not exists.");
     else if (!std::filesystem::exists(model_desc.labels_file_path_))
         throw std::runtime_error("Provided labels file does not exists.");
 
-    // Create streams for images and labels.
+    // Create streams for reading images and labels.
     std::ifstream images_stream(model_desc.images_file_path_, std::ios::binary);
     std::ifstream labels_stream(model_desc.labels_file_path_, std::ios::in);
 
     Dataset dataset;
-    // Process them.
+    // Process images and labels into spike representations.
     dataset.process_labels_and_images(
         images_stream, labels_stream, model_desc.train_images_amount_ + model_desc.inference_images_amount_,
         classes_amount, input_size, steps_per_image,
         dataset.make_incrementing_image_to_spikes_converter(active_steps, state_increment_factor));
-    // Split dataset according to model description.
+    
+    // Split dataset into training and inference portions.
     dataset.split(model_desc.train_images_amount_, model_desc.inference_images_amount_);
 
-    // Print out results.
+    // Print processing results and statistics.
     std::cout << "Processed dataset, training will last " << dataset.get_steps_amount_for_training()
               << " steps, inference " << dataset.get_steps_amount_for_inference() << " steps\n"
               << std::endl;

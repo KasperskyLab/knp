@@ -38,7 +38,9 @@ namespace knp::core
 
 /**
  * @brief The Population class is a container of neurons of the same model.
+ * 
  * @tparam NeuronType type of the population neurons.
+ * 
  * @see ALL_NEURONS.
  */
 template <typename NeuronType>
@@ -60,6 +62,7 @@ public:
 
     /**
      * @brief Type of the neuron generator.
+     * 
      * @param index current neuron index.
      */
     using NeuronGenerator = std::function<std::optional<NeuronParameters>(size_t index)>;
@@ -77,6 +80,7 @@ public:
 public:  // NOLINT
     /**
      * @brief Construct a population by running a neuron generator.
+     * 
      * @param generator neuron generator.
      * @param neurons_count number of times to run the neuron generator.
      */
@@ -84,6 +88,7 @@ public:  // NOLINT
 
     /**
      * @brief Construct a population by running a neuron generator.
+     * 
      * @param uid population UID.
      * @param generator neuron generator.
      * @param neurons_count number of times to run the neuron generator.
@@ -93,20 +98,25 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Get population UID.
+     * 
      * @return population UID.
      */
     [[nodiscard]] const UID &get_uid() const { return base_.uid_; }
 
     /**
      * @brief Get tags used by the population.
+     * 
      * @return population tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] auto &get_tags() { return base_.tags_; }
 
     /**
      * @brief Get tags used by the population.
+     * 
      * @return population tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] const auto &get_tags() const { return base_.tags_; }
@@ -114,19 +124,23 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Get parameters of all neurons in the population.
+     * 
      * @return vector of neuron parameters.
      */
     [[nodiscard]] const std::vector<NeuronParameters> &get_neurons_parameters() const { return neurons_; }
 
     /**
      * @brief Get parameters of the specific neuron in the population.
+     * 
      * @param index index of the population neuron.
+     * 
      * @return specific neuron parameters.
      */
     [[nodiscard]] const NeuronParameters &get_neuron_parameters(size_t index) const { return neurons_[index]; }
 
     /**
      * @brief Set parameters for the specific neuron in the population.
+     * 
      * @param index index of the population neuron.
      * @param parameters neuron parameters.
      */
@@ -134,14 +148,18 @@ public:  // NOLINT
 
     /**
      * @brief Set parameters for all neurons in the population.
+     * 
      * @param parameters vector of neuron parameters.
+     * 
      * @note Copy method.
      */
     void set_neurons_parameters(const std::vector<NeuronParameters> &parameters) { neurons_ = parameters; }
 
     /**
      * @brief Set parameters for all neurons in the population.
+     * 
      * @param parameters vector of neuron parameters.
+     * 
      * @note Move method.
      */
     void set_neurons_parameters(std::vector<NeuronParameters> &&parameters) { neurons_ = std::move(parameters); }
@@ -149,7 +167,9 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Get tags used by neuron with the specified index.
+     * 
      * @param index index of the population neuron.
+     * 
      * @return tag map of the neuron.
      */
     [[nodiscard]] TagMap &get_neuron_tags(size_t index)
@@ -160,6 +180,7 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Add neurons to the population.
+     * 
      * @param generator type of the neuron generator.
      * @param count number of times to run the neuron generator.
      */
@@ -182,6 +203,7 @@ public:  // NOLINT
 
     /**
      * @brief Remove neurons with given indexes from the population.
+     * 
      * @param neuron_indexes indexes of neurons to remove.
      */
     void remove_neurons(const std::vector<size_t> &neuron_indexes)
@@ -195,6 +217,7 @@ public:  // NOLINT
 
     /**
      * @brief Remove a specific neuron from the population.
+     * 
      * @param neuron_index index of the neuron to remove.
      */
     void remove_neuron(const size_t &neuron_index)
@@ -207,35 +230,43 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Get parameter values of a neuron with the given index.
-     * @note Constant method.
+     * 
      * @param index neuron index.
      * @return neuron parameters.
+     * 
+     * @note Constant method.
      */
     const NeuronParameters &operator[](size_t index) const { return get_neuron_parameters(index); }
     /**
      * @brief Get parameter values of a neuron with the given index.
+     * 
      * @param index neuron index.
+     * 
      * @return neuron parameters.
      */
     NeuronParameters &operator[](size_t index) { return neurons_[index]; }
 
     /**
      * @brief Get an iterator pointing to the first element of the population.
+     * 
      * @return constant population iterator.
      */
     auto begin() const { return neurons_.cbegin(); }
     /**
      * @brief Get an iterator pointing to the first element of the population.
+     * 
      * @return population iterator.
      */
     auto begin() { return neurons_.begin(); }
     /**
      * @brief Get an iterator pointing to the last element of the population.
+     * 
      * @return constant iterator.
      */
     auto end() const { return neurons_.cend(); }
     /**
      * @brief Get an iterator pointing to the last element of the population.
+     * 
      * @return iterator.
      */
     auto end() { return neurons_.end(); }
@@ -243,6 +274,7 @@ public:  // NOLINT
 public:  // NOLINT
     /**
      * @brief Count number of neurons in the population.
+     * 
      * @return number of neurons.
      */
     [[nodiscard]] size_t size() const { return neurons_.size(); }
@@ -255,6 +287,7 @@ private:
 
 /**
  * @brief List of population types based on neuron types specified in `knp::neuron_traits::AllNeurons`.
+ * 
  * @details `AllPopulations` takes the value of `Population<NeuronType_1>, Population<NeuronType_2>, ...,
  * Population<NeuronType_n>`, where `NeuronType_[1..n]` is the neuron type specified in
  * `knp::neuron_traits::AllNeurons`. \n For example, if `knp::neuron_traits::AllNeurons` contains BLIFATNeuron and
@@ -264,11 +297,13 @@ using AllPopulations = boost::mp11::mp_transform<knp::core::Population, knp::neu
 
 /**
  * @brief Population variant that contains any population type specified in `AllPopulations`.
+ * 
  * @details `AllPopulationVariants` takes the value of `std::variant<PopulationType_1,..., PopulationType_n>`, where
  * `PopulationType_[1..n]` is the population type specified in `AllPopulations`. \n For example, if `AllPopulations`
  * contains BLIFATNeuron and IzhikevichNeuron types, then `AllPopulationVariants = std::variant<BLIFATNeuron,
  * IzhikevichNeuron>`. \n `AllPopulationVariants` retains the same order of message types as defined in
  * `AllPopulations`.
+ * 
  * @see ALL_NEURONS.
  */
 using AllPopulationsVariant = boost::mp11::mp_rename<AllPopulations, std::variant>;

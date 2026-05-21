@@ -40,6 +40,7 @@ namespace knp::backends::cpu
 
 /**
  * @brief The "null" subscriber.
+ * 
  * @tparam SynapseType type of the non-STDP synapses.
  */
 template <typename SynapseType>
@@ -54,6 +55,7 @@ struct subscribe_stdp_projection
 
 /**
  * @brief STDP projection subscriber.
+ * 
  * @tparam Rule STDP rule.
  * @tparam SynapseType linked synapse type.
  */
@@ -62,6 +64,7 @@ struct subscribe_stdp_projection<knp::synapse_traits::STDP<Rule, SynapseType>>
 {
     /**
      * @brief Subscribe projection to message endpoint.
+     * 
      * @param p projection to subscribe.
      * @param message_endpoint message endpoint to subscribe.
      */
@@ -81,9 +84,11 @@ struct subscribe_stdp_projection<knp::synapse_traits::STDP<Rule, SynapseType>>
 
 /**
  * @brief Initialize backend.
+ * 
  * @param projections container backend projections.
  * @param message_endpoint message endpoint.
- * @tparam ProjectionContainer type of projection container.
+ * 
+ * @tparam ProjectionContainer type of a projection container.
  */
 template <typename ProjectionContainer>
 void init(const ProjectionContainer &projections, knp::core::MessageEndpoint &message_endpoint)

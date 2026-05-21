@@ -109,6 +109,11 @@ std::vector<core::AllPopulationsVariant> load_populations(const fs::path &pop_h5
             result.emplace_back(load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(group, proj_name));
         else if (neuron_type == get_neuron_type_id<neuron_traits::AltAILIF>())
             result.emplace_back(load_population<neuron_traits::AltAILIF>(group, proj_name));
+        else if (neuron_type == get_neuron_type_id<neuron_traits::SynapticResourceSTDPAltAILIFNeuron>())
+            result.emplace_back(load_population<neuron_traits::SynapticResourceSTDPAltAILIFNeuron>(group, proj_name));
+        else if (neuron_type == get_neuron_type_id<neuron_traits::LIFNeuron>())
+            result.emplace_back(load_population<neuron_traits::LIFNeuron>(group, proj_name));
+
         // TODO: Add other supported types or better use a template.
     }
     return result;

@@ -24,11 +24,10 @@
 #include "network_functions.h"
 
 
-/**
- * @brief Sends spike each 11th step in 15 steps loop.
- * @param dataset Dataset.
- * @return Callable function on each step.
- */
+// Generate spike patterns from training labels for BLIFAT neuron model.
+// This template specialization creates a spike generator that converts discrete label information into spike patterns
+// at specific time intervals during training. The generator sends spikes on the 11th step of each 15-step image 
+// processing cycle to avoid conflicts with image data presentation and ensure proper label synchronization.
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::BLIFATNeuron>(const Dataset& dataset)

@@ -63,6 +63,11 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+      - name: Set environment
+        run: |
+          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
+          echo "KNP_SDK_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image" >> $GITHUB_ENV
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -73,6 +78,11 @@ jobs:
       #    sudo apt-get update -q -y
       #    sudo apt-get -qq install -y qemu-system-arm qemu-user-static
       #    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+      - name: Show build parameters
+        run: |
+          echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
+          echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
+          echo "KNP_SDK_IMAGE_NAME = ${{ env.KNP_SDK_IMAGE_NAME }}"
       - name: Configure
         run: >
           docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -83,40 +93,57 @@ jobs:
           -S .
 
       - name: Build
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
         timeout-minutes: 180
 
       - name: C++ tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests ${{ env.KNP_BUILD_IMAGE_NAME }} ctest -V -E "Cuda*"
         timeout-minutes: 180
 
+      # TODO: run before configure?
       - name: Analyze C++ code with lizard
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.py
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} ci/run_lizard.py
         continue-on-error: true
 
       - name: Analyze Python code with PyLint
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
 
       - name: Analyze Python code with Bandit
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
 
       - name: Python tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework kasperskydh/knp-build-image pytest
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework ${{ env.KNP_BUILD_IMAGE_NAME }} pytest
 
       - name: Create deb packages
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} kasperskydh/knp-build-image cpack -G DEB
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} ${{ env.KNP_BUILD_IMAGE_NAME }} cpack -G DEB
         timeout-minutes: 180
 
+      - name: Create SDK Docker image
+        if: matrix.c_compiler == 'gcc'
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/${{ matrix.arch }}
+          context: "{{defaultContext}}:docker/sdk-image"
+          load: true
+          push: true
+          build-args: |
+            KNP_IMAGE_VERSION=${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
+            KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
+          tags: |
+            ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
+            ${{ env.KNP_SDK_IMAGE_NAME }}:latest
+          timeout-minutes: 180
+          continue-on-error: false
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkg-deb-${{ matrix.arch }}
           path: ${{ steps.strings.outputs.build-output-dir }}/_packages/
 
       - name: Upload Python wheel
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkg-python-${{ matrix.arch }}
           path: ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/dist/knp-*.whl
@@ -130,15 +157,15 @@ jobs:
 
       # Set up a matrix to run:
       matrix:
-        os: [macos-13, windows-2022]
+        os: [macos-26, windows-2022]
         build_type: [Debug]
         c_compiler: [clang, cl]
         include:
-          - os: macos-13
+          - os: macos-26
             c_compiler: clang
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
-            boost_platform_version: 13
+            boost_platform_version: 26
             boost_toolset: clang
           - os: windows-2022
             c_compiler: cl
@@ -149,7 +176,7 @@ jobs:
         exclude:
           - os: windows-2022
             c_compiler: clang
-          - os: macos-13
+          - os: macos-26
             c_compiler: cl
 
     steps:
@@ -178,7 +205,7 @@ jobs:
       - name: Install OpenCV via vcpkg
         if: matrix.c_compiler == 'cl'
         run: vcpkg install opencv:x64-windows
-  
+
       - name: Configure CMake
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}

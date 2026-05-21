@@ -33,7 +33,8 @@ namespace knp::framework::normalization
 {
 
 /**
- * @brief The PotentialAccessor class is a definition of an interface that provides access to neuron potential parameter (`potential_`). 
+ * @brief The PotentialAccessor class is a definition of an interface that provides access to neuron potential parameter (`potential_`).
+ *  
  * @tparam NeuronType type of the neuron to access.
  */
 template <typename NeuronType>
@@ -50,13 +51,16 @@ struct PotentialAccessor
 
     /**
      * @brief Get neuron potential.
+     * 
      * @param neuron_params neuron parameters.
+     * 
      * @return value of the neuron potential.
      */
     PotentialType operator()(const NeuronParametersType &neuron_params) const { return neuron_params.potential_; }
 
     /**
      * @brief Correct the neuron potential value.
+     * 
      * @param neuron_params neuron parameters.
      * @param potential new neuron potential value to set.
      */

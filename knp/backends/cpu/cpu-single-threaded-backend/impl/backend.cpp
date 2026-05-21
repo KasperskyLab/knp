@@ -252,6 +252,14 @@ std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate
 }
 
 
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    core::Population<knp::neuron_traits::LIFNeuron> &population)
+{
+    SPDLOG_TRACE("Calculate LIF population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_any_population(population, get_message_endpoint(), get_step());
+}
+
+
 void SingleThreadedCPUBackend::calculate_projection(
     knp::core::Projection<knp::synapse_traits::DeltaSynapse> &projection, SynapticMessageQueue &message_queue)
 {

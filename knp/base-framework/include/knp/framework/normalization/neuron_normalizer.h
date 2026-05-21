@@ -38,10 +38,12 @@ namespace knp::framework::normalization
 
 /**
  * @brief Normalize parameters of neurons in a population.
+ * 
  * @tparam NeuronType type of the neuron whose parameters you want to normalize.
  * @tparam DataGetter type of the class containing method to get parameter value.
  * @tparam DataSetter type of the class containing method to set parameter value.
  * @tparam ValueCorrector type of the normalization function for neuron parameters.
+ * 
  * @param population population whose neuron parameters you want to normalize.
  * @param getter class used to get neuron parameter value.
  * @param setter class used to set neuron parameter value.
@@ -64,9 +66,11 @@ void normalize_neurons(
 
 /**
  * @brief Normalize parameters of all neurons in a network.
+ * 
  * @tparam DataGetter type of the class containing method to get parameter value.
  * @tparam DataSetter type of the class containing method to set parameter value.
  * @tparam ValueCorrector type of the normalization function for neuron parameters.
+ * 
  * @param network network whose population neuron parameters you want to normalize.
  * @param corrector function used to normalize neuron parameter.
  */
@@ -92,11 +96,14 @@ void normalize_neurons(knp::framework::Network &network, ValueCorrector correcto
 
 /**
  * @brief Normalize parameters of all neurons in a network and copy them to a new `Network` object.
+ * 
  * @tparam DataGetter type of the class containing method to get parameter value.
  * @tparam DataSetter type of the class containing method to set parameter value.
  * @tparam ValueCorrector type of the normalization function for neuron parameters.
+ * 
  * @param network network whose population neuron parameters you want to normalize.
  * @param corrector function used to normalize neuron parameter.
+ * 
  * @return copy of the network with normalized neurons.
  */
 template <

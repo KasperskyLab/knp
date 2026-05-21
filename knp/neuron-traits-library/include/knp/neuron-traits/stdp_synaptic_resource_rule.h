@@ -32,8 +32,10 @@ namespace knp::neuron_traits
 {
 /**
  * @brief Neuron type with resource-based STDP learning rule.
- * @details You can use this structure as a wrapper over base neuron type.
+ * 
  * @tparam NeuronType base neuron type.
+ * 
+ * @details You can use this structure as a wrapper over base neuron type.
  */
 template <typename NeuronType>
 struct SynapticResourceSTDPNeuron;
@@ -57,6 +59,7 @@ enum class ISIPeriodType
     period_continued,
     /**
      * @brief Sequence of spikes has ended. A new sequence has not started yet.
+     * 
      * @note The state is not commonly used as neuron state changes after a spike.
      */
     not_in_period
@@ -65,6 +68,7 @@ enum class ISIPeriodType
 
 /**
  * @brief Template for neuron parameters supported by synaptic resource-based STDP.
+ * 
  * @tparam NeuronType base neuron type without plasticity.
  */
 template <typename NeuronType>
@@ -79,7 +83,9 @@ struct default_values<SynapticResourceSTDPNeuron<NeuronType>>
 
 /**
  * @brief Template for neuron parameters supported by synaptic resource-based STDP.
+ * 
  * @tparam NeuronType base neuron type without plasticity.
+ * 
  * @note The class contains all neuron parameters of the base neuron.
  */
 template <typename NeuronType>
@@ -92,6 +98,7 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
 
     /**
      * @brief Construct parameters for synaptic resource-based STDP from a base neuron.
+     * 
      * @param base_neuron starting parameters of the base neuron type.
      */
     explicit neuron_parameters(const neuron_parameters<NeuronType> &base_neuron)
@@ -101,6 +108,7 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
 
     /**
      * @brief Coefficient for the `additional_threshold_` neuron parameter.
+     * 
      * @note Current threshold value for membrane potential is composed from three parameters:
      * activation_threshold_, dynamic_threshold_, and additional_threshold_.
      */
@@ -129,6 +137,7 @@ struct neuron_parameters<SynapticResourceSTDPNeuron<NeuronType>> : public neuron
 
     /**
      * @brief Dynamic synapse attribute for stability.
+     * 
      * @details The stability reflects how well a synapse is trained.
      * The value increases with correct responses from a synapse and decreases in case of incorrect ones.
      * The higher the stability, the smaller the changes in synapse weight associated with plasticity.

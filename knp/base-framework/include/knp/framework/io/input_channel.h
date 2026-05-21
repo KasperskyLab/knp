@@ -42,6 +42,7 @@ class KNP_DECLSPEC InputChannel
 public:
     /**
      * @brief Input channel constructor.
+     * 
      * @param channel_uid sender UID to put into the message header.
      * @param endpoint endpoint used to send messages.
      * @param generator functor that generates spike messages.
@@ -72,12 +73,15 @@ public:
 public:
     /**
      * @brief Get backend UID.
+     * 
      * @return backend UID.
      */
     [[nodiscard]] const auto &get_uid() const { return base_.uid_; }
     /**
      * @brief Get tags used by the backend.
+     * 
      * @return backend tag map.
+     * 
      * @see TagMap.
      */
     [[nodiscard]] auto &get_tags() { return base_.tags_; }
@@ -85,17 +89,22 @@ public:
 public:
     /**
      * @brief Read data from input stream, form a spike message and send it to an endpoint.
-     * @note The method throws exceptions if an input stream is set to throw exceptions.
+     * 
      * @param step current step.
+     * 
      * @return `true` if message was sent, `false` if no message was sent.
+     * 
+     * @note The method throws exceptions if an input stream is set to throw exceptions.
      */
     virtual bool send(core::Step step) { return send_data(generator_(step), step); }
 
 protected:
     /**
      * @brief Send spike messages to message endpoint.
+     * 
      * @param spikes spike messages to send.
      * @param step current step.
+     * 
      * @return `true` if messages were sent, `false` otherwise.
      */
     bool send_data(const core::messaging::SpikeData &spikes, core::Step step)
@@ -127,10 +136,12 @@ private:
 
 /**
  * @brief Connect input channel to a target entity.
- * @note Target entity should be able to receive spikes.
+ * 
  * @param channel input channel.
  * @param target_endpoint endpoint to use for message exchange.
  * @param receiver_uid UID of an entity that receives spike messages.
+ * 
+ * @note Target entity should be able to receive spikes.
  */
 inline void connect_input(
     const InputChannel &channel, core::MessageEndpoint &target_endpoint, const core::UID &receiver_uid)

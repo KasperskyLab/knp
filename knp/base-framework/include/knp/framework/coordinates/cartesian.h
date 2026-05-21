@@ -47,6 +47,7 @@ constexpr char coordinate_array_tag_name[]{"ortho_coordinates_2d_array"};
 
 /**
  * @brief 2D point coordinates.
+ * 
  * @tparam CoordinateType coordinate value type.
  */
 template <typename CoordinateType>
@@ -70,6 +71,7 @@ constexpr char coordinate_array_tag_name[]{"ortho_coordinates_3d_array"};
 
 /**
  * @brief 3D point coordinates.
+ * 
  * @tparam CoordinateType coordinate value type.
  */
 template <typename CoordinateType>

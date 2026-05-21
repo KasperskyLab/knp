@@ -27,6 +27,7 @@
 
 #include "altai_lif.h"
 #include "blifat.h"
+#include "lif.h"
 #include "stdp_synaptic_resource_rule.h"
 #include "stdp_type_traits.h"
 
@@ -38,11 +39,13 @@ namespace knp::neuron_traits
 /**
  * @brief Comma-separated list of neuron tags.
  */
-#define ALL_NEURONS BLIFATNeuron, SynapticResourceSTDPBLIFATNeuron, AltAILIF, SynapticResourceSTDPAltAILIFNeuron
+#define ALL_NEURONS \
+    BLIFATNeuron, SynapticResourceSTDPBLIFATNeuron, AltAILIF, SynapticResourceSTDPAltAILIFNeuron, LIFNeuron
 
 
 /**
  * @brief List of neuron types.
+ * 
  * @details To add a new neuron type to the list, define it in the ALL_NEURONS macro. For example,
  * @code{.cpp}
  * #define ALL_NEURONS BLIFATNeuron, IzhikevichNeuron

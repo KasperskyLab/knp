@@ -20,17 +20,25 @@
  */
 
 #include <knp/core/projection.h>
+#include <knp/framework/population/neuron_parameters_generators.h>
 #include <knp/framework/sonata/network_io.h>
 
 #include <generators.h>
 #include <tests_common.h>
 
+#include <boost/preprocessor/seq/for_each.hpp>
 
+
+namespace
+{
+
+template <typename NeuronType>
 knp::framework::Network make_simple_network()
 {
     namespace kt = knp::testing;
     // Create a single-neuron neural network: input -> input_projection -> population <=> loop_projection.
-    kt::BLIFATPopulation population{kt::neuron_generator, 1};
+    knp::core::Population<NeuronType> population{
+        knp::framework::population::neurons_generators::make_default<NeuronType>(), 1};
     knp::core::Projection<knp::synapse_traits::DeltaSynapse> loop_projection =
         kt::DeltaProjection{population.get_uid(), population.get_uid(), kt::synapse_generator, 1};
     knp::core::Projection<knp::synapse_traits::DeltaSynapse> input_projection =
@@ -40,33 +48,6 @@ knp::framework::Network make_simple_network()
     network.add_projection(input_projection);
     network.add_projection(loop_projection);
     return network;
-}
-
-
-class SaveLoadNetworkSuite : public ::testing::Test
-{
-protected:
-    void TearDown() override
-    {
-        std::filesystem::remove_all(path_to_network_ / "network");
-        std::filesystem::remove(path_to_network_ / "config.json");
-    }
-
-    std::filesystem::path path_to_network_;
-};
-
-
-TEST_F(SaveLoadNetworkSuite, SaveTest)
-{
-    auto network = make_simple_network();
-    path_to_network_ = ".";
-    knp::framework::sonata::save_network(network, path_to_network_);
-    ASSERT_TRUE(std::filesystem::is_directory(path_to_network_ / "network"));
-    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/network_config.json"));
-    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/populations.h5"));
-    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/projections.h5"));
-    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/neurons.csv"));
-    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/synapses.csv"));
 }
 
 
@@ -121,12 +102,51 @@ bool are_networks_similar(const knp::framework::Network &current, const knp::fra
     return true;
 }
 
+}  //namespace
 
-TEST_F(SaveLoadNetworkSuite, SaveLoadTest)
+
+class SaveLoadNetworkSuite : public ::testing::Test
 {
+protected:
+    void TearDown() override
+    {
+        std::filesystem::remove_all(path_to_network_ / "network");
+        std::filesystem::remove(path_to_network_ / "config.json");
+    }
+
+    std::filesystem::path path_to_network_;
+
+    template <typename NeuronType>
+    void save_load_test()
+    {
+        path_to_network_ = ".";
+        auto network = make_simple_network<NeuronType>();
+        knp::framework::sonata::save_network(network, path_to_network_);
+        auto network_loaded = knp::framework::sonata::load_network(path_to_network_);
+        ASSERT_TRUE(are_networks_similar(network, network_loaded));
+    }
+};
+
+
+TEST_F(SaveLoadNetworkSuite, SaveTest)
+{
+    auto network = make_simple_network<knp::neuron_traits::BLIFATNeuron>();
     path_to_network_ = ".";
-    auto network = make_simple_network();
     knp::framework::sonata::save_network(network, path_to_network_);
-    auto network_loaded = knp::framework::sonata::load_network(path_to_network_);
-    ASSERT_TRUE(are_networks_similar(network, network_loaded));
+    ASSERT_TRUE(std::filesystem::is_directory(path_to_network_ / "network"));
+    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/network_config.json"));
+    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/populations.h5"));
+    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/projections.h5"));
+    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/neurons.csv"));
+    ASSERT_TRUE(std::filesystem::is_regular_file(path_to_network_ / "network/synapses.csv"));
+}
+
+
+#define NEURON_TESTS(n, _, neuron_type) save_load_test<knp::neuron_traits::neuron_type>();
+
+
+TEST_F(SaveLoadNetworkSuite, SaveLoadNeuronTypes)
+{
+    // Testing all neuron types.
+    BOOST_PP_SEQ_FOR_EACH(NEURON_TESTS, , BOOST_PP_VARIADIC_TO_SEQ(ALL_NEURONS))
 }

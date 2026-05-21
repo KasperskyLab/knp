@@ -30,44 +30,64 @@
 #include <vector>
 
 
-/// A network with annotations.
+/**
+ * @brief A network with annotations.
+ */ 
 struct AnnotatedNetwork
 {
-    /// Network.
+    /**
+     * @brief Core network structure.
+     */
     knp::framework::Network network_;
 
-    /// Annotation struct.
+    /// Annotation metadata structure providing additional network context.
     struct Annotation
     {
-        /// Output uids.
+        /**
+         * @brief Output UIDs.
+         */
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> output_uids_;
 
-        /// Projections from rasterized channeled population.
+        /**
+         * @brief Projections from rasterized channeled population.
+         */
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_raster_;
 
-        /// Projection from classes channeled populations. Aka label populations.
+        /**
+         * @brief Projection from class channeled populations (label populations).
+         */
         // cppcheck-suppress unusedStructMember
         std::vector<knp::core::UID> projections_from_classes_;
 
-        /// Populations that should be kept in inference.
+        /**
+         * @brief Populations that should be kept during inference.
+         */
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_population_uids_;
 
-        /// Projections that should be kept in inference.
+        /**
+         * @brief Projections that should be kept during inference.
+         */
         // cppcheck-suppress unusedStructMember
         std::set<knp::core::UID> inference_internal_projection_;
 
-        /// For each compound network: a vector of senders and a vector of receivers.
+        /**
+         * @brief For each compound network: sender and receiver UID vectors for WTA mechanisms.
+         */
         // cppcheck-suppress unusedStructMember
         std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>> wta_data_;
 
-        /// WTA borders, for example 2,4,6.
+        /**
+         * @brief WTA border indices defining competition boundaries (for example, [2,4,6]).
+         */
         // cppcheck-suppress unusedStructMember
         std::vector<size_t> wta_borders_;
     }
-    /// Annotation to network.
+    /**
+     * @brief Annotation data associated with the network.
+     */
     // cppcheck-suppress unusedStructMember
     data_;
 };

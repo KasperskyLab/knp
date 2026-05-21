@@ -42,23 +42,31 @@ class TagMap
 public:
     /**
      * @brief Get tag value by tag name.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
      */
     [[nodiscard]] std::any &get_tag(const std::string &name) { return tags_[name]; }
 
     /**
      * @brief Get tag value by tag name.
-     * @note Const function.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
+     * 
+     * @note Constant method.
      */
     [[nodiscard]] const std::any &get_tag(const std::string &name) const { return tags_.at(name); }
 
     /**
      * @brief Get tag value by tag name and value type.
+     * 
      * @tparam T tag value type.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
      */
     template <typename T>
@@ -69,10 +77,14 @@ public:
 
     /**
      * @brief Get tag value by tag name and value type.
-     * @note Const function.
+     * 
      * @tparam T tag value type.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
+     * 
+     * @note Constant method.
      */
     template <typename T>
     [[nodiscard]] const std::decay_t<T> &get_tag(const std::string &name) const
@@ -82,30 +94,38 @@ public:
 
     /**
      * @brief Return tag value.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
      */
     auto &operator[](const std::string &name) { return get_tag(name); }
 
     /**
      * @brief Return tag value.
-     * @note Const function.
+     * 
      * @param name tag name.
+     * 
      * @return tag value.
+     * 
+     * @note Constant method.
      */
     const auto &operator[](const std::string &name) const { return get_tag(name); }
 
     /**
-     * @brief Check if no tag is specified.
-     * @return `true` if no tag is specified, `false` otherwise.
+     * @brief Check whether the tag map contains no entries.
+     * 
+     * @return `true` if the map is empty; `false` otherwise.
      */
     [[nodiscard]] bool empty() const noexcept { return tags_.empty(); }
 
 
     /**
-     * @brief Check if tag is specified.
-     * @param name Tag name that will be searched.
-     * @return `true` if tag is specified, `false` otherwise.
+     * @brief Check whether a tag with the given name exists.
+     * 
+     * @param name tag name to search.
+     * 
+     * @return `true` if tag is present, `false` otherwise.
      */
     [[nodiscard]] bool exists(const std::string &name) const noexcept { return tags_.find(name) != tags_.end(); }
 

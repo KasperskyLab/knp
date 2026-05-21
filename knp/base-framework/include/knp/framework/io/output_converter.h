@@ -34,7 +34,9 @@ namespace knp::framework::io::output
 {
 /**
  * @brief Function used to convert spike messages into output data.
+ * 
  * @tparam ResultType output data type.
+ * 
  * @param messages list of spike messages.
  */
 template <class ResultType>

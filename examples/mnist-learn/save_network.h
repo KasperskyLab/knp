@@ -28,9 +28,13 @@
 
 
 /**
- * @brief Will save trained network, if saving is enabled.
- * @param model_desc Model desciption.
- * @param network Annotated network.
+ * @brief Save trained network to SONATA format if model saving is enabled.
+ * 
+ * @details This function saves the trained neural network structure to the specified path in SONATA format. It automatically 
+ * creates the target directory if it doesn't exist.
+ * 
+ * @param model_desc model description.
+ * @param network annotated network structure containing the trained network and metadata.
  */
 inline void save_network(const ModelDescription& model_desc, const AnnotatedNetwork& network)
 {

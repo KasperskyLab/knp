@@ -26,13 +26,22 @@
 #include "model_desc.h"
 
 
-/// Short name for dataset class.
+/**
+ * @brief Short name for dataset class.
+ */ 
 using Dataset = knp::framework::data_processing::classification::images::Dataset;
 
 /**
- * @brief Function for processing dataset.
- * @note Processing means reading actual files, saving them in memory, and splitting data into training and inference.
- * @param model_desc Model description.
- * @return Processed dataset.
+ * @brief Process MNIST dataset for neural network training and inference.
+ * 
+ * @details This function reads raw MNIST dataset files (images and labels), loads them into memory, converts the data 
+ * into spike representations suitable for neural networks, and splits the dataset into training and inference portions 
+ * according to the model configuration.
+ * 
+ * @param model_desc model description.
+ * 
+ * @return Processed dataset object ready for training and inference operations.
+ * 
+ * @throws std::runtime_error if required dataset files are not found or cannot be read.
  */
 Dataset process_dataset(ModelDescription const& model_desc);
