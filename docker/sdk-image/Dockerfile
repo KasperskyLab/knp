@@ -36,7 +36,7 @@ RUN \
   && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
   && cd /knp
 
-COPY NOTICE.txt .
-COPY ${PACKAGES_DIR}/*.deb /knp
+COPY docker/sdk-image/NOTICE.txt .
+COPY ${KNP_PACKAGES_DIR}/*.deb /knp
 
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i /knp/*.deb

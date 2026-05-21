@@ -43,6 +43,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push the base Docker image for Kaspersky Neuromorphic Platform
         uses: docker/build-push-action@v6
+        timeout-minutes: 180
+        continue-on-error: false
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/base-image"
@@ -52,10 +54,10 @@ jobs:
             ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
             ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:latest
           build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
-          timeout-minutes: 180
-          continue-on-error: false
       - name: Build and push the Docker image for Kaspersky Neuromorphic Platform build
         uses: docker/build-push-action@v6
+        timeout-minutes: 180
+        continue-on-error: false
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/build-image"
@@ -65,5 +67,3 @@ jobs:
           tags: |
             ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
             ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest
-          timeout-minutes: 180
-          continue-on-error: false

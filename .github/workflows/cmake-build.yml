@@ -126,19 +126,19 @@ jobs:
       - name: Create SDK Docker image
         if: matrix.c_compiler == 'gcc'
         uses: docker/build-push-action@v6
+        timeout-minutes: 180
+        continue-on-error: false
         with:
           platforms: linux/${{ matrix.arch }}
-          context: "{{defaultContext}}:docker/sdk-image"
-          load: true
+          context: .
+          file: docker/sdk-image/Dockerfile
           push: true
           build-args: |
-            KNP_IMAGE_VERSION=${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
+            KNP_IMAGE_VERSION=latest
             KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
           tags: |
             ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             ${{ env.KNP_SDK_IMAGE_NAME }}:latest
-          timeout-minutes: 180
-          continue-on-error: false
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
         uses: actions/upload-artifact@v7
