@@ -63,7 +63,6 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
-          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
       - name: Set environment
         shell: bash
         run: |
@@ -73,6 +72,8 @@ jobs:
           fi
           echo "KNP_BUILD_IMAGE_NAME=${dockerhub_login}/knp-build-image:latest" >> "$GITHUB_ENV"
           echo "KNP_SDK_IMAGE_NAME=${dockerhub_login}/knp-sdk-image" >> "$GITHUB_ENV"
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
+          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -87,7 +88,6 @@ jobs:
         run: |
           echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
           echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
-          echo "KNP_SDK_IMAGE_NAME = ${{ env.KNP_SDK_IMAGE_NAME }}"
       - name: Configure
         run: >
           docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -123,6 +123,11 @@ jobs:
         run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} ${{ env.KNP_BUILD_IMAGE_NAME }} cpack -G DEB
         timeout-minutes: 180
 
+      - name: Copy SDK image files to build directory
+        if: matrix.c_compiler == 'gcc'
+        run:
+          sudo cp -a ${{ github.workspace }}/docker/sdk-image/** ${{ steps.strings.outputs.build-output-dir }}/_packages/
+
       - name: Create SDK Docker image
         if: matrix.c_compiler == 'gcc'
         uses: docker/build-push-action@v6
@@ -139,12 +144,24 @@ jobs:
           tags: |
             ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             ${{ env.KNP_SDK_IMAGE_NAME }}:latest
+          context: ${{ steps.strings.outputs.build-output-dir }}/_packages/
+          load: true
+          push: true
+          build-args: |
+            KNP_IMAGE_VERSION=latest
+
+          tags: |
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:latest
+          timeout-minutes: 180
+          continue-on-error: false
+
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
         uses: actions/upload-artifact@v7
         with:
           name: pkg-deb-${{ matrix.arch }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/_packages/
+          path: ${{ steps.strings.outputs.build-output-dir }}/_packages/knp-*.deb
 
       - name: Upload Python wheel
         if: matrix.c_compiler == 'gcc'
@@ -170,12 +187,14 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
+            boost_version: 1.91.0
             boost_platform_version: 26
             boost_toolset: clang
           - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
             boost_install_dir: C:/
+            boost_version: 1.81.0
             boost_platform_version: 2022
             boost_toolset: msvc
         exclude:
@@ -199,10 +218,10 @@ jobs:
           echo "build-output-dir=build" >> "$GITHUB_OUTPUT"
 
       - name: Install Boost
-        uses: MarkusJx/install-boost@6d8df42f57de83c5b326b5b83e7b35d650030103
+        uses: MarkusJx/install-boost@v2
         id: install-boost
         with:
-            boost_version: 1.81.0
+            boost_version: ${{ matrix.boost_version }}
             boost_install_dir: ${{ matrix.boost_install_dir }}
             platform_version: ${{ matrix.boost_platform_version }}
             toolset: ${{ matrix.boost_toolset }}

@@ -15,8 +15,8 @@
 # limitations under the License.
 
 ARG KNP_IMAGE_VERSION=2.0.0
-ARG KNP_PACKAGES_DIR
 ARG TARGETPLATFORM
+
 FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
 
 WORKDIR /knp
@@ -38,5 +38,7 @@ RUN \
 
 COPY docker/sdk-image/NOTICE.txt .
 COPY ${KNP_PACKAGES_DIR}/*.deb /knp
+COPY NOTICE.txt .
+COPY *.deb /knp
 
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i /knp/*.deb
