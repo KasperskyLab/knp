@@ -63,6 +63,7 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
       - name: Set environment
         shell: bash
         run: |
@@ -70,10 +71,9 @@ jobs:
           if [ -z "$dockerhub_login" ]; then
             dockerhub_login="kasperskydh"
           fi
+          echo "DOCKERHUB_LOGIN=${dockerhub_login}" >> "$GITHUB_ENV"
           echo "KNP_BUILD_IMAGE_NAME=${dockerhub_login}/knp-build-image:latest" >> "$GITHUB_ENV"
           echo "KNP_SDK_IMAGE_NAME=${dockerhub_login}/knp-sdk-image" >> "$GITHUB_ENV"
-          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
-          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -88,6 +88,7 @@ jobs:
         run: |
           echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
           echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
+          echo "KNP_SDK_IMAGE_NAME = ${{ env.KNP_SDK_IMAGE_NAME }}"
       - name: Configure
         run: >
           docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -125,13 +126,13 @@ jobs:
 
       - name: Copy SDK image files to build directory
         if: matrix.c_compiler == 'gcc'
-        run:
+        run: |
           sudo cp -a ${{ github.workspace }}/docker/sdk-image/** ${{ steps.strings.outputs.build-output-dir }}/_packages/
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_LOGIN }}
+          username: ${{ env.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Create SDK Docker image
@@ -139,30 +140,15 @@ jobs:
         uses: docker/build-push-action@v6
         timeout-minutes: 180
         continue-on-error: false
-        uses: docker/build-push-action@v7
         with:
           platforms: linux/${{ matrix.arch }}
-          context: .
-          file: docker/sdk-image/Dockerfile
+          context: ${{ steps.strings.outputs.build-output-dir }}/_packages/
           push: true
           build-args: |
             KNP_IMAGE_VERSION=latest
-            KNP_PACKAGES_DIR=${{ steps.strings.outputs.build-output-dir }}/_packages/
           tags: |
             ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
             ${{ env.KNP_SDK_IMAGE_NAME }}:latest
-          context: ${{ steps.strings.outputs.build-output-dir }}/_packages/
-          load: true
-          push: true
-          build-args: |
-            KNP_IMAGE_VERSION=latest
-            KNP_VERSION=2.0.0
-
-          tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:${{ env.KNP_IMAGE_VERSION }}
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-sdk-image:latest
-          timeout-minutes: 180
-          continue-on-error: false
 
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
