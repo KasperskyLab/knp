@@ -51,7 +51,7 @@ knp_add_library("${PROJECT_NAME}"
         ${${PROJECT_NAME}_headers}
     ALIAS KNP::Backends::CPUSingleThreaded
     LINK_PRIVATE
-        Boost::headers ${Boost_LIBRARIES} spdlog::spdlog_header_only KNP::Backends::CPU::Library
+        Boost::headers spdlog::spdlog_header_only KNP::Backends::CPU::Library
     LINK_PUBLIC
         KNP::Core KNP::Devices::CPU
 )
@@ -84,7 +84,7 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "libboost-all-dev (>= ${Boost_VERSION})" "libzmq5"
+            DEPENDS "libzmq5"
             PROVIDES "knp-backend")
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"

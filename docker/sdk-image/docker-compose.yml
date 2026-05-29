@@ -15,13 +15,10 @@
 version: '3'
 
 services:
-  vsts:
-    build:
-      context: .
-    hostname: vsts-runner
+  knp-sdk:
+    image: kasperskydh/knp-sdk-image
     privileged: true
-    restart: always
-    runtime: nvidia
+    #runtime: nvidia
     cap_add:
       - SYS_PTRACE
-    container_name: vsts-runner
+    container_name: knp-sdk

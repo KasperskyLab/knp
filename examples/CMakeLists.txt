@@ -49,5 +49,5 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters(examples examples
             DESCRIPTION "Kaspersky Neuromorphic Platform examples"
-            DEPENDS cpp-framework-dev)
+            INTERNAL_DEPENDS cpp-framework-dev)
 endif()

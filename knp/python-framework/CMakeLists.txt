@@ -129,7 +129,7 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "python3 (>= 3.10)"
+            DEPENDS "python3 (>= 3.11)"
             INTERNAL_DEPENDS "cpp-framework")
 endif()
 
