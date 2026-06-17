@@ -808,8 +808,12 @@ void show_neuron_network(const Network &network, const cv::Size &screen_size, si
     cv::Mat image{screen_size, CV_8UC3, cv::Scalar{255, 255, 255}};
     const auto group_index = build_group_index(groups);
 
-    for (const auto &[projection_variant, source_key, target_key] : resolved_projections)
+    for (const auto &resolved_projection : resolved_projections)
     {
+        const auto *projection_variant = std::get<0>(resolved_projection);
+        const auto &source_key = std::get<1>(resolved_projection);
+        const auto &target_key = std::get<2>(resolved_projection);
+
         std::visit(
             [&image, &group_index, &groups, &source_key, &target_key, max_synapses_per_projection, &projection_infos](
                 const auto &projection) {
