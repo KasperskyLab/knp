@@ -45,18 +45,27 @@ int main(int argc, char **argv)
     knp::core::UID output_uid;
     // Defines `std::string` object for task types.
     std::string task;
+    size_t max_synapses_per_projection = 5000;
     // Defines `std::string` objects for path to network and path to a file storing data.
     std::string path_to_network, path_to_data;
     po::options_description options;
     // Defines options for task types, path to network, and path to a file storing data.
     options.add_options()("help,h", "Produce help message.")(
-        "task,t", po::value(&task), "Type of task: show, train, infer.")(
+        "task,t", po::value(&task), "Type of task: show, show-neurons, train, infer.")(
         "net-path,p", po::value(&path_to_network), "File or directory for network storage.")(
-        "data-path,d", po::value(&path_to_data), "File for data storage.");
+        "data-path,d", po::value(&path_to_data), "File for data storage.")(
+        "max-synapses-per-projection", po::value(&max_synapses_per_projection)->default_value(5000),
+        "Maximum number of synapse lines to draw for each projection in show-neurons mode. Use 0 to draw all.");
     // Stores defines options in a variable map.
     po::variables_map options_map;
     po::store(po::parse_command_line(argc, argv, options), options_map);
     po::notify(options_map);
+
+    if (options_map.count("help"))
+    {
+        std::cout << options << std::endl;
+        return EXIT_SUCCESS;
+    }
 
     // If a path to network is not provided, the function exits.
     if (!options_map.count("net-path"))
@@ -78,11 +87,15 @@ int main(int argc, char **argv)
         const knp::framework::NetworkGraph net_graph(network);
         // Prints descriptions of graph connections.
         knp::framework::print_network_description(net_graph);
-        // Draws a subgraph in the OpenCV window.
-        // Press `Esc` to exit the OpenCV window.
-        knp::framework::position_network_test(
-            knp::framework::NetworkGraph(network), knp::framework::divide_graph_by_connectivity(net_graph)[0],
-            {1000, 700});
+        // Draws the whole graph in a single OpenCV window.
+        knp::framework::show_network(net_graph, {1000, 700});
+    }
+
+    if (task == "show-neurons")
+    {
+        const auto network_path = options_map["net-path"].as<std::string>();
+        knp::framework::Network network = knp::framework::sonata::load_network(network_path);
+        knp::framework::show_neuron_network(network, {1600, 1000}, max_synapses_per_projection);
     }
 
     // If `task=infer`, the function loads a network and runs inference.
