@@ -188,6 +188,7 @@ jobs:
             boost_platform_version: 15
             boost_toolset: clang
             boost_arch: aarch64
+            opencv_cmake_args: -DOpenCV_DIR=/opt/homebrew/opt/opencv/lib/cmake/opencv4
           - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
@@ -230,6 +231,10 @@ jobs:
         if: matrix.c_compiler == 'cl'
         run: vcpkg install opencv:x64-windows
 
+      - name: Install OpenCV via Homebrew
+        if: matrix.os == 'macos-26'
+        run: brew install opencv
+
       - name: Configure CMake
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
@@ -238,6 +243,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          ${{ matrix.opencv_cmake_args }}
           -S .
 
       - name: Build
