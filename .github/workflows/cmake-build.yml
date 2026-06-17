@@ -185,8 +185,9 @@ jobs:
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
             boost_version: 1.91.0
-            boost_platform_version: 26
+            boost_platform_version: 15
             boost_toolset: clang
+            boost_arch: aarch64
           - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
@@ -194,6 +195,7 @@ jobs:
             boost_version: 1.81.0
             boost_platform_version: 2022
             boost_toolset: msvc
+            boost_arch: x86
         exclude:
           - os: windows-2022
             c_compiler: clang
@@ -222,6 +224,7 @@ jobs:
             boost_install_dir: ${{ matrix.boost_install_dir }}
             platform_version: ${{ matrix.boost_platform_version }}
             toolset: ${{ matrix.boost_toolset }}
+            arch: ${{ matrix.boost_arch }}
 
       - name: Install OpenCV via vcpkg
         if: matrix.c_compiler == 'cl'
