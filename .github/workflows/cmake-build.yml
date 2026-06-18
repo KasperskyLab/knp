@@ -198,6 +198,7 @@ jobs:
             boost_platform_version: 2022
             boost_toolset: msvc
             boost_arch: x86
+            opencv_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
         exclude:
           - os: windows-2022
             c_compiler: clang
