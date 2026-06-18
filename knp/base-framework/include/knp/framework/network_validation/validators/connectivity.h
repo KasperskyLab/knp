@@ -38,7 +38,7 @@ namespace knp::framework::network_validation
  * @brief Connectivity validator functor.
  * @note It will test if there are no populations/projections that are not connected to anything.
  */
-class Connectivity
+class KNP_DECLSPEC Connectivity
 {
 public:
     /**
