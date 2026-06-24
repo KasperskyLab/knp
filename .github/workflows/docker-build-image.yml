@@ -19,6 +19,9 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_LOGIN: ${{ vars.DOCKERHUB_LOGIN || 'kasperskydh' }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Set Images Version
         run: echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
@@ -37,33 +40,30 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Login to Docker Hub
+        if: github.event_name != 'pull_request' && env.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_LOGIN }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_LOGIN }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
       - name: Build and push the base Docker image for Kaspersky Neuromorphic Platform
         uses: docker/build-push-action@v7
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/base-image"
           load: true
-          push: true
+          push: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_TOKEN != '' }}
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:latest
+            ${{ env.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ env.DOCKERHUB_LOGIN }}/knp-base-image:latest
           build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
-          timeout-minutes: 180
-          continue-on-error: false
       - name: Build and push the Docker image for Kaspersky Neuromorphic Platform build
         uses: docker/build-push-action@v7
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/build-image"
           load: true
-          push: true
+          push: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_TOKEN != '' }}
           build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest
-          timeout-minutes: 180
-          continue-on-error: false
+            ${{ env.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ env.DOCKERHUB_LOGIN }}/knp-build-image:latest
