@@ -42,6 +42,16 @@
 namespace knp::core
 {
 
+/**
+ * @brief Create a UUID from a raw byte array.
+ *
+ * @param bytes pointer to UUID bytes.
+ * @param bytes_size number of bytes available by the pointer.
+ *
+ * @return UUID initialized from the byte array.
+ *
+ * @throws std::invalid_argument if the byte array size is not equal to the UUID size.
+ */
 inline ::boost::uuids::uuid uuid_from_bytes(
     const boost::uuids::uuid::value_type *bytes, const std::size_t bytes_size)
 {

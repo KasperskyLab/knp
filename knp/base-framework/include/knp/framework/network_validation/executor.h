@@ -59,7 +59,7 @@ public:
     /**
      * @brief Add a population validator and generate a default name automatically.
      * 
-     * @note The generated name has the form 'Population validator #<index>', where <index>
+     * @note The generated name has the form 'Population validator #&lt;index&gt;', where &lt;index&gt;
      * is the current size of the population-valitor map.
      * 
      * @param validator population validator.
@@ -81,7 +81,7 @@ public:
     /**
      * @brief Add a projection validator and generate a default name automatically.
      * 
-     * @note The generated name has the form 'Projection validator #<index>', where <index>
+     * @note The generated name has the form 'Projection validator #&lt;index&gt;', where &lt;index&gt;
      * is the current size of the projection-validator map.
      * 
      * @param validator projection validator.
@@ -103,7 +103,7 @@ public:
     /**
      * @brief Add a network validator and generate a default name automatically.
      * 
-     * @note The generated name has the form 'Network validator #<index>', where <index>
+     * @note The generated name has the form 'Network validator #&lt;index&gt;', where &lt;index&gt;
      * is the current size of the network-validator map.
      * 
      * @param validator network validator.
