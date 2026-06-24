@@ -202,40 +202,6 @@ KNP_DECLSPEC std::vector<cv::Point2i> position_network(
 
 
 /**
- * @brief Show the whole network graph as one static image.
- *
- * @param graph base network graph.
- * @param screen_size output image size.
- * @param margin size of borders in pixels (default = 50).
- * @param num_iterations number of iterations for the force-directed layout algorithm.
- *
- * @details The function computes the final layout once, draws all populations and projections on one image, then shows
- *          the image in a single OpenCV window.
- *
- * @note Press any key to close the visualization.
- */
-KNP_DECLSPEC void show_network(
-    const NetworkGraph &graph, const cv::Size &screen_size, int margin = 50, int num_iterations = 1000);
-
-
-/**
- * @brief Show individual neurons and sampled synaptic connections as one static image.
- *
- * @param network source network.
- * @param screen_size output image size.
- * @param max_synapses_per_projection maximum number of synapse lines to draw for each projection.
- *
- * @details The function draws every neuron in each saved population. Dense projections are sampled to keep the image
- *          readable. Projections with an external input source are drawn from a synthetic input group; if the source
- *          neuron indexes exactly match one existing population size, that population is used as the visual source.
- *
- * @note Press any key to close the visualization.
- */
-KNP_DECLSPEC void show_neuron_network(
-    const Network &network, const cv::Size &screen_size, size_t max_synapses_per_projection = 5000);
-
-
-/**
  * @brief Visualize the iterative positioning of a sub‑graph.
  *
  * @param graph base network graph.
