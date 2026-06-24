@@ -31,19 +31,34 @@ namespace knp::framework::network_validation
 {
 
 /**
- * @brief Validator for populations.
+ * @brief Validator type for populations.
+ * 
+ * @details The callable receives a reference to a population variant and returns a 'Report' containing 
+ * any issues discovered during validation.
+ * 
+ * @param population population variant.
  */
 using PopulationValidator = std::function<Report(const Network::AllPopulationVariants& population)>;
 
 
 /**
- * @brief Validator for projections.
+ * @brief Validator type for projections.
+ * 
+ * @details The callable receives a reference to a projection variant and returns a 'Report' with the
+ * validation results.
+ * 
+ * @param projection projection variant.
  */
 using ProjectionValidator = std::function<Report(const Network::AllProjectionVariants& projection)>;
 
 
 /**
- * @brief Validator for network.
+ * @brief Validator type for an entire network.
+ * 
+ * @details The callable receives a reference to a 'Network' instance and returns a 'Report' describing
+ * any issues found in the whole network configuration.
+ * 
+ * @param network network.
  */
 using NetworkValidator = std::function<Report(const Network& network)>;
 

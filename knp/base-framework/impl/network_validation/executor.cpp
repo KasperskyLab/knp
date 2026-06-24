@@ -40,7 +40,7 @@ knp::core::UID Executor::add_validator(PopulationValidator validator)
 {
     knp::core::UID uid;
     population_validators_[uid] = {
-        "Populations validator #" + std::to_string(population_validators_.size()), std::move(validator)};
+        "Population validator #" + std::to_string(population_validators_.size()), std::move(validator)};
     return uid;
 }
 
@@ -57,7 +57,7 @@ knp::core::UID Executor::add_validator(ProjectionValidator validator)
 {
     knp::core::UID uid;
     projection_validators_[uid] = {
-        "Projections validator #" + std::to_string(projection_validators_.size()), std::move(validator)};
+        "Projection validator #" + std::to_string(projection_validators_.size()), std::move(validator)};
     return uid;
 }
 

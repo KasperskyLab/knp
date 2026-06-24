@@ -404,7 +404,7 @@ set(CPACK_PACKAGE_VENDOR "AO Kaspersky Lab")
 set(CPACK_PACKAGE_CONTACT "support@kaspersky.com")
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_DESCRIPTION}"
-        CACHE STRING "Package description for the package metadata")
+    CACHE STRING "Package description for the package metadata")
 set(CPACK_PACKAGE_DESCRIPTION "Kaspersky Neuromorphic Platform - spiking networks simulator")
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
@@ -446,6 +446,8 @@ set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
 set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS OFF)
+
+set(CPACK_STRIP_FILES ON)
 
 
 #

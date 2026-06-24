@@ -33,35 +33,51 @@ namespace knp::framework::network_validation
 {
 
 /**
- * @brief Severity of report.
+ * @brief Severity levels for validation issues.
+ * 
+ * @details The enumeration is used by validators to classify each reported problem.
  */
 enum class IssueSeverity
 {
+    /**
+     * @brief Informational message.
+     */
     info,
+
+    /**
+     * @brief Potential problem that does not stop execution.
+     */
     warning,
+
+    /**
+     * @brief Serious problem that usually aborts the validation run.
+     */
     error
 };
 
 
 /**
- * @brief Issue from validator.
+ * @brief Single issue reported by validator.
+ * 
+ * @details An 'Issue' aggregates a severity, a human-readable message, and 'std::error_code'
+ * that identifies the underlying error.
  */
 struct Issue
 {
     /**
-     * @brief Severity.
+     * @brief Severity of the issue.
      */
     // cppcheck-suppress unusedStructMember
     IssueSeverity severity_;
 
     /**
-     * @brief Message.
+     * @brief Human-readable description of the issue.
      */
     // cppcheck-suppress unusedStructMember
     std::string message_;
 
     /**
-     * @brief Internal code error.
+     * @brief Machine-readable error code associated with the issue.
      */
     // cppcheck-suppress unusedStructMember
     std::error_code code_;
@@ -69,7 +85,10 @@ struct Issue
 
 
 /**
- * @brief Alias for return type of validator, aka vector of issues.
+ * @brief Alias for the validator return type.
+ * 
+ * @details A validator returns a 'Report', which is simply a 'std::vector<Issue>'. An empty
+ * report indicates that the validator found no problems.
  */
 using Report = std::vector<Issue>;
 

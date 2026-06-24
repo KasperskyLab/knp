@@ -25,7 +25,11 @@
 
 
 /**
- * @brief Run validation on specified network.
- * @param network Network for validation.
+ * @brief Validate a network.
+ * 
+ * @details This function runs a set of predefined validators on the supplied network to ensure
+ * that the network topology is well-formed. 
+ * 
+ * @param network constant reference to the network to be validated.
  */
 void validate_network(const knp::framework::Network& network);

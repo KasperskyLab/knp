@@ -36,9 +36,9 @@ namespace knp::neuron_traits
 {
 
 /**
- * @brief AltAILIF neuron.
+ * @brief Type that represents a Leaky‑Integrate‑and‑Fire neuron for AltAI.
  * 
- * @note Use as a template parameter only.
+ * @note This type is intended to be used only as a template argument. It does not contain any data members.
  */
 struct AltAILIF;
 

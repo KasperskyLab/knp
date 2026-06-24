@@ -33,8 +33,9 @@ namespace knp::neuron_traits
 {
 
 /**
- * @brief LIF neuron.
- * @note Use as a template parameter only.
+ * @brief Type that represents a classic Leaky‑Integrate‑and‑Fire neuron.
+ * 
+ * @note This type is intended to be used only as a template argument. It does not contain any data members.
  */
 struct LIFNeuron;
 
@@ -46,32 +47,32 @@ template <>
 struct default_values<LIFNeuron>
 {
     /**
-     * @brief Default value for potential.
+     * @brief The parameter defines the default value for `potential_` state of LIF neuron.
      */
     constexpr static float potential_ = 0;
 
     /**
-     * @brief Default value for potential reset.
+     * @brief The parameter defines the default value for `potential_reset_value_` of LIF neuron.
      */
     constexpr static float potential_reset_value_ = 0;
 
     /**
-     * @brief Default value for activation threshold.
+     * @brief The parameter defines the default value for `activation_threshold_` of LIF neuron.
      */
     constexpr static float activation_threshold_ = 1;
 
     /**
-     * @brief Default value for leak coefficient.
+     * @brief The parameter defines the default value for `leak_coefficient_` of LIF neuron.
      */
     constexpr static float leak_coefficient_ = 1;
 
     /**
-     * @brief Default value for refract counter.
+     * @brief The parameter defines the default value for `refract_counter_` of LIF neuron.
      */
     constexpr static uint32_t refract_counter_ = 0;
 
     /**
-     * @brief Default value for refract period.
+     * @brief The parameter defines the default value for `refract_period_` of LIF neuron.
      */
     constexpr static uint32_t refract_period_ = 0;
 };
@@ -84,33 +85,34 @@ template <>
 struct neuron_parameters<LIFNeuron>
 {
     /**
-     * @brief If neuron's potential exceeds activation_threshold, spike is produced, and potential is reset.
+     * @brief Current membrane potential. When the potential exceeds `activation_threshold_`, a spike is emitted
+     * and the potential is reset to `potential_reset_value_`.
      */
     float potential_ = default_values<LIFNeuron>::potential_;
 
     /**
-     * @brief When neuron is activated, potential is reset to this value.
+     * @brief Value to which the potential is reset after a spike.
      */
     float potential_reset_value_ = default_values<LIFNeuron>::potential_reset_value_;
 
     /**
-     * @brief Threshold for neuron activation.
+     * @brief Activation threshold that triggers a spike.
      */
     float activation_threshold_ = default_values<LIFNeuron>::activation_threshold_;
 
     /**
-     * @brief Multiplier of potential on each pre-impact step.
+     * @brief Leak coefficient applied on each pre-impact step. It multiplies the potential to model passive decay.
      */
     float leak_coefficient_ = default_values<LIFNeuron>::leak_coefficient_;
 
     /**
-     * @brief Refract counter. On neuron activation, counter is set to refract_period and decremented on each step.
-     * Incoming impacts are ignored if refract_counter > 0.
+     * @brief Refractory counter. After a spike the counter is set to `refract_period_` and decremented each step.
+     * Incoming impacts are ignored while the counter is greater than zero. 
      */
     uint32_t refract_counter_ = default_values<LIFNeuron>::refract_counter_;
 
     /**
-     * @brief Refract period for refract counter.
+     * @brief Refractory period.
      */
     uint32_t refract_period_ = default_values<LIFNeuron>::refract_period_;
 };

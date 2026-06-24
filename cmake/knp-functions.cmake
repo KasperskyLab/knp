@@ -64,7 +64,7 @@ function(knp_set_target_parameters target visibility)
     target_compile_definitions("${target}" ${visibility}
             #                                $<$<CONFIG:Debug>:_FORTIFY_SOURCE=2>
             # $<$<CONFIG:Release>:_FORTIFY_SOURCE=1>
-            )
+    )
 
     target_compile_definitions("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:C,MSVC>:NOMINMAX>)
     target_compile_definitions("${target}" ${visibility} $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:NOMINMAX>)
@@ -79,8 +79,8 @@ function(knp_set_target_parameters target visibility)
     endif()
 
     target_include_directories("${target}" ${pub_visibility}
-            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 endfunction()
 
 
@@ -125,11 +125,11 @@ function (_knp_add_library lib_name lib_type)
     endif()
 
     if (PARSED_ARGS_LINK_PRIVATE)
-        if ("${lib_type}" STREQUAL "STATIC")
-            target_link_libraries("${lib_name}" PUBLIC ${PARSED_ARGS_LINK_PRIVATE})
-        else()
-            target_link_libraries("${lib_name}" PRIVATE ${PARSED_ARGS_LINK_PRIVATE})
-        endif()
+#        if ("${lib_type}" STREQUAL "STATIC")
+#            target_link_libraries("${lib_name}" PUBLIC ${PARSED_ARGS_LINK_PRIVATE})
+#        else()
+            target_link_libraries("${lib_name}" PRIVATE $<BUILD_INTERFACE:${PARSED_ARGS_LINK_PRIVATE}>)
+#        endif()
     endif()
 
     if ("${lib_type}" STREQUAL "INTERFACE")
@@ -202,12 +202,11 @@ endfunction()
 #     find_package(Boost 1.66.0 COMPONENTS python REQUIRED)
 function(knp_add_python_module name)
     cmake_parse_arguments(
-            "PARSED_ARGS"
-            ""
-            "PY_VER"
-            "LINK_LIBRARIES;CPP_SOURCE_DIRECTORY;OUTPUT_DIRECTORY"
-            ${ARGN}
-    )
+        "PARSED_ARGS"
+        ""
+        "PY_VER"
+        "LINK_LIBRARIES;CPP_SOURCE_DIRECTORY;OUTPUT_DIRECTORY"
+        ${ARGN})
 
     set(LIB_NAME "${PROJECT_NAME}_${name}")
 
@@ -220,11 +219,10 @@ function(knp_add_python_module name)
             "impl/${name}/${PARSED_ARGS_CPP_SOURCE_DIRECTORY}/*.cpp")
 
     knp_add_library(
-            "${LIB_NAME}"
-            PY_MODULE
-            LIB_PREFIX "_"
-            ${${name}_MODULES_SOURCE}
-    )
+        "${LIB_NAME}"
+        PY_MODULE
+        LIB_PREFIX "_"
+        ${${name}_MODULES_SOURCE})
 
     if (NOT PARSED_ARGS_OUTPUT_DIRECTORY)
         set(PARSED_ARGS_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/knp_python_framework/knp")
@@ -271,12 +269,11 @@ endfunction()
 
 function(knp_packaging_set_parameters component_name project_name)
     cmake_parse_arguments(
-            "PARSED_ARGS"
-            ""
-            "DESCRIPTION"
-            "DEPENDS;INTERNAL_DEPENDS;PROVIDES;RECOMMENDS"
-            ${ARGN}
-    )
+        "PARSED_ARGS"
+        ""
+        "DESCRIPTION"
+        "DEPENDS;INTERNAL_DEPENDS;PROVIDES;RECOMMENDS"
+        ${ARGN})
 
     knp_get_component_var_name("${component_name}" COMPONENT_VAR_NAME)
 

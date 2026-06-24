@@ -73,7 +73,9 @@ include(file-functions)
 set(KNP_PYTHON_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
 knp_add_python_module(core
-        LINK_LIBRARIES KNP::Core KNP::BaseFramework::Core
+        LINK_LIBRARIES
+            KNP::Core KNP::BaseFramework::Core
+            Boost::headers spdlog::spdlog_header_only
         PY_VER ${_KNP_PY_VER})
 knp_add_python_module(neuron_traits
         LINK_LIBRARIES KNP::Neuron::Traits
@@ -82,7 +84,9 @@ knp_add_python_module(synapse_traits
         LINK_LIBRARIES KNP::Synapse::Traits
         PY_VER ${_KNP_PY_VER})
 knp_add_python_module(base_framework
-        LINK_LIBRARIES KNP::BaseFramework::Core
+        LINK_LIBRARIES
+            KNP::BaseFramework::Core
+            Boost::headers spdlog::spdlog_header_only
         PY_VER ${_KNP_PY_VER})
 
 add_custom_target("${PROJECT_NAME}-copy-python-tests" ALL
@@ -111,8 +115,8 @@ get_property(KNP_PYTHON_TARGETS DIRECTORY ${dir} PROPERTY BUILDSYSTEM_TARGETS)
 
 if(KNP_BUILD_TESTS)
     add_test(NAME Pytest
-            WORKING_DIRECTORY "${KNP_PYTHON_OUTPUT_DIRECTORY}"
-            COMMAND "${Python_EXECUTABLE}" -m pytest)
+             WORKING_DIRECTORY "${KNP_PYTHON_OUTPUT_DIRECTORY}"
+             COMMAND "${Python_EXECUTABLE}" -m pytest)
 endif()
 
 if (KNP_INSTALL)
@@ -121,7 +125,7 @@ if (KNP_INSTALL)
     install(DIRECTORY
             "${KNP_PYTHON_OUTPUT_DIRECTORY}/knp"
             COMPONENT "${COMPONENT_NAME}"
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}/python3"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/python3/dist-packages"
             PATTERN "__pycache__" EXCLUDE
             PATTERN "__init__.pyi" EXCLUDE
             PATTERN "*.egg-info" EXCLUDE

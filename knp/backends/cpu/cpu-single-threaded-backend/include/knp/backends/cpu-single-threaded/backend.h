@@ -400,10 +400,13 @@ protected:
 
 
     /**
-     * @brief Calculate population of LIF neurons.
-     * @note Population state will be changed during calculation.
+     * @brief Calculate population of `LIFNeuron` neurons.
+     * 
      * @param population population to calculate.
-     * @return spike message with indexes of spiked neurons if population is emitting one.
+     * 
+     * @return spike message with indexes of spiked neurons; empty if the population does not emit a spike.
+     * 
+     * @note The population state is modified during the calculation.
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::LIFNeuron> &population);

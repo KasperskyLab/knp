@@ -77,7 +77,8 @@ void run_model(const ModelDescription& model_desc)
  *
  * @param argc argument count.
  * @param argv arguments values.
- * @return ret code.
+ * 
+ * @return exit code.
  */
 int main(int argc, char** argv)
 {

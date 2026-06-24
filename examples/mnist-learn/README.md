@@ -252,6 +252,18 @@ The `model_desc.h` file defines the configuration structure and streaming interf
 * `operator<<` — stream output operator that provides human-readable formatting of model configuration. The operator is defined in the `model_desc.cpp` file.
 
 
+## network_validation.cpp program file description
+
+The `network_validation.cpp` file contains the implementation of the `validate_network()` function. This function is used to validate a spiking neural network. The function helps catch structural errors early, such as missing connections or isolated populations.
+
+The function is typically called after network construction and before training and inference begins.  
+
+
+## network_validation.h header file description
+
+The `network_validation.h` file provides the interface to the `validate_network()` function implemented in the `network_validation.cpp` file.
+
+
 ## parse_arguments.cpp program file description
 
 The `parse_arguments.cpp` file implements the command-line argument parsing functionality for the MNIST neural network example. The comprehensive command-line interface management is provided via the `parse_arguments()` function. The implementation supports the following command-line options:
@@ -335,10 +347,11 @@ _Neural network training on image data and labels and classification of images f
 2. The `run_model()` function is implemented that:
     1. Calls `process_dataset()` to load and prepare MNIST data.
     2. Builds the neural network using `construct_network()` for the specified neuron type.
-    3. Runs the complete training process with `train_model()`.
-    4. Saves the trained network if a saving path is specified.
-    5. Performs inference with `infer_model()` and collects spike data.
-    6. Evaluates inference results using `evaluate_results()`.
+    3. Checks if the constructed network satisfies the basic structural requirements using `validate_network()`.
+    4. Runs the complete training process with `train_model()`.
+    5. Saves the trained network if a saving path is specified.
+    6. Performs inference with `infer_model()` and collects spike data.
+    7. Evaluates inference results using `evaluate_results()`.
 3. The `main()` function is implemented that:
     1. Processes command-line arguments with `parse_arguments()`.
     2. Validates parsed model description. 
