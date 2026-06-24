@@ -48,11 +48,8 @@ struct uid_from_python
 
     static void construct(PyObject* obj, py::converter::rvalue_from_python_stage1_data* data)
     {
-        auto storage =
-            reinterpret_cast<py::converter::rvalue_from_python_storage<boost::uuids::uuid>*>(data)->storage.bytes;
         std::vector<uint8_t> ba =
             py::extract<std::vector<uint8_t>>(py::object(py::handle<>(py::borrowed(obj))).attr("bytes"));
-        boost::uuids::uuid* res = new (storage) boost::uuids::uuid;
 
         constexpr auto expected_size = boost::uuids::uuid::static_size();
         if (ba.size() != expected_size)
@@ -63,6 +60,9 @@ struct uid_from_python
             py::throw_error_already_set();
         }
 
+        auto storage =
+            reinterpret_cast<py::converter::rvalue_from_python_storage<boost::uuids::uuid>*>(data)->storage.bytes;
+        boost::uuids::uuid* res = new (storage) boost::uuids::uuid;
         memcpy(res->data, &ba.front(), ba.size());
         data->convertible = storage;
     }
