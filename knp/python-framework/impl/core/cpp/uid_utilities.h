@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <cstddef>
-#include <stdexcept>
+#include <cstring>
+#include <string>
 #include <vector>
 
 #include "common.h"
@@ -48,27 +48,23 @@ struct uid_from_python
 
     static void construct(PyObject* obj, py::converter::rvalue_from_python_stage1_data* data)
     {
-        py::object bytes_object = py::object(py::handle<>(py::borrowed(obj))).attr("bytes");
-        char* bytes = nullptr;
-        Py_ssize_t bytes_size = 0;
-        if (PyBytes_AsStringAndSize(bytes_object.ptr(), &bytes, &bytes_size) == -1)
+        auto storage =
+            reinterpret_cast<py::converter::rvalue_from_python_storage<boost::uuids::uuid>*>(data)->storage.bytes;
+        std::vector<uint8_t> ba =
+            py::extract<std::vector<uint8_t>>(py::object(py::handle<>(py::borrowed(obj))).attr("bytes"));
+        boost::uuids::uuid* res = new (storage) boost::uuids::uuid;
+
+        constexpr auto expected_size = boost::uuids::uuid::static_size();
+        if (ba.size() != expected_size)
         {
+            const auto error_message = "UUID byte array must contain exactly " + std::to_string(expected_size) +
+                                       " bytes, got " + std::to_string(ba.size()) + ".";
+            PyErr_SetString(PyExc_ValueError, error_message.c_str());
             py::throw_error_already_set();
         }
 
-        try
-        {
-            auto storage =
-                reinterpret_cast<py::converter::rvalue_from_python_storage<boost::uuids::uuid>*>(data)->storage.bytes;
-            new (storage) boost::uuids::uuid(core::uuid_from_bytes(
-                reinterpret_cast<const boost::uuids::uuid::value_type*>(bytes), static_cast<std::size_t>(bytes_size)));
-            data->convertible = storage;
-        }
-        catch (const std::invalid_argument &exception)
-        {
-            PyErr_SetString(PyExc_ValueError, exception.what());
-            py::throw_error_already_set();
-        }
+        memcpy(res->data, &ba.front(), ba.size());
+        data->convertible = storage;
     }
 };
 
