@@ -23,6 +23,9 @@
 
 #include <tests_common.h>
 
+#include <array>
+#include <stdexcept>
+
 
 namespace knp::testing
 {
@@ -51,6 +54,25 @@ TEST(UidSuite, UidToString)  // cppcheck-suppress syntaxError
     ASSERT_EQ("01020300-0000-0000-0000-000000000000", std::string(uid));
 
     std::cout << uid << std::endl;
+}
+
+
+TEST(UidSuite, UidFromBytes)
+{
+    const std::array<boost::uuids::uuid::value_type, boost::uuids::uuid::static_size()> bytes{
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+    const auto uuid = ::knp::core::uuid_from_bytes(bytes.data(), bytes.size());
+
+    ASSERT_EQ((::boost::uuids::uuid{{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}}), uuid);
+}
+
+
+TEST(UidSuite, UidFromBytesInvalidSize)
+{
+    const std::array<boost::uuids::uuid::value_type, boost::uuids::uuid::static_size() - 1> bytes{};
+
+    EXPECT_THROW({ ::knp::core::uuid_from_bytes(bytes.data(), bytes.size()); }, std::invalid_argument);
 }
 
 

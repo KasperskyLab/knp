@@ -23,8 +23,10 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <functional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -39,6 +41,22 @@
  */
 namespace knp::core
 {
+
+inline ::boost::uuids::uuid uuid_from_bytes(
+    const boost::uuids::uuid::value_type *bytes, const std::size_t bytes_size)
+{
+    constexpr auto expected_size = boost::uuids::uuid::static_size();
+    if (bytes_size != expected_size)
+    {
+        throw std::invalid_argument(
+            "UUID byte array must contain exactly " + std::to_string(expected_size) + " bytes, got " +
+            std::to_string(bytes_size) + ".");
+    }
+
+    ::boost::uuids::uuid result;
+    std::copy_n(bytes, expected_size, result.begin());
+    return result;
+}
 
 #if defined(_DEBUG) || defined(DEBUG)
 #    define _ENABLE_PSEUDO_UID_GENERATOR 1
