@@ -64,9 +64,14 @@ jobs:
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
       - name: Set environment
+        shell: bash
         run: |
-          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
-          echo "KNP_BUILD_IMAGE_NAME=${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest" >> $GITHUB_ENV
+          dockerhub_login="${{ vars.DOCKERHUB_LOGIN }}"
+          if [ -z "$dockerhub_login" ]; then
+            dockerhub_login="kasperskydh"
+          fi
+          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "KNP_BUILD_IMAGE_NAME=${dockerhub_login}/knp-build-image:latest" >> "$GITHUB_ENV"
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -79,7 +84,7 @@ jobs:
       #    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
       - name: Show build parameters
         run: |
-          echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
+          echo "KNP_IMAGE_VERSION = ${{ env.KNP_IMAGE_VERSION }}"
           echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
       - name: Configure
         run: >
