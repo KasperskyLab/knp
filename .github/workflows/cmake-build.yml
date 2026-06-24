@@ -177,8 +177,10 @@ jobs:
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
             boost_version: 1.91.0
-            boost_platform_version: 26
+            boost_platform_version: 15
             boost_toolset: clang
+            boost_arch: aarch64
+            opencv_cmake_args: -DOpenCV_DIR=/opt/homebrew/opt/opencv/lib/cmake/opencv4
           - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
@@ -186,6 +188,8 @@ jobs:
             boost_version: 1.81.0
             boost_platform_version: 2022
             boost_toolset: msvc
+            boost_arch: x86
+            opencv_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
         exclude:
           - os: windows-2022
             c_compiler: clang
@@ -214,10 +218,15 @@ jobs:
             boost_install_dir: ${{ matrix.boost_install_dir }}
             platform_version: ${{ matrix.boost_platform_version }}
             toolset: ${{ matrix.boost_toolset }}
+            arch: ${{ matrix.boost_arch }}
 
       - name: Install OpenCV via vcpkg
         if: matrix.c_compiler == 'cl'
         run: vcpkg install opencv:x64-windows
+
+      - name: Install OpenCV via Homebrew
+        if: matrix.os == 'macos-26'
+        run: brew install opencv
 
       - name: Configure CMake
         env:
@@ -227,6 +236,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          ${{ matrix.opencv_cmake_args }}
           -S .
 
       - name: Build
