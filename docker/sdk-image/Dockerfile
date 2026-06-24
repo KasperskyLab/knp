@@ -40,10 +40,4 @@ RUN \
 COPY NOTICE.txt .
 COPY *.deb /knp/
 
-RUN DEBIAN_FRONTEND=noninteractive dpkg -i \
-  /knp/knp-cpp-framework_2.0.0_amd64.deb /knp/knp-cpp-framework-dev_2.0.0_amd64.deb \
-  /knp/knp-documentation_2.0.0_all.deb knp-examples_2.0.0_amd64.deb \
-  /knp/knp-cpu-single-threaded-backend_2.0.0_amd64.deb /knp/knp-cpu-single-threaded-backend-dev_2.0.0_amd64.deb \
-  /knp/knp-cpu-multi-threaded-backend_2.0.0_amd64.deb /knp/knp-cpu-multi-threaded-backend-dev_2.0.0_amd64.deb \
-  /knp/knp-examples_2.0.0_amd64.deb \
-  /knp/knp-python3-framework_2.0.0_amd64.deb
+RUN DEBIAN_FRONTEND=noninteractive dpkg -i /knp/*.deb
