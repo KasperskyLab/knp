@@ -50,10 +50,14 @@ public:
     knp::core::UID add_validator(std::string name, PopulationValidator validator);
 
     /**
-     * @brief Add validator to run later.
-     * @note Automatically generates name.
-     * @param validator Population validator.
-     * @return Validator UID.
+     * @brief Add a population validator and generate a default name automatically.
+     *
+     * @note The generated name has the form 'Population validator #&lt;index&gt;', where &lt;index&gt;
+     * is the current size of the population-valitor map.
+     *
+     * @param validator population validator.
+     *
+     * @return UID of the added validator.
      */
     knp::core::UID add_validator(PopulationValidator validator);
 
@@ -66,10 +70,14 @@ public:
     knp::core::UID add_validator(std::string name, ProjectionValidator validator);
 
     /**
-     * @brief Add validator to run later.
-     * @note Automatically generates name.
-     * @param validator Projection validator.
-     * @return Validator UID.
+     * @brief Add a projection validator and generate a default name automatically.
+     *
+     * @note The generated name has the form 'Projection validator #&lt;index&gt;', where &lt;index&gt;
+     * is the current size of the projection-validator map.
+     *
+     * @param validator projection validator.
+     *
+     * @return UID of the added projection.
      */
     knp::core::UID add_validator(ProjectionValidator validator);
 
@@ -82,10 +90,14 @@ public:
     knp::core::UID add_validator(std::string name, NetworkValidator validator);
 
     /**
-     * @brief Add validator to run later.
-     * @note Automatically generates name.
-     * @param validator Network validator.
-     * @return Validator UID.
+     * @brief Add a network validator and generate a default name automatically.
+     *
+     * @note The generated name has the form 'Network validator #&lt;index&gt;', where &lt;index&gt;
+     * is the current size of the network-validator map.
+     *
+     * @param validator network validator.
+     *
+     * @return UID of the added validator.
      */
     knp::core::UID add_validator(NetworkValidator validator);
 
