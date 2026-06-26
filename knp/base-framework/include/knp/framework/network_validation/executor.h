@@ -37,7 +37,7 @@ namespace knp::framework::network_validation
 
 /**
  * @brief Executor of validators.
- * 
+ *
  * @details An 'Executor' stores validator callables together with human-readable name and
  * a generated UID. Later the stored validators can be run against a 'Network' instance
  * via 'run_validators()'. The class does not own the network, it only receives a reference
@@ -48,10 +48,10 @@ class KNP_DECLSPEC Executor
 public:
     /**
      * @brief Add a population validator with an explicit display name.
-     * 
+     *
      * @param validator population validator.
      * @param name validator's display name.
-     * 
+     *
      * @return UID of the added validator.
      */
     knp::core::UID add_validator(std::string name, PopulationValidator validator);
@@ -59,8 +59,8 @@ public:
     /**
      * @brief Add a population validator and generate a default name automatically.
      *
-     * @note The generated name has the form 'Population validator #&lt;index&gt;', where &lt;index&gt;
-     * is the current size of the population-valitor map.
+     * @note The generated name has the form "Population validator #index", where `index`
+     * is the current size of the population-validator map.
      *
      * @param validator population validator.
      *
@@ -70,10 +70,10 @@ public:
 
     /**
      * @brief Add a projection validator with an explicit display name.
-     * 
+     *
      * @param validator projection validator.
      * @param name validator's display name.
-     * 
+     *
      * @return UID of the added validator.
      */
     knp::core::UID add_validator(std::string name, ProjectionValidator validator);
@@ -81,7 +81,7 @@ public:
     /**
      * @brief Add a projection validator and generate a default name automatically.
      *
-     * @note The generated name has the form 'Projection validator #&lt;index&gt;', where &lt;index&gt;
+     * @note The generated name has the form "Projection validator #index", where `index`
      * is the current size of the projection-validator map.
      *
      * @param validator projection validator.
@@ -92,10 +92,10 @@ public:
 
     /**
      * @brief Add a network validator with an explicit display name.
-     * 
+     *
      * @param validator network validator.
      * @param name validator's display name.
-     * 
+     *
      * @return UID of the added validator.
      */
     knp::core::UID add_validator(std::string name, NetworkValidator validator);
@@ -103,7 +103,7 @@ public:
     /**
      * @brief Add a network validator and generate a default name automatically.
      *
-     * @note The generated name has the form 'Network validator #&lt;index&gt;', where &lt;index&gt;
+     * @note The generated name has the form "Network validator #index", where `index`
      * is the current size of the network-validator map.
      *
      * @param validator network validator.
@@ -114,7 +114,7 @@ public:
 
     /**
      * @brief Description of a validator's execution result.
-     * 
+     *
      * @details The structure groups the validator UID, its display name, and the report
      * produced after execution. It is used as the element type of the vector returned
      * by 'run_validators()'.
@@ -142,13 +142,13 @@ public:
 
     /**
      * @brief Run all stored validators on the supplied network.
-     * 
+     *
      * @details The method iterates over all stored validators. For each validator it logs the
      * start, invokes the validator callable, logs individual issues, and stores a 'ValidatorResult'
-     * in the returned vector. 
-     * 
+     * in the returned vector.
+     *
      * @param network network to validate.
-     * 
+     *
      * @return vector of validator results, one entry per executed validator.
      */
     std::vector<ValidatorResult> run_validators(const Network& network);
