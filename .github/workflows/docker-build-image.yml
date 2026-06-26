@@ -45,4 +45,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/build-image"
           push: ${{ github.event_name != 'pull_request' }}
+          build-args: KNP_IMAGE_VERSION=latest
           tags: ${{ vars.DOCKERHUB_LOGIN || 'kasperskydh' }}/knp-build-image:latest
