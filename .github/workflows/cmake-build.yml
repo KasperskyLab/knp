@@ -27,9 +27,6 @@ on:
 jobs:
   linux_build:
     runs-on: ${{ matrix.os }}
-    env:
-      DOCKERHUB_LOGIN: ${{ vars.DOCKERHUB_LOGIN || 'kasperskydh' }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -66,17 +63,6 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=build_${{ matrix.c_compiler }}" >> "$GITHUB_OUTPUT"
-          echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-      - name: Set environment
-        shell: bash
-        run: |
-          dockerhub_login="${{ vars.DOCKERHUB_LOGIN }}"
-          if [ -z "$dockerhub_login" ]; then
-            dockerhub_login="kasperskydh"
-          fi
-          echo "DOCKERHUB_LOGIN=${dockerhub_login}" >> "$GITHUB_ENV"
-          echo "KNP_BUILD_IMAGE_NAME=${dockerhub_login}/knp-build-image:latest" >> "$GITHUB_ENV"
-          echo "KNP_SDK_IMAGE_NAME=${dockerhub_login}/knp-sdk-image" >> "$GITHUB_ENV"
 
       # Install support for non-x86 emulation in Docker via QEMU.
       # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
@@ -87,11 +73,6 @@ jobs:
       #    sudo apt-get update -q -y
       #    sudo apt-get -qq install -y qemu-system-arm qemu-user-static
       #    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
-      - name: Show build parameters
-        run: |
-          echo "KNP_IMAGE_VERSION = ${{ steps.strings.outputs.KNP_IMAGE_VERSION }}"
-          echo "KNP_BUILD_IMAGE_NAME = ${{ env.KNP_BUILD_IMAGE_NAME }}"
-          echo "KNP_SDK_IMAGE_NAME = ${{ env.KNP_SDK_IMAGE_NAME }}"
       - name: Configure
         run: >
           docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -102,68 +83,40 @@ jobs:
           -S .
 
       - name: Build
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image cmake --build ${{ steps.strings.outputs.build-output-dir }} --parallel ${{ matrix.build_threads_count }}
         timeout-minutes: 180
 
       - name: C++ tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests ${{ env.KNP_BUILD_IMAGE_NAME }} ctest -V -E "Cuda*"
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp/tests kasperskydh/knp-build-image ctest -V -E "Cuda*"
         timeout-minutes: 180
 
-      # TODO: run before configure?
       - name: Analyze C++ code with lizard
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} ci/run_lizard.py
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_lizard.py
         continue-on-error: true
 
       - name: Analyze Python code with PyLint
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image ci/run_pylint.py ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/knp ${{ steps.strings.outputs.build-output-dir }}
 
       - name: Analyze Python code with Bandit
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP ${{ env.KNP_BUILD_IMAGE_NAME }} /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP kasperskydh/knp-build-image /usr/bin/bandit -r -lll -x ".*fixtures"  /KNP/knp/python-framework ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/ -o ${{ steps.strings.outputs.build-output-dir }}/bandit.log
 
       - name: Python tests
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework ${{ env.KNP_BUILD_IMAGE_NAME }} pytest
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }}/knp_python_framework kasperskydh/knp-build-image pytest
 
       - name: Create deb packages
-        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} ${{ env.KNP_BUILD_IMAGE_NAME }} cpack -G DEB
+        run: docker run --platform=linux/${{ matrix.arch }} --rm -v ${{ github.workspace }}:/KNP -w /KNP/${{ steps.strings.outputs.build-output-dir }} kasperskydh/knp-build-image cpack -G DEB
         timeout-minutes: 180
-
-      - name: Copy SDK image files to build directory
-        if: matrix.c_compiler == 'gcc'
-        run: |
-          sudo cp -a ${{ github.workspace }}/docker/sdk-image/** ${{ steps.strings.outputs.build-output-dir }}/_packages/
-
-      - name: Login to Docker Hub
-        if: matrix.c_compiler == 'gcc' && github.event_name != 'pull_request' && env.DOCKERHUB_TOKEN != ''
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKERHUB_LOGIN }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
-
-      - name: Create SDK Docker image
-        if: matrix.c_compiler == 'gcc' && github.event_name != 'pull_request' && env.DOCKERHUB_TOKEN != ''
-        uses: docker/build-push-action@v6
-        timeout-minutes: 180
-        continue-on-error: false
-        with:
-          platforms: linux/${{ matrix.arch }}
-          context: ${{ steps.strings.outputs.build-output-dir }}/_packages/
-          push: true
-          build-args: |
-            KNP_IMAGE_VERSION=latest
-          tags: |
-            ${{ env.KNP_SDK_IMAGE_NAME }}:${{ steps.strings.outputs.KNP_IMAGE_VERSION }}
-            ${{ env.KNP_SDK_IMAGE_NAME }}:latest
 
       - name: Upload deb packages
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: pkg-deb-${{ matrix.arch }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/_packages/knp-*.deb
+          path: ${{ steps.strings.outputs.build-output-dir }}/_packages/
 
       - name: Upload Python wheel
         if: matrix.c_compiler == 'gcc'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: pkg-python-${{ matrix.arch }}
           path: ${{ steps.strings.outputs.build-output-dir }}/knp_python_framework/dist/knp-*.whl
@@ -177,11 +130,9 @@ jobs:
 
       # Set up a matrix to run:
       matrix:
-        os: [macos-26, windows-2022]
-        build_type: [Debug]
-        c_compiler: [clang, cl]
         include:
           - os: macos-26
+            build_type: Debug
             c_compiler: clang
             cpp_compiler: clang++
             boost_install_dir: /Users/runner/work/boost/knp
@@ -189,8 +140,10 @@ jobs:
             boost_platform_version: 15
             boost_toolset: clang
             boost_arch: aarch64
+            opencv_install_command: brew install opencv
             opencv_cmake_args: -DOpenCV_DIR=/opt/homebrew/opt/opencv/lib/cmake/opencv4
           - os: windows-2022
+            build_type: Debug
             c_compiler: cl
             cpp_compiler: cl
             boost_install_dir: C:/
@@ -198,12 +151,8 @@ jobs:
             boost_platform_version: 2022
             boost_toolset: msvc
             boost_arch: x86
+            opencv_install_command: vcpkg install opencv:x64-windows
             opencv_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
-        exclude:
-          - os: windows-2022
-            c_compiler: clang
-          - os: macos-26
-            c_compiler: cl
 
     steps:
       # NTFS protection must be enabled to prevent files with names containing '\'.
@@ -229,13 +178,8 @@ jobs:
             toolset: ${{ matrix.boost_toolset }}
             arch: ${{ matrix.boost_arch }}
 
-      - name: Install OpenCV via vcpkg
-        if: matrix.c_compiler == 'cl'
-        run: vcpkg install opencv:x64-windows
-
-      - name: Install OpenCV via Homebrew
-        if: matrix.os == 'macos-26'
-        run: brew install opencv
+      - name: Install OpenCV
+        run: ${{ matrix.opencv_install_command }}
 
       - name: Configure CMake
         env:
