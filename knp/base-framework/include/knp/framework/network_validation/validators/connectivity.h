@@ -43,7 +43,7 @@ namespace knp::framework::network_validation
  * 
  * @note The validator does not modify the network, it only reads its structure.
  */
-class Connectivity
+class KNP_DECLSPEC Connectivity
 {
 public:
     /**

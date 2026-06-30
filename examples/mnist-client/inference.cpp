@@ -92,7 +92,7 @@ auto make_observer_function(std::vector<InferenceResult> &result)
 
 
 // Read image dataset from a binary file and trasnform it into a vector of boolean frames.
-std::vector<std::vector<bool>> read_spike_frames(const std::string &path_to_data)
+std::vector<std::vector<bool>> read_spike_frames(const std::filesystem::path &path_to_data)
 {
     // Image-to-spikes conversion parameters.
     constexpr int intensity_levels = 10;
@@ -127,7 +127,7 @@ std::vector<InferenceResult> do_inference(
 
     // The largest projection is the input image projection. These are numbers for a specific MNIST model.
     constexpr size_t img_input_size = 117600;
-    auto is_input = [](const knp::core::AllProjectionsVariant &proj)
+    auto is_input = [img_input_size](const knp::core::AllProjectionsVariant &proj)
     { return std::visit([](const auto &p) { return p.size(); }, proj) == img_input_size; };
 
     std::vector<knp::core::UID> input_image_projection_uids = find_projections(model.get_network(), is_input);

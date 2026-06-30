@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "common.h"
@@ -46,13 +47,28 @@ struct uid_from_python
 
     static void construct(PyObject* obj, py::converter::rvalue_from_python_stage1_data* data)
     {
+        py::object bytes_object = py::object(py::handle<>(py::borrowed(obj))).attr("bytes");
+        char* bytes = nullptr;
+        Py_ssize_t bytes_size = 0;
+        if (PyBytes_AsStringAndSize(bytes_object.ptr(), &bytes, &bytes_size) == -1)
+        {
+            py::throw_error_already_set();
+        }
+
+        constexpr auto expected_size = boost::uuids::uuid::static_size();
+        if (bytes_size != static_cast<Py_ssize_t>(expected_size))
+        {
+            const auto error_message = "UUID byte array must contain exactly " + std::to_string(expected_size) +
+                                       " bytes, got " + std::to_string(bytes_size) + ".";
+            PyErr_SetString(PyExc_ValueError, error_message.c_str());
+            py::throw_error_already_set();
+        }
+
         auto storage =
             reinterpret_cast<py::converter::rvalue_from_python_storage<boost::uuids::uuid>*>(data)->storage.bytes;
-        std::vector<uint8_t> ba =
-            py::extract<std::vector<uint8_t>>(py::object(py::handle<>(py::borrowed(obj))).attr("bytes"));
         boost::uuids::uuid* res = new (storage) boost::uuids::uuid;
 
-        memcpy(res->data, &ba.front(), ba.size());
+        std::copy_n(reinterpret_cast<const uint8_t*>(bytes), expected_size, res->begin());
         data->convertible = storage;
     }
 };
