@@ -23,15 +23,16 @@ FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
 WORKDIR /knp
 
 RUN \
-    apt-get update \
-    && apt-get -y --no-install-recommends --show-progress install \
-      python3-dev \
-      python3-build \
-      python3-mypy \
-      python3-setuptools \
-      python3-types-requests \
-      python3-wheel \
-      zsh \
+  apt-get update \
+  && apt-get -y --no-install-recommends --show-progress install \
+    python3-dev \
+    python3-build \
+    python3-mypy \
+    python3-setuptools \
+    python3-types-requests \
+    python3-wheel \
+    zsh \
+  && apt-get -y --no-install-recommends upgrade \
   && apt-get clean \
   && chsh -s $(which zsh) \
   && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
