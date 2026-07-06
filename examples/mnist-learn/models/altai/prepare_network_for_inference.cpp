@@ -81,7 +81,7 @@ static void quantize_network(AnnotatedNetwork& network)
                         std::max<uint16_t>(max_threshold, neuron.activation_threshold_ + neuron.additional_threshold_);
 
                 const float total_max =
-                    std::max({std::abs(max_weight), std::abs(min_weight), static_cast<float>(max_threshold)});
+                    std::max({std::abs(max_weight), std::abs(min_weight), std::abs<float>(max_threshold)});
                 const float scale = 255.f / total_max;
 
                 for (auto& synapse : proj)

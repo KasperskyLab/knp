@@ -2,8 +2,7 @@
 @file test_uid.py
 @brief UID tests.
 
-@author buligar.
-@kaspersky_support OpenAI Codex.
+@author Batuev B.
 @license Apache 2.0 License.
 @copyright © 2026 AO Kaspersky Lab
 @date 08.04.2026.
