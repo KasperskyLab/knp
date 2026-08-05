@@ -79,10 +79,14 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/logging.cpp
     impl/visualizer/graph_physics.cpp
     impl/visualizer/visualize_network.cpp
+    impl/visualizer/utils_graph.cpp
+    impl/visualizer/utils_dot.cpp
+    impl/visualizer/utils_creation.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
+        ${GRAPHVIZ_LIBRARIES}
         ${OpenCV_LIBS}
         # Hack to build with CLang.
         ${ADD_LIBS}

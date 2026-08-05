@@ -26,10 +26,10 @@
 #include <knp/framework/projection/wta.h>
 #include <knp/framework/tags/name.h>
 
-#include <map>
-#include <memory>
 #include <filesystem>
 #include <fstream>
+#include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -100,6 +100,7 @@ void train_network(
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
+    // knp::framework::Model model(network.network_);
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train<Neuron>(network, model, dataset);
 
@@ -162,7 +163,7 @@ void train_network(
  * @param backend_loader Backend loader.
  */
 template <typename Neuron>
-void train_model(
+std::shared_ptr<knp::core::Backend> train_model(
     const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
     knp::framework::BackendLoader& backend_loader)
 {
@@ -170,4 +171,5 @@ void train_model(
     train_network<Neuron>(training_backend, network, model_desc, dataset);
 
     prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
+    return training_backend;
 }

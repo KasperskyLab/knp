@@ -20,11 +20,16 @@
  */
 
 #include <knp/core/population.h>
+#include <knp/core/tag.h>
 #include <knp/core/uid.h>
+#include <knp/framework/tags/name.h>
 #include <knp/neuron-traits/blifat.h>
 #include <knp/neuron-traits/stdp_synaptic_resource_rule.h>
 
 #include <spdlog/spdlog.h>
+
+#include <iostream>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -44,6 +49,43 @@ std::string get_neuron_type_name<neuron_traits::SynapticResourceSTDPBLIFATNeuron
     return "knp:SynapticResourceRuleBlifatNeuron";
 }
 
+
+// TagMap tags are converted into arrays of values and keys.
+// Arrays are placed at the root of the Nodes group of h5.
+void add_tags_to_h5(
+    const core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
+    HighFive::NodeTraits<HighFive::Group> &population_group)
+{
+    core::TagMap tags = population.get_tags();
+
+    std::vector<std::string> tags_values;
+    std::vector<std::string> tags_keys;
+
+    if (tags.exists("io_type"))
+    {
+        auto io_type_tag_value = std::any_cast<knp::core::tags::IOType>(tags["io_type"]);
+
+        if (io_type_tag_value == knp::core::tags::IOType::input)
+        {
+            tags_values.push_back("0");
+        }
+        else if (io_type_tag_value == knp::core::tags::IOType::output)
+        {
+            tags_values.push_back("1");
+        }
+        else
+        {
+            std::cout << "unknown io_type tag value" << std::endl;
+        }
+        tags_keys.push_back("io_type");
+    }
+    auto name_tag_value = std::any_cast<std::string>(tags["name"]);
+    tags_values.push_back(name_tag_value);
+    tags_keys.push_back("name");
+
+    population_group.createDataSet("tags_values", tags_values);
+    population_group.createDataSet("tags_keys", tags_keys);
+}
 
 template <>
 void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>>(
@@ -70,6 +112,8 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
     population_group.createDataSet(
         "node_type_id",
         std::vector<size_t>(population.size(), get_neuron_type_id<neuron_traits::SynapticResourceSTDPBLIFATNeuron>()));
+
+    add_tags_to_h5(population, population_group);
     auto group0 = population_group.createGroup("0");
 
     // TODO: Need to check if all parameters are the same. If not, then save them into h5.
@@ -141,6 +185,43 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
 using ResourceNeuron = neuron_traits::SynapticResourceSTDPBLIFATNeuron;
 using ResourceNeuronParams = neuron_traits::neuron_parameters<ResourceNeuron>;
 
+// Two arrays are uploaded: keys and tag values.
+// They are tagged with the population in accordance with the TagMap structure.
+void load_tags_to_population(
+    const HighFive::Group &nodes_group, const std::string &population_name,
+    core::Population<ResourceNeuron> &population)
+{
+    auto ds_tags_values = nodes_group.getGroup(population_name).getDataSet("tags_values");
+    auto ds_tags_keys = nodes_group.getGroup(population_name).getDataSet("tags_keys");
+    auto size = ds_tags_values.getElementCount();
+    std::vector<std::string> data_tags_values(size);
+    std::vector<std::string> data_tags_keys(size);
+    ds_tags_values.read(data_tags_values);
+    ds_tags_keys.read(data_tags_keys);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        auto key = data_tags_keys[i];
+        auto value = data_tags_values[i];
+
+        if (key == "io_type")
+        {
+            switch (std::stoi(value))
+            {
+                case 0:
+                    population.get_tags()[key] = knp::core::tags::IOType::input;
+                    break;
+                case 1:
+                    population.get_tags()[key] = knp::core::tags::IOType::output;
+                    break;
+                default:
+                    std::cout << "unknown io_type tag value" << std::endl;
+            }
+            continue;
+        }
+        population.get_tags()[key] = value;
+    }
+}
 
 template <>
 core::Population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>
@@ -205,8 +286,12 @@ load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
     LOAD_NEURONS_PARAMETER(target, neuron_traits::BLIFATNeuron, additional_threshold_, dyn_group, group_size);
 
     const knp::core::UID uid{boost::lexical_cast<boost::uuids::uuid>(population_name)};
-    return core::Population<ResourceNeuron>(
-        uid, [&target](size_t index) { return target[index]; }, group_size);
-}
 
+    auto result = core::Population<ResourceNeuron>(
+        uid, [&target](size_t index) { return target[index]; }, group_size);
+
+    load_tags_to_population(nodes_group, population_name, result);
+
+    return result;
+}
 }  // namespace knp::framework::sonata
