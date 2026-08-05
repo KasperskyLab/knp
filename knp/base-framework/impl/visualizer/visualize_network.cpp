@@ -12,9 +12,9 @@ extern "C"
 }
 #include <filesystem>
 
-#include "utils_creation.h"
-#include "utils_dot.h"
-#include "utils_graph.h"
+#include "generate_files.h"
+#include "graph_helpers.h"
+
 
 namespace knp::framework
 {

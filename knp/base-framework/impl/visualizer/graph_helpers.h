@@ -1,5 +1,4 @@
 #pragma once
-// #include <knp/framework/network.h>
 #include <knp/framework/visualizer/visualize_network.h>
 
 #include <spdlog/spdlog.h>

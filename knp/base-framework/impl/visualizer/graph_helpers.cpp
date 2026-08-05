@@ -1,4 +1,4 @@
-#include "utils_graph.h"
+#include "graph_helpers.h"
 
 #include <knp/framework/network.h>
 #include <knp/framework/visualizer/visualize_network.h>

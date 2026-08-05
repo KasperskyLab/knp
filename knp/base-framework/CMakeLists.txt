@@ -79,9 +79,9 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/logging.cpp
     impl/visualizer/graph_physics.cpp
     impl/visualizer/visualize_network.cpp
-    impl/visualizer/utils_graph.cpp
-    impl/visualizer/utils_dot.cpp
-    impl/visualizer/utils_creation.cpp
+    impl/visualizer/graph_helpers.cpp
+    impl/visualizer/dot_helpers.cpp
+    impl/visualizer/generate_files.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE

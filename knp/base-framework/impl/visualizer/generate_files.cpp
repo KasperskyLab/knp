@@ -1,4 +1,4 @@
-#include "utils_creation.h"
+#include "generate_files.h"
 
 #include <knp/framework/visualizer/visualize_network.h>
 
@@ -11,8 +11,8 @@
 #include <utility>
 #include <vector>
 
-#include "utils_dot.h"
-#include "utils_graph.h"
+#include "dot_helpers.h"
+#include "graph_helpers.h"
 
 extern "C"
 {

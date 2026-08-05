@@ -1,4 +1,4 @@
-#include "utils_dot.h"
+#include "dot_helpers.h"
 
 #include <knp/framework/visualizer/visualize_network.h>
 
@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "utils_graph.h"
+#include "graph_helpers.h"
 
 
 /**
@@ -29,7 +29,6 @@ void write_header_and_styles(std::ofstream& out)
     out << "    layout=neato;\n";          // Change engine to neato (physical force model)
     out << "    pack=true;\n";             // Enable compact packing of independent components
     out << "    packmode=\"graph\";\n\n";  // Pack each subgroup as a separate mini-graph
-                                           //
 
     // Global design settings for the graph
     out << "    // Canvas settings\n";
@@ -82,10 +81,8 @@ void write_edge_without_src(
     auto short_name = std::string(edge_uid).substr(0, 8);
 
 
-    out << "    "
-        << "ghost_src_" << num << " [shape=point, style=invis"
+    out << "    ghost_src_" << num << " [shape=point, style=invis"
         << "];\n";
-
 
     out << "    \""
         << "ghost_src_" << num << "\" -> " << std::string(dst) << "[style=\"dotted\", "
@@ -112,8 +109,7 @@ void write_edge_without_dst(
     auto num = std::to_string(i);
     auto short_name = std::string(edge_uid).substr(0, 8);
 
-    out << "    "
-        << "ghost_dst_" << num << " [shape=point, style=invis"
+    out << "    ghost_dst_" << num << " [shape=point, style=invis"
         << "];\n";
 
     out << "    \"" << std::string(src) << "\" -> "
@@ -313,6 +309,5 @@ void write_projections_and_populations_to_dot(
         }
         write_edge_to_dot(out, std::string(src), std::string(dst), std::string(unique_edge).substr(0, 8), edge_size);
     }
-
     out << "}\n";
 }
