@@ -105,23 +105,5 @@ int main(int argc, char** argv)
             throw std::runtime_error("Unknown model type.");
     }
 
-    // Dataset dataset = process_dataset(model_desc);
-
-    // AnnotatedNetwork network = construct_network<knp::neuron_traits::BLIFATNeuron>(model_desc);
-
-
-    // knp::framework::BackendLoader backend_loader;
-    // auto backend = train_model<knp::neuron_traits::BLIFATNeuron>(model_desc, dataset, network, backend_loader);
-
-    // if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
-
-    // // knp::framework::set_saving_path("temp_test_dir");
-    // visualize_network(network.network_);
-    // visualize_network(network.network_, backend);
-    // visualize_bus(network.network_, backend);
-
-    // auto network_path = model_desc.model_saving_path_;
-
-
     return EXIT_SUCCESS;
 }
