@@ -1,6 +1,8 @@
 /**
  * @file main.cpp
  * @brief Example of training a MNIST network.
+ * @kaspersky_support D. Postnikov
+ * @date 03.02.2026
  * @license Apache 2.0
  * @copyright © 2026 AO Kaspersky Lab
  *
@@ -50,9 +52,15 @@ void run_model(const ModelDescription& model_desc)
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
-    train_model<Neuron>(model_desc, dataset, network, backend_loader);
+    auto backend = train_model<Neuron>(model_desc, dataset, network, backend_loader);
 
     if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
+
+
+    // knp::framework::set_saving_path("temp_test_dir");
+    visualize_network(network.network_);
+    visualize_network(network.network_, backend);
+    visualize_bus(network.network_, backend);
 
     auto inference_spikes = infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 
@@ -80,23 +88,39 @@ int main(int argc, char** argv)
     std::cin.get();
     std::cout << "Starting model." << std::endl;
 
+    // Starting model according to selected type.
+    switch (model_desc.type_)
+    {
+        case SupportedModelType::BLIFAT:
+        {
+            run_model<knp::neuron_traits::BLIFATNeuron>(model_desc);
+            break;
+        }
+        case SupportedModelType::AltAI:
+        {
+            run_model<knp::neuron_traits::AltAILIF>(model_desc);
+            break;
+        }
+        default:
+            throw std::runtime_error("Unknown model type.");
+    }
 
-    Dataset dataset = process_dataset(model_desc);
+    // Dataset dataset = process_dataset(model_desc);
 
-    AnnotatedNetwork network = construct_network<knp::neuron_traits::BLIFATNeuron>(model_desc);
+    // AnnotatedNetwork network = construct_network<knp::neuron_traits::BLIFATNeuron>(model_desc);
 
 
-    knp::framework::BackendLoader backend_loader;
-    auto backend = train_model<knp::neuron_traits::BLIFATNeuron>(model_desc, dataset, network, backend_loader);
+    // knp::framework::BackendLoader backend_loader;
+    // auto backend = train_model<knp::neuron_traits::BLIFATNeuron>(model_desc, dataset, network, backend_loader);
 
-    if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
+    // if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
-    // knp::framework::set_saving_path("temp_test_dir");
-    visualize_network(network.network_);
-    visualize_network(network.network_, backend);
-    visualize_bus(network.network_, backend);
+    // // knp::framework::set_saving_path("temp_test_dir");
+    // visualize_network(network.network_);
+    // visualize_network(network.network_, backend);
+    // visualize_bus(network.network_, backend);
 
-    auto network_path = model_desc.model_saving_path_;
+    // auto network_path = model_desc.model_saving_path_;
 
 
     return EXIT_SUCCESS;
