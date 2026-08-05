@@ -48,19 +48,19 @@ using ResourceNeuronData = knp::neuron_traits::neuron_parameters<knp::neuron_tra
 struct NetworkPopulations
 {
     /// Input population.
-    const PopulationInfo &input_pop_;
+    const PopulationInfo& input_pop_;
     /// Output population.
-    const PopulationInfo &output_pop_;
+    const PopulationInfo& output_pop_;
     /// Gate population. Used for training.
-    const PopulationInfo &gate_pop_;
+    const PopulationInfo& gate_pop_;
     /// Population for rasterized images.
-    const PopulationInfo &raster_pop_;
+    const PopulationInfo& raster_pop_;
     /// Population for images labels.
-    const PopulationInfo &target_pop_;
+    const PopulationInfo& target_pop_;
 };
 
 
-static NetworkPopulations create_populations(NetworkConstructor &constructor)
+static NetworkPopulations create_populations(NetworkConstructor& constructor)
 {
     // Creating neurons.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235859
@@ -78,25 +78,22 @@ static NetworkPopulations create_populations(NetworkConstructor &constructor)
     input_neuron.stochastic_stimulation_ = stochastic_stimulation;
 
     // Creating populations using neurons.
-    const auto &input_pop =
+    const auto& input_pop =
         constructor.add_population(input_neuron, num_input_neurons, PopulationRole::INPUT, true, "INPUT");
-    const auto &output_pop =
+    const auto& output_pop =
         constructor.add_population(default_neuron, classes_amount, PopulationRole::OUTPUT, true, "OUTPUT");
-    const auto &gate_pop =
-        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, false, "GATE");
-    const auto &raster_pop = constructor.add_channeled_population(input_size, true);
-    const auto &target_pop = constructor.add_channeled_population(classes_amount, false);
-
+    const auto& gate_pop =
+        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, true, "GATE");  // was false
+    const auto& raster_pop = constructor.add_channeled_population(input_size, true);
+    const auto& target_pop = constructor.add_channeled_population(classes_amount, true);  // was false
     // Returning them.
     return {input_pop, output_pop, gate_pop, raster_pop, target_pop};
 }
 
 
 static void create_projections(
-    AnnotatedNetwork &network, NetworkConstructor &constructor, const NetworkPopulations &pops)
+    AnnotatedNetwork& network, NetworkConstructor& constructor, const NetworkPopulations& pops)
 {
-    // Creating synapse and projection out of it. Multiple times.
-
     // Synapse creation.
     ResourceSynapseParams raster_to_input_synapse;
     raster_to_input_synapse.rule_.synaptic_resource_ =
@@ -172,7 +169,7 @@ static void create_projections(
  * @see [Online Help](https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801)
  */
 template <>
-AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription &model_desc)
+AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription& model_desc)
 {
     AnnotatedNetwork result;
 
@@ -187,7 +184,6 @@ AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const Model
 
         // Add input_pop as WTA sender.
         result.data_.wta_data_.emplace_back().first.push_back(pops.input_pop_.uid_);
-
         create_projections(result, constructor, pops);
     }
 

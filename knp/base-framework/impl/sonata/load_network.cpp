@@ -99,16 +99,16 @@ std::vector<core::AllPopulationsVariant> load_populations(const fs::path &pop_h5
 
     for (size_t i = 0; i < num_populations; ++i)
     {
-        const std::string proj_name = group.getObjectName(i);
+        const std::string pop_name = group.getObjectName(i);
         const int neuron_type =
-            group.getGroup(proj_name).getDataSet("node_type_id").read<std::vector<int>>()[0];  // One type only.
+            group.getGroup(pop_name).getDataSet("node_type_id").read<std::vector<int>>()[0];  // One type only.
         // Check if type is in type_file.
         if (neuron_type == get_neuron_type_id<neuron_traits::BLIFATNeuron>())
-            result.emplace_back(load_population<neuron_traits::BLIFATNeuron>(group, proj_name));
+            result.emplace_back(load_population<neuron_traits::BLIFATNeuron>(group, pop_name));
         else if (neuron_type == get_neuron_type_id<neuron_traits::SynapticResourceSTDPBLIFATNeuron>())
-            result.emplace_back(load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(group, proj_name));
+            result.emplace_back(load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(group, pop_name));
         else if (neuron_type == get_neuron_type_id<neuron_traits::AltAILIF>())
-            result.emplace_back(load_population<neuron_traits::AltAILIF>(group, proj_name));
+            result.emplace_back(load_population<neuron_traits::AltAILIF>(group, pop_name));
         // TODO: Add other supported types or better use a template.
     }
     return result;

@@ -26,6 +26,8 @@ if (NOT TARGET KNP::BaseFramework::Core)
 endif()
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS program_options REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
 
 add_executable(${PROJECT_NAME}
     main.cpp
@@ -40,4 +42,8 @@ add_executable(${PROJECT_NAME}
     models/altai/prepare_network_for_inference.cpp
     models/altai/spike_generators.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE KNP::BaseFramework::Core Boost::program_options)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    KNP::BaseFramework::Core
+    Boost::program_options
+    ${Graphviz_LIBRARIES}
+    )
