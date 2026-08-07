@@ -27,11 +27,13 @@
 #include <string>
 #include <vector>
 
+
 /**
  * @brief Framework namespace.
  */
 namespace knp::framework
 {
+
 
 /**
  * @brief Network description structure used for visualization.
@@ -182,6 +184,7 @@ public:
  */
 KNP_DECLSPEC void print_network_description(const NetworkGraph& graph);
 
+
 /**
  * @brief Visualize static network.
  *
@@ -194,6 +197,7 @@ KNP_DECLSPEC void print_network_description(const NetworkGraph& graph);
  */
 KNP_DECLSPEC void visualize_network(const knp::framework::Network& network);
 
+
 /**
  * @brief Visualize static network by model.
  *
@@ -205,6 +209,7 @@ KNP_DECLSPEC void visualize_network(const knp::framework::Network& network);
  * For the change save directory, use set_saving_path(directory).
  */
 KNP_DECLSPEC void visualize_network(const knp::framework::Model& model);
+
 
 /**
  * @brief Visualize dynamic network using backend.
@@ -221,6 +226,7 @@ KNP_DECLSPEC void visualize_network(const knp::framework::Model& model);
 KNP_DECLSPEC void visualize_network(
     const knp::framework::Network& network, std::shared_ptr<knp::core::Backend>& backend);
 
+
 /**
  * @brief Visualize dynamic network using backend.
  *
@@ -235,8 +241,10 @@ KNP_DECLSPEC void visualize_network(
  */
 KNP_DECLSPEC void visualize_network(const knp::framework::Model& model, std::shared_ptr<knp::core::Backend>& backend);
 
+
 //TODO:
 // KNP_DECLSPEC void visualize_bus(std::shared_ptr<knp::core::Backend>& backend);
+
 
 /**
  * @brief Visualize the bus messages.
@@ -250,6 +258,7 @@ KNP_DECLSPEC void visualize_network(const knp::framework::Model& model, std::sha
  */
 KNP_DECLSPEC void visualize_bus(const knp::framework::Network& network, std::shared_ptr<knp::core::Backend>& backend);
 
+
 /**
  * @brief Visualize the bus messages.
  *
@@ -261,6 +270,7 @@ KNP_DECLSPEC void visualize_bus(const knp::framework::Network& network, std::sha
  * For the change save directory, use set_saving_path(directory).
  */
 KNP_DECLSPEC void visualize_bus(const knp::framework::Model& model, std::shared_ptr<knp::core::Backend>& backend);
+
 
 /**
  * @brief Configuration structure for visualization paths.

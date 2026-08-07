@@ -35,6 +35,7 @@ extern "C"
 #include <graphviz/gvc.h>
 }
 
+
 /**
  * @brief Get bus messages from backend subscriptions.
  *
@@ -45,6 +46,7 @@ extern "C"
 std::tuple<
     std::vector<std::pair<knp::core::UID, knp::core::UID>>, std::vector<std::pair<knp::core::UID, knp::core::UID>>>
 get_bus(std::shared_ptr<knp::core::Backend>& backend);
+
 
 /**
  * @brief Get entity name for any network object. If there is no name it's constructed from UID.
@@ -69,13 +71,14 @@ std::string get_population_name(const Entity& pop)
         }
         catch (std::bad_any_cast& exc)
         {
-            SPDLOG_WARN("Wrong name tag type.");
+            SPDLOG_ERROR("Wrong name tag type.");
             name = std::string{uid}.substr(0, uid_part_size);
         }
     }
     if (name.empty()) name = std::string{uid}.substr(0, uid_part_size);
     return name;
 }
+
 
 /**
  * @brief Get node name by UID from network graph nodes.
@@ -97,6 +100,7 @@ std::string get_node_name(knp::core::UID node_uid, std::vector<knp::framework::N
  */
 knp::framework::NetworkGraph::Node get_graph_node_by_uid(
     knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes);
+
 
 /**
  * @brief Get projection size by UID from network graph edges.

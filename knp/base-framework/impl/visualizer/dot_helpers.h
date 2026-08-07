@@ -138,6 +138,7 @@ void write_edge_without_dst(
     std::ofstream& out, knp::core::UID const& src, int const& i, knp::core::UID const& edge_uid,
     std::string const& size, std::string const& color = "lightgray");
 
+
 /**
  * @brief Convert DOT file to PNG image.
  *

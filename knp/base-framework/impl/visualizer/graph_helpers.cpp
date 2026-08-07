@@ -45,12 +45,13 @@ using SpikeMessages = std::vector<std::pair<knp::core::UID, knp::core::UID>>;
 using SynapticMessages = std::vector<std::pair<knp::core::UID, knp::core::UID>>;
 using BusMessages = std::tuple<SpikeMessages, SynapticMessages>;
 
+
 BusMessages get_bus(std::shared_ptr<knp::core::Backend>& backend)
 {
     const auto subs = backend->get_message_endpoint().get_endpoint_subscriptions();
 
-    constexpr size_t SPIKE_IDX = 0;            // must be 0
-    constexpr size_t SYNAPTIC_IMPACT_IDX = 1;  // must be 1
+    constexpr size_t spike_idx = 0;            // Must be 0 (Serial number of the type).
+    constexpr size_t synaptic_impact_idx = 1;  // Must be 1 (Serial number of the type).
 
     SpikeMessages spike_messages;        // [sender, receiver]
     SynapticMessages synaptic_messages;  // [sender, receiver]
@@ -66,21 +67,17 @@ BusMessages get_bus(std::shared_ptr<knp::core::Backend>& backend)
             [&](const auto& sub)
             {
                 const auto& senders = sub.get_senders();
-                if (senders.empty())
+                if (senders.empty()) return;
+                if (type_idx == spike_idx)
                 {
-                    SPDLOG_WARN("Empty senders list for subscription");
-                    return;
-                }
-
-
-                if (type_idx == SPIKE_IDX)
-                {  // receiver: Projection,      sender: Population // 0 -->
+                    // Receiver: Projection, sender: *Population (* - or modificator) (0 -->).
                     std::transform(
                         senders.begin(), senders.end(), std::back_inserter(spike_messages),
                         [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
                 }
-                else if (type_idx == SYNAPTIC_IMPACT_IDX)
-                {  // receiver: Population,      sender: Projection //  --> 0
+                else if (type_idx == synaptic_impact_idx)
+                {
+                    // receiver: Population,      sender: Projection (* - or modificator) (--> 0).
                     std::transform(
                         senders.begin(), senders.end(), std::back_inserter(synaptic_messages),
                         [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
@@ -107,12 +104,10 @@ std::string get_node_name(knp::core::UID node_uid, std::vector<knp::framework::N
     // nodes from netGraph
     auto node_it =
         std::find_if(nodes.begin(), nodes.end(), [&node_uid](const auto& node) { return node.uid_ == node_uid; });
-    if (node_it != nodes.end())
-    {
-        node_name = node_it->name_;
-    }
+    if (node_it != nodes.end()) node_name = node_it->name_;
     return node_name;
 }
+
 
 /**
  * @brief Get graph node by UID from network graph nodes.
@@ -132,9 +127,10 @@ knp::framework::NetworkGraph::Node get_graph_node_by_uid(
         return *node_it;
     }
 
-    SPDLOG_WARN("Node with UID {} not found in graph", std::string(node_uid));
+    SPDLOG_INFO("Node with UID {} not found in graph", std::string(node_uid));
     return knp::framework::NetworkGraph::Node{};
 }
+
 
 /**
  * @brief Get projection size by UID from network graph edges.

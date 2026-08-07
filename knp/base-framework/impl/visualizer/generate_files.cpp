@@ -124,8 +124,8 @@ void create_dot_file_for_dynamic_network(
 {
     const auto subs = backend->get_message_endpoint().get_endpoint_subscriptions();
 
-    constexpr size_t SPIKE_IDX = 0;            // must be 0
-    constexpr size_t SYNAPTIC_IMPACT_IDX = 1;  // must be 1
+    constexpr size_t spike_idx = 0;            // Must be 0 (Serial number of the type).
+    constexpr size_t synaptic_impact_idx = 1;  // Must be 1 (Serial number of the type).
 
     std::map<knp::core::UID, knp::core::UID> node_src;
     std::map<knp::core::UID, knp::core::UID> node_dst;
@@ -136,10 +136,8 @@ void create_dot_file_for_dynamic_network(
     std::set<knp::core::UID> unique_nodes;
     std::set<knp::core::UID> unique_edges;
 
-
     std::vector<std::pair<knp::core::UID, knp::core::UID>> spike_messages;     // [sender, receiver]
     std::vector<std::pair<knp::core::UID, knp::core::UID>> synaptic_messages;  // [sender, receiver]
-
 
     // take from bus nessosary maps
     for (const auto& [key, sub_variant] : subs)
@@ -151,9 +149,9 @@ void create_dot_file_for_dynamic_network(
             {
                 const auto& senders = sub.get_senders();
                 if (senders.empty()) return;
-
-                if (type_idx == SPIKE_IDX)
-                {  // receiver: Projection,      sender: *Population     (* - or modificator) // 0 -->
+                if (spike_idx == type_idx)
+                {
+                    // Receiver: Projection, sender: *Population (* - or modificator) (0 -->).
                     for (const auto& sender : senders)
                     {
                         spike_messages.push_back({sender, receiver_uid});
@@ -165,8 +163,9 @@ void create_dot_file_for_dynamic_network(
                         unique_edges.insert(receiver_uid);
                     }
                 }
-                else if (type_idx == SYNAPTIC_IMPACT_IDX)
-                {  // receiver: *Population,      sender: Projection    (* - or modificator)  //  --> 0
+                else if (type_idx == synaptic_impact_idx)
+                {
+                    // Receiver: *Population, sender: Projection. (* - or modificator) (--> 0).
                     for (const auto& sender : senders)
                     {
                         synaptic_messages.push_back({sender, receiver_uid});
@@ -193,8 +192,6 @@ void create_dot_file_for_dynamic_network(
             SPDLOG_INFO("Modificator: {}", std::string(uid));
         }
     }
-
-    ////////////////////////////////////////
 
     std::ofstream out(path);
     std::string dynamic_color = "yellow";
@@ -264,7 +261,7 @@ bool convert_dot_to_png(const std::string& path_to_dot_file, const std::string& 
 
 
     // 6. Check the result and print the path to the PNG file
-    if (result == 0)
+    if (0 == result)
     {
         SPDLOG_INFO("The PNG file is saved in: {}", std::filesystem::absolute(path_to_png_file).string());
         return true;
