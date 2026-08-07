@@ -4,7 +4,7 @@
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@ TEST(VisualizeNetworkSuite, DynamicVisualizationWithBackend)
     EXPECT_NO_THROW(
         [&]()
         {
-            // This should not crash
+            // This should not crash.
             knp::framework::visualize_network(model.get_network(), backend);
             knp::framework::visualize_bus(model.get_network(), backend);
         }())
@@ -216,7 +216,7 @@ TEST(VisualizeNetworkSuite, NetworkGraphPrintFunctions)
     knp::framework::Network network = create_test_network();
     knp::framework::NetworkGraph graph(network);
 
-    // Test that print functions don't crash
+    // Test that print functions don't crash.
     EXPECT_NO_THROW(
         [&]()
         {
