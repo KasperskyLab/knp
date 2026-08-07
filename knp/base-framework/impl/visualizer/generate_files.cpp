@@ -4,7 +4,7 @@
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 
 #include "generate_files.h"
 
@@ -34,17 +35,17 @@
 
 #include "dot_helpers.h"
 #include "graph_helpers.h"
-
 extern "C"
 {
 #include <graphviz/gvc.h>
 }
 
+
 /**
- * @brief Create DOT file for static network
+ * @brief Create DOT file for static network.
  *
- * @param file_name output file name
- * @param graph network graph
+ * @param file_name output file name.
+ * @param graph network graph.
  */
 void create_dot_file_for_static_network(std::string& file_name, knp::framework::NetworkGraph& graph)
 {
@@ -89,12 +90,13 @@ void create_dot_file_for_static_network(std::string& file_name, knp::framework::
     }
 }
 
+
 /**
- * @brief Create DOT file for bus messages
+ * @brief Create DOT file for bus messages.
  *
- * @param file_name output DOT file name
- * @param graph network graph
- * @param backend shared pointer to backend
+ * @param file_name output DOT file name.
+ * @param graph network graph.
+ * @param backend shared pointer to backend.
  */
 void create_dot_file_for_bus(
     const std::string& file_name, const knp::framework::NetworkGraph& graph,
@@ -104,21 +106,21 @@ void create_dot_file_for_bus(
 
     std::ofstream out(file_name);
 
-    write_bus_messeges_to_dot(spike_messages, synaptic_messages, graph, out);  // spike/synaptic impact messeges
+    write_bus_messages_to_dot(out, spike_messages, synaptic_messages, graph);  // spike/synaptic impact messeges
 
     SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(file_name).string());
 }
 
+
 /**
- * @brief Create DOT file for dynamic network
+ * @brief Create DOT file for dynamic network.
  *
- * @param file_name output file name
- * @param graph network graph
- * @param backend shared pointer to backend
+ * @param path output path file name.
+ * @param graph network graph.
+ * @param backend shared pointer to backend.
  */
 void create_dot_file_for_dynamic_network(
-    const std::string& file_name, const knp::framework::NetworkGraph& graph,
-    std::shared_ptr<knp::core::Backend>& backend)
+    const std::string& path, const knp::framework::NetworkGraph& graph, std::shared_ptr<knp::core::Backend>& backend)
 {
     const auto subs = backend->get_message_endpoint().get_endpoint_subscriptions();
 
@@ -179,12 +181,10 @@ void create_dot_file_for_dynamic_network(
             sub_variant);
     }
 
-
     std::set<knp::core::UID> modificators;
 
-
-    // modificator exist in senders SPIKE
-    // modificator doesn't exist in receivers SYNAPTIC_IMPACT
+    // Modificator exist in senders SPIKE.
+    // Modificator doesn't exist in receivers SYNAPTIC_IMPACT.
     for (const auto& uid : unique_senders_spike)
     {
         if (unique_receivers_impact.find(uid) == unique_receivers_impact.end())
@@ -196,23 +196,24 @@ void create_dot_file_for_dynamic_network(
 
     ////////////////////////////////////////
 
-    std::ofstream out(file_name);
+    std::ofstream out(path);
     std::string dynamic_color = "yellow";
     write_projections_and_populations_to_dot(
-        unique_nodes, unique_edges, modificators, out, dynamic_color, graph, node_src,
+        out, unique_nodes, unique_edges, modificators, dynamic_color, graph, node_src,
         node_dst);  // projections/populations from bus
 
-    SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(file_name).string());
+    SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(path).string());
 }
 
-/////////////////  dot to png /////////////////////
+
+// Dot to png.
 /**
- * @brief Convert DOT file to PNG image
+ * @brief Convert DOT file to PNG image.
  *
- * @param path_to_dot_file path to input DOT file
- * @param path_to_png_file path to output PNG file
+ * @param path_to_dot_file path to input DOT file.
+ * @param path_to_png_file path to output PNG file.
  *
- * @return boolean indicating success
+ * @return boolean indicating success.
  */
 bool convert_dot_to_png(const std::string& path_to_dot_file, const std::string& path_to_png_file)
 {
@@ -275,11 +276,12 @@ bool convert_dot_to_png(const std::string& path_to_dot_file, const std::string& 
     }
 }
 
+
 /**
- * @brief Create PNG file from DOT file
+ * @brief Create PNG file from DOT file.
  *
- * @param dot_file path to DOT file
- * @param png_file path to PNG file
+ * @param dot_file path to DOT file.
+ * @param png_file path to PNG file.
  */
 void create_png_file(const std::string& dot_file, const std::string& png_file)
 {

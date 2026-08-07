@@ -4,7 +4,7 @@
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ extern "C"
 }
 
 /**
- * @brief Get bus messages from backend subscriptions
+ * @brief Get bus messages from backend subscriptions.
  *
- * @param backend shared pointer to backend
+ * @param backend shared pointer to backend.
  *
- * @return tuple of spike messages and synaptic messages
+ * @return tuple of spike messages and synaptic messages.
  */
 std::tuple<
     std::vector<std::pair<knp::core::UID, knp::core::UID>>, std::vector<std::pair<knp::core::UID, knp::core::UID>>>
@@ -49,9 +49,9 @@ get_bus(std::shared_ptr<knp::core::Backend>& backend);
 /**
  * @brief Get entity name for any network object. If there is no name it's constructed from UID.
  *
- * @param pop population object
+ * @param pop population object.
  *
- * @return string name of the population
+ * @return string name of the population.
  */
 template <class Entity>
 std::string get_population_name(const Entity& pop)
@@ -78,32 +78,32 @@ std::string get_population_name(const Entity& pop)
 }
 
 /**
- * @brief Get node name by UID from network graph nodes
+ * @brief Get node name by UID from network graph nodes.
  *
- * @param node_uid UID of the node
- * @param nodes vector of network graph nodes
+ * @param node_uid UID of the node.
+ * @param nodes vector of network graph nodes.
  *
- * @return string node name
+ * @return string node name.
  */
 std::string get_node_name(knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes);
 
 /**
- * @brief Get graph node by UID from network graph nodes
+ * @brief Get graph node by UID from network graph nodes.
  *
- * @param node_uid UID of the node
- * @param nodes vector of network graph nodes
+ * @param node_uid UID of the node.
+ * @param nodes vector of network graph nodes.
  *
- * @return NetworkGraph::Node object
+ * @return NetworkGraph::Node object.
  */
 knp::framework::NetworkGraph::Node get_graph_node_by_uid(
     knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes);
 
 /**
- * @brief Get projection size by UID from network graph edges
+ * @brief Get projection size by UID from network graph edges.
  *
- * @param edges vector of network graph edges
- * @param edge_uid UID of the edge
+ * @param edges vector of network graph edges.
+ * @param edge_uid UID of the edge.
  *
- * @return string size of the edge
+ * @return string size of the edge.
  */
 std::string get_proj_size(std::vector<knp::framework::NetworkGraph::Edge> const& edges, const knp::core::UID& edge_uid);
