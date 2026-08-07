@@ -100,7 +100,6 @@ void train_network(
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
-    // knp::framework::Model model(network.network_);
 
     knp::framework::ModelLoader::InputChannelMap channel_map = build_channel_map_train<Neuron>(network, model, dataset);
 

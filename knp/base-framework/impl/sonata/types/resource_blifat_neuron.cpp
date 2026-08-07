@@ -57,35 +57,27 @@ void add_tags_to_h5(
     HighFive::NodeTraits<HighFive::Group> &population_group)
 {
     core::TagMap tags = population.get_tags();
-
     std::vector<std::string> tags_values;
     std::vector<std::string> tags_keys;
 
     if (tags.exists("io_type"))
     {
         auto io_type_tag_value = std::any_cast<knp::core::tags::IOType>(tags["io_type"]);
-
         if (io_type_tag_value == knp::core::tags::IOType::input)
-        {
-            tags_values.push_back("0");
-        }
+            tags_values.push_back("input");
         else if (io_type_tag_value == knp::core::tags::IOType::output)
-        {
-            tags_values.push_back("1");
-        }
+            tags_values.push_back("output");
         else
-        {
-            std::cout << "unknown io_type tag value" << std::endl;
-        }
+            SPDLOG_ERROR("Unknown io_type tag value");
         tags_keys.push_back("io_type");
     }
     auto name_tag_value = std::any_cast<std::string>(tags["name"]);
     tags_values.push_back(name_tag_value);
     tags_keys.push_back("name");
-
     population_group.createDataSet("tags_values", tags_values);
     population_group.createDataSet("tags_keys", tags_keys);
 }
+
 
 template <>
 void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>>(
@@ -185,6 +177,7 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
 using ResourceNeuron = neuron_traits::SynapticResourceSTDPBLIFATNeuron;
 using ResourceNeuronParams = neuron_traits::neuron_parameters<ResourceNeuron>;
 
+
 // Two arrays are uploaded: keys and tag values.
 // They are tagged with the population in accordance with the TagMap structure.
 void load_tags_to_population(
@@ -206,17 +199,18 @@ void load_tags_to_population(
 
         if (key == "io_type")
         {
-            switch (std::stoi(value))
+            if (value == "input")
             {
-                case 0:
-                    population.get_tags()[key] = knp::core::tags::IOType::input;
-                    break;
-                case 1:
-                    population.get_tags()[key] = knp::core::tags::IOType::output;
-                    break;
-                default:
-                    std::cout << "unknown io_type tag value" << std::endl;
+                population.get_tags()[key] = knp::core::tags::IOType::input;
+                break;
             }
+            else if (value == "output")
+            {
+                population.get_tags()[key] = knp::core::tags::IOType::output;
+                break;
+            }
+            else
+                SPDLOG_ERROR("Unknown io_type tag value");
             continue;
         }
         population.get_tags()[key] = value;

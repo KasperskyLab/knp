@@ -45,5 +45,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE
     KNP::BaseFramework::Core
     Boost::program_options
-    ${Graphviz_LIBRARIES}
     )

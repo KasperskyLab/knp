@@ -74,7 +74,7 @@ void run_model(const ModelDescription& model_desc)
  * @param argc Argument count.
  * @param argv Arguments value.
  *
- * @return Error code.source_node_idnode_population: 00000000-0000-0000-0000-000000000000
+ * @return Error code.
  */
 int main(int argc, char** argv)
 {

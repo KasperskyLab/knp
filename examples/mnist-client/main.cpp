@@ -31,6 +31,7 @@
 
 #include "inference.h"
 
+
 // Namespace for program options.
 namespace po = boost::program_options;
 
