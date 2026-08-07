@@ -112,6 +112,7 @@ void write_edge_without_src(
         << short_name << "\\nsize:" << size << "\", color=\"" << color << "\"];\n";
 }
 
+
 /**
  * @brief Write edge without destination to DOT file.
  *
