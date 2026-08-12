@@ -34,7 +34,6 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
-find_package(OpenCV REQUIRED)
 
 include(GNUInstallDirs)
 include(knp-functions)
@@ -77,7 +76,6 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/inference_evaluation/classification/processor.cpp
     impl/observer.cpp
     impl/logging.cpp
-    impl/visualizer/graph_physics.cpp
     impl/visualizer/visualize_network.cpp
     impl/visualizer/graph_helpers.cpp
     impl/visualizer/dot_helpers.cpp
@@ -87,7 +85,6 @@ knp_add_library("${PROJECT_NAME}-core"
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
         ${GRAPHVIZ_LIBRARIES}
-        ${OpenCV_LIBS}
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC

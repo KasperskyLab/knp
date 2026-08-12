@@ -19,14 +19,6 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(OpenCV)
-if (NOT OpenCV_FOUND)
-    message(WARNING "OpenCV was not found. Skipping MNIST example...")
-    return()
-endif()
-
-include_directories(${OpenCV_INCLUDE_DIRS})
-
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
     # Suppress Boost warning.
     cmake_policy(SET CMP0167 OLD)
@@ -50,4 +42,4 @@ pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
 
 target_include_directories(mnist-client PRIVATE ${GRAPHVIZ_INCLUDE_DIRS})
 target_link_libraries(mnist-client PRIVATE PkgConfig::GRAPHVIZ  )
-target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core ${OpenCV_LIBS} ${Boost_LIBRARIES} )
+target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core ${Boost_LIBRARIES} )
