@@ -28,6 +28,7 @@ namespace knp::framework
 /**
  * @brief Upcast all synapses derived from SynapseType to SynapseType, leaving other synapses intact.
  * @tparam BaseSynapseType base synapse type.
+ * @param network the network to be modified.
  */
 template <typename SynapseType>
 void upcast_projections(Network &network);
@@ -36,6 +37,7 @@ void upcast_projections(Network &network);
 /**
  * @brief Upcast all neurons derived from NeuronType to NeuronType, leaving other synapses intact.
  * @tparam BaseNeuronType base neuron type.
+ * @param network the network to be modified.
  */
 template <typename NeuronType>
 void upcast_populations(Network &network);

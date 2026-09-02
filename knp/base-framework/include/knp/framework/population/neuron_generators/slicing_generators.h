@@ -31,12 +31,6 @@
 namespace knp::framework::population::neurons_generators
 {
 /**
- * @brief Create a generator to remove train-only parameters from a trainable RSTDP neuron.
- * @param trainable_population the population to be converted.
- * @return generator creating a BLIFAT neuron from SynapticResourceSTDPBLIFAT neuron.F
- */
-
-/**
  * @brief Converts parameters of a derived neuron to its base neuron by slicing.
  * @tparam BaseNeuron base neuron type, simple.
  * @tparam DerivedNeuron derived neuron type, more complex.
