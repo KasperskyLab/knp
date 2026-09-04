@@ -55,10 +55,19 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <boost/python.hpp>
-#pragma GCC diagnostic pop
+#if defined(__GNUC__) && (__GNUC__ >= 14) && !defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#    include <boost/python.hpp>
+#    pragma GCC diagnostic pop
+#elif defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wmaybe-uninitialized"
+#    include <boost/python.hpp>
+#    pragma clang diagnostic pop
+#else
+#    include <boost/python.hpp>
+#endif
 #include <boost/python/implicit.hpp>
 #include <boost/python/iterator.hpp>
 #include <boost/python/object/class_metadata.hpp>
