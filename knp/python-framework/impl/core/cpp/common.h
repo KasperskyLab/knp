@@ -42,11 +42,7 @@
 #    include <spdlog/spdlog.h>
 #    pragma GCC diagnostic pop
 #elif defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wunknown-warning-option"
-#    pragma clang diagnostic ignored "-Wnan-infinity-disabled"
 #    include <spdlog/spdlog.h>
-#    pragma clang diagnostic pop
 #else
 #    include <spdlog/spdlog.h>
 #endif
@@ -61,10 +57,7 @@
 #    include <boost/python.hpp>
 #    pragma GCC diagnostic pop
 #elif defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wmaybe-uninitialized"
 #    include <boost/python.hpp>
-#    pragma clang diagnostic pop
 #else
 #    include <boost/python.hpp>
 #endif
