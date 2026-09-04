@@ -21,7 +21,7 @@
 
 #include <knp/framework/network.h>
 #include <knp/framework/network_validation/executor.h>
-#include <knp/framework/population/neuron_parameters_generators.h>
+#include <knp/framework/population/neuron_generators/parameters_generators.h>
 
 #include <tests_common.h>
 

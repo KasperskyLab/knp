@@ -20,7 +20,7 @@
  */
 
 #include <knp/core/projection.h>
-#include <knp/framework/population/neuron_parameters_generators.h>
+#include <knp/framework/population/neuron_generators/parameters_generators.h>
 #include <knp/framework/sonata/network_io.h>
 
 #include <generators.h>
