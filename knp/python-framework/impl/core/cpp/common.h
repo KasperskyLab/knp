@@ -36,7 +36,7 @@
 
 #include "exports.h"
 
-#if defined(__GNUC__) && (__GNUC__ >= 14)
+#if defined(__GNUC__) && (__GNUC__ >= 14) && !defined(__clang__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdangling-reference"
 #    include <spdlog/spdlog.h>
