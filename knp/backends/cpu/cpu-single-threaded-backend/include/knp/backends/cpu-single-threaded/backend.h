@@ -58,7 +58,7 @@ public:
     using SupportedNeurons = boost::mp11::mp_list<
         knp::neuron_traits::BLIFATNeuron, knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron,
         knp::neuron_traits::AltAILIF, knp::neuron_traits::SynapticResourceSTDPAltAILIFNeuron,
-        knp::neuron_traits::LIFNeuron>;
+        knp::neuron_traits::LIFNeuron, knp::neuron_traits::AstrocyteCell>;
 
     /**
      * @brief List of synapse types supported by the single-threaded CPU backend.
@@ -401,15 +401,27 @@ protected:
 
     /**
      * @brief Calculate population of `LIFNeuron` neurons.
-     * 
+     *
      * @param population population to calculate.
-     * 
+     *
      * @return spike message with indexes of spiked neurons; empty if the population does not emit a spike.
-     * 
+     *
      * @note The population state is modified during the calculation.
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::LIFNeuron> &population);
+
+    /**
+     * @brief Calculate a population of `AstrocyteCell` astrocytes.
+     *
+     * @param population population to calculate.
+     *
+     * @return spike message with the astrocyte's index whenever it is active; empty otherwise.
+     *
+     * @note The population state is modified during the calculation.
+     */
+    std::optional<core::messaging::SpikeMessage> calculate_population(
+        knp::core::Population<knp::neuron_traits::AstrocyteCell> &population);
 
 
     /**

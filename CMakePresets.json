@@ -42,7 +42,7 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "Boost_ROOT": "D:/boost_1_84_0",
+        "Boost_ROOT": "C:/local/boost_1_81_0",
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
       },
@@ -59,7 +59,7 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "Boost_ROOT": "D:/boost_1_84_0",
+        "Boost_ROOT": "C:/local/boost_1_81_0",
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
       },
@@ -76,9 +76,12 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "Boost_ROOT": "D:/boost_1_84_0",
+        "Boost_ROOT": "C:/local/boost_1_81_0",
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+        "OpenCV_DIR": "C:/opencv/build",
+        "Boost_NO_BOOST_CMAKE": "ON",
+        "KNP_BUILD_TESTS": "OFF"
       },
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
     }
