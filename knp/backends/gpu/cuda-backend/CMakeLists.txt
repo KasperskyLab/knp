@@ -88,7 +88,12 @@ set_target_properties(
         CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
 foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
-    target_compile_options("${lib_name}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true $<$<CONFIG:Debug>:--generate-line-info> >)
+    target_compile_options("${lib_name}"
+            PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+            --expt-relaxed-constexpr
+            -rdc=true
+            #$<$<CONFIG:Debug>:--generate-line-info>
+            $<$<CONFIG:Debug>:-G> >)
     target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
     set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)
 endforeach()
