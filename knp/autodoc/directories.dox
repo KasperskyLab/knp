@@ -226,7 +226,7 @@
 /**
  * @dir /knp/base-framework/include/knp/framework/network_validation/validators
  * @brief Directory for network validators headers.
- */ 
+ */
 
 /**
  * @dir /knp/base-framework/include/knp/framework/normalization
@@ -249,7 +249,7 @@
  */
 
 /**
- * @dir /knp/base-framework/include/knp/framework/population/synapse_generators
+ * @dir /knp/base-framework/include/knp/framework/projection/synapse_generators
  * @brief Directory for synapse generators headers.
  */
 
@@ -379,26 +379,26 @@
  */
 
 /**
- * @dir /knp/examples
+ * @dir /examples
  * @brief Examples directory.
  */
 
 /**
- * @dir /knp/examples/mnist-learn
+ * @dir /examples/mnist-learn
  * @brief Example of training neural network based on image data and labels and classifying images from the MNIST dataset.
  */
 
 /**
- * @dir /knp/examples/mnist-learn/models
+ * @dir /examples/mnist-learn/models
  * @brief Example model implementations.
  */
 
 /**
- * @dir /knp/examples/mnist-learn/models/altai
+ * @dir /examples/mnist-learn/models/altai
  * @brief Directory containing AltAI neuron model implementation.
  */
 
 /**
- * @dir /knp/examples/mnist-learn/models/blifat
+ * @dir /examples/mnist-learn/models/blifat
  * @brief Directory containing BLIFAT neuron model implementation.
  */
