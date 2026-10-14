@@ -36,17 +36,13 @@
 
 #include "exports.h"
 
-#if defined(__GNUC__) && (__GNUC__ >= 14)
+#if defined(__GNUC__) && (__GNUC__ >= 14) && !defined(__clang__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdangling-reference"
 #    include <spdlog/spdlog.h>
 #    pragma GCC diagnostic pop
 #elif defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wunknown-warning-option"
-#    pragma clang diagnostic ignored "-Wnan-infinity-disabled"
 #    include <spdlog/spdlog.h>
-#    pragma clang diagnostic pop
 #else
 #    include <spdlog/spdlog.h>
 #endif
@@ -55,10 +51,16 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <boost/python.hpp>
-#pragma GCC diagnostic pop
+#if defined(__GNUC__) && (__GNUC__ >= 14) && !defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#    include <boost/python.hpp>
+#    pragma GCC diagnostic pop
+#elif defined(__clang__)
+#    include <boost/python.hpp>
+#else
+#    include <boost/python.hpp>
+#endif
 #include <boost/python/implicit.hpp>
 #include <boost/python/iterator.hpp>
 #include <boost/python/object/class_metadata.hpp>

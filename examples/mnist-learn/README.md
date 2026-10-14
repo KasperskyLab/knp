@@ -120,9 +120,10 @@ The `network_functions.h` file declares the specialized versions of generic netw
 
 The `prepare_network_for_inference.cpp` file implements the specialized network preparation logic required for running BLIFAT spiking neural networks in inference mode. The file implements the `prepare_network_for_inference()` function that:
 
-* Extracts only the necessary populations and projections from the training backend
-* Uses the annotation data to select only components marked for inference use
-* Preserves the original BLIFAT network structure while removing unnecessary components
+* Extracts only the necessary populations and projections from the training backend.
+* Uses the annotation data to select only components marked for inference use.
+* Preserves the original BLIFAT network structure while removing unnecessary components.
+* Replaces any WTA mechanisms with direct projection connections to ensure compatibility with the BLIFAT neuron model.
 
 
 #### spike_generators.cpp program file description
@@ -149,6 +150,7 @@ The `network_functions.h` file provides the generic template declarations for ne
 * `construct_network()` function that provides the interface for network construction across all neuron models.
 * `prepare_network_for_inference()` function that provides the interface for network preparation before inference.
 * `make_training_labels_spikes_generator()` function that provides the interface for creating training label spike generators.
+* `replace_wta_with_projections()` function that converts WTA mechanisms into direct projection connections.
 
 
 ### resource_from_weight.h header file description
@@ -249,6 +251,7 @@ The `model_desc.h` file defines the configuration structure and streaming interf
     * Training and inference dataset sizes
     * File paths for images, labels, and backend libraries
     * Logging and model saving paths
+    * Flag that determines if training is skipped
 * `operator<<` — stream output operator that provides human-readable formatting of model configuration. The operator is defined in the `model_desc.cpp` file.
 
 
@@ -268,13 +271,15 @@ The `network_validation.h` file provides the interface to the `validate_network(
 
 The `parse_arguments.cpp` file implements the command-line argument parsing functionality for the MNIST neural network example. The comprehensive command-line interface management is provided via the `parse_arguments()` function. The implementation supports the following command-line options:
 
-* `--model` or `-m` for model type selection
-* `--train_iters` and `--inference_iters` for defining training and inference image counts
-* `--images` and `--labels` for defining paths to dataset images and labels files
-* `--training_backend` and `--inference_backend` for defining computational backends used for training and inference
-* `--extensive_logs_path` and `--logging_level` for logging control
-* `--model_path` for saving trained models
-* `--help` or `-h` for displaying usage information
+* `--model` or `-m` for model type selection.
+* `--train_iters` and `--inference_iters` for defining training and inference image counts.
+* `--images` and `--labels` for defining paths to dataset images and labels files.
+* `--training_backend` and `--inference_backend` for defining computational backends used for training and inference.
+* `--log_path` and `--extensive_logs_path` for defining directories where logs are written.
+* `--logging_level` for logging control.
+* `--model_path` for saving trained models.
+* `--inference_only` for skipping training.
+* `--help` or `-h` for displaying usage information.
 
 
 ## parse_arguments.h header file description
@@ -344,6 +349,17 @@ The `main.cpp` file serves as the entry point and orchestration hub for the comp
 _Neural network training on image data and labels and classification of images from the MNIST database consists of the following steps_:
 
 1. Header files required for the neural network execution are included using the `#include` directive.
+2. The `run_model_inference_only()` function is implemented that:
+    1. Validates the model loading path.
+    2. Builds an empty network that is later internally populated from the saved model configuration file. 
+    3. Instantiates a `BackendLoader`. 
+    4. Performs inference with `infer_model()` on the supplied dataset.
+3. The `run_model_training()` function is implemented that: 
+    1. Builds an annotated network with appropriate populations, projections, and WTA configuration using `construct_network()`.
+    2. Runs the complete training process with `train_model()`.
+    3. Upcasts populations to the most generic neuron type.
+    4. Upcasts projections to generic `DeltaSynapse` type. 
+    5. Performs inference with `infer_model()`.
 2. The `run_model()` function is implemented that:
     1. Calls `process_dataset()` to load and prepare MNIST data.
     2. Builds the neural network using `construct_network()` for the specified neuron type.
@@ -354,9 +370,10 @@ _Neural network training on image data and labels and classification of images f
     7. Evaluates inference results using `evaluate_results()`.
 3. The `main()` function is implemented that:
     1. Processes command-line arguments with `parse_arguments()`.
-    2. Validates parsed model description. 
+    2. Prints complete model description.
     3. Prompts user to confirm parameters before execution.
     4. Routes execution to appropriate neuron model based on configuration.
+    5. Runs the model pipeline. 
     The `main` function provides a complete end-to-end workflow that demonstrates the full lifecycle of neural network development.
 
 This design enables researchers and developers to easily experiment with different neuron models, training configurations, and evaluation metrics while maintaining a consistent, well-tested execution framework.

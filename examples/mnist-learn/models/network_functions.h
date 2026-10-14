@@ -105,8 +105,15 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_la
 
 
 /**
- * @brief Replace wta with projections.
- * @note We have to do this because AltAI does not support WTA.
- * @param network Annotated network.
+ * @brief Replace WTA with direct projection connections.
+ *
+ * @details The AltAI neuron model does not natively support WTA operations. To make a network built with WTA compatible 
+ * with AltAI during inference, this function replaces each WTA sender/receiver pair with an equivalent direct projection. 
+ * The original WTA data structures are cleared after the conversion.
+ *
+ * @note This function is used by both AltAI and BLIFAT inference preparation pipelines (BLIFAT calls it for completeness, 
+ * even though its networks typically do not contain WTA structures).
+ *
+ * @param network annotated network.
  */
 void replace_wta_with_projections(AnnotatedNetwork& network);

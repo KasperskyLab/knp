@@ -26,16 +26,33 @@
 namespace knp::framework
 {
 /**
- * @brief Upcast all synapses derived from SynapseType to SynapseType, leaving other synapses intact.
- * @tparam BaseSynapseType base synapse type.
+ * @brief Upcast all projections whose synapse type derives from @p BaseSynapseType to the base type.
+ *
+ * @tparam BaseSynapseType base synapse type to which derived projections will be converted.
+ *
+ * @param network network whose projections are examined and possibly replaced.
+ * 
+ * @details The function iterates over every projection in @p network visiting the variant that holds 
+ * the concrete projection type. If the projection’s synapse parameters are derived from 
+ * `synapse_traits::synapse_parameters<BaseSynapseType>`, the projection is replaced by a new one 
+ * created with this function.  Projections that do not satisfy the inheritance condition are left 
+ * unchanged.
  */
 template <typename SynapseType>
 void upcast_projections(Network &network);
 
 
 /**
- * @brief Upcast all neurons derived from NeuronType to NeuronType, leaving other synapses intact.
- * @tparam BaseNeuronType base neuron type.
+ * @brief Upcast all populations whose neuron type derives from @p BaseNeuronType to the base type.
+
+ * @tparam BaseNeuronType base neuron type to which derived populations will be converted.
+
+ * @param network network whose populations are examined and possibly replaced.
+ *
+ * @details The function walks through every population in @p network visiting the variant that holds 
+ * the concrete population type.  If the population’s neuron parameters inherit from 
+ * `neuron_traits::neuron_parameters<BaseNeuronType>`, a new population is built with this function 
+ * and swapped into the network. Populations that do not satisfy the inheritance check remain unchanged.
  */
 template <typename NeuronType>
 void upcast_populations(Network &network);

@@ -33,11 +33,14 @@
 
 
 /**
- * @brief Run model with just inference.
- * @tparam Neuron
- * @param model_desc
- * @param dataset
- * @return
+ * @brief Run only inference for model.
+ *
+ * @tparam Neuron neuron type.
+ *
+ * @param model_desc model description containing the path to the saved model.
+ * @param dataset dataset used for inference.
+ *
+ * @return vector of spike messages produced during inference.
  */
 template <typename Neuron>
 std::vector<knp::core::messaging::SpikeMessage> run_model_inference_only(const ModelDescription& model_desc,
@@ -48,17 +51,23 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_inference_only(const M
     if (model_desc.model_saving_path_.empty())
         throw std::runtime_error("Model loading path is not defined for inference-only mode");
 
-    // Execute inference on test data.
+    // Perform inference using the pre-trained model.
     return infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 }
 
 
 /**
- * @brief Run model with training.
- * @tparam Neuron neuron base type.
+ * @brief Run full training pipeline followed by inference.
+ *
+ * @details This function constructs the network, trains it, optionally upcasts populations and projections 
+ * to their base types, and finally runs inference on the test set.
+ *
+ * @tparam Neuron neuron type.
+ *
  * @param model_desc model description containing configuration parameters and paths.
- * @param dataset dataset.
- * @return vector of output spike messages.
+ * @param dataset dataset used for training and inference.
+ *
+ * @return vector of output spike messages produced during the final inference step.
  */
 template <typename Neuron>
 std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDescription& model_desc,
@@ -66,18 +75,25 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
 {
     AnnotatedNetwork network;
     knp::framework::BackendLoader backend_loader;
+
+    // Build the network according to the selected neuron model.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     network = construct_network<Neuron>(model_desc);
+
+    // Execute the training phase.
     train_model<Neuron>(model_desc, dataset, network, backend_loader);
-    // Сonvert model to the most base neuron and synapse classes.
+
+    // Upcast populations to the most generic neuron type for serialization.
     if (model_desc.type_ == SupportedModelType::BLIFAT)
         knp::framework::upcast_populations<knp::neuron_traits::BLIFATNeuron>(network.network_);
     else if (model_desc.type_ == SupportedModelType::AltAI)
         knp::framework::upcast_populations<knp::neuron_traits::AltAILIF>(network.network_);
     else throw std::runtime_error("Unsupported model type");
 
+    // Upcast projections to the generic `DeltaSynapse` type.
     knp::framework::upcast_projections<knp::synapse_traits::DeltaSynapse>(network.network_);
 
+    // Perform inference on the trained model.
     return infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 }
 
@@ -89,7 +105,7 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
  * dataset processing, network construction, training, inference, and evaluation. It serves as the core execution
  * engine for both AltAI and BLIFAT neuron models.
  *
- * @tparam Neuron neuron type for neuron model specification.
+ * @tparam Neuron neuron type.
  *
  * @param model_desc model description containing configuration parameters and paths.
  */
@@ -133,7 +149,7 @@ int main(int argc, char** argv)
     std::cin.get();
     std::cout << "Starting model." << std::endl;
 
-    // Execute model according to selected neuron type.
+    // Execute model according to the selected neuron type.
     switch (model_desc.type_)
     {
         case SupportedModelType::BLIFAT:

@@ -104,7 +104,9 @@ struct ModelDescription
      */
     std::filesystem::path model_saving_path_;
 
-    /// A flag to not do the training.
+    /**
+     * @brief Flag to skip training.
+     */
     bool inference_only_ = false;
 };
 
@@ -117,6 +119,7 @@ struct ModelDescription
  * 
  * @param stream output stream to write the formatted description to.
  * @param desc model description containing configuration parameters.
+ *
  * @return reference to the output stream.
  */
 std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc);

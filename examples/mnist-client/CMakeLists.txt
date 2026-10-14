@@ -45,4 +45,4 @@ add_executable(mnist-client
     process_data.cpp
 )
 
-target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core ${OpenCV_LIBS} Boost::program_options)

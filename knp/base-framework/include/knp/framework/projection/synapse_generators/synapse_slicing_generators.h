@@ -24,16 +24,29 @@
 
 
 /**
- * @brief Namespace for synapse generators.
+ * @brief Namespace that provides utilities for generating synapse parameters.
  */
 namespace knp::framework::projection::synapse_generators
 {
 /**
- * @brief Convert a derived synapse parameters type to its parent.
- * @tparam BaseSynapse base synapse type.
- * @tparam DerivedSynapse derived synapse type.
- * @param input_synapse_params the parameters to be converted.
- * @return  the resulting parameters.
+ * @brief Slice a derived synapse parameter set to its base synapse counterpart.
+
+ * @tparam BaseSynapse base synapse type (simpler).
+ * @tparam DerivedSynapse derived synapse type (more complex).
+
+ * @param input_synapse_params parameters of the derived synapse that should be sliced.
+
+ * @return parameters of the base synapse obtained by static casting.
+ *
+ * @details @p BaseSynapse is a simple synapse type that contains only the core parameters needed for the 
+ * simulation. @p DerivedSynapse is a more complex synapse that inherits from the base synapse structure and 
+ * adds extra fields. For example, @ref knp::synapse_traits::SynapticResourceSTDPDeltaSynapse publicly derives 
+ * from @ref knp::synapse_traits::DeltaSynapse. Consequently, 
+ * `synapse_parameters<SynapticResourceSTDPDeltaSynapse>` can be sliced to `synapse_parameters<DeltaSynapse>`
+ * object, discarding the extra fields.
+ *
+ * @note This generator is handy when a projection must be exported to a backend that does not support 
+ * the extra fields of the derived synapse.
  */
 template <class BaseSynapse, class DerivedSynapse>
 constexpr synapse_traits::synapse_parameters<BaseSynapse> slice_synapse(
@@ -49,17 +62,27 @@ constexpr synapse_traits::synapse_parameters<BaseSynapse> slice_synapse(
 
 
 /**
- * @brief Create the generator to convert synapses of a derived type to the base one.
- * @tparam BaseSynapse base synapse type.
- * @tparam DerivedSynapse derived synapse type.
- * @param projection the derived type projection that is converted with the generator.
- * @return a generator to convert synapses of the projection into the new ones.
+ * @brief Create a generator that converts derived synapse instances to base synapse instances.
+ *
+ * @tparam BaseSynapse base synapse type (simpler).
+ * @tparam DerivedSynapse derived synapse type (more complex).
+ *
+ * @param projection projection that holds the derived synapse objects.
+ *
+ * @details @p BaseSynapse is a simple synapse type that contains only the core parameters needed for the 
+ * simulation. @p DerivedSynapse is a more complex synapse that inherits from the base synapse structure and 
+ * adds extra fields. For example, @ref knp::synapse_traits::SynapticResourceSTDPDeltaSynapse publicly derives 
+ * from @ref knp::synapse_traits::DeltaSynapse. Consequently, 
+ * `synapse_parameters<SynapticResourceSTDPDeltaSynapse>` can be sliced to `synapse_parameters<DeltaSynapse>`
+ * object, discarding the extra fields.
+ *
+ * @return a generator (`SynapseGenerator`) that yields base synapse objects for each step.
  */
 template <class BaseSynapse, class DerivedSynapse>
 typename core::Projection<BaseSynapse>::SynapseGenerator make_slicing_synapse_generator(
         const core::Projection<DerivedSynapse> &projection)
 {
-    // Getting projection by value as we don't know if the generator is used before original projection is destructed
+    // Capture by value because the generator may outlive the original projection.
     typename core::Projection<BaseSynapse>::SynapseGenerator generator = [projection](size_t step)
             -> std::optional<typename core::Projection<BaseSynapse>::Synapse>
     {
@@ -73,11 +96,25 @@ typename core::Projection<BaseSynapse>::SynapseGenerator make_slicing_synapse_ge
 
 
 /**
- * @brief Converts a projection of the derived synapse type to its parent synapse type.
- * @tparam BaseSynapse parent synapse type.
- * @tparam DerivedSynapse derived synapse type.
- * @param derived_projection the original projection.
- * @return the converted projection.
+ * @brief Convert a projection that uses a derived synapse type to a projection that uses the base synapse type.
+ *
+ * @tparam BaseSynapse base synapse type (simpler).
+ * @tparam DerivedSynapse derived synapse type (more complex).
+ *
+ * @param derived_projection projection containing the derived synapse objects.
+ *
+ * @return a new `core::Projection<BaseSynapse>` that references the same UID, presynaptic and postsynaptic 
+ * populations, but provides a generator that yields base synapse objects.
+ *
+ * @details @p BaseSynapse is a simple synapse type that contains only the core parameters needed for the 
+ * simulation. @p DerivedSynapse is a more complex synapse that inherits from the base synapse structure and 
+ * adds extra fields. For example, @ref knp::synapse_traits::SynapticResourceSTDPDeltaSynapse publicly derives 
+ * from @ref knp::synapse_traits::DeltaSynapse. Consequently, 
+ * `synapse_parameters<SynapticResourceSTDPDeltaSynapse>` can be sliced to `synapse_parameters<DeltaSynapse>`
+ * object, discarding the extra fields.
+ *
+ * @note The returned projection does not own the original synapse data; it relies on the generator to produce 
+ * sliced copies on demand.
  */
 template <class BaseSynapse, class DerivedSynapse>
 core::Projection<BaseSynapse> upcast_projection(const core::Projection<DerivedSynapse> &derived_projection)

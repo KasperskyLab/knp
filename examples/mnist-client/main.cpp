@@ -45,10 +45,10 @@ int main(int argc, char **argv)
     knp::core::UID output_uid;
     // Defines `std::string` object for task types.
     std::string task;
-    // Defines `std::string` objects for path to network and path to a file storing data.
+    // Defines `std::string` objects for paths to network, a file storing data, and backend.
     std::string path_to_network, path_to_data, backend_type;
     po::options_description options;
-    // Defines options for task types, path to network, and path to a file storing data.
+    // Defines options for task types, paths to network, a file storing data, and backend.
     options.add_options()("help,h", "Produce help message.")(
         "task,t", po::value(&task), "Type of task: show, train, infer.")(
         "net-path,p", po::value(&path_to_network), "File or directory for network storage.")(

@@ -57,9 +57,17 @@ void replace_wta_with_projections(AnnotatedNetwork& network)
 
 
 /**
- * @brief Quantize network, i.e. scale down model to weights in range [-255,255].
- * @note This is done to simulate AltAI limitations.
- * @param network Annotated network.
+ * @brief Quantize the network by scaling weights and neuron thresholds to the range [-255, 255].
+ *
+ * @details This function is required for the AltAI neuron model because it operates with fixed-point arithmetic. 
+ * All synaptic weights and neuron activation thresholds are scaled proportionally so that the largest absolute 
+ * value (whether weight or threshold) maps to 255. The scaling preserves the relative magnitude of parameters 
+ * while fitting them into the integer range expected by the AltAI implementation.
+ *
+ * @note The quantization step is performed after the network has been reconstructed for inference (i.e., after 
+ * `replace_wta_with_projections` has been applied).
+ *
+ * @param network annotated network.
  */
 static void quantize_network(AnnotatedNetwork& network)
 {

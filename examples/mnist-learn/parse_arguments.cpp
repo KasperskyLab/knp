@@ -41,16 +41,16 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
         "log_path", po::value<std::string>()->default_value(""),
-                "the path for saving logs. if no path is specified, no logs will be saved.")(
-        "inference_only", "don't do training, use model_path for loading model.")(
+                "path for saving logs (if empty, no logs are saved)")(
+        "inference_only", "skip training and use `model_path` to load a pre-trained model")(
         "training_backend", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"),
                 "path to backend used for training")(
         "inference_backend", po::value<std::string>(),
-                "path to backend for inference (if not provided, training_backend is used)")(
+                "path to backend for inference (if empty, `training_backend` is used)")(
         "extensive_logs_path", po::value<std::string>()->default_value(""),
-                "path for storing extensive logs (if not specified, no extensive logs will be produced)")(
+                "path for storing extensive logs (if empty, no extensive logs are produced)")(
         "model_path", po::value<std::string>()->default_value(""),
-                "path for saving trained model (if not specified, model will not be saved)")(
+                "path for saving trained model (if empty, model is not saved)")(
         "logging_level,l", po::value<std::string>()->default_value("info"),
         "logging level: trace, debug, info, warn, error, critical, or none");
 

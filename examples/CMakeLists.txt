@@ -17,7 +17,11 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.25)
 
 include(GNUInstallDirs)
-include(knp-functions)
+
+# Check needs to build examples in the SDK container.
+if (KNP_INSTALL)
+    include(knp-functions)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
