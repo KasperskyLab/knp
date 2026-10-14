@@ -40,29 +40,28 @@ namespace knp::framework::population::neurons_generators
  *
  * @return parameters of the base neuron obtained by static casting.
  *
- * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the 
- * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and 
- * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives 
- * from @ref knp::neuron_traits::BLIFATNeuron. Consequently, 
+ * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the
+ * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and
+ * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives
+ * from knp::neuron_traits::BLIFATNeuron. Consequently,
  * `neuron_parameters<SynapticResourceSTDPBLIFATNeuron>` can be sliced to `neuron_parameters<BLIFATNeuron>`
  * object, discarding the extra fields (`dopamine_value_`, `is_being_forced_`, and `resource_`).
  *
- * @note This generator is useful for creating a non-trainable model from a trainable one, or when 
+ * @note This generator is useful for creating a non-trainable model from a trainable one, or when
  * moving a model to a backend that does not support training.
  */
 template <class BaseNeuron, class DerivedNeuron>
 neuron_traits::neuron_parameters<BaseNeuron> slice_to_base_neuron(
-        const neuron_traits::neuron_parameters<DerivedNeuron> &derived_params)
+    const neuron_traits::neuron_parameters<DerivedNeuron> &derived_params)
 {
     static_assert(std::is_base_of_v<
-            neuron_traits::neuron_parameters<BaseNeuron>,
-            neuron_traits::neuron_parameters<DerivedNeuron>>);
+                  neuron_traits::neuron_parameters<BaseNeuron>, neuron_traits::neuron_parameters<DerivedNeuron>>);
     return static_cast<neuron_traits::neuron_parameters<BaseNeuron>>(derived_params);
 }
 
 
 /**
- * @brief Create a neuron generator that produces base neuron parameters from a population of derived 
+ * @brief Create a neuron generator that produces base neuron parameters from a population of derived
  * neurons.
  *
  * @tparam BaseNeuron base neuron type (simpler).
@@ -70,10 +69,10 @@ neuron_traits::neuron_parameters<BaseNeuron> slice_to_base_neuron(
  *
  * @param derived_population population containing the derived neurons.
  *
- * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the 
- * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and 
- * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives 
- * from @ref knp::neuron_traits::BLIFATNeuron. Consequently, 
+ * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the
+ * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and
+ * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives
+ * from knp::neuron_traits::BLIFATNeuron. Consequently,
  * `neuron_parameters<SynapticResourceSTDPBLIFATNeuron>` can be sliced to `neuron_parameters<BLIFATNeuron>`
  * object, discarding the extra fields (`dopamine_value_`, `is_being_forced_`, and `resource_`).
  *
@@ -81,7 +80,7 @@ neuron_traits::neuron_parameters<BaseNeuron> slice_to_base_neuron(
  */
 template <class BaseNeuron, class DerivedNeuron>
 [[nodiscard]] typename knp::core::Population<BaseNeuron>::NeuronGenerator make_slicing_neuron_generator(
-        const knp::core::Population<DerivedNeuron> &derived_population)
+    const knp::core::Population<DerivedNeuron> &derived_population)
 {
     using BaseParams = knp::neuron_traits::neuron_parameters<BaseNeuron>;
     using BaseGenerator = typename knp::core::Population<BaseNeuron>::NeuronGenerator;
@@ -103,25 +102,24 @@ template <class BaseNeuron, class DerivedNeuron>
  * @param input_population the population to be converted.
  *
  * @return a new `Population<BaseNeuron>` that contains the sliced parameters of the original population.
- * 
- * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the 
- * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and 
- * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives 
- * from @ref knp::neuron_traits::BLIFATNeuron. Consequently, 
+ *
+ * @details @p BaseNeuron is a simple neuron type that contains only the core parameters needed for the
+ * simulation. @p DerivedNeuron is a more complex neuron that inherits from the base neuron structure and
+ * adds extra fields. For example, @ref knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron publicly derives
+ * from knp::neuron_traits::BLIFATNeuron. Consequently,
  * `neuron_parameters<SynapticResourceSTDPBLIFATNeuron>` can be sliced to `neuron_parameters<BLIFATNeuron>`
  * object, discarding the extra fields (`dopamine_value_`, `is_being_forced_`, and `resource_`).
  *
- * @note The function builds a new population using the same UID as the source and the original size. 
+ * @note The function builds a new population using the same UID as the source and the original size.
  * The resulting population can be passed to backends that only understand the base neuron type.
  */
 template <class BaseNeuron, class DerivedNeuron>
 [[nodiscard]] knp::core::Population<BaseNeuron> upcast_population(
-        const knp::core::Population<DerivedNeuron> &input_population)
+    const knp::core::Population<DerivedNeuron> &input_population)
 {
-    knp::core::Population<BaseNeuron> result{input_population.get_uid(),
-                                             make_slicing_neuron_generator<BaseNeuron, DerivedNeuron>
-                                                     (input_population),
-                                             input_population.size()};
+    knp::core::Population<BaseNeuron> result{
+        input_population.get_uid(), make_slicing_neuron_generator<BaseNeuron, DerivedNeuron>(input_population),
+        input_population.size()};
     return result;
 }
-} // namespace knp::framework::population::neurons_generators
+}  // namespace knp::framework::population::neurons_generators
