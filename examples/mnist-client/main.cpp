@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         knp::framework::Network network = knp::framework::sonata::load_network(network_path);
 
         // knp::framework::set_saving_path("temp_test_dir");
-        knp::framework::visualize_network(network);
+        // knp::framework::visualize_network(network);
     }
 
     // If `task=infer`, the function loads a network and runs inference.

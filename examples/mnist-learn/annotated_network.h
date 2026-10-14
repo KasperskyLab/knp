@@ -63,6 +63,18 @@ struct AnnotatedNetwork
         // cppcheck-suppress unusedStructMember
         std::vector<std::pair<std::vector<knp::core::UID>, std::vector<knp::core::UID>>> wta_data_;
 
+        /// UIDs of WTA handlers, in the same order as wta_data_. Filled when the handlers are added.
+        // cppcheck-suppress unusedStructMember
+        std::vector<knp::core::UID> wta_uids_;
+
+        /// Input channels: UID and name. They are created locally and are not stored anywhere else.
+        // cppcheck-suppress unusedStructMember
+        std::vector<std::pair<knp::core::UID, std::string>> input_channel_uids_;
+
+        /// Output channels: UID and name. They are created locally and are not stored anywhere else.
+        // cppcheck-suppress unusedStructMember
+        std::vector<std::pair<knp::core::UID, std::string>> output_channel_uids_;
+
         /// WTA borders, for example 2,4,6.
         // cppcheck-suppress unusedStructMember
         std::vector<size_t> wta_borders_;

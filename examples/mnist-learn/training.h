@@ -51,12 +51,19 @@
  */
 template <typename Neuron>
 knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
-    const AnnotatedNetwork& network, knp::framework::Model& model, const Dataset& dataset)
+    AnnotatedNetwork& network, knp::framework::Model& model, const Dataset& dataset)
 {
     // Create future channels uids randomly.
     knp::core::UID input_image_channel_raster;
     knp::core::UID input_image_channel_classes;
     knp::core::UID output_channel;
+
+    // Keep the channel UIDs with their names: they exist only here and cannot be restored from the message bus.
+    // The name of a channel is the name of its variable, so nothing is invented and the label follows the code.
+    network.data_.input_channel_uids_ = {
+        {input_image_channel_raster, "input_image_channel_raster"},
+        {input_image_channel_classes, "input_image_channel_classes"}};
+    network.data_.output_channel_uids_ = {{output_channel, "output_channel"}};
 
     // Add input channel for each image input projection.
     for (auto image_proj_uid : network.data_.projections_from_raster_)
@@ -118,6 +125,8 @@ void train_network(
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
     std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
         model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
+    // Keep the handler UIDs: the handlers live inside the model executor and die with it.
+    network.data_.wta_uids_ = wta_uids;
     // Add WTA populations for logging.
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
 
@@ -160,9 +169,10 @@ void train_network(
  * @param dataset Dataset.
  * @param network Annotated network.
  * @param backend_loader Backend loader.
+ * @return Connections taken from the message bus of the training backend.
  */
 template <typename Neuron>
-std::shared_ptr<knp::core::Backend> train_model(
+knp::framework::BusConnections train_model(
     const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
     knp::framework::BackendLoader& backend_loader)
 {
@@ -170,5 +180,7 @@ std::shared_ptr<knp::core::Backend> train_model(
     train_network<Neuron>(training_backend, network, model_desc, dataset);
 
     prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
-    return training_backend;
+
+    // Subscriptions are copied here: they are needed for visualization and the backend is destroyed on return.
+    return knp::framework::get_bus_connections(training_backend->get_message_endpoint());
 }

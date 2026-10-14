@@ -1,6 +1,6 @@
 /**
  * @file dot_helpers.cpp
- * @brief Help functions for writing a dot file.
+ * @brief Help functions for writing a dot text.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -19,318 +19,261 @@
  * limitations under the License.
  */
 
-
 #include "dot_helpers.h"
 
 #include <knp/framework/visualizer/visualize_network.h>
 
 #include <spdlog/spdlog.h>
 
-#include <map>
-#include <set>
 #include <string>
-#include <utility>
-#include <vector>
 
-#include "graph_helpers.h"
+
+namespace
+{
+
+/**
+ * @brief Check that a node is known from the message bus or works as a dynamic entity.
+ *
+ * @param node node to check.
+ *
+ * @return boolean indicating that the node is not an ordinary population.
+ */
+bool is_dynamic_node(const knp::framework::Node& node)
+{
+    return node.node_type_ != "Population";
+}
 
 
 /**
- * @brief Write header and styles to DOT file.
+ * @brief Get color of a node.
  *
- * @param out output file stream.
+ * @param node node to draw.
+ * @param is_dynamic flag showing that the graph was built with bus subscriptions.
  *
- * @details commentsed - for a connected graph.
+ * @return node color.
  */
-void write_header_and_styles(std::ofstream& out)
+std::string get_node_color(const knp::framework::Node& node, bool is_dynamic)
+{
+    if (!is_dynamic) return static_color;
+    return is_dynamic_node(node) ? dynamic_color : static_color;
+}
+
+
+/**
+ * @brief Get color of an edge.
+ *
+ * @param src_node source node of the edge.
+ * @param edge edge to draw.
+ * @param is_dynamic flag showing that the graph was built with bus subscriptions.
+ *
+ * @return edge color.
+ *
+ * @details An edge is dynamic if its source is dynamic or if the edge itself is not described by the network.
+ */
+std::string get_edge_color(const knp::framework::Node& src_node, const knp::framework::Edge& edge, bool is_dynamic)
+{
+    if (!is_dynamic) return static_color;
+    if (is_dynamic_node(src_node)) return dynamic_color;
+    return edge.is_static_ ? static_color : dynamic_color;
+}
+
+
+/**
+ * @brief Get style of an edge.
+ *
+ * @param has_invisible_node flag showing that the edge has no source or no destination.
+ *
+ * @return edge style.
+ *
+ * @details A dotted edge has an invisible node on one side. Such an edge is drawn in a dynamic graph only, because
+ * a static graph skips an edge with an unknown source or destination.
+ */
+std::string get_edge_style(bool has_invisible_node)
+{
+    return has_invisible_node ? "dotted" : "solid";
+}
+
+}  // namespace
+
+
+/**
+ * @brief Check that a node is drawn.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+bool is_node_drawn(const knp::framework::BaseGraph& graph, knp::framework::BaseGraph::vertex_descriptor vertex)
+{
+    return !graph[vertex].is_invisible_;
+}
+
+
+/**
+ * @brief Check that an edge is drawn, so that a picture and a description always match.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+bool is_edge_drawn(const knp::framework::NetworkGraph& graph, const knp::framework::BaseGraph::edge_descriptor& edge)
+{
+    const knp::framework::BaseGraph& network_graph = graph.graph_;
+    const bool has_invisible_node = network_graph[boost::source(edge, network_graph)].is_invisible_ ||
+                                    network_graph[boost::target(edge, network_graph)].is_invisible_;
+    return graph.is_dynamic_ || !has_invisible_node;
+}
+
+
+/**
+ * @brief Escape a text that is written to a DOT attribute value.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+std::string escape_dot_text(const std::string& text)
+{
+    std::string result;
+    result.reserve(text.size());
+    for (char symbol : text)
+    {
+        if (symbol == '"' || symbol == '\\') result.push_back('\\');
+        result.push_back(symbol);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Write header and styles to DOT text.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+void write_header_and_styles(std::ostream& out)
 {
     // Digraph - directed.
     out << "digraph G {\n";
 
-    // for unconnected graphs this is needed: (+ change -> to --)
-    out << "    layout=neato;\n";          // Change engine to neato (physical force model)
-    out << "    pack=true;\n";             // Enable compact packing of independent components
-    out << "    packmode=\"graph\";\n\n";  // Pack each subgroup as a separate mini-graph
+    // For unconnected graphs this is needed.
+    out << "    layout=neato;\n";          // Change engine to neato (physical force model).
+    out << "    pack=true;\n";             // Enable compact packing of independent components.
+    out << "    packmode=\"graph\";\n\n";  // Pack each subgroup as a separate mini-graph.
 
-    // Global design settings for the graph
+    // Global design settings for the graph.
     out << "    // Canvas settings.\n";
-    out << "    bgcolor=\"#FAFAFA\";\n";  // Light gray soft background page
-    // out << "    rankdir=LR;\n";                 // Graph goes left to right
-    out << "    splines=true;\n";  // Beautiful smooth curves for arrows
-    // out << "    nodesep=0.5;\n";                // Distance between nodes
-    // out << "    ranksep=0.6;\n\n";              // Distance between levels (layers) of the graph
+    out << "    bgcolor=\"#FAFAFA\";\n";  // Light gray soft background page.
+    out << "    splines=true;\n";         // Beautiful smooth curves for arrows.
     out << "    overlap=false;\n";
-    out << "    sep=\"+30\";\n";
+    out << "    sep=\"+30\";\n\n";
 
     out << "    // Default node styling.\n";
     out << "    node [\n";
-    out << "        fontname=\"Helvetica,Arial,sans-serif\",\n";  // Modern font
+    out << "        fontname=\"Helvetica,Arial,sans-serif\",\n";  // Modern font.
     out << "        fontsize=11,\n";
-    out << "        shape=box,\n";                 // Rectangular shape
-    out << "        style=\"filled,rounded\",\n";  // Fill with color + rounded corners
-    out << "        penwidth=0,\n";                // Remove rigid black border around node
-    out << "        margin=\"0.2,0.1\"\n";         // Internal padding for text
+    out << "        shape=box,\n";                 // Rectangular shape.
+    out << "        style=\"filled,rounded\",\n";  // Fill with color + rounded corners.
+    out << "        penwidth=0,\n";                // Remove rigid black border around node.
+    out << "        margin=\"0.2,0.1\"\n";         // Internal padding for text.
     out << "    ];\n\n";
 
     out << "    // Default edge (arrow) styling.\n";
     out << "    edge [\n";
     out << "        fontname=\"Helvetica,Arial,sans-serif\",\n";
     out << "        fontsize=9,\n";
-    out << "        fontcolor=\"#555555\",\n";  // Soft gray color for text above arrows
-    out << "        color=\"#B0BEC5\",\n";      // Beautiful steel color for the arrow itself
-    out << "        penwidth=1.5,\n";           // Make line slightly thicker than default
-    out << "        arrowsize=0.8\n";           // Slightly reduce arrowhead size
+    out << "        fontcolor=\"#555555\",\n";  // Soft gray color for text above arrows.
+    out << "        color=\"#B0BEC5\",\n";      // Beautiful steel color for the arrow itself.
+    out << "        penwidth=1.5,\n";           // Make line slightly thicker than default.
+    out << "        arrowsize=0.8\n";           // Slightly reduce arrowhead size.
     out << "    ];\n\n";
 }
 
 
 /**
- * @brief Write edge without source to DOT file.
+ * @brief Write node to DOT text.
  *
- * @param out output file stream.
- * @param dst destination node UID.
- * @param i counter for ghost node.
- * @param edge_uid edge UID.
- * @param size edge size.
- * @param color edge color.
- *
- * @details A graphviz can't draw an arrow from nowhere. It is necessary to make an invisible vertex.
+ * @details Parameters and return value are described in the header.
  */
-void write_edge_without_src(
-    std::ofstream& out, knp::core::UID const& dst, int const& i, knp::core::UID const& edge_uid,
-    std::string const& size, std::string const& color)
+void write_node_to_dot(std::ostream& out, size_t node_id, const knp::framework::Node& node, const std::string& color)
 {
-    auto num = std::to_string(i);
-    auto short_name = std::string(edge_uid).substr(0, 8);
-
-    out << "    ghost_src_" << num << " [shape=point, style=invis"
-        << "];\n";
-
-    out << "    \""
-        << "ghost_src_" << num << "\" -> " << std::string(dst) << "[style=\"dotted\", "
-        << "label=\"projection :\\n"
-        << short_name << "\\nsize:" << size << "\", color=\"" << color << "\"];\n";
+    out << "    " << node_id << " [label=\"" << escape_dot_text(node.node_type_) << ":\\n"
+        << escape_dot_text(node.name_);
+    if (node.size_.has_value()) out << "\\nsize: " << node.size_.value();
+    out << "\", color=\"" << color << "\"];\n";
 }
 
 
 /**
- * @brief Write edge without destination to DOT file.
+ * @brief Write invisible node to DOT text.
  *
- * @param out output file stream.
- * @param src source node UID.
- * @param i counter for ghost node.
- * @param edge_uid edge UID.
- * @param size edge size.
- * @param color edge color.
- *
- * @details A graphviz can't draw an arrow to nowhere. It is necessary to make an invisible vertex.
+ * @details Parameters and return value are described in the header.
  */
-void write_edge_without_dst(
-    std::ofstream& out, knp::core::UID const& src, int const& i, knp::core::UID const& edge_uid,
-    std::string const& size, std::string const& color)
+void write_invisible_node_to_dot(std::ostream& out, size_t node_id)
 {
-    auto num = std::to_string(i);
-    auto short_name = std::string(edge_uid).substr(0, 8);
-
-    out << "    ghost_dst_" << num << " [shape=point, style=invis"
-        << "];\n";
-
-    out << "    \"" << std::string(src) << "\" -> "
-        << "ghost_dst_" << num << "[style=\"dotted\", "
-        << "label=\"projection :\\n"
-        << short_name << "\\nsize:" << size << "\", color=\"" << color << "\"];\n";
+    out << "    " << node_id << " [shape=point, style=invis];\n";
 }
 
 
 /**
- * @brief Write message nodes and edges to DOT file.
+ * @brief Write edge to DOT text.
  *
- * @param out output file stream.
- * @param message vector of message pairs (sender, receiver).
- * @param graph network graph containing nodes and edges information.
- * @param label label for the edge (e.g., "Spike Message" or "Synapse Message").
- *
- * @details This function writes nodes and edges for message flow visualization.
- * For Spike Messages, sender is a node and receiver is an edge.
- * For Synapse Messages, sender is an edge and receiver is a node.
- * The function extracts names and sizes from the graph for proper labeling.
+ * @details Parameters and return value are described in the header.
  */
-void writeMessageNodesAndEdge(
-    std::ostream& out, const std::vector<std::pair<knp::core::UID, knp::core::UID>>& messages,
-    knp::framework::NetworkGraph const& graph, const std::string& label)
+void write_edge_to_dot(
+    std::ostream& out, size_t index_from, size_t index_to, const knp::framework::Edge& edge, const std::string& color,
+    const std::string& style)
 {
-    for (auto message : messages)
-    {
-        auto sender = message.first;
-        auto receiver = message.second;
-        auto sender_name = std::string(sender).substr(0, 8);
-        auto receiver_name = std::string(receiver).substr(0, 8);
-        std::string sender_size;
-        std::string receiver_size;
-
-        if (label == "Spike Message")
-        {
-            auto node_it = std::find_if(
-                graph.nodes_.begin(), graph.nodes_.end(), [&sender](auto const& node) { return node.uid_ == sender; });
-            if (node_it != graph.nodes_.end())
-            {
-                sender_name = node_it->name_;
-                sender_size = std::to_string(node_it->size_);
-            }
-            auto edge_it = std::find_if(
-                graph.edges_.begin(), graph.edges_.end(),
-                [&receiver](const auto& edge) { return edge.uid_ == receiver; });
-            if (edge_it != graph.edges_.end())
-            {
-                receiver_name = edge_it->name_;
-                receiver_size = std::to_string(edge_it->size_);
-            }
-        }
-        else if (label == "Synaptic Impact Message")
-        {
-            auto edge_it = std::find_if(
-                graph.edges_.begin(), graph.edges_.end(), [&sender](const auto& edge) { return edge.uid_ == sender; });
-            if (edge_it != graph.edges_.end())
-            {
-                sender_name = edge_it->name_;
-                sender_size = std::to_string(edge_it->size_);
-            }
-            auto node_it = std::find_if(
-                graph.nodes_.begin(), graph.nodes_.end(),
-                [&receiver](const auto& node) { return node.uid_ == receiver; });
-            if (node_it != graph.nodes_.end())
-            {
-                receiver_name = node_it->name_;
-                receiver_size = std::to_string(node_it->size_);
-            }
-        }
-
-        auto index_from = std::string(sender);
-        auto index_to = std::string(receiver);
-
-        // Write node.
-        out << "    \"" << index_from << "\" [label=\"" << sender_name << "\"];"
-            << "# " << sender_size << "\n";
-        out << "    \"" << index_to << "\" [label=\"" << receiver_name << "\"];"
-            << "# " << receiver_size << "\n";
-
-        // Write edge.
-        out << "    \"" << index_from << "\" -> \"" << index_to << "\" [label=\"" << label << "\"];\n";
-    }
+    out << "    " << index_from << " -> " << index_to << " [label=\"" << escape_dot_text(edge.edge_type_);
+    // An edge without a name is labelled with its kind only.
+    if (!edge.name_.empty()) out << ":\\n" << escape_dot_text(edge.name_);
+    if (edge.size_.has_value()) out << "\\nsize: " << edge.size_.value();
+    out << "\", color=\"" << color << "\", style=\"" << style << "\"];\n";
 }
 
 
 /**
- * @brief Write bus messages (spike messages and synaptic impact messages) to DOT file.
+ * @brief Write whole network graph to DOT text.
  *
- * @param out output file stream for DOT file.
- * @param spike_messages vector of spike message pairs.
- * @param synaptic_messages vector of synaptic message pairs.
- * @param graph network graph.
+ * @details Parameters and return value are described in the header.
  */
-void write_bus_messages_to_dot(
-    std::ofstream& out, std::vector<std::pair<knp::core::UID, knp::core::UID>> const& spike_messages,
-    std::vector<std::pair<knp::core::UID, knp::core::UID>> const& synaptic_messages,
-    knp::framework::NetworkGraph const& graph)
+void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& graph)
 {
+    const knp::framework::BaseGraph& network_graph = graph.graph_;
+
     write_header_and_styles(out);
 
-    writeMessageNodesAndEdge(out, spike_messages, graph, "Spike Message");
-    writeMessageNodesAndEdge(out, synaptic_messages, graph, "Synaptic Impact Message");
-
-    out << "}\n";
-}
-
-
-/**
- * @brief Write projections and populations to DOT file.
- *
- * @param out output file stream.
- * @param unique_nodes set of unique node UIDs.
- * @param unique_edges set of unique edge UIDs.
- * @param modificators set of modificator UIDs.
- * @param dynamic_color color for dynamic elements.
- * @param graph network graph.
- * @param node_src map of node sources.
- * @param node_dst map of node destinations.
- */
-void write_projections_and_populations_to_dot(
-    std::ofstream& out, std::set<knp::core::UID> const& unique_nodes, std::set<knp::core::UID> const& unique_edges,
-    std::set<knp::core::UID>& modificators, std::string& dynamic_color, knp::framework::NetworkGraph const& graph,
-    std::map<knp::core::UID, knp::core::UID>& node_src, std::map<knp::core::UID, knp::core::UID>& node_dst)
-{
-    write_header_and_styles(out);
-
-    if (unique_nodes.empty() && unique_edges.empty())
+    if (boost::num_vertices(network_graph) == 0)
     {
-        SPDLOG_WARN("No nodes or edges to visualize");
+        SPDLOG_WARN("No nodes or edges to visualize.");
         out << "}\n";
         return;
     }
 
-    // Write nodes to dot.
-    for (const auto& unique_node : unique_nodes)
+    // Write nodes to dot. A vertex descriptor is an index, so it is unique and can be used as a node identifier.
+    for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     {
-        // check if it is modificator
-        if (modificators.find(unique_node) != modificators.end())
+        const auto node_id = static_cast<size_t>(*vertex_it);
+        const knp::framework::Node& node = network_graph[*vertex_it];
+
+        if (!is_node_drawn(network_graph, *vertex_it))
         {
-            write_node_to_dot(
-                out, std::string(unique_node), std::string(unique_node).substr(0, 8), "None", dynamic_color,
-                "Modificator");
+            // A static graph never contains invisible nodes and dotted edges.
+            if (graph.is_dynamic_) write_invisible_node_to_dot(out, node_id);
             continue;
         }
-        auto graph_node = get_graph_node_by_uid(unique_node, graph.nodes_);
-        auto node_name = get_node_name(unique_node, graph.nodes_);
-        auto graph_node_size = graph_node.size_;
-        write_node_to_dot(out, std::string(unique_node), node_name, graph_node_size);
+        write_node_to_dot(out, node_id, node, get_node_color(node, graph.is_dynamic_));
     }
 
     // Write edges to dot.
-    [[maybe_unused]] int num_invisible_src_nodes = 1;
-    [[maybe_unused]] int num_invisible_dst_nodes = 1;
-    for (const auto& unique_edge : unique_edges)
+    for (auto [edge_it, edge_end] = boost::edges(network_graph); edge_it != edge_end; ++edge_it)
     {
-        auto edge_size = get_proj_size(graph.edges_, unique_edge);
-        auto it1 = node_src.find(unique_edge);
-        if (it1 == node_src.end())
-        {
-            SPDLOG_INFO("There is't node_src for this edge: {}", std::string(unique_edge));
-            knp::core::UID dst;
-            try
-            {
-                dst = node_dst.at(unique_edge);
-            }
-            catch (const std::out_of_range& e)
-            {
-                SPDLOG_ERROR("ERROR: There is an edge without a source and a destination! Details: {}", e.what());
-            }
-            // Write node to dot (ghost_i -> dst).
-            write_edge_without_src(out, dst, num_invisible_dst_nodes, unique_edge, edge_size);
-            ++num_invisible_src_nodes;
-            continue;
-        }
-        auto src = node_src.at(unique_edge);
+        const auto source_id = boost::source(*edge_it, network_graph);
+        const auto target_id = boost::target(*edge_it, network_graph);
+        const knp::framework::Edge& edge = network_graph[*edge_it];
 
-        auto it2 = node_dst.find(unique_edge);
-        if (it2 == node_dst.end())
-        {
-            SPDLOG_INFO("There is't node_dst for this edge: {}", std::string(unique_edge));
-            // Write node to dot (src -> ghost_j).
-            write_edge_without_dst(out, src, num_invisible_dst_nodes, unique_edge, edge_size);
-            ++num_invisible_dst_nodes;
-            continue;
-        }
-        auto dst = node_dst.at(unique_edge);
+        if (!is_edge_drawn(graph, *edge_it)) continue;
 
-        // Check if the source is a modifier (change color of edge).
-        if (modificators.find(src) != modificators.end())
-        {
-            write_edge_to_dot(
-                out, std::string(src), std::string(dst), std::string(unique_edge).substr(0, 8), edge_size,
-                dynamic_color);
-            continue;
-        }
-        write_edge_to_dot(out, std::string(src), std::string(dst), std::string(unique_edge).substr(0, 8), edge_size);
+        const bool has_invisible_node =
+            network_graph[source_id].is_invisible_ || network_graph[target_id].is_invisible_;
+
+        write_edge_to_dot(
+            out, static_cast<size_t>(source_id), static_cast<size_t>(target_id), edge,
+            get_edge_color(network_graph[source_id], edge, graph.is_dynamic_), get_edge_style(has_invisible_node));
     }
+
     out << "}\n";
 }

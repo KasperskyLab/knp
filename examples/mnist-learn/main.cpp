@@ -35,6 +35,7 @@
 #include "parse_arguments.h"
 #include "save_network.h"
 #include "training.h"
+#include "visualization.h"
 
 
 /**
@@ -52,15 +53,21 @@ void run_model(const ModelDescription& model_desc)
 
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
-    auto backend = train_model<Neuron>(model_desc, dataset, network, backend_loader);
+    auto bus_connections = train_model<Neuron>(model_desc, dataset, network, backend_loader);
 
     if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
 
+    // Build the graphs.
+    const auto static_graph = build_graph(network);
+    const auto dynamic_graph = build_graph(network, bus_connections);
 
-    // knp::framework::set_saving_path("temp_test_dir");
-    visualize_network(network.network_);
-    visualize_network(network.network_, backend);
-    visualize_bus(network.network_, backend);
+    // Print their descriptions to the log.
+    knp::framework::print_network_description(static_graph);
+    knp::framework::print_network_description(dynamic_graph);
+
+    // Save the DOT and the image files.
+    knp::framework::visualize(static_graph, "graph_static");
+    knp::framework::visualize(dynamic_graph, "graph_dynamic");
 
     auto inference_spikes = infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 

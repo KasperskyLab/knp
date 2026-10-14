@@ -1,6 +1,6 @@
 /**
- * @file graph_helpers.cpp
- * @brief Help functions for graph vizualize.
+ * @file graph_helpers.h
+ * @brief Collecting nodes and edges of a network and of a message bus.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -20,45 +20,33 @@
  */
 
 #pragma once
+
+#include <knp/framework/network.h>
 #include <knp/framework/visualizer/visualize_network.h>
 
 #include <spdlog/spdlog.h>
 
-#include <memory>
+#include <any>
+#include <cstddef>
 #include <string>
-#include <tuple>
-#include <utility>
+#include <variant>
 #include <vector>
 
-extern "C"
-{
-#include <graphviz/gvc.h>
-}
-
-
-/**
- * @brief Get bus messages from backend subscriptions.
- *
- * @param backend shared pointer to backend.
- *
- * @return tuple of spike messages and synaptic messages.
- */
-std::tuple<
-    std::vector<std::pair<knp::core::UID, knp::core::UID>>, std::vector<std::pair<knp::core::UID, knp::core::UID>>>
-get_bus(std::shared_ptr<knp::core::Backend>& backend);
+#include "graph_builder.h"
 
 
 /**
  * @brief Get entity name for any network object. If there is no name it's constructed from UID.
  *
- * @param pop population object.
+ * @param pop population or projection object.
  *
- * @return string name of the population.
+ * @return string name of the entity.
  */
 template <class Entity>
 std::string get_population_name(const Entity& pop)
 {
     const size_t uid_part_size = 8;
+    // A copy: TagMap::get_tag() is not a constant method and inserts an empty value for an unknown key.
     knp::core::TagMap tags = std::visit([](const auto& p) { return p.get_tags(); }, pop);
     knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, pop);
     std::string name;
@@ -69,10 +57,9 @@ std::string get_population_name(const Entity& pop)
         {
             name = std::any_cast<std::string>(tag);
         }
-        catch (std::bad_any_cast& exc)
+        catch (const std::bad_any_cast&)
         {
-            SPDLOG_ERROR("Wrong name tag type.");
-            name = std::string{uid}.substr(0, uid_part_size);
+            SPDLOG_WARN("Wrong name tag type for entity {}.", std::string(uid));
         }
     }
     if (name.empty()) name = std::string{uid}.substr(0, uid_part_size);
@@ -81,33 +68,31 @@ std::string get_population_name(const Entity& pop)
 
 
 /**
- * @brief Get node name by UID from network graph nodes.
+ * @brief Get nodes and edges of a network.
  *
- * @param node_uid UID of the node.
- * @param nodes vector of network graph nodes.
- *
- * @return string node name.
+ * @param network source network.
+ * @param nodes vector of nodes to fill.
+ * @param edges vector of edges to fill.
+ * @param node_src map of edge sources to fill.
+ * @param node_dst map of edge destinations to fill.
  */
-std::string get_node_name(knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes);
-
-/**
- * @brief Get graph node by UID from network graph nodes.
- *
- * @param node_uid UID of the node.
- * @param nodes vector of network graph nodes.
- *
- * @return NetworkGraph::Node object.
- */
-knp::framework::NetworkGraph::Node get_graph_node_by_uid(
-    knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes);
+void get_static_connections(
+    const knp::framework::Network& network, std::vector<knp::framework::Node>& nodes,
+    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst);
 
 
 /**
- * @brief Get projection size by UID from network graph edges.
+ * @brief Add nodes and edges taken from message endpoint subscriptions and from the calling code.
  *
- * @param edges vector of network graph edges.
- * @param edge_uid UID of the edge.
+ * @param info bus connections and entities that cannot be restored from the bus.
+ * @param nodes vector of nodes to extend.
+ * @param edges vector of edges to extend.
+ * @param node_src map of edge sources to extend.
+ * @param node_dst map of edge destinations to extend.
  *
- * @return string size of the edge.
+ * @details The function is called after get_static_connections, so an entity that is already known from the network
+ * is not added twice.
  */
-std::string get_proj_size(std::vector<knp::framework::NetworkGraph::Edge> const& edges, const knp::core::UID& edge_uid);
+void get_dynamic_connections(
+    const knp::framework::DynamicInfo& info, std::vector<knp::framework::Node>& nodes,
+    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst);

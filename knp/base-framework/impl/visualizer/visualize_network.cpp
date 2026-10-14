@@ -1,10 +1,10 @@
 /**
  * @file visualize_network.cpp
- * @brief Functions for subgraph visualization.
- * @kaspersky_support A. Vartenkov
- * @date 26.07.2024
+ * @brief Network graph building, description and visualization.
+ * @kaspersky_support Kirill L.
+ * @date 05.08.2026
  * @license Apache 2.0
- * @copyright © 2024 AO Kaspersky Lab
+ * @copyright © 2026 AO Kaspersky Lab
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,246 +19,286 @@
  * limitations under the License.
  */
 
-#include <knp/framework/network.h>
 #include <knp/framework/visualizer/visualize_network.h>
 
+#include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
 
-#include <memory>
-
-extern "C"
-{
-#include <graphviz/gvc.h>
-}
 #include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <system_error>
+#include <vector>
 
-#include "generate_files.h"
+#include "dot_helpers.h"
 #include "graph_helpers.h"
+#include "render_helpers.h"
 
 
 namespace knp::framework
 {
-/**
- * @brief Set directory for saving visualization files.
- *
- * @param dir directory path for saving.
- *
- * @details Set directory for saving visualization files.
- * Directory "visualization" is being created and it contains two subdirectories for dot files and png files.
- * If the directory does not exist, it will be created.
- * If the first character is /, then the path is absolute. (format: /path/to/absolute/dir)
- * if not, relative to the current directory.  format: path/to/relative/dir)
- */
-void set_saving_path(std::string dir)
-{
-    if (!dir.empty() && dir[0] != '/')
-    {
-        try
-        {
-            if (dir.back() == '/') dir.pop_back();
 
-            std::filesystem::path current_dir = std::filesystem::current_path();
-            ConfigVisualizePathes::default_path = (current_dir / dir).string();
-        }
-        catch (const std::filesystem::filesystem_error& e)
-        {
-            SPDLOG_ERROR("Failed to get current path: {}", e.what());
-            ConfigVisualizePathes::default_path = dir;
-        }
-        catch (...)
-        {
-            SPDLOG_ERROR("Unknown error getting current path");
-            ConfigVisualizePathes::default_path = dir;
-        }
-    }
-    else
-    {
-        knp::framework::ConfigVisualizePathes::default_path = dir;
-    }
+namespace
+{
+
+/**
+ * @brief Get description of a node as it is printed in a network description.
+ *
+ * @param graph graph storage.
+ * @param vertex vertex descriptor.
+ * @param is_source flag showing that the node is a source of an edge.
+ *
+ * @return node kind and name, or a placeholder for an invisible node.
+ *
+ * @details The kind is written for a neighbour as well, so a WTA handler or a channel is recognizable everywhere in
+ * the description, not only in its own line. A placeholder does not repeat a node name, so it is not mixed up with a
+ * population called "INPUT" or "OUTPUT". An invisible node exists in a dynamic graph only.
+ */
+std::string get_description_name(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex, bool is_source)
+{
+    if (graph[vertex].is_invisible_) return is_source ? "NO_SOURCE" : "NO_DESTINATION";
+    return fmt::format("{} '{}'", graph[vertex].node_type_, graph[vertex].name_);
 }
+
+
+/**
+ * @brief Get description of an edge as it is printed in a network description.
+ *
+ * @param edge edge to describe.
+ *
+ * @return edge kind, and its name when the edge has one.
+ */
+std::string get_description_title(const Edge& edge)
+{
+    if (edge.name_.empty()) return edge.edge_type_;
+    return fmt::format("{}: {}", edge.edge_type_, edge.name_);
+}
+
+}  // namespace
+
 
 /**
  * @brief Build network graph from a network.
- * @param network source network for a graph.
- * @details Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
+ *
+ * @details Parameters and return value are described in the header.
  */
-NetworkGraph::NetworkGraph(const knp::framework::Network& network)
+NetworkGraph build_graph(const knp::framework::Network& network)
 {
-    // Add populations as nodes.
-    for (const auto& pop : network.get_populations())
-    {
-        size_t pop_size = std::visit([](const auto& p) { return p.size(); }, pop);
-        knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, pop);
-        nodes_.push_back(Node{pop_size, uid, get_population_name(pop), pop.index()});
-    }
+    std::vector<Node> nodes;
+    std::vector<Edge> edges;
+    EdgeConnections node_src;
+    EdgeConnections node_dst;
 
-    // Add projections as edges.
-    for (const auto& proj : network.get_projections())
-    {
-        size_t proj_size = std::visit([](const auto& p) { return p.size(); }, proj);
-        knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, proj);
-        knp::core::UID uid_from = std::visit([](const auto& p) { return p.get_presynaptic(); }, proj);
-        knp::core::UID uid_to = std::visit([](const auto& p) { return p.get_postsynaptic(); }, proj);
-        int id_from = -1, id_to = -1;
-        for (size_t i = 0; i < nodes_.size(); ++i)
-        {
-            if (uid_from == nodes_[i].uid_) id_from = i;
-            if (uid_to == nodes_[i].uid_) id_to = i;
-        }
-        edges_.push_back(Edge{proj_size, id_from, id_to, uid, get_population_name(proj), proj.index()});
-    }
+    get_static_connections(network, nodes, edges, node_src, node_dst);
+
+    return fill_graph(nodes, edges, node_src, node_dst, false);
 }
+
+
+/**
+ * @brief Build network graph from a model.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model)
+{
+    return build_graph(model.get_network());
+}
+
+
+/**
+ * @brief Build network graph from a network and message bus subscriptions.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Network& network, knp::core::MessageEndpoint& endpoint)
+{
+    DynamicInfo info;
+    info.bus_ = get_bus_connections(endpoint);
+    return build_graph(network, info);
+}
+
+
+/**
+ * @brief Build network graph from a model and message bus subscriptions.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model, knp::core::MessageEndpoint& endpoint)
+{
+    return build_graph(model.get_network(), endpoint);
+}
+
+
+/**
+ * @brief Build network graph from a network, bus subscriptions and entities known to the calling code.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Network& network, const DynamicInfo& info)
+{
+    std::vector<Node> nodes;
+    std::vector<Edge> edges;
+    EdgeConnections node_src;
+    EdgeConnections node_dst;
+
+    get_static_connections(network, nodes, edges, node_src, node_dst);
+
+    // Connections described by the network are not used here: a loaded model rebuilds its projections, so the
+    // presynaptic and postsynaptic UIDs of the network do not match the real connections. Sources and destinations
+    // are taken from the bus, while the network gives names, sizes and types.
+    node_src.clear();
+    node_dst.clear();
+
+    get_dynamic_connections(info, nodes, edges, node_src, node_dst);
+
+    return fill_graph(nodes, edges, node_src, node_dst, true);
+}
+
+
+/**
+ * @brief Build network graph from a model, bus subscriptions and entities known to the calling code.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& info)
+{
+    return build_graph(model.get_network(), info);
+}
+
+
 /**
  * @brief Print node and edge connections of a network graph.
  *
- * @param graph network graph.
- *
- * @details The function writes a textual description of each node (population) and its incoming and outgoing edges to
- * `stdout`. It is primarily useful for debugging the connectivity extraction logic. (needed to static network)
+ * @details Parameters and return value are described in the header.
  */
 void print_network_description(const NetworkGraph& graph)
 {
-    // out to console
-    // for (size_t i = 0; i < graph.nodes_.size(); ++i)
-    // {
-    //     std::cout << "Population #" << i << " of size " << graph.nodes_[i].size_ << ": receive from";
+    const BaseGraph& network_graph = graph.graph_;
 
-    // std::vector<int> edges_to_i;
-    // std::vector<int> edges_from_i;
-
-    // for (const auto& edge : graph.edges_)
+    // Summary line. The counters go over the drawn nodes and edges only, so they can be compared with the picture.
+    // size_t node_count = 0;
+    // for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     // {
-    //     if (edge.index_to_ == static_cast<int>(i)) edges_to_i.push_back(edge.index_from_);
-    //     if (edge.index_from_ == static_cast<int>(i)) edges_from_i.push_back(edge.index_to_);
+    //     if (is_node_drawn(network_graph, *vertex_it)) ++node_count;
     // }
-    // for (auto edge : edges_to_i) std::cout << " #" << edge;
-    // std::cout << "; send to";
-    // for (auto edge : edges_from_i) std::cout << " #" << edge;
-    // std::cout << std::endl;
-    //}
-    //out to log info
-    for (size_t i = 0; i < graph.nodes_.size(); ++i)
+    //
+    // size_t edge_count = 0;
+    // for (auto [edge_it, edge_end] = boost::edges(network_graph); edge_it != edge_end; ++edge_it)
+    // {
+    //     if (is_edge_drawn(graph, *edge_it)) ++edge_count;
+    // }
+    //
+    // SPDLOG_INFO(
+    //     "{} network graph: {} nodes, {} edges.", graph.is_dynamic_ ? "Dynamic" : "Static", node_count, edge_count);
+
+    // The description shows exactly what is drawn: the same nodes and the same edges as the DOT text.
+    for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     {
-        std::string log_msg = fmt::format("Population #{} of size {},: receive from", i, graph.nodes_[i].size_);
+        if (!is_node_drawn(network_graph, *vertex_it)) continue;
 
+        const Node& node = network_graph[*vertex_it];
+        std::string log_msg = fmt::format("    {} #{} '{}'", node.node_type_, *vertex_it, node.name_);
+        if (node.size_.has_value()) log_msg += fmt::format(" of size {}", node.size_.value());
 
-        std::vector<int> edges_to_i;
-        std::vector<int> edges_from_i;
-
-        for (const auto& edge : graph.edges_)
+        log_msg += ": receive from";
+        for (auto [edge_it, edge_end] = boost::in_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
-            if (edge.index_to_ == static_cast<int>(i)) edges_to_i.push_back(edge.index_from_);
-            if (edge.index_from_ == static_cast<int>(i)) edges_from_i.push_back(edge.index_to_);
+            if (!is_edge_drawn(graph, *edge_it)) continue;
+            auto source_id = boost::source(*edge_it, network_graph);
+            log_msg += fmt::format(
+                " #{} ({});", get_description_name(network_graph, source_id, true),
+                get_description_title(network_graph[*edge_it]));
         }
-        for (auto edge : edges_to_i) log_msg += fmt::format(" #{}", edge);
-        log_msg += fmt::format("; send to");
-        for (auto edge : edges_from_i) log_msg += fmt::format(" #{}", edge);
-        SPDLOG_INFO(log_msg);
+
+        log_msg += " send to";
+        for (auto [edge_it, edge_end] = boost::out_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
+        {
+            if (!is_edge_drawn(graph, *edge_it)) continue;
+            auto target_id = boost::target(*edge_it, network_graph);
+            log_msg += fmt::format(
+                " #{} ({});", get_description_name(network_graph, target_id, false),
+                get_description_title(network_graph[*edge_it]));
+        }
+
+        SPDLOG_INFO("{}", log_msg);
     }
 }
 
-/**
- * @brief Visualize static network.
- *
- * @param network source network for visualization.
- *
- * @details Visualize network.
- * The model is needed to get the names of static nodes.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
- */
-void visualize_network(const knp::framework::Network& network)
-{
-    knp::framework::NetworkGraph graph(network);
-    knp::framework::ConfigVisualizePathes file_info{};
-
-    create_dot_file_for_static_network(file_info.name_dot_file, graph);
-    create_png_file(file_info.name_dot_file, file_info.name_png_file);
-    print_network_description(graph);  // description of static network
-}
-/**
- * @brief Visualize static network by model.
- *
- * @param model source model for visualization.
- *
- * @details Visualize network.
- * The model is needed to get the names of static nodes.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
- */
-void visualize_network(const knp::framework::Model& model)
-{
-    visualize_network(model.get_network());
-}
 
 /**
- * @brief Visualize dynamic network using backend.
+ * @brief Write network graph to a stream in DOT format.
  *
- * @param network source network for visualization.
- * @param backend visualization backend.
- *
- * @details Visualize network.
- * The network is needed to get the names of static nodes.
- * The backend is needed to get all graphs connections from the bus.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
+ * @details Parameters and return value are described in the header.
  */
-void visualize_network(const knp::framework::Network& network, std::shared_ptr<knp::core::Backend>& backend)
+void write_dot(const NetworkGraph& graph, std::ostream& out)
 {
-    knp::framework::NetworkGraph graph(network);
-    knp::framework::ConfigVisualizePathes file_info{"dynamic"};
-
-    create_dot_file_for_dynamic_network(file_info.name_dot_file, graph, backend);
-    create_png_file(file_info.name_dot_file, file_info.name_png_file);
-}
-/**
- * @brief Visualize dynamic network using backend.
- *
- * @param model source model for visualization.
- * @param backend visualization backend.
- *
- * @details Visualize network.
- * The model is needed to get the names of static nodes.
- * The backend is needed to get all graphs connections from the bus.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
- */
-void visualize_network(const knp::framework::Model& model, std::shared_ptr<knp::core::Backend>& backend)
-{
-    visualize_network(model.get_network(), backend);
+    write_graph_to_dot(out, graph);
 }
 
-/**
- * @brief Visualize the bus messages.
- *
- * @param network source network for bus visualization.
- * @param backend visualization backend.
- *
- * @details Visualize the bus messages. The network is needed to get the names of static nodes.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
- */
-void visualize_bus(const knp::framework::Network& network, std::shared_ptr<knp::core::Backend>& backend)
-{
-    knp::framework::NetworkGraph graph(network);
-    knp::framework::ConfigVisualizePathes file_info{"bus"};
 
-    create_dot_file_for_bus(file_info.name_dot_file, graph, backend);
-    create_png_file(file_info.name_dot_file, file_info.name_png_file);
-}
 /**
- * @brief Visualize the bus messages.
+ * @brief Render network graph to a stream as an image.
  *
- * @param model source model for bus visualization.
- * @param backend visualization backend.
- *
- * @details Visualize the bus messages. The model is needed to get the names of static nodes.
- * By default, it saves dot/png files of graph to the current directory (the visualization directory is being created).
- * For the change save directory, use set_saving_path(directory).
+ * @details Parameters and return value are described in the header.
  */
-void visualize_bus(const knp::framework::Model& model, std::shared_ptr<knp::core::Backend>& backend)
+bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::string& format)
 {
-    visualize_bus(model.get_network(), backend);
+    std::ostringstream dot_stream;
+    write_dot(graph, dot_stream);
+    return render_dot_to_stream(dot_stream.str(), out, format);
+}
+
+
+/**
+ * @brief Save DOT and image files of a network graph.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+std::filesystem::path visualize(
+    const NetworkGraph& graph, const std::string& name, const std::filesystem::path& dir, const std::string& format)
+{
+    const auto dot_dir = dir / "dot_files";
+    const auto image_dir = dir / (format + "_files");
+
+    std::error_code error_code;
+    std::filesystem::create_directories(dot_dir, error_code);
+    std::filesystem::create_directories(image_dir, error_code);
+    if (error_code)
+    {
+        SPDLOG_ERROR("Failed to create directories: {}", error_code.message());
+        return {};
+    }
+
+    std::ostringstream dot_stream;
+    write_dot(graph, dot_stream);
+    const std::string dot_text = dot_stream.str();
+
+    const auto dot_file = dot_dir / (name + ".dot");
+    {
+        std::ofstream out(dot_file);
+        out << dot_text;
+        if (!out.good())
+        {
+            SPDLOG_ERROR("Failed to write to file {}", dot_file.string());
+            return {};
+        }
+    }
+    SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(dot_file).string());
+
+    const auto image_file = image_dir / (name + "." + format);
+    {
+        std::ofstream out(image_file, std::ios::binary);
+        if (!render_dot_to_stream(dot_text, out, format))
+        {
+            SPDLOG_ERROR("The {} file is not saved.", format);
+            return {};
+        }
+    }
+    SPDLOG_INFO("The {} file is saved in: {}", format, std::filesystem::absolute(image_file).string());
+
+    return image_file;
 }
 
 }  // namespace knp::framework

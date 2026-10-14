@@ -1,6 +1,6 @@
 /**
  * @file visualize_network_test.cpp
- * @brief Functions for subgraph visualization.
+ * @brief Tests for network graph building and visualization.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -19,22 +19,19 @@
  * limitations under the License.
  */
 
-#include <knp/backends/cpu-single-threaded/backend.h>
+#include <knp/framework/backend_loader.h>
 #include <knp/framework/model.h>
 #include <knp/framework/network.h>
 #include <knp/framework/population/creators.h>
-#include <knp/framework/projection/connectors.h>
 #include <knp/framework/visualizer/visualize_network.h>
 
 #include <tests_common.h>
 
 #include <filesystem>
+#include <sstream>
 #include <string>
-
-
-using BLIFATParams = knp::neuron_traits::neuron_parameters<knp::neuron_traits::BLIFATNeuron>;
-using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>;
-using Synapse = DeltaProjection::Synapse;
+#include <utility>
+#include <variant>
 
 
 // Helper function to create a simple network for testing.
@@ -50,7 +47,7 @@ knp::framework::Network create_test_network()
     network.add_population(pop2);
 
     // Connect them.
-    auto proj_uid = network.connect_populations<
+    network.connect_populations<
         knp::synapse_traits::DeltaSynapse, knp::neuron_traits::BLIFATNeuron, knp::neuron_traits::BLIFATNeuron>(
         pop1, pop2);
 
@@ -69,173 +66,147 @@ knp::framework::Model create_test_model()
 TEST(VisualizeNetworkSuite, NetworkGraphConstruction)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph(network);
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
 
     // Check that we have correct number of nodes and edges.
-    ASSERT_EQ(graph.nodes_.size(), 2);
-    ASSERT_EQ(graph.edges_.size(), 1);
+    ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
+    ASSERT_EQ(boost::num_edges(graph.graph_), 1u);
+    ASSERT_FALSE(graph.is_dynamic_);
 
-    // Check node properties
-    ASSERT_EQ(graph.nodes_[0].size_, 5);
-    ASSERT_EQ(graph.nodes_[1].size_, 3);
+    // Check node properties.
+    auto vertex_from = graph.find_node(graph.graph_[0].uid_);
+    ASSERT_TRUE(vertex_from.has_value());
+    ASSERT_EQ(graph.graph_[0].size_.value(), 5u);
+    ASSERT_EQ(graph.graph_[1].size_.value(), 3u);
+    ASSERT_FALSE(graph.graph_[0].name_.empty());
+    ASSERT_EQ(graph.graph_[0].node_type_, "Population");
 
-    // Check edge properties
-    ASSERT_EQ(graph.edges_[0].size_, 15);  // 5 * 3 = 15 synapses
-    ASSERT_EQ(graph.edges_[0].index_from_, 0);
-    ASSERT_EQ(graph.edges_[0].index_to_, 1);
+    // Check edge properties.
+    auto [edge_it, edge_end] = boost::edges(graph.graph_);
+    const auto& edge = graph.graph_[*edge_it];
+    ASSERT_EQ(edge.size_.value(), 15u);  // 5 * 3 = 15 synapses.
+    ASSERT_TRUE(edge.is_static_);
+    ASSERT_TRUE(edge.index_from_.has_value());
+    ASSERT_TRUE(edge.index_to_.has_value());
+    ASSERT_TRUE(edge.index_from_.value() == graph.graph_[0].uid_);
+    ASSERT_TRUE(edge.index_to_.value() == graph.graph_[1].uid_);
+    ASSERT_EQ(boost::source(*edge_it, graph.graph_), 0u);
+    ASSERT_EQ(boost::target(*edge_it, graph.graph_), 1u);
+
+    // Check that the projection is indexed by UID.
+    ASSERT_EQ(graph.find_edges(edge.uid_).size(), 1u);
 }
 
 
-TEST(VisualizeNetworkSuite, NetworkGraphNodeAndEdgeAccess)
+TEST(VisualizeNetworkSuite, ModelGraphConstruction)
 {
-    knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph(network);
+    knp::framework::Model model = create_test_model();
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(model);
 
-    // Test accessing nodes
-    ASSERT_FALSE(graph.nodes_.empty());
-    ASSERT_EQ(graph.nodes_.size(), 2);
-
-    // Test accessing edges
-    ASSERT_FALSE(graph.edges_.empty());
-    ASSERT_EQ(graph.edges_.size(), 1);
-
-    // Test node properties
-    const auto& node0 = graph.nodes_[0];
-    const auto& node1 = graph.nodes_[1];
-
-    ASSERT_GT(node0.size_, 0);
-    ASSERT_GT(node1.size_, 0);
-    ASSERT_FALSE(node0.name_.empty());
-    ASSERT_FALSE(node1.name_.empty());
-
-    // Test edge properties
-    const auto& edge = graph.edges_[0];
-    ASSERT_GT(edge.size_, 0);
-    ASSERT_FALSE(edge.name_.empty());
-    ASSERT_EQ(edge.index_from_, 0);
-    ASSERT_EQ(edge.index_to_, 1);
+    ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
+    ASSERT_EQ(boost::num_edges(graph.graph_), 1u);
 }
 
 
-TEST(VisualizeNetworkSuite, StaticVisualizationFilesGeneration)
+TEST(VisualizeNetworkSuite, DynamicGraphConstruction)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph(network);
 
-    // Set up paths for testing
-    std::string test_dir = "./test_visualization/";
-    std::filesystem::remove_all(test_dir);
-    std::filesystem::create_directories(test_dir);
-
-    // Change the default path for testing
-    knp::framework::set_saving_path(test_dir);
-
-    // Generate dot file
-    knp::framework::ConfigVisualizePathes file_info{};
-    std::string dot_file = file_info.name_dot_file;
-    std::string png_file = file_info.name_png_file;
-
-    // Test that we can create dot file.
-    EXPECT_NO_THROW(
-        [&]()
-        {
-            // Verify that the graph has expected structure.
-            ASSERT_EQ(graph.nodes_.size(), 2);
-            ASSERT_EQ(graph.edges_.size(), 1);
-
-            // Verify that the paths are correctly formed.
-            ASSERT_FALSE(dot_file.empty());
-            ASSERT_FALSE(png_file.empty());
-
-            // Verify that directories exist
-            std::filesystem::path dot_dir = std::filesystem::path(dot_file).parent_path();
-            std::filesystem::path png_dir = std::filesystem::path(png_file).parent_path();
-
-            ASSERT_TRUE(std::filesystem::exists(dot_dir));
-            ASSERT_TRUE(std::filesystem::exists(png_dir));
-            ASSERT_TRUE(std::filesystem::is_directory(dot_dir));
-            ASSERT_TRUE(std::filesystem::is_directory(png_dir));
-
-            // Verify that the files don't exist yet (they will be created during visualization).
-            ASSERT_FALSE(std::filesystem::exists(dot_file));
-            ASSERT_FALSE(std::filesystem::exists(png_file));
-
-            // Test actual visualization function to ensure files are created.
-            knp::framework::visualize_network(network);
-
-            // Verify that files were created
-            ASSERT_TRUE(std::filesystem::exists(dot_file));
-            ASSERT_TRUE(std::filesystem::exists(png_file));
-
-            // Verify that files are not empty.
-            ASSERT_GT(std::filesystem::file_size(dot_file), 0);
-            ASSERT_GT(std::filesystem::file_size(png_file), 0);
-        }())
-        << "Failed to generate visualization files";
-}
-
-
-TEST(VisualizeNetworkSuite, DynamicVisualizationWithBackend)
-{
-    knp::framework::Network network = create_test_network();
-    knp::framework::Model model(std::move(network));
-
-    // Create backend using the correct API from backend_loader_test.cpp.
     knp::framework::BackendLoader backend_loader;
     auto backend = backend_loader.load(knp::testing::get_backend_path());
 
-    // Test that we can call visualization functions without crashing.
-    EXPECT_NO_THROW(
-        [&]()
-        {
-            // This should not crash.
-            knp::framework::visualize_network(model.get_network(), backend);
-            knp::framework::visualize_bus(model.get_network(), backend);
-        }())
-        << "Dynamic visualization failed with exception";
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network, backend->get_message_endpoint());
+
+    // The network structure is always present, the bus can only extend it.
+    ASSERT_TRUE(graph.is_dynamic_);
+    ASSERT_GE(boost::num_vertices(graph.graph_), 2u);
+    ASSERT_GE(boost::num_edges(graph.graph_), 1u);
 }
 
 
-TEST(VisualizeNetworkSuite, ModelVisualization)
+TEST(VisualizeNetworkSuite, ExternalEntitiesAreDrawn)
 {
-    knp::framework::Model model = create_test_model();
+    knp::framework::Network network = create_test_network();
 
-    // Test that we can visualize model directly.
-    EXPECT_NO_THROW(
-        [&]()
-        {
-            knp::framework::visualize_network(model);
-            // knp::framework::visualize_network(model, nullptr); // Test with null backend.
-        }())
-        << "Model visualization failed with exception";
+    knp::framework::BackendLoader backend_loader;
+    auto backend = backend_loader.load(knp::testing::get_backend_path());
+
+    // A handler that listens to the first population. Such a subscription is never visible on the bus.
+    const knp::core::UID handler_uid;
+    const knp::core::UID population_uid =
+        std::visit([](const auto& pop) { return pop.get_uid(); }, network.get_populations()[0]);
+
+    knp::framework::DynamicInfo info;
+    info.bus_ = knp::framework::get_bus_connections(backend->get_message_endpoint());
+    info.entities_.push_back(knp::framework::ExternalEntity{handler_uid, "WTA", {population_uid}});
+
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network, info);
+
+    auto handler_vertex = graph.find_node(handler_uid);
+    ASSERT_TRUE(handler_vertex.has_value());
+    ASSERT_EQ(graph.graph_[handler_vertex.value()].node_type_, "WTA");
+    ASSERT_EQ(boost::in_degree(handler_vertex.value(), graph.graph_), 1u);
+}
+
+
+TEST(VisualizeNetworkSuite, WriteDotToStream)
+{
+    knp::framework::Network network = create_test_network();
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+
+    std::ostringstream out;
+    knp::framework::write_dot(graph, out);
+    const std::string dot_text = out.str();
+
+    ASSERT_NE(dot_text.find("digraph G {"), std::string::npos);
+    ASSERT_NE(dot_text.find("0 -> 1"), std::string::npos);
+    ASSERT_NE(dot_text.find("size: 15"), std::string::npos);
+
+    // A static graph contains static information only: no dynamic color, no dotted edges, no invisible nodes.
+    ASSERT_EQ(dot_text.find("yellow"), std::string::npos);
+    ASSERT_EQ(dot_text.find("dotted"), std::string::npos);
+    ASSERT_EQ(dot_text.find("invis"), std::string::npos);
+}
+
+
+TEST(VisualizeNetworkSuite, RenderGraphToStream)
+{
+    knp::framework::Network network = create_test_network();
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+
+    std::ostringstream out;
+    ASSERT_TRUE(knp::framework::render_graph(graph, out, "svg"));
+    ASSERT_FALSE(out.str().empty());
+}
+
+
+TEST(VisualizeNetworkSuite, VisualizationFilesGeneration)
+{
+    knp::framework::Network network = create_test_network();
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+
+    const std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "knp_test_visualization";
+    std::filesystem::remove_all(test_dir);
+
+    const auto image_file = knp::framework::visualize(graph, "graph_static", test_dir);
+
+    const auto dot_file = test_dir / "dot_files" / "graph_static.dot";
+    ASSERT_TRUE(std::filesystem::exists(dot_file));
+    ASSERT_GT(std::filesystem::file_size(dot_file), 0u);
+
+    ASSERT_FALSE(image_file.empty());
+    ASSERT_TRUE(std::filesystem::exists(image_file));
+    ASSERT_GT(std::filesystem::file_size(image_file), 0u);
+
+    std::filesystem::remove_all(test_dir);
 }
 
 
 TEST(VisualizeNetworkSuite, NetworkGraphPrintFunctions)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph(network);
+    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
 
     // Test that print functions don't crash.
-    EXPECT_NO_THROW(
-        [&]()
-        {
-            // These functions write to stdout, so we just ensure they don't throw.
-            knp::framework::print_network_description(graph);
-        }())
-        << "Print functions failed with exception";
-}
-
-
-TEST(VisualizeNetworkSuite, VisualizationPathConfiguration)
-{
-    // Test setting custom visualization paths.
-    std::string custom_path = "/tmp/custom_visualization/";
-    std::filesystem::create_directories(custom_path);
-
-    knp::framework::set_saving_path(custom_path);
-
-    // Verify default path was changed.
-    knp::framework::ConfigVisualizePathes config;
-    ASSERT_EQ(config.dir, custom_path);
+    EXPECT_NO_THROW(knp::framework::print_network_description(graph)) << "Print functions failed with exception";
 }

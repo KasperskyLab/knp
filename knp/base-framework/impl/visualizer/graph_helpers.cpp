@@ -1,6 +1,6 @@
 /**
  * @file graph_helpers.cpp
- * @brief Help functions for graph vizualize.
+ * @brief Collecting nodes and edges of a network and of a message bus.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -21,46 +21,135 @@
 
 #include "graph_helpers.h"
 
-#include <knp/framework/network.h>
 #include <knp/framework/visualizer/visualize_network.h>
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <map>
-#include <memory>
+#include <optional>
 #include <string>
-#include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 
-/**
- * @brief Get bus messages from backend subscriptions.
- *
- * @param backend shared pointer to backend.
- *
- * @return tuple of spike messages and synaptic messages.
- */
-using SpikeMessages = std::vector<std::pair<knp::core::UID, knp::core::UID>>;
-using SynapticMessages = std::vector<std::pair<knp::core::UID, knp::core::UID>>;
-using BusMessages = std::tuple<SpikeMessages, SynapticMessages>;
-
-
-BusMessages get_bus(std::shared_ptr<knp::core::Backend>& backend)
+namespace
 {
-    const auto subs = backend->get_message_endpoint().get_endpoint_subscriptions();
+
+constexpr size_t uid_part_size = 8;
+
+/// Node kind of an entity that is not described by the network and is not described by the calling code.
+constexpr const char* external_node_type = "External";
+
+/// Edge kind of a spike subscription that is not a projection.
+constexpr const char* message_edge_type = "Spike Message";
+
+/// Entities described by the calling code, by UID.
+using KnownEntities = std::map<knp::core::UID, const knp::framework::ExternalEntity*>;
+
+/**
+ * @brief Check that UID is nil.
+ *
+ * @param uid UID to check.
+ *
+ * @return boolean indicating that the UID is not set.
+ */
+bool is_nil_uid(const knp::core::UID& uid)
+{
+    // UID::operator bool() returns false for a nil UUID.
+    return !static_cast<bool>(uid);
+}
+
+
+/**
+ * @brief Make a short readable name from UID.
+ *
+ * @param uid UID of an entity.
+ *
+ * @return first characters of the UID.
+ */
+std::string get_short_name(const knp::core::UID& uid)
+{
+    return std::string{uid}.substr(0, uid_part_size);
+}
+
+
+/**
+ * @brief Make an index of entity UIDs to their positions in a vector.
+ *
+ * @param items vector of nodes or edges.
+ *
+ * @return map of UID to position. An entity with a nil UID is not indexed.
+ */
+template <class Item>
+UidIndex make_index(const std::vector<Item>& items)
+{
+    UidIndex index;
+    for (size_t i = 0; i < items.size(); ++i)
+    {
+        if (is_nil_uid(items[i].uid_)) continue;
+        index.emplace(items[i].uid_, i);
+    }
+    return index;
+}
+
+
+/**
+ * @brief Make an edge for a projection that is not described by the network.
+ *
+ * @param uid UID of the projection.
+ *
+ * @return edge object.
+ */
+knp::framework::Edge make_bus_edge(const knp::core::UID& uid)
+{
+    knp::framework::Edge edge{uid,          get_short_name(uid), std::nullopt,    std::nullopt,
+                              std::nullopt, std::nullopt,        "not in network"};
+    edge.is_dynamic_ = true;
+    return edge;
+}
+
+
+/**
+ * @brief Make an edge for a spike subscription that is not a projection.
+ *
+ * @return edge object.
+ */
+knp::framework::Edge make_message_edge()
+{
+    knp::framework::Edge edge;
+    // The name is empty: a spike subscription has nothing to name, the kind is written alone.
+    edge.edge_type_ = message_edge_type;
+    edge.is_dynamic_ = true;
+    return edge;
+}
+
+}  // namespace
+
+
+namespace knp::framework
+{
+
+/**
+ * @brief Copy subscriptions of a message endpoint.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint)
+{
+    const auto subs = endpoint.get_endpoint_subscriptions();
 
     constexpr size_t spike_idx = 0;            // Must be 0 (Serial number of the type).
     constexpr size_t synaptic_impact_idx = 1;  // Must be 1 (Serial number of the type).
 
-    SpikeMessages spike_messages;        // [sender, receiver]
-    SynapticMessages synaptic_messages;  // [sender, receiver]
+    knp::framework::BusConnections connections;
 
-
-    // take from bus nessosary maps
+    // Take necessary messages from the bus.
     for (const auto& [key, sub_variant] : subs)
     {
-        // const auto& [type_idx, receiver_uid] = key;
         const auto& type_idx = key.first;
         const auto& receiver_uid = key.second;
         std::visit(
@@ -70,83 +159,155 @@ BusMessages get_bus(std::shared_ptr<knp::core::Backend>& backend)
                 if (senders.empty()) return;
                 if (type_idx == spike_idx)
                 {
-                    // Receiver: Projection, sender: *Population (* - or modificator) (0 -->).
+                    // Receiver: projection or spike consumer, sender: population, handler or channel (0 -->).
                     std::transform(
-                        senders.begin(), senders.end(), std::back_inserter(spike_messages),
+                        senders.begin(), senders.end(), std::back_inserter(connections.spike_messages_),
                         [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
                 }
                 else if (type_idx == synaptic_impact_idx)
                 {
-                    // receiver: Population,      sender: Projection (* - or modificator) (--> 0).
+                    // Receiver: population, sender: projection (--> 0).
                     std::transform(
-                        senders.begin(), senders.end(), std::back_inserter(synaptic_messages),
+                        senders.begin(), senders.end(), std::back_inserter(connections.synaptic_messages_),
                         [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
                 }
             },
             sub_variant);
     }
 
-    return {spike_messages, synaptic_messages};
+    return connections;
 }
+
+}  // namespace knp::framework
 
 
 /**
- * @brief Get node name by UID from network graph nodes.
+ * @brief Get nodes and edges of a network.
  *
- * @param node_uid UID of the node.
- * @param nodes vector of network graph nodes.
- *
- * @return string node name.
+ * @details Parameters and return value are described in the header.
  */
-std::string get_node_name(knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes)
+void get_static_connections(
+    const knp::framework::Network& network, std::vector<knp::framework::Node>& nodes,
+    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst)
 {
-    std::string node_name = std::string(node_uid).substr(0, 8);
-    // nodes from netGraph
-    auto node_it =
-        std::find_if(nodes.begin(), nodes.end(), [&node_uid](const auto& node) { return node.uid_ == node_uid; });
-    if (node_it != nodes.end()) node_name = node_it->name_;
-    return node_name;
-}
-
-
-/**
- * @brief Get graph node by UID from network graph nodes.
- *
- * @param node_uid UID of the node.
- * @param nodes vector of network graph nodes.
- *
- * @return NetworkGraph::Node object.
- */
-knp::framework::NetworkGraph::Node get_graph_node_by_uid(
-    knp::core::UID node_uid, std::vector<knp::framework::NetworkGraph::Node> const& nodes)
-{
-    auto node_it =
-        std::find_if(nodes.begin(), nodes.end(), [&node_uid](const auto& node) { return node.uid_ == node_uid; });
-    if (node_it != nodes.end())
+    // Add populations as nodes.
+    for (const auto& pop : network.get_populations())
     {
-        return *node_it;
+        size_t pop_size = std::visit([](const auto& p) { return p.size(); }, pop);
+        knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, pop);
+        nodes.push_back(knp::framework::Node{uid, get_population_name(pop), pop_size, pop.index(), std::nullopt});
     }
 
-    SPDLOG_INFO("Node with UID {} not found in graph", std::string(node_uid));
-    return knp::framework::NetworkGraph::Node{};
+    // Add projections as edges.
+    for (const auto& proj : network.get_projections())
+    {
+        size_t proj_size = std::visit([](const auto& p) { return p.size(); }, proj);
+        knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, proj);
+        knp::core::UID uid_from = std::visit([](const auto& p) { return p.get_presynaptic(); }, proj);
+        knp::core::UID uid_to = std::visit([](const auto& p) { return p.get_postsynaptic(); }, proj);
+
+        knp::framework::Edge edge{
+            uid, get_population_name(proj), std::nullopt, std::nullopt, proj_size, proj.index(), std::nullopt};
+        edge.is_static_ = true;
+        edges.push_back(edge);
+
+        const size_t edge_position = edges.size() - 1;
+        if (!is_nil_uid(uid_from)) node_src[edge_position].insert(uid_from);
+        if (!is_nil_uid(uid_to)) node_dst[edge_position].insert(uid_to);
+    }
 }
 
 
 /**
- * @brief Get projection size by UID from network graph edges.
+ * @brief Add nodes and edges taken from message endpoint subscriptions and from the calling code.
  *
- * @param edges vector of network graph edges.
- * @param edge_uid UID of the edge.
- *
- * @return string size of the edge.
+ * @details Parameters and return value are described in the header.
  */
-std::string get_proj_size(std::vector<knp::framework::NetworkGraph::Edge> const& edges, const knp::core::UID& edge_uid)
+void get_dynamic_connections(
+    const knp::framework::DynamicInfo& info, std::vector<knp::framework::Node>& nodes,
+    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst)
 {
-    auto it = std::find_if(
-        edges.begin(), edges.end(), [&edge_uid](const auto& graph_edge) { return graph_edge.uid_ == edge_uid; });
-    if (it != edges.end())
+    // Entities described by the calling code: handlers and channels.
+    KnownEntities known_entities;
+    for (const auto& entity : info.entities_) known_entities.emplace(entity.uid_, &entity);
+
+    // Positions of entities that are already known from the network.
+    UidIndex node_index = make_index(nodes);
+    UidIndex edge_index = make_index(edges);
+
+    // Add a node for an entity that is not described by the network. Its kind is taken from the calling code, so
+    // nothing is guessed here: an entity that is not described there gets the "External" kind.
+    auto add_bus_node = [&](const knp::core::UID& uid)
     {
-        return std::to_string(it->size_);
+        auto it = node_index.find(uid);
+        if (it != node_index.end()) return it->second;
+
+        knp::framework::Node node{uid, get_short_name(uid), std::nullopt, std::nullopt, "not in network"};
+        node.is_static_ = false;
+        auto entity_it = known_entities.find(uid);
+        node.node_type_ = entity_it != known_entities.end() ? entity_it->second->name_ : external_node_type;
+
+        nodes.push_back(node);
+        node_index[uid] = nodes.size() - 1;
+        return nodes.size() - 1;
+    };
+
+    // Synaptic impact message: sender is a projection, receiver is a population (--> 0).
+    // This loop goes first to register projections that are not described by the network.
+    for (const auto& [sender, receiver] : info.bus_.synaptic_messages_)
+    {
+        auto it = edge_index.find(sender);
+        if (it == edge_index.end())
+        {
+            SPDLOG_INFO("Projection {} is known from the bus only.", std::string(sender));
+            edges.push_back(make_bus_edge(sender));
+            it = edge_index.emplace(sender, edges.size() - 1).first;
+        }
+        else
+        {
+            edges[it->second].is_dynamic_ = true;
+        }
+
+        node_dst[it->second].insert(receiver);
+        add_bus_node(receiver);
     }
-    throw std::runtime_error("Edge not found");
+
+    // Spike message: sender is a population, a handler or a channel, receiver is a projection or a spike consumer.
+    for (const auto& [sender, receiver] : info.bus_.spike_messages_)
+    {
+        add_bus_node(sender);
+
+        auto it = edge_index.find(receiver);
+        if (it != edge_index.end())
+        {
+            node_src[it->second].insert(sender);
+            edges[it->second].is_dynamic_ = true;
+            continue;
+        }
+
+        // The receiver is not a projection: it is an output channel or an observer subscribed to spikes directly.
+        add_bus_node(receiver);
+        edges.push_back(make_message_edge());
+        const size_t edge_position = edges.size() - 1;
+        node_src[edge_position].insert(sender);
+        node_dst[edge_position].insert(receiver);
+    }
+
+    // A handler and an output channel subscribe to their senders through their own message endpoints. Such a
+    // subscription is not registered in the backend and dies with the entity that made it, so these connections
+    // exist only where they were created and are taken from the calling code.
+    for (const auto& entity : info.entities_)
+    {
+        if (entity.senders_.empty()) continue;
+
+        add_bus_node(entity.uid_);
+        for (const auto& sender : entity.senders_)
+        {
+            add_bus_node(sender);
+            edges.push_back(make_message_edge());
+            const size_t edge_position = edges.size() - 1;
+            node_src[edge_position].insert(sender);
+            node_dst[edge_position].insert(entity.uid_);
+        }
+    }
 }
