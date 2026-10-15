@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "cuda_bus/message_bus.cuh"
 #include "cuda_lib/vector.cuh"
 #include "population.cuh"
 #include <boost/mp11.hpp>
@@ -33,7 +32,10 @@
  */
 namespace knp::backends::gpu::cuda
 {
-using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron>;
+class CUDABackendImpl;
+
+using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron,
+                                              knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
 using SupportedPopulations = boost::mp11::mp_transform<CUDAPopulation, SupportedNeurons>;
 /**
  * @brief Population variant that contains any population type specified in `SupportedPopulations`.
@@ -55,7 +57,7 @@ using StepIndex = unsigned long long;
  * @return set of spiked neuron indices.
  */
 device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, const CUDAMessageBus& device_message_bus,
+        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, CUDABackendImpl *this_backend,
         StepIndex step);
 
 /**
@@ -64,13 +66,9 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
  * @param step current step.
  * @return set of spiked neuron indices.
  */
-inline device_lib::CUDAVector<SpikeIndex> calculate_population(
+device_lib::CUDAVector<SpikeIndex> calculate_population(
         CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-        const CUDAMessageBus& device_message_bus,
-        StepIndex step)
-{
-    SPDLOG_ERROR("The calculate_population function is not implemented for synaptic resource STDP BLIFAT neuron");
-    return device_lib::CUDAVector<SpikeIndex>{};
-}
+        CUDABackendImpl *this_backend,
+        StepIndex step);
 
 } // namespace knp::backends::gpu::cuda

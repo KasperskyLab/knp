@@ -133,7 +133,7 @@ struct BackendWrapper : core::Backend, py::wrapper<core::Backend>
         }
     */
 
-    DataRanges get_network_data() const override
+    DataRanges get_network_data() override
     {
         return {};  //std::move(this->get_override("get_network_data")());
     }

@@ -69,13 +69,6 @@ using StepIndex = unsigned long long;
 class CUDABackendImpl
 {
 public:
-
-    /**
-     * @brief Map used for message construction. It maps a message to its future output step.
-     */
-    using SynapticMessageQueue = std::unordered_map<StepIndex, core::messaging::SynapticImpactMessage>;
-
-public:
     /**
      * @brief Type of population container.
      */
@@ -134,6 +127,18 @@ public:
      */
     __host__ void load_populations(const knp::backends::gpu::CUDABackend::PopulationContainer &populations);
 
+    /**
+     * @brief Convert CUDA projections to core projections.
+     * @return projection container.
+     */
+     knp::backends::gpu::CUDABackend::ProjectionContainer unload_projections() const;
+
+     /*
+      * @brief Convert CUDA populations to core populations.
+      * @return population container.
+      */
+     knp::backends::gpu::CUDABackend::PopulationContainer unload_populations() const;
+
 public:
     /**
      * @brief Get an iterator pointing to the first element of the population loaded to backend.
@@ -183,6 +188,44 @@ public:
 
 public:
     /**
+     * @brief Find projections of a specific type that lead to a specified population.
+     * @param population_uid the UID of a postsynaptic population.
+     * @param type synapse type index.
+     * @return projection indices.
+     */
+    template <class SynapseType>
+    std::vector<device_lib::LongIndex> find_projections_by_postsynaptic(const cuda::UID &post_uid,
+                                                                        bool exclude_locked) const
+    {
+        using ProjectionType = knp::core::Projection<SynapseType>;
+        static_assert(boost::mp11::mp_contains<SupportedSynapses, SynapseType>::value, "Unsupported synapse type.");
+        std::vector<device_lib::LongIndex> result;
+        result.reserve(device_projections_.size());
+        constexpr auto type_index = boost::mp11::mp_find<SupportedSynapses, SynapseType>();
+
+        for (size_t i = 0; i < device_projections_.size(); ++i)
+        {
+            if (device_projections_[i].index() != type_index)
+            {
+                continue;
+            }
+
+            const auto &projection = ::cuda::std::get<type_index>(device_projections_[i]);
+            if (projection.is_locked_ && exclude_locked)
+            {
+                continue;
+            }
+
+            if (projection.postsynaptic_uid_ == post_uid)
+            {
+                result.push_back(i);
+            }
+        }
+        return result;
+    }
+
+
+    /**
      * @brief Remove projections with given UIDs from the backend.
      * @param uids UIDs of projections to remove.
      */
@@ -223,6 +266,16 @@ public:
     __host__ void calculate_populations(StepIndex step);
     __host__ void calculate_projections(StepIndex step);
     __host__ knp::backends::gpu::cuda::CUDAMessageBus &get_message_bus() { return device_message_bus_; }
+
+    __host__ ProjectionVariants& get_projection(device_lib::LongIndex index)
+    {
+        return device_projections_[index];
+    }
+
+    __host__ PopulationVariants& get_population(device_lib::LongIndex index)
+    {
+        return device_populations_[index];
+    }
 
     void init();
 

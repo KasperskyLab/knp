@@ -45,7 +45,7 @@ __global__ void summarize_index_kernel(IndexView index, device_lib::CUDAVectorVi
  * @return the number.
  */
 __host__ LongIndex count_values_by_indexes(const ValueIndex &index,
-                                                    const CUDAVectorView<cuda::SpikeIndex> inputs)
+                                           const CUDAVectorView<cuda::SpikeIndex> inputs)
 {
     SPDLOG_DEBUG("Count values by indexes");
     auto [num_blocks, num_threads] = get_blocks_config(inputs.size_);

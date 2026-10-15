@@ -113,6 +113,11 @@ inline void do_dopamine_plasticity_impl(
     for (size_t neuron_index = 0; neuron_index < population.size(); ++neuron_index)
     {
         auto &neuron = population[neuron_index];
+        // TODO TEMP
+        if (neuron.dopamine_value_ != 0)
+            printf("Step %lu, Neuron %lu, dopamine value %f\n", step, neuron_index, neuron.dopamine_value_);
+        // END TEMP
+
         // Dopamine processing. Dopamine punishment if forced does nothing.
         if (neuron.dopamine_value_ > 0.0 ||
             (neuron.dopamine_value_ < 0.0 && neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced))
@@ -122,6 +127,10 @@ inline void do_dopamine_plasticity_impl(
             // Change synapse values for both `D > 0` and `D < 0`.
             for (auto &synapse : synapse_params)
             {
+                // TODO TEMP
+                if (synapse.get().rule_.has_contributed_) printf("Step %lu, neuron last step %lu, plasticity time %u\n",
+                                                           step, neuron.last_spike_step_, neuron.dopamine_plasticity_time_);
+                // END TEMP
                 // if ((step - synapse.get().rule_.last_spike_step_ < synapse.get().rule_.dopamine_plasticity_period_)
                 if (step - neuron.last_spike_step_ <= neuron.dopamine_plasticity_time_ &&
                     synapse.get().rule_.has_contributed_)

@@ -81,6 +81,7 @@ inline void impact_neuron_impl(
             neuron.inhibitory_conductance_ += impact.impact_value_;
             break;
         case knp::synapse_traits::OutputType::DOPAMINE:
+            printf("Adding dopamine %f to neuron %u\n", impact.impact_value_, impact.postsynaptic_neuron_index_); // TODO TEMP
             neuron.dopamine_value_ += impact.impact_value_;
             break;
         case knp::synapse_traits::OutputType::BLOCKING:

@@ -23,6 +23,7 @@
 
 #include "cuda_bus/message_bus.cuh"
 #include "projection.cuh"
+#include "resource_delta_projection.cuh"
 #include <boost/mp11.hpp>
 #include <cuda_runtime.h>
 
@@ -36,7 +37,8 @@ using StepIndex = unsigned long long;
 /**
  * @brief List of synapse types supported by the CUDA backend.
  */
-using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse>;
+using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse,
+        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
 
 /**
  * @brief List of supported projection types based on synapse types specified in `SupportedSynapses`.
@@ -54,6 +56,13 @@ __host__ __device__ inline bool is_forcing()
 
 template <>
 __host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::DeltaSynapse>>() { return true; }
+
+
+template <>
+__host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>>()
+{
+    return false;
+}
 
 
 /**

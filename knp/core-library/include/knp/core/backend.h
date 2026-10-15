@@ -416,7 +416,7 @@ public:
      *
      * @return Data range for projections and populations.
      */
-    [[nodiscard]] virtual DataRanges get_network_data() const = 0;
+    [[nodiscard]] virtual DataRanges get_network_data() = 0;
 
 protected:
     /**

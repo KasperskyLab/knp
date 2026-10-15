@@ -36,6 +36,7 @@
 
 #include "backend_impl.cuh"
 #include "projection.cuh"
+#include "resource_delta_projection.cuh"
 #include "population.cuh"
 
 #include "cuda_lib/fast_error_check.cuh"
@@ -94,31 +95,50 @@ TypeVariant extract_by_index(const void *type_ptr)
 // TODO: Make a template, it's also used for messages.
 
 template<typename T>
-__host__ __device__ void get_kernel(const T *var, int *type, const void **val)
+__host__ __device__ void get_pop_kernel(const T *var, int *type, const void **val)
 {
     int type_val = var->index();
-    static_assert(::cuda::std::variant_size<T>() == 1, "Incorrect variant size!");
+    static_assert(::cuda::std::variant_size<T>() == 2, "Incorrect variant size!");
     switch (type_val)
     {
         case 0:
             *val = ::cuda::std::get_if<0>(var);
             break;
+        case 1:
+            *val = ::cuda::std::get_if<1>(var);
         default:
             *val = nullptr;
     }
     *type = type_val;
 }
 
+template<typename T>
+__host__ __device__ void get_proj_kernel(const T *var, int *type, const void **val)
+{
+    int type_val = var->index();
+    static_assert(::cuda::std::variant_size<T>() == 2, "Incorrect variant size!");
+    switch (type_val)
+    {
+        case 0:
+            *val = ::cuda::std::get_if<0>(var);
+            break;
+        case 1:
+            *val = ::cuda::std::get_if<1>(var);
+        default:
+            *val = nullptr;
+    }
+    *type = type_val;
+}
 
 __global__ void get_population_kernel(const PopulationVariants *var, int *type, const void **pop)
 {
-    get_kernel(var, type, pop);
+    get_pop_kernel(var, type, pop);
 }
 
 
 __global__ void get_projection_kernel(const ProjectionVariants *var, int *type, const void **proj)
 {
-    get_kernel(var, type, proj);
+    get_proj_kernel(var, type, proj);
 }
 
 
@@ -238,9 +258,9 @@ void CUDABackendImpl::load_projections(const knp::backends::gpu::CUDABackend::Pr
             using CPUProjectionType = std::decay_t<decltype(arg)>;
 
             auto proj = CUDAProjection<typename CPUProjectionType::ProjectionSynapseType>{arg};
-            SPDLOG_DEBUG("Pushing back a projection, size before: {}, pointer before: {}, capacity {}",
-                    device_projections_.size(), reinterpret_cast<void *>(device_projections_.data()),
-                    device_projections_.capacity());
+//            SPDLOG_DEBUG("Pushing back a projection, size before: {}, pointer before: {}, capacity {}",
+//                    device_projections_.size(), reinterpret_cast<void *>(device_projections_.data()),
+//                    device_projections_.capacity());
             device_projections_.push_back(proj);
             CUDA_FAST_ERROR_CHECK("Pushed back {}");
             SPDLOG_DEBUG("Pushed back: size after: {}, pointer after: {}, capacity {}", device_projections_.size(),
@@ -249,6 +269,34 @@ void CUDABackendImpl::load_projections(const knp::backends::gpu::CUDABackend::Pr
     }
 
     SPDLOG_DEBUG("All projections loaded.");
+}
+
+
+knp::backends::gpu::CUDABackend::ProjectionContainer CUDABackendImpl::unload_projections() const
+{
+    CUDABackend::ProjectionContainer result;
+    for (const auto &projection : device_projections_)
+    {
+        ::cuda::std::visit([&result](const auto &proj)
+        {
+            result.push_back(convert_to_core_projection(proj));
+        }, projection);
+    }
+    return result;
+}
+
+
+knp::backends::gpu::CUDABackend::PopulationContainer CUDABackendImpl::unload_populations() const
+{
+    CUDABackend::PopulationContainer result;
+    for (const auto &population : device_populations_)
+    {
+        ::cuda::std::visit([&result](const auto &pop)
+        {
+            result.push_back(convert_to_core_population(pop));
+        }, population);
+    }
+    return result;
 }
 
 
@@ -283,12 +331,13 @@ void CUDABackendImpl::calculate_populations(StepIndex step)
     {
         ::cuda::std::visit([this, step](auto &pop)
         {
-            auto spikes = calculate_population(pop, device_message_bus_, step);
+            auto spikes = calculate_population(pop, this, step);
             if (!spikes.empty())
             {
                 cuda::SpikeMessage message{MessageHeader{pop.uid_, step, false}, std::move(spikes)};
-                SPDLOG_DEBUG("Population {} created a message with {} spikes", std::string(to_cpu_uid(pop.uid_)),
-                             message.neuron_indexes_.size());
+                SPDLOG_DEBUG("Population {} created a message with {} spikes on step {}",
+                             std::string(to_cpu_uid(pop.uid_)),
+                             message.neuron_indexes_.size(), step);
                 device_message_bus_.send_message(std::move(message));
             }
             else
@@ -407,7 +456,9 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

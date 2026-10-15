@@ -32,6 +32,9 @@
 #include "cuda_bus/synaptic_impact_message.cuh"
 #include "uid.cuh"
 
+#include <vector>
+#include <optional>
+
 
 /**
  * @brief Namespace for CUDA backend.
@@ -39,10 +42,10 @@
 namespace knp::backends::gpu::cuda
 {
 /**
- * @brief The CUDAProjection class is a definition of a CUDA synapses.
+ * @brief The CUDAProjectionBase class is a definition of a CUDA synapses.
  */
 template <typename SynapseType>
-struct CUDAProjection
+struct CUDAProjectionBase
 {
     /**
      * @brief Type of the projection synapses.
@@ -51,7 +54,7 @@ struct CUDAProjection
     /**
      * @brief Projection of synapses with the specified synapse type.
      */
-    using ProjectionType = CUDAProjection<SynapseType>;
+    using ProjectionType = CUDAProjectionBase<SynapseType>;
     /**
      * @brief Parameters of the specified synapse type.
      */
@@ -63,17 +66,14 @@ struct CUDAProjection
      */
     using Synapse = ::cuda::std::tuple<SynapseParameters, device_lib::LongIndex, device_lib::LongIndex>;
 
-    __host__ __device__ CUDAProjection()
-#if !defined(__CUDA_ARCH__)
-             :  is_locked_(true)
-#endif
-    {}
+    __host__ __device__ CUDAProjectionBase() : is_locked_(true)
+     {}
 
     /**
      * @brief Constructor.
      * @param projection source projection.
      */
-    __host__ explicit CUDAProjection(const knp::core::Projection<SynapseType> &projection)
+    __host__ explicit CUDAProjectionBase(const knp::core::Projection<SynapseType> &projection)
         : uid_(to_gpu_uid(projection.get_uid())),
           presynaptic_uid_(to_gpu_uid(projection.get_presynaptic())),
           postsynaptic_uid_(to_gpu_uid(projection.get_postsynaptic())),
@@ -90,8 +90,10 @@ struct CUDAProjection
             SPDLOG_TRACE("Synapse: weight {} delay {}", ::cuda::std::get<data_index>(out_synapse).weight_,
                          ::cuda::std::get<data_index>(out_synapse).delay_);
         }
-        index_ = device_lib::build_index<SynapseType>(projection);
+        index_ = device_lib::build_index<SynapseType, core::source_neuron_id>(projection);
     }
+
+    virtual ~CUDAProjectionBase() = default;
 
     __host__ __device__ void lock_weights() { is_locked_ = true; }
     __host__ __device__ void unlock_weights() { is_locked_ = false; }
@@ -116,7 +118,8 @@ struct CUDAProjection
         assert(new_impacts_indexes.size() == new_sending_steps.size());
         if (new_impacts_indexes.size() == 0) return;
         const auto size = new_impacts_indexes.size();
-        const auto out_size = new_impacts_indexes.size() + impact_indexes_.size();
+        const auto size_before = impact_indexes_.size();
+        const auto out_size = size + size_before;
         device_lib::LongIndex *res_steps;
         device_lib::LongIndex *res_impacts;
         cudaMalloc(&res_steps, sizeof(device_lib::LongIndex) * out_size);
@@ -156,7 +159,7 @@ struct CUDAProjection
     bool is_locked_;
 
     /**
-     * @brief Synapse index for quick neuron to synapse search.
+     * @brief Synapse index for quick presynaptic neuron to synapse search.
      */
     device_lib::ValueIndex index_;
 
@@ -176,5 +179,46 @@ struct CUDAProjection
      */
     SynapticImpactMessage message_buf_;
 };
+
+
+template <class Synapse>
+struct CUDAProjection : public CUDAProjectionBase<Synapse>
+{
+    __host__ explicit CUDAProjection(const knp::core::Projection<Synapse> &projection)
+            : CUDAProjectionBase<Synapse>(projection)
+    {}
+
+    __host__ CUDAProjection() = default;
+};
+
+
+template <class Synapse>
+typename core::Projection<Synapse>::Synapse to_std_tuple(const typename CUDAProjection<Synapse>::Synapse &synapse)
+{
+    return std::make_tuple(
+            ::cuda::std::get<0>(synapse),
+            static_cast<size_t>(::cuda::std::get<1>(synapse)),
+            static_cast<size_t>(::cuda::std::get<2>(synapse))
+    );
+}
+
+
+template<class Synapse>
+knp::core::Projection<Synapse> convert_to_core_projection(const CUDAProjection<Synapse> &cuda_projection)
+{
+    std::vector<typename CUDAProjectionBase<Synapse>::Synapse> synapses = cuda_projection.synapses_.to_std();
+    auto generator = [&synapses](size_t i) -> std::optional<typename core::Projection<Synapse>::Synapse>
+    {
+        if (i >= synapses.size())
+            return {};
+        return to_std_tuple<Synapse>(synapses[i]);
+    };
+    knp::core::Projection<Synapse> result{to_cpu_uid(cuda_projection.uid_),
+                                          to_cpu_uid(cuda_projection.presynaptic_uid_),
+                                          to_cpu_uid(cuda_projection.postsynaptic_uid_),
+                                          generator, synapses.size()};
+    return result;
+
+}
 
 } // namespace knp::backends::gpu::cuda

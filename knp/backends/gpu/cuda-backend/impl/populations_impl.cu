@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 
+#include "backend_impl.cuh"
 #include "population.cuh"
 #include "populations_impl.cuh"
 #include <knp/core/population.h>
@@ -43,14 +44,6 @@ __global__ void calculate_neurons_pre_impact(device_lib::CUDAVectorMutableView<B
     neuron.dynamic_threshold_ *= neuron.threshold_decay_;
     neuron.postsynaptic_trace_ *= neuron.postsynaptic_trace_decay_;
     neuron.inhibitory_conductance_ *= neuron.inhibitory_conductance_decay_;
-
-    /*
-    if constexpr (has_dopamine_plasticity<BlifatLikeNeuron>())
-    {
-        neuron.dopamine_value_ = 0.0;
-        neuron.is_being_forced_ = false;
-    }
-    */
 
     if (neuron.bursting_phase_ && !--neuron.bursting_phase_)
     {
@@ -167,12 +160,13 @@ __global__ void calculate_neurons_post_impact(device_lib::CUDAVectorMutableView<
 
 
 device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, const CUDAMessageBus& device_message_bus,
+        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, CUDABackendImpl *this_backend,
         StepIndex step)
 {
     auto [num_blocks_neuro, num_threads_neuro] = device_lib::get_blocks_config(population.neurons_.size());
 
     calculate_neurons_pre_impact<<<num_blocks_neuro, num_threads_neuro>>>(population.neurons_.mut_view(), step);
+    auto &device_message_bus = this_backend->get_message_bus();
     std::vector<device_lib::LongIndex> message_ids
             = device_message_bus.unload_messages<cuda::SynapticImpactMessage>(population.uid_);
 
