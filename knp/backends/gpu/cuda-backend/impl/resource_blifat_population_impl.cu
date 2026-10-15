@@ -20,6 +20,7 @@
  */
 
 #include "backend_impl.cuh"
+#include "cuda_lib/register_type.cuh"
 #include "population.cuh"
 #include "projection.cuh"
 #include "resource_delta_projection.cuh"
@@ -266,7 +267,7 @@ __global__ void process_synapses_per_neuron_kernel(ResourceBlifatParams *neuron,
 {
     const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (synapse_id >= synapses.size_) return;
-    printf("Neuron %lu, dh is %f\n", neuron_index, neuron->d_h_);
+    // printf("Neuron %lu, dh is %f\n", neuron_index, neuron->d_h_);
     ResourceSynapseParams &synapse = ::cuda::std::get<0>(*synapses.data_[synapse_id]);
     float threshold_update = synapse.weight_ * (synapse.weight_ > 0) * neuron->synapse_sum_threshold_coefficient_;
     // technically a race condition, float operations are not order-independent, but oh well.
@@ -593,3 +594,6 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
 }
 
 } // namespace knp::backends::gpu::cuda
+
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeIndex);
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

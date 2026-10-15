@@ -20,6 +20,7 @@
  */
 
 #include "projections_impl.cuh"
+#include "cuda_lib/register_type.cuh"
 #include "projection.cuh"
 #include "resource_delta_projection.cuh"
 #include <cuda_runtime.h>
@@ -351,3 +352,5 @@ __host__ void calculate_projection(
     //SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(projection.get_uid()));
 }
 } // namespace knp::backends::gpu::cuda
+
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
