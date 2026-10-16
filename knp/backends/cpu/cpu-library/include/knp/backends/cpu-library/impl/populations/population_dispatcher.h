@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "altai/altai_dispatcher.h"
+#include "astrocyte/astrocyte_dispatcher.h"
 #include "blifat/blifat_dispatcher.h"
 #include "lif/lif_dispatcher.h"
 

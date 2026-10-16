@@ -64,7 +64,7 @@ std::shared_ptr<core::Backend> BackendLoader::load_backend_library(const std::fi
 
         auto creator = make_creator(backend_path);
 
-        SPDLOG_DEBUG("Created backend instance from {}", backend_path.c_str());
+        SPDLOG_DEBUG("Created backend instance from {}", backend_path.string());
 
         std::shared_ptr<core::Backend> result = creator();
 

@@ -74,6 +74,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/sonata/types/altai_lif_neuron.cpp
     impl/sonata/types/resource_delta_synapse.cpp
     impl/sonata/types/additive_delta_synapse.cpp
+    impl/sonata/types/astrocyte_cell.cpp
     impl/data_processing/classification/dataset.cpp
     impl/data_processing/classification/image.cpp
     impl/inference_evaluation/perfomance_metrics.cpp

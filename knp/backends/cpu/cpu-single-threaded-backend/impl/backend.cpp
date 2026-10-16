@@ -20,6 +20,7 @@
  */
 
 
+#include <knp/backends/cpu-library/astrocyte_population.h>
 #include <knp/backends/cpu-library/init.h>
 #include <knp/backends/cpu-library/populations_old.h>
 #include <knp/backends/cpu-library/projections_old.h>
@@ -257,6 +258,15 @@ std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate
 {
     SPDLOG_TRACE("Calculate LIF population {}.", std::string(population.get_uid()));
     return knp::backends::cpu::calculate_any_population(population, get_message_endpoint(), get_step());
+}
+
+
+std::optional<core::messaging::SpikeMessage> SingleThreadedCPUBackend::calculate_population(
+    core::Population<knp::neuron_traits::AstrocyteCell> &population)
+{
+    SPDLOG_TRACE("Calculate astrocyte population {}.", std::string(population.get_uid()));
+    return knp::backends::cpu::calculate_astrocyte_population(
+        population, projections_, get_message_endpoint(), get_step());
 }
 
 
