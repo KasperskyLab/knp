@@ -44,6 +44,22 @@ TEST(FrameworkSuite, MtBackendLoaderLoad)
 }
 
 
+TEST(FrameworkSuite, BackendLoadByName)
+{
+    knp::framework::BackendLoader backend_loader;
+
+    const auto be_path = knp::testing::get_backend_path().parent_path();
+
+    auto cpu_st_backend{backend_loader.load_by_name("knp-cpu-single-threaded-backend", {be_path})};
+
+    EXPECT_NO_THROW((void)cpu_st_backend->get_uid());  //!OCLINT(False positive)
+
+    auto cpu_mt_backend{backend_loader.load_by_name("cpu-multi-threaded-backend", {be_path})};
+
+    EXPECT_NO_THROW((void)cpu_mt_backend->get_uid());  //!OCLINT(False positive)
+}
+
+
 TEST(FrameworkSuite, BackendLoaderCheck)
 {
     const knp::framework::BackendLoader backend_loader;

@@ -20,6 +20,9 @@
  */
 
 #include "backend_impl.cuh"
+#include "cuda_bus/message_bus.cuh"
+#include "cuda_lib/fast_error_check.cuh"
+#include "cuda_lib/register_all.cuh"
 
 #include <spdlog/spdlog.h>
 
@@ -107,33 +110,49 @@ constexpr bool is_forcing<knp::core::Projection<synapse_traits::DeltaSynapse>>()
 void CUDABackend::_step()
 {
     auto step = get_step();
+    cuda::CUDAMessageBus &bus = impl_->get_message_bus();
     SPDLOG_DEBUG("Starting step #{}...", step);
-    if(!get_step()) impl_->get_message_bus().sync_with_host();
-    SPDLOG_DEBUG("Message bus 1 {}", impl_->get_message_bus().get_num_messages());
-    impl_->get_message_bus().send_messages_to_host(step);
-    SPDLOG_DEBUG("Message bus 2 {}", impl_->get_message_bus().get_num_messages());
+    if(!get_step())
+    {
+        bus.sync_with_host();
+    }
+    SPDLOG_DEBUG("Message bus 1 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    bus.send_messages_to_host<cuda::SpikeMessage>(step);
+    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    SPDLOG_DEBUG("Message bus 2 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 3 {}", impl_->get_message_bus().get_num_messages());
-    impl_->get_message_bus().receive_messages_from_host();
-    SPDLOG_DEBUG("Message bus 4 {}", impl_->get_message_bus().get_num_messages());
-
+    SPDLOG_DEBUG("Message bus 3 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    bus.receive_messages_from_host();
+    SPDLOG_DEBUG("Message bus 4 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
 
     // Calculate populations. This is the same as inference.
     impl_->calculate_populations(step);
-    SPDLOG_DEBUG("Message bus 5 {}", impl_->get_message_bus().get_num_messages());
+    SPDLOG_DEBUG("Message bus 5 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
     // impl_->route_population_messages(step);  // this is a part of calculate_populations
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 6 {}", impl_->get_message_bus().get_num_messages());
+    SPDLOG_DEBUG("Message bus 6 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
     //
     // Calculate projections.
     impl_->calculate_projections(step);
-    SPDLOG_DEBUG("Message bus 7 {}", impl_->get_message_bus().get_num_messages());
-    impl_->get_message_bus().send_messages_to_host(step);
-    SPDLOG_DEBUG("Message bus 8 {}", impl_->get_message_bus().get_num_messages());
+    SPDLOG_DEBUG("Message bus 7 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    bus.send_messages_to_host<cuda::SpikeMessage>(step);
+    SPDLOG_DEBUG("Message bus 8 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 9 {}", impl_->get_message_bus().get_num_messages());
+    SPDLOG_DEBUG("Message bus 9 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG("Step {}", step);
     impl_->route_projection_messages(step);
-    SPDLOG_DEBUG("Message bus 10 {}", impl_->get_message_bus().get_num_messages());
+    SPDLOG_DEBUG("Message bus 10 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+                 bus.get_num_messages<cuda::SynapticImpactMessage>());
     SPDLOG_DEBUG("Step finished #{}.", get_step());
 
     step = gad_step();
@@ -157,9 +176,9 @@ void CUDABackend::start_learning()
 void CUDABackend::load_populations(const std::vector<PopulationVariants> &populations)
 {
     SPDLOG_DEBUG("Loading populations [{}]...", populations.size());
-
+    CUDA_FAST_ERROR_CHECK("Loading populations already with an error: {}");
     impl_->load_populations(populations);
-
+    CUDA_FAST_ERROR_CHECK("An error occured during population loading: {}");
     SPDLOG_DEBUG("All populations loaded.");
 }
 
@@ -169,8 +188,9 @@ void CUDABackend::load_projections(const std::vector<ProjectionVariants> &projec
     SPDLOG_DEBUG("Loading projections [{}]...", projections.size());
 
     //    projections_ = projections;
+    CUDA_FAST_ERROR_CHECK("Running projections with error: {}");
     impl_->load_projections(projections);
-
+    CUDA_FAST_ERROR_CHECK("Loaded projections with error: {}");
     SPDLOG_DEBUG("All projections loaded.");
 }
 
@@ -178,7 +198,10 @@ void CUDABackend::load_projections(const std::vector<ProjectionVariants> &projec
 void CUDABackend::load_all_projections(const std::vector<knp::core::AllProjectionsVariant> &projections)
 {
     SPDLOG_DEBUG("Loading projections [{}]...", projections.size());
+    CUDA_FAST_ERROR_CHECK("1 {}");
     knp::meta::load_from_container<SupportedProjections>(projections, projections_);
+    CUDA_FAST_ERROR_CHECK("2 {}");
+    load_projections(projections_);
     SPDLOG_DEBUG("All projections loaded.");
 }
 
@@ -186,7 +209,11 @@ void CUDABackend::load_all_projections(const std::vector<knp::core::AllProjectio
 void CUDABackend::load_all_populations(const std::vector<knp::core::AllPopulationsVariant> &populations)
 {
     SPDLOG_DEBUG("Loading populations [{}]...", populations.size());
+    CUDA_FAST_ERROR_CHECK("2 {}");
     knp::meta::load_from_container<SupportedPopulations>(populations, populations_);
+    CUDA_FAST_ERROR_CHECK("22 {}");
+    load_populations(populations_);
+    CUDA_FAST_ERROR_CHECK("222 {}");
     SPDLOG_DEBUG("All populations loaded.");
 }
 
@@ -292,3 +319,19 @@ CUDABackend::ProjectionConstIterator CUDABackend::end_projections() const
 BOOST_DLL_ALIAS(knp::backends::gpu::CUDABackend::create, create_knp_backend)
 
 }  // namespace knp::backends::gpu
+
+
+// TODO: Probably wrap it into a recursive macro.
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
+REGISTER_CUDA_VECTOR_TYPE(unsigned int);
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

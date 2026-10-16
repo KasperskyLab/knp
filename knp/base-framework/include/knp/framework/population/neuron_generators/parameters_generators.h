@@ -1,5 +1,5 @@
 /**
- * @file neuron_parameters_generators.h
+ * @file parameters_generators.h
  * @brief Generators of the neurons.
  * @date 08.08.2024
  * @license Apache 2.0

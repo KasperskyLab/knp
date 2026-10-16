@@ -33,7 +33,7 @@ namespace knp::testing
 {
 /*
 
-TEST(CUDAMessagingSuite, SynapticImpactMessageSend)
+TEST(CudaMessagingSuite, SynapticImpactMessageSend)
 {
     namespace knp_cuda = knp::backends::gpu::cuda;
     using SynapticImpactMessage = knp_cuda::SynapticImpactMessage;

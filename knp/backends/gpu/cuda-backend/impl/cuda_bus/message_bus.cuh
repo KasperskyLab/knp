@@ -1,7 +1,7 @@
 /**
  * @file message_bus.cuh
  * @brief CUDA message bus interface.
- * @kaspersky_support Artiom N.
+ * @kaspersky_support Vartenkov A.
  * @date 16.03.2025
  * @license Apache 2.0
  * @copyright © 2025 AO Kaspersky Lab
@@ -30,6 +30,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -46,17 +47,62 @@ namespace knp::backends::gpu::cuda
 {
 
 /**
- * @brief The MessageBus class is a definition of an interface to a message bus.
+ * @brief Structure for storing and finding a specific type of messages.
+ * @tparam Message type of messages to store.
  */
+template <class Message>
+struct MessageBuffer
+{
+    std::vector<Message> messages_; // Owning CPU container, calls destructors
+    std::unordered_map<knp::core::UID, std::vector<device_lib::LongIndex>, knp::core::uid_hash> message_ids_;
+
+    void add_message(Message &&message_to_add)
+    {
+        // Critical section all.
+        messages_.resize(messages_.size() + 1);
+        messages_.back() = message_to_add;
+        auto &msg = messages_.back();
+        knp::core::UID uid = to_cpu_uid(msg.header_.sender_uid_);
+        auto map_iter = message_ids_.find(uid);
+        if (map_iter == message_ids_.end())
+        {
+            message_ids_.insert(std::make_pair(uid, std::vector<device_lib::LongIndex>{messages_.size() - 1}));
+        }
+        else
+        {
+            map_iter->second.push_back(messages_.size() - 1);
+        }
+    }
+
+    [[nodiscard]] std::vector<device_lib::LongIndex> find_message_ids(const knp::core::UID &sender) const
+    {
+        auto iter = message_ids_.find(sender);
+        if (iter == message_ids_.end())
+            return {};
+        return iter->second;
+    }
+
+    void clear()
+    {
+        messages_.clear();
+        message_ids_.clear();
+    }
+};
+
+
+/**
+* @brief The MessageBus class is a definition of an interface to a message bus.
+*/
 class CUDAMessageBus
 {
 public:
+    using CUDAMessageVariant = ::cuda::std::variant<SpikeMessage, SynapticImpactMessage>;
+
     /**
      * @brief Construct GPU message bus.
      * @param external_endpoint message endpoint used for message exchange with host.
      */
-    explicit CUDAMessageBus(knp::core::MessageEndpoint &external_endpoint) :
-        cpu_endpoint_{external_endpoint}
+    explicit CUDAMessageBus(knp::core::MessageEndpoint &external_endpoint) : cpu_endpoint_{external_endpoint}
     {}
 
 public:
@@ -83,9 +129,10 @@ public:
         return subscribe_gpu(receiver, senders, type_index);
     }
 
-    [[nodiscard]] __host__ const device_lib::CUDAVector<MessageVariant> & all_messages() const
+    template <typename MessageType>
+    [[nodiscard]] __host__ const std::vector<MessageType>& all_messages() const
     {
-        return messages_to_route_;
+        return get_message_buffer<MessageType>().messages_;
     }
 
     /**
@@ -103,28 +150,26 @@ public:
      */
     __host__ void remove_receiver(const cuda::UID &receiver);
 
-    /**
-     * @brief Send a message to the message bus.
-     * @param message message to send.
-     */
-    __host__ __device__ void send_message(const cuda::MessageVariant &message);
-
-    /**
-     * @brief Send a batch of messages from a gpu pointer to message vector.
-     * @param vec gpu pointer to message vector.
-     */
-    __host__ void send_message_gpu_batch(const device_lib::CUDAVector<cuda::MessageVariant> &vec);
+    template <class MessageType>
+    __host__ void send_message(MessageType &&message)
+    {
+        get_message_buffer<MessageType>().add_message(std::move(message));
+    }
 
     /**
      * @brief Delete all messages inside the bus.
      */
-    __host__ void clear() { messages_to_route_.clear(); }
+    __host__ void clear()
+    {
+        messages_spikes_.clear();
+        messages_impacts_.clear();
+    }
 
-    /**
-     * @brief Reserve bus buffer for messages.
-     * @param num_messages number of messages.
-     */
-    __host__ void reserve_message_buffer(uint64_t num_messages) { messages_to_route_.reserve(num_messages); }
+    template <class MessageType>
+    __host__ void clear()
+    {
+        get_message_buffer<MessageType>().clear();
+    }
 
     /**
      * @brief Copy host subscriptions here.
@@ -139,7 +184,19 @@ public:
     /**
      * @brief Send messages to host.
      */
-    __host__ void send_messages_to_host(size_t step);
+    template <class MessageType>
+    __host__ void send_messages_to_host(size_t step)
+    {
+        const MessageBuffer<MessageType> &msg_buffer = get_message_buffer<MessageType>();
+        for (size_t i = 0; i < msg_buffer.messages_.size(); ++i)
+        {
+            const MessageType &msg = msg_buffer.messages_[i];
+            const cuda::MessageHeader &header = msg.header_;
+            if (header.send_time_ != step - 1 && header.send_time_ != step || header.is_external_) continue;
+            auto host_message = make_host_message(msg);
+            cpu_endpoint_.send_message(host_message);
+        }
+    }
 
     /**
      * @brief Send messages of the specified type to a bus.
@@ -151,30 +208,32 @@ public:
     __host__ void send_messages(const cuda::UID &receiver_uid, device_lib::CUDAVector<MessageType> &result_messages);
 
     template <class MessageType>
-    __device__ const MessageType& get_message_gpu(size_t message_index) const
+    __host__ std::vector<device_lib::LongIndex> unload_messages(const cuda::UID &receiver_uid) const
     {
-        return ::cuda::std::get<MessageType>(messages_to_route_[message_index]);
-    }
-
-    template<class MessageType>
-    __host__ MessageType get_message_cpu(size_t message_index) const
-    {
-        return ::cuda::std::get<MessageType>(messages_to_route_.copy_at(message_index));
+        constexpr auto type_index = boost::mp11::mp_find<CUDAMessageVariant, MessageType>();
+        size_t subscription_id = find_subscription(receiver_uid, type_index);
+        Subscription sub = subscriptions_.copy_at(subscription_id);
+        std::vector<device_lib::LongIndex> result;
+        for (size_t i = 0; i < sub.get_senders().size(); ++i)
+        {
+            knp::core::UID uid = cuda::to_cpu_uid(sub.get_senders().copy_at(i));
+            auto id_buf = get_message_buffer<MessageType>().find_message_ids(uid);
+            auto res_size = result.size();
+            result.resize(res_size + id_buf.size());
+            // std::memcpy(result.data() + res_size, id_buf.data(), id_buf.size() * sizeof(device_lib::LongIndex));
+            std::copy(id_buf.begin(), id_buf.end(), result.begin() + res_size);
+        }
+        return result;
     }
 
     template <class MessageType>
-    __host__ device_lib::CUDAVector<uint64_t> unload_messages(const cuda::UID &receiver_uid);
-
-    __host__ size_t get_num_messages() { return messages_to_route_.size(); }
-
+    __host__ size_t get_num_messages() const { return all_messages<MessageType>().size(); }
 
 public:
     /**
      * @brief Type of subscription container.
      */
     using SubscriptionContainer = device_lib::CUDAVector<Subscription>;
-
-    using MessageBuffer = device_lib::CUDAVector<cuda::MessageVariant>;
 
     /**
      * @brief Get a reference of the subscription container of the endpoint.
@@ -183,6 +242,13 @@ public:
     SubscriptionContainer& get_subscriptions() { return subscriptions_; }
 
 private:
+
+    template<class MessageType>
+    MessageBuffer<MessageType>& get_message_buffer();
+
+    template<class MessageType>
+    const MessageBuffer<MessageType>& get_message_buffer() const;
+
     /**
      * @brief Send messages to CPU endpoint.
      */
@@ -219,12 +285,12 @@ private:
     }
 
     template <typename MessageType>
-    __host__ size_t find_subscription(const cuda::UID &receiver);
+    [[nodiscard]] __host__ size_t find_subscription(const cuda::UID &receiver) const;
 
-    __host__ size_t find_subscription(const cuda::UID &receiver, size_t type_id);
+    [[nodiscard]] __host__ size_t find_subscription(const cuda::UID &receiver, size_t type_id) const;
 
     template <typename MessageType>
-    __host__ __device__ ::cuda::std::vector<uint64_t> find_messages(const Subscription &subscription);
+    __host__ __device__ ::cuda::std::vector<device_lib::LongIndex> find_messages(const Subscription &subscription);
 
     /**
      * @brief Container that stores all the subscriptions for the current endpoint.
@@ -232,8 +298,38 @@ private:
     SubscriptionContainer subscriptions_;
     device_lib::CUDAVector<cuda::UID> gpu_senders_;
     device_lib::CUDAVector<cuda::UID> host_senders_;
-    MessageBuffer messages_to_route_;
+
+    MessageBuffer<SpikeMessage> messages_spikes_;
+    MessageBuffer<SynapticImpactMessage> messages_impacts_;
+
     knp::core::MessageEndpoint &cpu_endpoint_;
 };
 
-}  // namespace knp::backends::gpu::cuda
+
+template<>
+inline MessageBuffer<SpikeMessage>& CUDAMessageBus::get_message_buffer<SpikeMessage>()
+{
+    return messages_spikes_;
+}
+
+
+template<>
+inline MessageBuffer<SynapticImpactMessage>& CUDAMessageBus::get_message_buffer<SynapticImpactMessage>()
+{
+    return messages_impacts_;
+}
+
+template<>
+inline const MessageBuffer<SpikeMessage>& CUDAMessageBus::get_message_buffer<SpikeMessage>() const
+{
+    return messages_spikes_;
+}
+
+
+template<>
+inline const MessageBuffer<SynapticImpactMessage>& CUDAMessageBus::get_message_buffer<SynapticImpactMessage>() const
+{
+    return messages_impacts_;
+}
+
+} // namespace knp::backends::gpu::cuda

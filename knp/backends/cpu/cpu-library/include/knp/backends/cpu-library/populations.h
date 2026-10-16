@@ -91,7 +91,7 @@ void impact_population(
  * @note The 'end' parameter is exclusive, that is a neuron with the specified 'end' index is not calculated. 
  * 
  * @details The function iterates over the neurons in the range `[start, end)`. If a neuron produces a spike, then 
- * its index is appended to the message defined in the `message` parameter.
+ * its index is appended to the message defined in the @p message parameter.
  * 
  * @tparam Neuron type of neurons stored in the population.
  * 

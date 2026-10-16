@@ -23,17 +23,10 @@
 #include "../cuda_lib/kernels.cuh"
 #include "subscription.cuh"
 #include "../cuda_lib/extraction.cuh"
-#include "../cuda_lib/register_type.cuh"
+#include "../cuda_lib/register_all.cuh"
+#include "../cuda_lib/vector_kernels.cuh"
 
 #include <type_traits>
-
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
-REGISTER_CUDA_VECTOR_TYPE(uint64_t);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeMessage);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpactMessage);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 
 /**
  * @brief CUDA messaging namespace.
@@ -45,6 +38,25 @@ MessageVariant extract_message_by_index(const void *msg_ptr)
 {
     return gpu_extract<boost::mp11::mp_at_c<AllCudaMessages, index>>(
             reinterpret_cast<const boost::mp11::mp_at_c<AllCudaMessages, index> *>(msg_ptr));
+}
+
+
+template<size_t Index>
+inline void extract_dispatch(MessageVariant &result, size_t type, const void *msg_ptr)
+{
+    if (Index - 1 == type)
+    {
+        result = extract_message_by_index<Index - 1>(msg_ptr);
+        return;
+    }
+    if constexpr (Index == 1)
+    {
+        throw std::runtime_error("Wrong message type index when extracting");
+    }
+    else
+    {
+        extract_dispatch<Index - 1>(result, type, msg_ptr);
+    }
 }
 
 
@@ -67,13 +79,7 @@ MessageVariant gpu_extract<MessageVariant>(const MessageVariant *message)
     call_and_check(cudaFree(msg_gpu));
     // Here we have a type index and a gpu pointer to message.
     MessageVariant result;
-    // TODO: Remove crunchs.
-    static_assert(::cuda::std::variant_size<cuda::MessageVariant>() == 2, "Add a case statement here!");
-    switch(type)
-    {
-        case 0: result = extract_message_by_index<0>(msg_ptr); break;
-        case 1: result = extract_message_by_index<1>(msg_ptr); break;
-    }
+    extract_dispatch<::cuda::std::variant_size_v<cuda::MessageVariant>>(result, type, msg_ptr);
     return result;
 }
 
@@ -88,6 +94,7 @@ void gpu_insert<MessageVariant>(const MessageVariant &cpu_source, MessageVariant
         call_and_check(cudaMalloc(&buffer, sizeof(ValueType)));
         gpu_insert(val, buffer);
         device_lib::make_variant_kernel<<<1, 1>>>(gpu_target, buffer);
+        device_lib::destruct_kernel<ValueType, device_lib::CuMallocAllocator<ValueType>><<<1, 1>>>(buffer, 1);
         call_and_check(cudaFree(buffer));
     }, cpu_source);
 }
@@ -130,7 +137,7 @@ __global__ void copy_host_impact_kernel(cuda::SynapticImpact *impacts_to,
                                         const knp::core::messaging::SynapticImpact *impacts_from,
                                         size_t num_impacts)
 {
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= num_impacts) return;
     *(impacts_to + i) = detail::make_gpu_impact(*(impacts_from + i));
 }
@@ -140,7 +147,7 @@ __global__ void copy_gpu_impact_kernel(knp::core::messaging::SynapticImpact *imp
                                        const cuda::SynapticImpact *impacts_from,
                                        size_t num_impacts)
 {
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= num_impacts) return;
     *(impacts_to + i) = detail::make_host_impact(*(impacts_from + i));
 }
@@ -216,3 +223,13 @@ cuda::MessageVariant make_gpu_message(const knp::core::messaging::MessageVariant
 }
 
 } // namespace knp::backends::gpu::cuda
+
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeMessage);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpactMessage);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
+REGISTER_CUDA_VECTOR_TYPE(unsigned int);
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

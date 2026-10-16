@@ -32,7 +32,7 @@ namespace knp::backends::gpu::cuda
 {
 constexpr int tag_size = 16;
 using UID = ::cuda::std::array<std::uint8_t, tag_size>;
-
+constexpr UID ZERO_UID = {0};
 
 /**
  * @brief Convert from knp::core::UID to cuda UID.
@@ -53,7 +53,6 @@ knp::core::UID to_cpu_uid(const cuda::UID &uid);
  * @return new gpu UID.
  */
 inline cuda::UID new_uid() { return to_gpu_uid(knp::core::UID{}); }
-
 
 inline bool empty_uid(const cuda::UID& uid)
 {

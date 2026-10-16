@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include <knp/framework/population/neuron_parameters_generators.h>
+#include <knp/framework/population/neuron_generators/parameters_generators.h>
 #include <knp/framework/tags/name.h>
 
 #include <tests_common.h>

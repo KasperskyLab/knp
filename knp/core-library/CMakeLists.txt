@@ -64,7 +64,6 @@ set(${PROJECT_NAME}_FB_SOURCES
     impl/messaging/fbs/spike_message.fbs
     impl/messaging/fbs/synaptic_impact_message.fbs)
 
-
 #
 # Build.
 #
@@ -135,17 +134,18 @@ configure_file(
     "${CMAKE_CURRENT_LIST_DIR}/include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/version.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/version.h")
 
+
 if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")
 
-    install(TARGETS "${PROJECT_NAME}_messaging"
-            EXPORT "${PROJECT_NAME}_messaging"
-            COMPONENT "${COMPONENT_NAME}-dev")
-
     install(TARGETS "${PROJECT_NAME}"
-            EXPORT "${PROJECT_NAME}"
-            ARCHIVE
-            COMPONENT "${COMPONENT_NAME}-dev")
+            COMPONENT "${COMPONENT_NAME}-dev"
+            EXPORT "${COMPONENT_NAME}-dev_targets"
+            ARCHIVE)
+
+#    install(TARGETS "${PROJECT_NAME}_messaging"
+#            COMPONENT "${COMPONENT_NAME}-dev"
+#            EXPORT "${COMPONENT_NAME}-dev_targets")
 
     install(DIRECTORY "include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}"
             COMPONENT "${COMPONENT_NAME}-dev"

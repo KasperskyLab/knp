@@ -21,7 +21,7 @@
 
 
 #include <knp/core/projection.h>
-#include <knp/framework/projection/synapse_parameters_generators.h>
+#include <knp/framework/projection/synapse_generators/synapse_parameters_generators.h>
 #include <knp/synapse-traits/delta.h>
 
 #include <tests_common.h>

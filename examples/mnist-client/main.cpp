@@ -45,19 +45,24 @@ int main(int argc, char **argv)
     knp::core::UID output_uid;
     // Defines `std::string` object for task types.
     std::string task;
-    // Defines `std::string` objects for path to network and path to a file storing data.
-    std::string path_to_network, path_to_data;
+    // Defines `std::string` objects for paths to network, a file storing data, and backend.
+    std::string path_to_network, path_to_data, backend_type;
     po::options_description options;
-    // Defines options for task types, path to network, and path to a file storing data.
+    // Defines options for task types, paths to network, a file storing data, and backend.
     options.add_options()("help,h", "Produce help message.")(
         "task,t", po::value(&task), "Type of task: show, train, infer.")(
         "net-path,p", po::value(&path_to_network), "File or directory for network storage.")(
-        "data-path,d", po::value(&path_to_data), "File for data storage.");
+        "data-path,d", po::value(&path_to_data), "File for data storage.")(
+        "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "Backend to be used.");
     // Stores defines options in a variable map.
     po::variables_map options_map;
     po::store(po::parse_command_line(argc, argv, options), options_map);
     po::notify(options_map);
-
+    if (options_map.count("help"))
+    {
+        std::cout << options << std::endl;
+        return EXIT_SUCCESS;
+    }
     // If a path to network is not provided, the function exits.
     if (!options_map.count("net-path"))
     {
@@ -84,7 +89,7 @@ int main(int argc, char **argv)
     {
         // Defines path to backend, on which to run a network.
         std::filesystem::path path_to_backend =
-            std::filesystem::path(argv[0]).parent_path() / "knp-cpu-single-threaded-backend";
+            std::filesystem::path(argv[0]).parent_path() / options_map["backend"].as<std::string>();
         // Runs inference of network on the specified path.
         do_inference(
             options_map["net-path"].as<std::string>(), options_map["data-path"].as<std::string>(), path_to_backend);

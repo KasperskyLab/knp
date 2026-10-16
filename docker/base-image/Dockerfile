@@ -20,17 +20,21 @@ FROM gcc:14.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+COPY debian-backports.sources /etc/apt/sources.list.d/
+COPY backports.pref /etc/apt/preferences.d/
+
 WORKDIR /azp
 
 RUN \
   echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
+  && echo "KNP_IMAGE_VERSION=${KNP_IMAGE_VERSION}" >> /etc/environment \
   && export DEBIAN_VERSION=debian$(cat /etc/debian_version | sed 's/\..*//') \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
       apt-transport-https \
       build-essential \
       ca-certificates \
-      cmake \
+      cmake="3.31*" cmake-data="3.31*" \
       curl \
       gdbserver \
       git \
@@ -55,18 +59,7 @@ RUN \
       wget \
       zip \
       $(apt list|awk '/boost.*1.81.*-dev/ {print($1);}') \
-  && apt-get clean \
-  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-     gpg --dearmor | tee /etc/apt/keyrings/docker.gpg > /dev/null \
-  && add-apt-repository \
-        "deb [arch=$(echo ${TARGETPLATFORM}|cut -f2 -d/)] https://download.docker.com/linux/ubuntu \
-        mantic \
-        stable" \
-  && export VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r) \
-  && export DESTINATION=/usr/local/bin/docker-compose \
-  && curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-`uname -s`-`uname -m` -o "${DESTINATION}" \
-  && chmod +x ${DESTINATION} \
-  && ln -sf ${DESTINATION} /usr/bin/docker-compose
+  && apt-get clean
 
 RUN rm -rf /tmp/*
 

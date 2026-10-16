@@ -70,7 +70,11 @@ public:
             return {};
         }
 
-        auto result = std::move(received_messages_->back());
+        using MessageType = decltype(received_messages_)::element_type::value_type;
+
+        MessageType result;
+        std::swap(result, received_messages_->back());
+
         received_messages_->pop_back();
         return result;
     }

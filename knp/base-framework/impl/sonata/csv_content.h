@@ -26,8 +26,24 @@
 #include <utility>
 #include <vector>
 
+
+#pragma once
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <csv2/reader.hpp>
 #include <csv2/writer.hpp>
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 
 namespace knp::framework::sonata

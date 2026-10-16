@@ -20,6 +20,8 @@
  */
 
 #include <knp/core/messaging/message_header.h>
+#include <knp/core/types.h>
+
 
 namespace knp::core::messaging
 {

@@ -29,18 +29,46 @@
 #include "models/network_functions.h"
 
 
-/// Specification of network construction for AltAILIF neuron.
+/**
+ * @brief Specialized network construction function for AltAI neuron model.
+ * 
+ * @details This template specialization creates the complete network architecture specifically designed for the AltAI
+ *  neuron model. It constructs populations, synapses, and connections tailored to the AltAI neuron's unique properties
+ *  and requirements.
+ * 
+ * @param model_desc model description containing configuration parameters.
+ * 
+ * @return `AnnotatedNetwork` containing the fully constructed AltAI network.
+ */
 template <>
 AnnotatedNetwork construct_network<knp::neuron_traits::AltAILIF>(const ModelDescription& model_desc);
 
 
-/// Specification of network preparation for inference for AltAILIF neuron.
+/**
+ * @brief Specialized network preparation function for inference with AltAI neuron model.
+ * 
+ * @details This template specialization prepares a trained AltAI network for inference operations. It configures the 
+ * network state, sets up necessary annotations, and ensures proper execution for testing and validation phases.
+ * 
+ * @param backend shared pointer to the computational backend for inference execution.
+ * @param model_desc model description containing configuration parameters and paths.
+ * @param network annotated network structure to prepare for inference.
+ */
 template <>
 void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
     const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network);
 
 
-/// Specification of training labels spikes generator for AltAILIF neuron.
+/**
+ * @brief Specialized training labels spike generator for AltAI neuron model.
+ * 
+ * @details This template specialization creates a spike generator specifically designed for generating label spikes 
+ * during training with the AltAI neuron model. It converts label information from the dataset into appropriate spike 
+ * patterns for supervised learning.
+ * 
+ * @param dataset dataset containing training labels and configuration.
+ * @return callable function that generates spike data for training labels.
+ */
 template <>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)>
 make_training_labels_spikes_generator<knp::neuron_traits::AltAILIF>(const Dataset& dataset);

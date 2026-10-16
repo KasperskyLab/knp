@@ -34,7 +34,9 @@ namespace knp::neuron_traits
 {
 
 /**
- * @brief BLIFAT neuron. Use as a template parameter only.
+ * @brief Type that represents a Bursting Leaky Integrate-and-Fire with Adaptive Threshold neuron.
+ * 
+ * @note This type is intended to be used only as a template argument. It does not contain any data members.
  */
 struct BLIFATNeuron;
 

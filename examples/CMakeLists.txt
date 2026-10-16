@@ -17,7 +17,11 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.25)
 
 include(GNUInstallDirs)
-include(knp-functions)
+
+# Check needs to build examples in the SDK container.
+if (KNP_INSTALL)
+    include(knp-functions)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -49,5 +53,5 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters(examples examples
             DESCRIPTION "Kaspersky Neuromorphic Platform examples"
-            DEPENDS cpp-framework-dev)
+            INTERNAL_DEPENDS cpp-framework-dev)
 endif()

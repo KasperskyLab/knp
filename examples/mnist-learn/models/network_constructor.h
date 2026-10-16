@@ -30,51 +30,104 @@
 #include "annotated_network.h"
 
 
-/// Enum for population roles.
+/**
+ * @brief Enumeration for population roles in the network.
+ * 
+ * @details Defines the functional role of each population in the spiking neural network, which determines how 
+ * populations are treated during training and inference.
+ */
 enum class PopulationRole
 {
+    /**
+     * @brief Classification output neurons.
+     */
     OUTPUT,
+    /**
+     * @brief Input data processing neurons.
+     */
     INPUT,
+    /**
+     * @brief Regular intermediate neurons.
+     */
     NORMAL,
+    /**
+     * @brief Specialized channelized populations for image processing.
+     */
     CHANNELED,
 };
 
 
-/// Info of population.
+/**
+ * @brief Information structure for network populations.
+ * 
+ * @details Stores metadata about network populations including their role, lifecycle considerations, and 
+ * identification information for proper network management.
+ */
 struct PopulationInfo
 {
-    /// Population role.
+    /**
+     * @brief Role of the population in the network architecture.
+     */
     PopulationRole role_;
-    /// If this is false, then after training it will be removed for inference.
+    /**
+     * @brief Flag indicating whether this population should be retained during inference.
+     */
     bool keep_in_inference_;
-    /// Amount of neurons in population.
+    /**
+     * @brief Number of neurons in the population.
+     */
     size_t neurons_amount_;
-    /// UID of population.
+    /**
+     * @brief Population UID.
+     */
     knp::core::UID uid_;
-    /// Name of population, used for logs.
+    /**
+     * @brief Population name for logging and debugging purposes.
+     */
     std::string name_;
 };
 
 
-/// Class for helping with network construction.
+/**
+ * @brief Helper class for constructing neural networks with proper annotation.
+ * 
+ * @details The `NetworkConstructor class` provides a high-level interface for building neural networks while 
+ * automatically managing metadata required for inference, training, and monitoring. It handles population 
+ * creation, projection establishment, and proper annotation of network components for later use in inference 
+ * operations.
+ * 
+ * This class simplifies network construction by automatically tracking which populations and projections 
+ * should be retained during inference and managing the necessary metadata for WTA (Winner-Take-All) mechanisms 
+ * and other network features.
+ */
 class NetworkConstructor
 {
 public:
     /**
      * @brief Constructor.
-     * @param network Annotated network.
+     * 
+     * @details Initializes the network constructor with a reference to the annotated network that will be built 
+     * during construction.
+     * 
+     * @param network reference to the annotated network to be constructed.
      */
     explicit NetworkConstructor(AnnotatedNetwork &network) : network_(network) {}
 
     /**
-     * @brief Add population to network, and save some of its data.
-     * @tparam Neuron Neuron type.
-     * @param neuron Neuron parameters.
-     * @param neurons_amount Amount of neurons in population.
-     * @param role Population role.
-     * @param keep_in_inference Can population be discarded in inference, or no.
-     * @param name Name for logs.
-     * @return Reference to saved population info.
+     * @brief Add a population to the network and record its metadata.
+     * 
+     * @details Creates a new population with specified neuron parameters and adds it to the network. Automatically 
+     * records population metadata for inference management and role-based processing.
+     * 
+     * @tparam Neuron neuron type.
+     * 
+     * @param neuron neuron parameters for population construction.
+     * @param neurons_amount number of neurons in the population.
+     * @param role role of the population in the network architecture.
+     * @param keep_in_inference flag indicating whether population should persist during inference.
+     * @param name population name (used for logging).
+     * 
+     * @return reference to the saved population information structure.
      */
     template <typename Neuron>
     [[nodiscard]] const PopulationInfo &add_population(
@@ -92,10 +145,16 @@ public:
     }
 
     /**
-     * @brief Add channeled population, its not actually added into network, but rather used for automatic marking.
-     * @param neurons_amount Amount of neurons in population.
-     * @param keep_in_inference Can population be discarded in inference, or no.
-     * @return Reference to saved population info.
+     * @brief Add a channelized population for specialized data processing.
+     * 
+     * @details Creates a channelized population that is not actually added to the network but is tracked for automatic 
+     * marking and identification purposes. Channelized populations are typically used for image data processing where 
+     * each neuron represents a specific channel or feature.
+     * 
+     * @param neurons_amount number of neurons in the channelized population.
+     * @param keep_in_inference flag indicating whether population should persist during inference.
+     * 
+     * @return reference to the saved population information structure.
      */
     [[nodiscard]] const PopulationInfo &add_channeled_population(size_t neurons_amount, bool keep_in_inference)
     {
@@ -104,16 +163,22 @@ public:
     }
 
     /**
-     * @brief Add projection to network.
-     * @tparam Synapse Synapse type.
-     * @tparam Creator Type of callable creator of synapses.
-     * @param synapse Synapse parameters.
-     * @param creator Callable creator of synapses, usually comes from knp::framework::projection::creators.
-     * @param pop_pre Presynaptic population.
-     * @param pop_post Postsynaptic population.
-     * @param trainable Is projection trainable, or static.
-     * @param have_wta Does projection have wta connected to it.
-     * @return UID of projection.
+     * @brief Add a projection to the network.
+     * 
+     * @details Creates a new synaptic projection between two populations with specified synapse parameters and 
+     * connection pattern. Automatically handles training flags, WTA connectivity, and inference retention management.
+     * 
+     * @tparam Synapse synapse type.
+     * @tparam Creator yype of callable creator of synapses.
+     * 
+     * @param synapse synapse parameters for projection construction.
+     * @param creator callable creator function for synapses (typically from `knp::framework::projection::creators`).
+     * @param pop_pre presynaptic population reference.
+     * @param pop_post postsynaptic population reference.
+     * @param trainable flag indicating whether the projection should be trainable.
+     * @param have_wta flag indicating whether this projection connects to a WTA mechanism.
+     * 
+     * @return UID of the created projection for later reference.
      */
     template <typename Synapse, typename Creator>
     knp::core::UID add_projection(

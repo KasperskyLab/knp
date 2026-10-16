@@ -35,21 +35,24 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
 {
     po::options_description desc("Usage");
     desc.add_options()("help,h", "print available options")(
-        "model,m", po::value<std::string>()->default_value("blifat"), "model type. allowed options are: blifat, altai")(
-        "train_iters,t", po::value<size_t>()->default_value(60000), "amount of images for training")(
-        "inference_iters,i", po::value<size_t>()->default_value(10000), "amount of images for inference")(
+        "model,m", po::value<std::string>()->default_value("blifat"), "model type: blifat or altai")(
+        "train_iters,t", po::value<size_t>()->default_value(60000), "number of images for training")(
+        "inference_iters,i", po::value<size_t>()->default_value(10000), "number of images for inference")(
         "images", po::value<std::string>()->default_value("MNIST.bin"), "path to raw images file")(
         "labels", po::value<std::string>()->default_value("MNIST.target"), "path to images labels file")(
+        "log_path", po::value<std::string>()->default_value(""),
+                "path for saving logs (if empty, no logs are saved)")(
+        "inference_only", "skip training and use `model_path` to load a pre-trained model")(
         "training_backend", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"),
-        "path to backend which will be used in training")(
+                "path to backend used for training")(
         "inference_backend", po::value<std::string>(),
-        "path to backend which will be used in inference. if its not provided, training_backend will be used instead")(
+                "path to backend for inference (if empty, `training_backend` is used)")(
         "extensive_logs_path", po::value<std::string>()->default_value(""),
-        "path for putting extensive logs. if no path is specified, no extensive logs will be produced.")(
+                "path for storing extensive logs (if empty, no extensive logs are produced)")(
         "model_path", po::value<std::string>()->default_value(""),
-        "path for saving trained model. if no path is specified, model wont be saved.")(
+                "path for saving trained model (if empty, model is not saved)")(
         "logging_level,l", po::value<std::string>()->default_value("info"),
-        "logging level. allowed options are: trace, debug, info, warn, error, critical, none");
+        "logging level: trace, debug, info, warn, error, critical, or none");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -62,6 +65,7 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     }
 
     ModelDescription model_desc;
+    auto common_path = std::filesystem::weakly_canonical(std::filesystem::path(argv[0]).parent_path());
 
     if (vm.count("model"))
     {
@@ -134,7 +138,7 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
 
     if (vm.count("training_backend"))
     {
-        model_desc.training_backend_path_ = vm["training_backend"].as<std::string>();
+        model_desc.training_backend_path_ = common_path / vm["training_backend"].as<std::string>();
     }
     else
     {
@@ -143,13 +147,13 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
         return std::nullopt;
     }
 
-    if (vm.count("inference_backend"))
+    if (!vm.count("inference_backend") || vm["inference_backend"].as<std::string>().empty())
     {
-        model_desc.inference_backend_path_ = vm["inference_backend"].as<std::string>();
+        model_desc.inference_backend_path_ = model_desc.training_backend_path_;
     }
     else
     {
-        model_desc.inference_backend_path_ = model_desc.training_backend_path_;
+        model_desc.inference_backend_path_ = common_path / vm["inference_backend"].as<std::string>();
     }
 
     if (vm.count("extensive_logs_path"))
@@ -169,6 +173,8 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     {
         model_desc.model_saving_path_ = "";
     }
+
+    model_desc.inference_only_ = vm.count("inference_only") > 0;
 
     if (vm.count("logging_level"))
     {

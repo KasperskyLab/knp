@@ -27,11 +27,12 @@
 
 #include <iostream>
 
-#include <boost/program_options.hpp>
+#include "knp/framework/transforms/upcasting.h"
 
 #include "dataset.h"
 #include "evaluate_results.h"
 #include "inference.h"
+#include "network_validation.h"
 #include "parse_arguments.h"
 #include "save_network.h"
 #include "training.h"
@@ -39,23 +40,55 @@
 
 
 /**
- * @brief Run whole model.
+ * @brief Run only inference for model.
  *
- * @tparam Neuron Neuron type.
- * @param model_desc Model description.
+ * @tparam Neuron neuron type.
+ *
+ * @param model_desc model description containing the path to the saved model.
+ * @param dataset dataset used for inference.
+ *
+ * @return vector of spike messages produced during inference.
  */
 template <typename Neuron>
-void run_model(const ModelDescription& model_desc)
+std::vector<knp::core::messaging::SpikeMessage> run_model_inference_only(const ModelDescription& model_desc,
+                                                                         const Dataset& dataset)
 {
-    Dataset dataset = process_dataset(model_desc);
-
-    AnnotatedNetwork network = construct_network<Neuron>(model_desc);
-
-    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
+    AnnotatedNetwork network;
     knp::framework::BackendLoader backend_loader;
-    auto bus_connections = train_model<Neuron>(model_desc, dataset, network, backend_loader);
+    if (model_desc.model_saving_path_.empty())
+        throw std::runtime_error("Model loading path is not defined for inference-only mode");
 
-    if (!model_desc.model_saving_path_.empty()) save_network(model_desc, network);
+    // Perform inference using the pre-trained model.
+    return infer_model<Neuron>(model_desc, dataset, network, backend_loader);
+}
+
+
+/**
+ * @brief Run full training pipeline followed by inference.
+ *
+ * @details This function constructs the network, trains it, optionally upcasts populations and projections 
+ * to their base types, and finally runs inference on the test set.
+ *
+ * @tparam Neuron neuron type.
+ *
+ * @param model_desc model description containing configuration parameters and paths.
+ * @param dataset dataset used for training and inference.
+ *
+ * @return vector of output spike messages produced during the final inference step.
+ */
+template <typename Neuron>
+std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDescription& model_desc,
+                                                                   const Dataset& dataset)
+{
+    AnnotatedNetwork network;
+    knp::framework::BackendLoader backend_loader;
+
+    // Build the network according to the selected neuron model.
+    // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
+    network = construct_network<Neuron>(model_desc);
+
+    // Execute the training phase.
+    auto bus_connections = train_model<Neuron>(model_desc, dataset, network, backend_loader);
 
     // Build the graphs.
     const auto static_graph = build_graph(network);
@@ -69,37 +102,78 @@ void run_model(const ModelDescription& model_desc)
     knp::framework::visualize(static_graph, "graph_static");
     knp::framework::visualize(dynamic_graph, "graph_dynamic");
 
-    auto inference_spikes = infer_model<Neuron>(model_desc, dataset, network, backend_loader);
+    // Upcast populations to the most generic neuron type for serialization.
+    if (model_desc.type_ == SupportedModelType::BLIFAT)
+        knp::framework::upcast_populations<knp::neuron_traits::BLIFATNeuron>(network.network_);
+    else if (model_desc.type_ == SupportedModelType::AltAI)
+        knp::framework::upcast_populations<knp::neuron_traits::AltAILIF>(network.network_);
+    else throw std::runtime_error("Unsupported model type");
 
-    evaluate_results(inference_spikes, dataset);
+    // Upcast projections to the generic `DeltaSynapse` type.
+    knp::framework::upcast_projections<knp::synapse_traits::DeltaSynapse>(network.network_);
+
+    // Perform inference on the trained model.
+    return infer_model<Neuron>(model_desc, dataset, network, backend_loader);
 }
 
 
 /**
- * @brief Main function.
+ * @brief Execute complete model pipeline for specified neuron type.
  *
- * @param argc Argument count.
- * @param argv Arguments value.
+ * @details This template function orchestrates the entire machine learning pipeline for neural networks, including
+ * dataset processing, network construction, training, inference, and evaluation. It serves as the core execution
+ * engine for both AltAI and BLIFAT neuron models.
  *
- * @return Error code.
+ * @tparam Neuron neuron type.
+ *
+ * @param model_desc model description containing configuration parameters and paths.
+ */
+template <typename Neuron>
+void run_model(const ModelDescription& model_desc)
+{
+    Dataset dataset = process_dataset(model_desc);
+    AnnotatedNetwork network;
+    knp::framework::BackendLoader backend_loader;
+    std::vector<knp::core::messaging::SpikeMessage> results;
+    if (model_desc.inference_only_) results = run_model_inference_only<Neuron>(model_desc, dataset);
+    else results = run_model_training<Neuron>(model_desc, dataset);
+
+    // Evaluate and report inference results.
+    evaluate_results(results, dataset);
+}
+
+
+/**
+ * @brief Main application entry point.
+ *
+ * @details This function serves as the primary execution point for the MNIST neural network learning application.
+ * It handles command-line argument parsing, configuration validation, user interaction, and routes execution to
+ * the appropriate neuron model.
+ *
+ * @param argc argument count.
+ * @param argv arguments values.
+ * 
+ * @return exit code.
  */
 int main(int argc, char** argv)
 {
-    // Parsing command line arguments.
+    // Parse command-line arguments and validate configuration.
     std::optional<ModelDescription> model_desc_opt = parse_arguments(argc, argv);
     if (!model_desc_opt.has_value()) return EXIT_FAILURE;
     const ModelDescription& model_desc = model_desc_opt.value();
 
+    // Display configuration to user for confirmation.
     std::cout << "Model description:\n"
               << model_desc << "\nPress ENTER to accept parameters and start model." << std::endl;
     std::cin.get();
     std::cout << "Starting model." << std::endl;
 
-    // Starting model according to selected type.
+    // Execute model according to the selected neuron type.
     switch (model_desc.type_)
     {
         case SupportedModelType::BLIFAT:
         {
+            // cppcheck-suppress throwInEntryPoint
             run_model<knp::neuron_traits::BLIFATNeuron>(model_desc);
             break;
         }

@@ -59,10 +59,13 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/output_channel.cpp
     impl/synchronization.cpp
     impl/monitoring/model.cpp
+    impl/network_validation/executor.cpp
+    impl/network_validation/validators/connectivity.cpp
     impl/projection/wta.cpp
     impl/sonata/save_network.cpp
     impl/sonata/load_network.cpp
     impl/sonata/csv_content.cpp
+    impl/sonata/types/lif_neuron.cpp
     impl/sonata/types/blifat_neuron.cpp
     impl/sonata/types/delta_synapse.cpp
     impl/sonata/types/resource_blifat_neuron.cpp
@@ -104,52 +107,72 @@ if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")
 
     configure_package_config_file(
-            "${CMAKE_CURRENT_LIST_DIR}/packaging/${PROJECT_NAME}Config.cmake.in"
-            "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}Config.cmake"
-            INSTALL_DESTINATION
-            "${CMAKE_INSTALL_LIBDIR}/cmake/")
+        "${CMAKE_CURRENT_LIST_DIR}/packaging/${PROJECT_NAME}Config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION
+            "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    )
 
     write_basic_package_version_file(
-            "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}ConfigVersion.cmake"
-            VERSION ${PROJECT_VERSION}
-            COMPATIBILITY AnyNewerVersion)
+        "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
 
     install(TARGETS "${PROJECT_NAME}-core"
-            EXPORT "${PROJECT_NAME}-core"
-            LIBRARY
-            COMPONENT ${COMPONENT_NAME})
+            EXPORT "${COMPONENT_NAME}-dev_targets"
+            COMPONENT "${COMPONENT_NAME}")
 
-    install(FILES
+    install(TARGETS "${PROJECT_NAME}-core_static"
+            EXPORT "${COMPONENT_NAME}-dev_targets"
+            COMPONENT "${COMPONENT_NAME}-dev"
+            ARCHIVE)
+
+    install(
+        FILES
             "${CMAKE_SOURCE_DIR}/packaging/LICENSE.txt"
             "${CMAKE_SOURCE_DIR}/packaging/NOTICE.txt"
             "${CMAKE_SOURCE_DIR}/README.md"
-            COMPONENT ${COMPONENT_NAME}
-            TYPE DOC)
+        COMPONENT ${COMPONENT_NAME}
+        TYPE DOC)
 
-    install(TARGETS "${PROJECT_NAME}-core_static"
-            EXPORT "${PROJECT_NAME}-core_static"
-            COMPONENT ${COMPONENT_NAME}-dev
-            ARCHIVE)
+    install(
+        DIRECTORY "include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/knp"
+        COMPONENT "${COMPONENT_NAME}-dev"
+        FILES_MATCHING PATTERN "*.h")
 
-    install(DIRECTORY "include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}"
-            COMPONENT ${COMPONENT_NAME}-dev
-            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/knp"
-            FILES_MATCHING PATTERN "*.h")
-
-    install(FILES
+    install(
+        FILES
             "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}ConfigVersion.cmake"
-            COMPONENT ${COMPONENT_NAME}-dev
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+        COMPONENT "${COMPONENT_NAME}-dev")
+
+    install(EXPORT "${COMPONENT_NAME}-dev_targets"
+            FILE "${PROJECT_NAME}-devTargets.cmake"
+            COMPONENT "${COMPONENT_NAME}-dev"
+            NAMESPACE KNP::
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-    knp_packaging_set_parameters(${COMPONENT_NAME} "${PROJECT_NAME}"
-        DESCRIPTION "${PROJECT_DESCRIPTION}"
-        # DEPENDS "backend" "libboost-all-dev (= ${Boost_VERSION})" "libhdf5" "libzmq5"
-    )
+    knp_packaging_set_parameters(
+        "${COMPONENT_NAME}"
+        "${PROJECT_NAME}"
+        DESCRIPTION "${PROJECT_DESCRIPTION}")
 
-    knp_packaging_set_parameters(${COMPONENT_NAME}-dev "${PROJECT_NAME}"
-            DESCRIPTION "${PROJECT_DESCRIPTION} development files: C++ headers, CMake modules, static libraries"
-            DEPENDS "libboost-all-dev (>= ${Boost_VERSION})"
-            INTERNAL_DEPENDS "${COMPONENT_NAME}"
-            RECOMMENDS "cppzmq-dev (>= 4.9.0-1)" "cppzmq (= 4.9.0-1)")
+    string(
+        REGEX REPLACE
+        "\\.[0-9]*$"
+        ""
+        BOOST_PKG_VERSION
+        "${Boost_VERSION}")
+
+    knp_packaging_set_parameters(
+        "${COMPONENT_NAME}-dev"
+        "${PROJECT_NAME}"
+        DESCRIPTION "${PROJECT_DESCRIPTION} development files: C++ headers, CMake modules, static libraries"
+        DEPENDS "libboost-filesystem${BOOST_PKG_VERSION}-dev"
+        INTERNAL_DEPENDS "${COMPONENT_NAME}"
+        RECOMMENDS "cppzmq-dev (>= 4.9.0-1)" "cppzmq (= 4.9.0-1)"
+    )
 endif()

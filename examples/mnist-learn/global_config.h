@@ -23,27 +23,59 @@
 
 #include <cstddef>
 
-/// Amount of classes, its 10 because this is MNIST, we are predicting numbers from 0 to 9.
+
+/**
+ * @brief Number of classification classes in the dataset.
+ * 
+ * @note For MNIST dataset, there are 10 classes representing digits 0 through 9.
+ */
 constexpr size_t classes_amount = 10;
 
-/// Size of an image, its 28 by 28 pixels.
+/**
+ * @brief Input image size in pixels.
+ * 
+ * @details MNIST images are 28×28 pixels, resulting in 784 total pixels per image.
+ */
 constexpr size_t input_size = 28 * 28;
 
-/// Amount of steps for each image.
+/**
+ * @brief Total number of simulation steps per input image.
+ * 
+ * @details Each image is processed over 15 simulation steps to generate spike patterns.
+ */
 constexpr size_t steps_per_image = 15;
 
-/// Amount of steps out of steps_per_image, during which we are sending image into network in spikes form.
+/**
+ * @brief Number of active simulation steps for spike transmission.
+ * 
+ * @details Out of total @p steps_per_image, only 10 steps are used for actual spike transmission to the neural network.
+ */
 constexpr size_t active_steps = 10;
 
-/// Amount of winners in WTA(winner takes all).
+/**
+ * @brief Number of winners in Winner-Take-All (WTA) mechanism.
+ * 
+ * @details Only one neuron wins in the WTA competition during each time step.
+ */
 constexpr size_t wta_winners_amount = 1;
 
-/// This is used for transforming images into spikes form.
+/**
+ * @brief Scaling factor for converting pixel intensities to spike rates.
+ * 
+ * @details Pixel values range from 0-255, this factor scales them to appropriate spike generation rates.
+ */
 constexpr float state_increment_factor = 1 / 255.f;
 
-/// Each aggregated_spikes_logging_period steps, all aggregated spikes will be written to a file, it logging is enabled.
+/**
+ * @brief Logging period for aggregated spike data.
+ * 
+ * @details Every 4,000 simulation steps, aggregated spike information is written to file when logging is enabled.
+ */
 constexpr size_t aggregated_spikes_logging_period = 4e3;
 
-/// Each projection_weights_logging_period steps, all projections weights will be written to a file, it logging is
-/// enabled.
+/**
+ * @brief Logging period for projection weights.
+ * 
+ * @details Every 100,000 simulation steps, synaptic weights are written to file when logging is enabled.
+ */
 constexpr size_t projection_weights_logging_period = 1e5;

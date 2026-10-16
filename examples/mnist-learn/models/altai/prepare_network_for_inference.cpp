@@ -26,12 +26,9 @@
 #include "network_functions.h"
 
 
-/**
- * @brief Replace wta with projections.
- * @note We have to do this because AltAI does not support WTA.
- * @param network Annotated network.
- */
-static void replace_wta_with_projections(AnnotatedNetwork& network)
+// Replace WTA mechanisms with direct projection connections as the AltAI neuron model does not natively support WTA
+// operations.
+void replace_wta_with_projections(AnnotatedNetwork& network)
 {
     for (const auto& wta_data : network.data_.wta_data_)
     {
@@ -60,9 +57,17 @@ static void replace_wta_with_projections(AnnotatedNetwork& network)
 
 
 /**
- * @brief Quantize network, aka scale down model to weights in range [-255,255].
- * @note This is done due to simulate AltAI limitations.
- * @param network Annotated network.
+ * @brief Quantize the network by scaling weights and neuron thresholds to the range [-255, 255].
+ *
+ * @details This function is required for the AltAI neuron model because it operates with fixed-point arithmetic. 
+ * All synaptic weights and neuron activation thresholds are scaled proportionally so that the largest absolute 
+ * value (whether weight or threshold) maps to 255. The scaling preserves the relative magnitude of parameters 
+ * while fitting them into the integer range expected by the AltAI implementation.
+ *
+ * @note The quantization step is performed after the network has been reconstructed for inference (i.e., after 
+ * `replace_wta_with_projections` has been applied).
+ *
+ * @param network annotated network.
  */
 static void quantize_network(AnnotatedNetwork& network)
 {
@@ -110,20 +115,18 @@ static void quantize_network(AnnotatedNetwork& network)
 }
 
 
-/**
- * @brief In AltAI we need to reconstruct network for inference without WTA, and quantize network.
- * @param backend Backend used for training.
- * @param model_desc Model description.
- * @param network Annotated network.
- */
+// Prepare AltAI network for inference execution.
 template <>
 void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
     const std::shared_ptr<knp::core::Backend>& backend, const ModelDescription& model_desc, AnnotatedNetwork& network)
 {
     auto data_ranges = backend->get_network_data();
+    
+    // Clear existing network and rebuild with inference-specific components.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
     network.network_ = knp::framework::Network();
 
+    // Restore populations marked for inference use.
     for (auto& iter = *data_ranges.population_range.first; iter != *data_ranges.population_range.second; ++iter)
     {
         // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235842
@@ -132,6 +135,8 @@ void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
         if (network.data_.inference_population_uids_.find(pop_uid) != network.data_.inference_population_uids_.end())
             network.network_.add_population(std::move(population));
     }
+
+    // Restore projections marked for inference use.
     for (auto& iter = *data_ranges.projection_range.first; iter != *data_ranges.projection_range.second; ++iter)
     {
         // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235844
@@ -142,7 +147,9 @@ void prepare_network_for_inference<knp::neuron_traits::AltAILIF>(
             network.network_.add_projection(std::move(projection));
     }
 
+    // Replace WTA mechanisms with direct projections for inference compatibility.
     replace_wta_with_projections(network);
 
+    // Quantize network parameters to fit AltAI's fixed-point arithmetic requirements.
     quantize_network(network);
 }

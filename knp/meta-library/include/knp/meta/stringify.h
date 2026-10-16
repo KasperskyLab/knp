@@ -51,7 +51,7 @@ using mp_neq = boost::mp11::mp_bool<T1::value != T2::value>;
  * @brief List of types from the global type list that are used in the local type list.
  * 
  * @tparam AllList global list of types.
- * @tparam L local list of types (subset of `AllList`).
+ * @tparam L local list of types (subset of @p AllList).
  */
 template <class AllList, class L>
 using mp_flt = boost::mp11::mp_filter_q<boost::mp11::mp_bind_front<mp_neq, boost::mp11::mp_size<AllList>>, L>;
@@ -60,7 +60,7 @@ using mp_flt = boost::mp11::mp_filter_q<boost::mp11::mp_bind_front<mp_neq, boost
  * @brief Index array for types from the global type list that are used in the local type list.
  * 
  * @tparam AllList global list of types.
- * @tparam L local list of types (subset of `AllList`).
+ * @tparam L local list of types (subset of @p AllList).
  */
 template <class AllList, class L>
 using mp_supported_indexes =
@@ -103,7 +103,7 @@ std::vector<size_t> get_supported_type_indexes()
  * 
  * @tparam AllTypes global list of types.
  * @tparam SupportedTypes local list of types.
- * @tparam NamesType container type (automatically derived from `type_names` if not specified).
+ * @tparam NamesType container type (automatically derived from @p type_names if not specified).
  * 
  * @param type_names container (usually a tuple) of type names.
  * 

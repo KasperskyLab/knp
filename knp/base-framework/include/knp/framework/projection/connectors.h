@@ -26,7 +26,7 @@
 #include <optional>
 
 #include "creators.h"
-#include "synapse_parameters_generators.h"
+#include "synapse_generators/synapse_parameters_generators.h"
 
 /**
  * @brief Projection namespace.

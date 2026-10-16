@@ -68,7 +68,9 @@ size_t MessageBusCPUImpl::step()
     const std::lock_guard lock(mutex_);
     if (messages_to_route_.empty()) return 0;  // No more messages left for endpoints to receive.
     // Sending a message to every endpoint.
-    auto message = std::move(messages_to_route_.back());
+    using MessageType = decltype(messages_to_route_)::value_type;
+    MessageType message;
+    std::swap(message, messages_to_route_.back());
     // Remove message from container.
     messages_to_route_.pop_back();
     const knp::core::UID sender_uid = std::visit([](const auto &msg) { return msg.header_.sender_uid_; }, message);

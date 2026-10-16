@@ -43,18 +43,18 @@ class KNP_DECLSPEC ConvertToSet
 public:
     /**
      * @brief Converter constructor.
-     * 
+     *
      * @param output_size output vector size (usually corresponds to the size of an output population).
      */
     explicit ConvertToSet(size_t output_size) : output_size_(output_size) {}
     /**
-     * @brief Get a set of recently spiked neuron indexes from the `message_list`.
-     * 
+     * @brief Get a set of recently spiked neuron indexes from the @p message_list.
+     *
      * @param message_list list of spike messages that contains indexes of spiked neurons.
-     * 
+     *
      * @return set of spiked neuron indexes.
-     * 
-     * @details The method ignores neuron indexes that are greater than the `output_size` value.
+     *
+     * @details The method ignores neuron indexes that are greater than the `ConvertToSet::output_size` value.
      */
     std::set<core::messaging::SpikeIndex> operator()(const std::vector<core::messaging::SpikeMessage> &message_list)
     {

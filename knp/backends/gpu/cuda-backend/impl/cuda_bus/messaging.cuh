@@ -54,7 +54,13 @@ MessageVariant gpu_extract<MessageVariant>(const MessageVariant *message);
 template <>
 void gpu_insert<MessageVariant>(const MessageVariant &cpu_source, MessageVariant *gpu_target);
 
-cuda::MessageVariant make_gpu_message(const knp::core::messaging::MessageVariant &host_message);
+cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message);
+
+cuda::SpikeMessage make_gpu_message(const knp::core::messaging::SpikeMessage &host_message);
+
+knp::core::messaging::SpikeMessage make_host_message(const cuda::SpikeMessage &cuda_spike_message);
+
+knp::core::messaging::SynapticImpactMessage make_host_message(const cuda::SynapticImpactMessage &cuda_impact_message);
 
 knp::core::messaging::MessageVariant make_host_message(const cuda::MessageVariant &gpu_message);
 

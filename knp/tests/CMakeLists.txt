@@ -63,8 +63,7 @@ add_executable("${PROJECT_NAME}" ${COMMON_SOURCE} tester.cpp utility.cpp)
 target_include_directories("${PROJECT_NAME}"
     PRIVATE "${CMAKE_CURRENT_LIST_DIR}/common"
     PRIVATE "${GTEST_DIR}/googletest/include"
-    PRIVATE "${GTEST_DIR}/googlemock/include"
-)
+    PRIVATE "${GTEST_DIR}/googlemock/include")
 
 #knp_get_hdf5_target(HDF5_LIB)
 
@@ -75,7 +74,11 @@ if (KNP_BUILD_CUDA)
     target_link_libraries("${PROJECT_NAME}" PRIVATE knp-gpu-cuda-backend_static CUDA::cudart)  # KNP::Backends::CUDA
 endif()
 
-target_link_libraries("${PROJECT_NAME}" PRIVATE gtest gtest_main spdlog::spdlog_header_only) #  HighFive
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
+
+# Highfive is really used in tester.
+target_link_libraries("${PROJECT_NAME}" PRIVATE gtest gtest_main spdlog::spdlog_header_only HighFive PkgConfig::GRAPHVIZ)
 
 add_dependencies("${PROJECT_NAME}" knp-base-framework-core_static)
 
@@ -86,8 +89,7 @@ endif()
 gtest_discover_tests("${PROJECT_NAME}"
     # Set a working directory to find test data via paths relative to the project root.
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+    PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (KNP_ENABLE_COVERAGE)
     message(STATUS "Coverage enabled.")

@@ -192,6 +192,9 @@ message(STATUS "KNP_MAINTAINER_BUILD = ${KNP_MAINTAINER_BUILD}")
 message(STATUS "KNP_PYTHON_FRAMEWORK_BUILD = ${KNP_PYTHON_FRAMEWORK_BUILD}")
 message(STATUS "KNP_PYTHON_BUILD_WHEEL = ${KNP_PYTHON_BUILD_WHEEL}")
 
+message(STATUS "Using C Compiler Version: ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "Using C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+
 
 # TODO: fix it!
 # An error has occurred: FatalError: git failed. Is it installed, and are you in a Git repository directory?
@@ -404,7 +407,7 @@ set(CPACK_PACKAGE_VENDOR "AO Kaspersky Lab")
 set(CPACK_PACKAGE_CONTACT "support@kaspersky.com")
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_DESCRIPTION}"
-        CACHE STRING "Package description for the package metadata")
+    CACHE STRING "Package description for the package metadata")
 set(CPACK_PACKAGE_DESCRIPTION "Kaspersky Neuromorphic Platform - spiking networks simulator")
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
@@ -446,6 +449,8 @@ set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
 set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS OFF)
+
+set(CPACK_STRIP_FILES ON)
 
 
 #

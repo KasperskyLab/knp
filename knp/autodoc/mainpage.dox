@@ -34,7 +34,7 @@ You can use Kaspersky Neuromorphic Platform to do the following:
 @li Implement application solutions based on neuromorphic spiking neural networks in the field of robotic manipulators, Internet of Things, unmanned systems, human-machine interaction, wearable devices, and optimization planning.
 @li Implement application solutions on devices with low power consumption using neuromorphic processors.
 
-You can use the C++ and Python languages to accomplish these tasks. The platform supports CPUs, GPUs with CUDA support, as well as the AltAI-2 neuromorphic processing unit designed for power-efficient execution of neural networks on various classes of smart devices.
+You can use the C++ and Python languages to accomplish these tasks. Along with CPU and GPU backends, the platform supports neuromorphic backend which is developed by Motiv-NT.
 
 @section doxygen About API Reference
 

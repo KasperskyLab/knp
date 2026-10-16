@@ -143,7 +143,7 @@ void InferenceResultsProcessor::write_inference_results_to_stream_as_csv(std::os
     {
         auto const &prediction = inference_results_[label];
         const float precision = get_precision(prediction.true_positives_, prediction.false_positives_);
-        const float recall = get_recall(prediction.true_positives_, prediction.false_positives_);
+        const float recall = get_recall(prediction.true_positives_, prediction.false_negatives_);
         const float prevalence = get_prevalence(
             prediction.true_positives_, prediction.false_negatives_, prediction.false_positives_,
             prediction.true_negatives_);

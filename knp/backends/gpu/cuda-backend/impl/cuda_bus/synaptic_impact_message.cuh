@@ -46,9 +46,9 @@ class SynapticImpact
 {
 public:
     /**
-     * @brief Index of the population synapse.
+     * @brief Index of the projection synapse.
      */
-    uint64_t connection_index_;
+    device_lib::LongIndex connection_index_;
 
     /**
      * @brief Value used to change neuron membrane potential.

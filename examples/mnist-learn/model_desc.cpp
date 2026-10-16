@@ -37,8 +37,8 @@ std::ostream& operator<<(std::ostream& stream, ModelDescription const& desc)
     }
     stream << "\n";
 
-    stream << "Train images amount: " << desc.train_images_amount_ << "\n";
-    stream << "Inferece images amount: " << desc.inference_images_amount_ << "\n";
+    stream << "Training images amount: " << desc.train_images_amount_ << "\n";
+    stream << "Inference images amount: " << desc.inference_images_amount_ << "\n";
 
     stream << "Images file path: " << desc.images_file_path_ << "\n";
     stream << "Labels file path: " << desc.labels_file_path_ << "\n";

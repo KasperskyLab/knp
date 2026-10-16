@@ -34,10 +34,20 @@
 
 
 /**
- * @brief If no neuron made a specialization for its type, throw exception.
- * @tparam Neuron Neuron type.
- * @param model_desc Model desciption.
- * @return Constructed network.
+ * @brief Generic network construction function with fallback error handling.
+ * 
+ * @details This template provides the generic interface for network construction across all supported neuron 
+ * models. When a specific neuron model specialization is not implemented, this generic version throws a runtime 
+ * error indicating the neuron type is not supported. Each supported neuron model should implement a template
+ * specialization for proper network construction.
+ * 
+ * @tparam Neuron neuron type.
+ * 
+ * @param model_desc model description containing configuration parameters.
+ * 
+ * @return constructed `AnnotatedNetwork` for the specified neuron type.
+ * 
+ * @throws `std::runtime_error` if the neuron type is not supported.
  */
 template <typename Neuron>
 AnnotatedNetwork construct_network(const ModelDescription& model_desc)
@@ -47,11 +57,20 @@ AnnotatedNetwork construct_network(const ModelDescription& model_desc)
 
 
 /**
- * @brief If no neuron made a specialization for its type, throw exception.
- * @tparam Neuron Neuron type.
- * @param backend Backend used for training.
- * @param model_desc Model description.
- * @param network Annotated network.
+ * @brief Generic network preparation function for inference with fallback error handling.
+ * 
+ * @details This template provides the generic interface for preparing networks for inference operations across all 
+ * supported neuron models. When a specific neuron model specialization is not implemented, this generic version 
+ * throws a runtime error indicating the neuron type is not supported. Each supported neuron model should implement 
+ * a template specialization for proper inference preparation.
+ * 
+ * @tparam Neuron neuron type.
+ * 
+ * @param backend shared pointer to the computational backend for inference execution.
+ * @param model_desc model description containing configuration parameters and paths.
+ * @param network annotated network structure to prepare for inference.
+ * 
+ * @throws `std::runtime_error` if the neuron type is not supported.
  */
 template <typename Neuron>
 void prepare_network_for_inference(
@@ -62,10 +81,20 @@ void prepare_network_for_inference(
 
 
 /**
- * @brief If no neuron made a specialization for its type, throw exception.
- * @tparam Neuron Neuron type.
- * @param dataset Dataset.
- * @return Callable function on each step.
+ * @brief Generic training labels spike generator function with fallback error handling.
+ * 
+ * @details This template provides the generic interface for creating training label spike generators across all supported 
+ * neuron models. When a specific neuron model specialization is not implemented, this generic version throws a runtime error
+ * indicating the neuron type is not supported. Each supported neuron model should implement a template specialization for 
+ * proper label spike generation.
+ * 
+ * @tparam Neuron neuron type.
+ * 
+ * @param dataset dataset containing training labels and configuration.
+ * 
+ * @return callable function that generates spike data for training labels.
+ * 
+ * @throws `std::runtime_error` if the neuron type is not supported.
  */
 template <typename Neuron>
 std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_labels_spikes_generator(
@@ -73,3 +102,18 @@ std::function<knp::core::messaging::SpikeData(knp::core::Step)> make_training_la
 {
     throw std::runtime_error("Not supported neuron type.");
 }
+
+
+/**
+ * @brief Replace WTA with direct projection connections.
+ *
+ * @details The AltAI neuron model does not natively support WTA operations. To make a network built with WTA compatible 
+ * with AltAI during inference, this function replaces each WTA sender/receiver pair with an equivalent direct projection. 
+ * The original WTA data structures are cleared after the conversion.
+ *
+ * @note This function is used by both AltAI and BLIFAT inference preparation pipelines (BLIFAT calls it for completeness, 
+ * even though its networks typically do not contain WTA structures).
+ *
+ * @param network annotated network.
+ */
+void replace_wta_with_projections(AnnotatedNetwork& network);

@@ -48,7 +48,7 @@
 // "Get parameters of the specific neuron in the population.")
 // py::class_<nt::neuron_parameters<nt::neuron_type>>(BOOST_PP_STRINGIZE(BOOST_PP_CAT(neuron_type, parameters)));
 
-#define INSTANCE_PY_POPULATION(n, template_for_instance, neuron_type)                                                \
+#define INSTANCE_PY_POPULATION(n, template_for_instance, neuron_type)                                                 \
     py::class_<core::Population<nt::neuron_type>>(                                                                    \
         BOOST_PP_STRINGIZE(BOOST_PP_CAT(neuron_type, Population)),                                                    \
                            "The Population class is a container of neurons of the same model.", py::no_init)          \
@@ -81,7 +81,8 @@
                 py::return_internal_reference<>(), "Get parameter values of a neuron with the given index.")          \
             .add_property(                                                                                            \
                 "uid",                                                                                                \
-                make_handler([](core::Population<nt::neuron_type> &population) { return population.get_uid(); }),     \
+                make_handler(std::function<core::UID(core::Population<nt::neuron_type> &)>(                           \
+                    [](core::Population<nt::neuron_type> &population) { return population.get_uid(); })),             \
                 "Get population UID.");
 
 

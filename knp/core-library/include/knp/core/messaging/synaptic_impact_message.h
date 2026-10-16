@@ -20,6 +20,8 @@
  */
 
 #pragma once
+
+#include <knp/core/messaging/message_header.h>
 #include <knp/synapse-traits/output_types.h>
 
 #include <iostream>
@@ -27,8 +29,6 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
-
-#include "message_header.h"
 
 
 /**
@@ -39,7 +39,7 @@ namespace knp::core::messaging
 
 /**
  * @brief Structure that contains the synaptic impact value and indexes of presynaptic and postsynaptic neurons.
- * 
+ *
  * @details Synaptic impact changes parameters of neurons after the synapses state is calculated.
  */
 struct SynapticImpact
@@ -71,7 +71,7 @@ struct SynapticImpact
 
     /**
      * @brief Compare synaptic impact messages.
-     * 
+     *
      * @return `true` if synaptic impacts are equal.
      */
     bool operator==(const SynapticImpact &) const;
@@ -110,9 +110,9 @@ struct SynapticImpactMessage
 
     /**
      * @brief Boolean value that defines whether the signal is from a projection without plasticity.
-     * 
+     *
      * @details The parameter is used in training. Use `true` if the signal is from a projection without plasticity.
-     * 
+     *
      * @todo Try to remove this when fixing main; this parameter is too specific to be a part of a general message.
      */
     bool is_forcing_ = false;
@@ -125,10 +125,10 @@ struct SynapticImpactMessage
 
 /**
  * @brief Check if two synaptic impact messages are the same.
- * 
+ *
  * @param sm1 first message.
  * @param sm2 second message.
- * 
+ *
  * @return `true` if both messages are the same.
  */
 bool operator==(const SynapticImpactMessage &sm1, const SynapticImpactMessage &sm2);
@@ -136,10 +136,10 @@ bool operator==(const SynapticImpactMessage &sm1, const SynapticImpactMessage &s
 
 /**
  * @brief Get synaptic impact from an input stream.
- * 
+ *
  * @param stream input stream.
  * @param impact synaptic impact to get from the input stream.
- * 
+ *
  * @return input stream.
  */
 std::istream &operator>>(std::istream &stream, SynapticImpact &impact);
@@ -147,10 +147,10 @@ std::istream &operator>>(std::istream &stream, SynapticImpact &impact);
 
 /**
  * @brief Send synaptic impact to an output stream.
- * 
+ *
  * @param stream output stream.
  * @param impact synaptic impact to send to the output stream.
- * 
+ *
  * @return output stream.
  */
 std::ostream &operator<<(std::ostream &stream, const SynapticImpact &impact);
@@ -158,10 +158,10 @@ std::ostream &operator<<(std::ostream &stream, const SynapticImpact &impact);
 
 /**
  * @brief Send synaptic impact message to an output stream.
- * 
+ *
  * @param stream output stream.
  * @param msg synaptic impact message to send to the output stream.
- * 
+ *
  * @return output stream.
  */
 std::ostream &operator<<(std::ostream &stream, const SynapticImpactMessage &msg);
@@ -169,10 +169,10 @@ std::ostream &operator<<(std::ostream &stream, const SynapticImpactMessage &msg)
 
 /**
  * @brief Get synaptic impact message from an input stream.
- * 
+ *
  * @param stream input stream.
  * @param msg synaptic impact message to get from the input stream.
- * 
+ *
  * @return input stream.
  */
 std::istream &operator>>(std::istream &stream, SynapticImpactMessage &msg);

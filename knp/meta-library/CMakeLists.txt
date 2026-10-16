@@ -61,7 +61,7 @@ if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")
 
     install(TARGETS "${PROJECT_NAME}"
-            EXPORT "${PROJECT_NAME}"
+            EXPORT "${COMPONENT_NAME}-dev_targets"
             COMPONENT "${COMPONENT_NAME}-dev")
 
     install(DIRECTORY "include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}"

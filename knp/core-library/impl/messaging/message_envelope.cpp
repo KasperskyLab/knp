@@ -20,6 +20,8 @@
  */
 
 #include <knp/core/messaging/message_envelope.h>
+#include <knp/core/types.h>
+
 #ifdef __clang__
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdocumentation"

@@ -219,6 +219,16 @@
  */
 
 /**
+ * @dir /knp/base-framework/include/knp/framework/network_validation
+ * @brief Directory for network validation headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/network_validation/validators
+ * @brief Directory for network validators headers.
+ */
+
+/**
  * @dir /knp/base-framework/include/knp/framework/normalization
  * @brief Directory for normalization headers.
  */
@@ -229,8 +239,33 @@
  */
 
 /**
+ * @dir /knp/base-framework/include/knp/framework/population/neuron_generators
+ * @brief Directory for neuron generators headers.
+ */
+
+/**
  * @dir /knp/base-framework/include/knp/framework/projection
  * @brief Directory for headers that contain procedures and functions for working with projections.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/projection/synapse_generators
+ * @brief Directory for synapse generators headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/tags
+ * @brief Directory for common tags headers.
+ */
+
+/**
+ * @dir /knp/base-framework/include/knp/framework/transforms
+ * @brief Directory for headers for population and projection conversion.
+ */
+
+ /**
+ * @dir /knp/base-framework/include/knp/framework/visualizer
+ * @brief Directory for network visualizer headers.
  */
 
 /**
@@ -341,4 +376,29 @@
 /**
  * @dir /knp/synapse-traits-library/include/knp/synapse-traits
  * @brief Include directory for synapse traits library headers.
+ */
+
+/**
+ * @dir /examples
+ * @brief Examples directory.
+ */
+
+/**
+ * @dir /examples/mnist-learn
+ * @brief Example of training neural network based on image data and labels and classifying images from the MNIST dataset.
+ */
+
+/**
+ * @dir /examples/mnist-learn/models
+ * @brief Example model implementations.
+ */
+
+/**
+ * @dir /examples/mnist-learn/models/altai
+ * @brief Directory containing AltAI neuron model implementation.
+ */
+
+/**
+ * @dir /examples/mnist-learn/models/blifat
+ * @brief Directory containing BLIFAT neuron model implementation.
  */

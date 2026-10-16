@@ -22,7 +22,6 @@
 #pragma once
 
 #include <knp/core/messaging/message_envelope.h>
-#include <knp/core/messaging/messaging.h>
 #include <knp/core/subscription.h>
 #include <knp/core/uid.h>
 
@@ -58,15 +57,15 @@ namespace knp::core
 {
 /**
  * @class boost::noncopyable
- * 
+ *
  * @brief Ensure that objects cannot be copied.
- * 
+ *
  * @see <a href="https://www.boost.org/doc/libs/1_80_0/boost/core/noncopyable.hpp">boost::noncopyable description</a>
  */
 
 /**
  * @brief The MessageEndpoint class is a definition of message endpoints.
- * 
+ *
  * @details You can use message endpoints to receive or send messages.
  */
 class MessageEndpoint : private boost::noncopyable
@@ -79,9 +78,9 @@ public:
 
     /**
      * @brief Subscription variant that contains any subscription type specified in `AllSubscriptions`.
-     * 
+     *
      * @see ALL_MESSAGES.
-     * 
+     *
      * @details `SubscriptionVariant` takes the value of `std::variant<SubscriptionType_1,..., SubscriptionType_n>`,
      * where `SubscriptionType_[1..n]` is the subscription type specified in `AllSubscriptions`. \n For example, if
      * `AllSubscriptions` contains SpikeMessage and SynapticImpactMessage types, then `SubscriptionVariant =
@@ -93,27 +92,27 @@ public:
 public:
     /**
      * @brief Get receiver UID from a subscription variant.
-     * 
+     *
      * @param subscription subscription variant.
-     * 
+     *
      * @return receiver UID.
      */
     static UID get_receiver_uid(const SubscriptionVariant &subscription);
     /**
      * @brief Get subscription key from a subscription variant.
-     * 
+     *
      * @param subscription subscription variant.
-     * 
+     *
      * @return pair of subscription index and subscription key.
      */
     static std::pair<size_t, UID> get_subscription_key(const SubscriptionVariant &subscription);
 
     /**
      * @brief Find index of an entity type in its variant.
-     * 
+     *
      * @tparam Variant variant of one or more entity types.
      * @tparam Type entity type to search.
-     * 
+     *
      * @details For example, you can use the method to find an index of a message type in a message variant or an index
      * of a subscription type in a subscription variant.
      */
@@ -123,7 +122,7 @@ public:
 public:
     /**
      * @brief Move constructor for message endpoints.
-     * 
+     *
      * @param endpoint endpoint to move.
      */
     MessageEndpoint(MessageEndpoint &&endpoint) noexcept;
@@ -141,14 +140,14 @@ public:
 public:
     /**
      * @brief Add a subscription to messages of the specified type from senders with given UIDs.
-     * 
+     *
      * @tparam MessageType type of messages to which the receiver subscribes via the subscription.
-     * 
+     *
      * @param receiver receiver UID.
      * @param senders vector of sender UIDs.
-     * 
+     *
      * @return number of senders added to the subscription.
-     * 
+     *
      * @note If the subscription for the specified receiver and message type already exists, the method updates the list
      * of senders in the subscription.
      */
@@ -158,11 +157,11 @@ public:
 
     /**
      * @brief Unsubscribe from messages of a specified type.
-     * 
+     *
      * @tparam MessageType type of messages to which the receiver is subscribed.
-     * 
+     *
      * @param receiver receiver UID.
-     * 
+     *
      * @return true if a subscription was deleted, false otherwise.
      */
     template <typename MessageType>
@@ -170,43 +169,43 @@ public:
 
     /**
      * @brief Remove all subscriptions for a receiver with given UID.
-     * 
+     *
      * @param receiver receiver UID.
      */
     void remove_receiver(const UID &receiver);
 
     /**
      * @brief Send a message to the message bus.
-     * 
+     *
      * @param message message to send.
      */
     void send_message(const knp::core::messaging::MessageVariant &message);
 
     /**
      * @brief Receive a message from the message bus.
-     * 
+     *
      * @return `true` if a message was received, `false` if no message was received.
      */
     bool receive_message();
 
     /**
      * @brief Receive all messages that were sent to the endpoint.
-     * 
+     *
      * @param sleep_duration time interval in milliseconds between the moments of receiving messages.
-     * 
+     *
      * @return number of received messages.
      */
     size_t receive_all_messages(const std::chrono::milliseconds &sleep_duration = std::chrono::milliseconds(0));
 
     /**
      * @brief Read messages of the specified type received via subscription.
-     * 
+     *
      * @tparam MessageType type of messages to read.
-     * 
+     *
      * @param receiver_uid receiver UID.
-     * 
+     *
      * @return vector of messages.
-     * 
+     *
      * @note After reading the messages, the method clears them from the subscription.
      */
     template <class MessageType>
@@ -220,14 +219,14 @@ public:
 
     /**
      * @brief Get access to subscription container of the endpoint.
-     * 
+     *
      * @return Reference to subscription container.
      */
     const SubscriptionContainer &get_endpoint_subscriptions() const { return subscriptions_; }
 
     /**
      * @brief Get list of senders.
-     * 
+     *
      * @return weak pointer to unordered set of sender UIDs.
      */
     auto get_senders_ptr()

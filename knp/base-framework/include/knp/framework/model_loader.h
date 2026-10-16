@@ -143,7 +143,7 @@ public:
     /**
      * @brief Get pointer to backend object.
      * 
-     * @return shared pointer to `Backend` object.
+     * @return shared pointer to @ref core::Backend object.
      */
     std::shared_ptr<core::Backend> get_backend() { return backend_; }
 

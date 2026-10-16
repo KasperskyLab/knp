@@ -44,7 +44,7 @@ public:
     /**
      * @brief Index of the network execution step.
      */
-    std::uint64_t send_time_;
+    unsigned long long send_time_;
 
     /**
      * @brief True if the message is converted from host message type.

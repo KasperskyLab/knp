@@ -122,6 +122,14 @@ std::vector<InferenceResult> do_inference(
         population_sizes.insert({uid, size});
     }
 
+    std::unordered_map<knp::core::UID, size_t, knp::core::uid_hash> projection_sizes;
+    for (const auto &proj : network.get_projections())
+    {
+        knp::core::UID uid = std::visit([](const auto &p) { return p.get_uid(); }, proj);
+        size_t size = std::visit([](const auto &p) { return p.size(); }, proj);
+        projection_sizes.insert({uid, size});
+    }
+
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network));
 

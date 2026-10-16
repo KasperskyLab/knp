@@ -1,6 +1,11 @@
 /**
  * @file hyperparameters.h
- * @brief AltAI network hyperparameters.
+ * @brief Network hyperparameters for AltAI neuron model.
+ * @details These parameters are specifically tuned for the AltAI spiking neural network implementation and include both 
+ * standard neural parameters and model-specific scaling factors for fixed-point arithmetic optimization.
+ * Some parameters are multiplied by 1000 because the AltAI model uses fixed-point arithmetic instead of floating-point 
+ * operations for computational efficiency. This scaling allows the model to operate effectively with integer-based 
+ * calculations while maintaining necessary precision for learning and spiking dynamics.
  * @kaspersky_support D. Postnikov
  * @date 28.07.2025
  * @license Apache 2.0
@@ -26,35 +31,65 @@
 #include "global_config.h"
 
 
-/// Number of neurons reserved per a single digit.
+/**
+ * @brief Number of neurons reserved per single digit class in the input population.
+ * 
+ * @details This parameter determines the columnar organization of the input population, with 20 neurons allocated for
+ * each of the 10 digit classes (200 total input neurons). Each neuron in a column corresponds to a specific feature 
+ * of the digit class.
+ */
 constexpr size_t neurons_per_column = 20;
 
-// Network hyperparameters.
-// Some of them are multiplied by 1000 because altai model is scaled up, so it can work without relying on floats for
-// some operations.
-/// Activation threshold.
+
+/**
+ * @brief the threshold value of neuron potential, after exceeding which a positive spike can be emitted.
+ */
 constexpr uint16_t activation_threshold = 8531;
-/// Potential leak.
+/**
+ * @brief The constant leakage of the neuron potential.
+ */
 constexpr int16_t potential_leak = 0;
-/// Negative activation threshold.
+/**
+ * @brief The threshold value of neuron potential, below which a negative spike can be emitted
+ */
 constexpr uint16_t negative_activation_threshold = 0;
-/// Potential reset value.
+/**
+ * @brief A reset value of the neuron potential after one of the thresholds has been exceeded.
+ */
 constexpr uint16_t potential_reset_value = 0;
-/// Dopamine plasticity time.
+/**
+ * @brief Time parameter for dopamine plasticity.
+ */
 constexpr uint32_t dopamine_plasticity_time = 10;
-/// Time between spikes in the ISI period.
+/**
+ * @brief Time between spikes in the ISI period.
+ */
 constexpr uint32_t isi_max = 10;
-/// Hebbian plasticity value.
+/**
+ * @brief Hebbian plasticity value.
+ */
 constexpr float d_h = -0.1765261f * 1000;
-/// Stability change parameter.
+/**
+ * @brief Stability fluctuation value.
+ */
 constexpr float stability_change_parameter = 0.0497573 / 1000;
-/// Resource drain coefficient.
+/**
+ * @brief Number of silent synapses.
+ */
 constexpr uint32_t resource_drain_coefficient = 27;
-/// Synapse sum threshold coefficient.
+/**
+ * @brief Synapse sum threshold coefficient.
+ */ 
 constexpr float synapse_sum_threshold_coefficient = 0.217654;
-/// Raster to input synapse dopamine plasticity period.
+/**
+ * @brief Dopamine plasticity period for raster to input synapses.
+ */
 constexpr uint32_t raster_to_input_synapse_dopamine_plasticity_period = 10;
-/// Raster to input synapse w min.
+/**
+ * @brief Minimum synaptic weight for raster to input projections.
+ */
 constexpr float raster_to_input_synapse_w_min = -0.253122 * 1000;
-/// Raster to input synapse w max.
+/**
+ * @brief Maximum synaptic weight for raster to input projections.
+ */
 constexpr float raster_to_input_synapse_w_max = 0.0923957 * 1000;

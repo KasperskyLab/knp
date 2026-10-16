@@ -25,7 +25,7 @@
 #include <optional>
 #include <random>
 
-#include "neuron_parameters_generators.h"
+#include "neuron_generators/parameters_generators.h"
 
 
 /**

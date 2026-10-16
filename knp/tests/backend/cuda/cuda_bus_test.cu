@@ -43,12 +43,13 @@
 #include "../../../backends/gpu/cuda-backend/impl/population.cuh"
 
 
-REGISTER_CUDA_VECTOR_TYPE(uint64_t);
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
+REGISTER_CUDA_VECTOR_TYPE(unsigned long);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDABackendImpl::PopulationVariants);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDABackendImpl::ProjectionVariants);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeMessage);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpactMessage);
@@ -93,9 +94,7 @@ TEST(CudaBackendSuite, CudaHostSubscription)
     knp_cuda::UID sender_3 = knp_cuda::to_gpu_uid(knp::core::UID{}), sender_4 = knp_cuda::to_gpu_uid(knp::core::UID{});
     ASSERT_NE(sender_1, sender_2);
     auto type_index = boost::mp11::mp_find<knp_cuda::MessageVariant, knp_cuda::SpikeMessage>();
-    std::cout << "Make subscription with index " << type_index << std::endl;
     knp_cuda::Subscription subscription(receiver_uid, std::vector{sender_1, sender_2, sender_3}, type_index);
-    std::cout << "Done making" << std::endl;
     ASSERT_EQ(subscription.get_senders().size(), 3);
     ASSERT_TRUE(subscription.has_sender(sender_2));
     ASSERT_FALSE(subscription.has_sender(sender_4));
@@ -137,7 +136,7 @@ TEST(CudaBackendSuite, BusSubscriptionsTest)
 }
 
 
-TEST(CUDAMessagingSuite, AddReceiveBusMessage)
+TEST(CudaMessagingSuite, AddReceiveBusMessage)
 {
     namespace knp_cuda = knp::backends::gpu::cuda;
     using SpikeMessage = knp_cuda::SpikeMessage;
@@ -148,7 +147,7 @@ TEST(CUDAMessagingSuite, AddReceiveBusMessage)
     std::vector<knp_cuda::UID> senders{msg.header_.sender_uid_};
     message_buses.gpu_.subscribe_gpu<SpikeMessage>(receiver_uid, {msg.header_.sender_uid_});
     EXPECT_EQ(message_buses.gpu_.unload_messages<SpikeMessage>(receiver_uid).size(), 0);
-    message_buses.gpu_.send_message(msg);
+    message_buses.gpu_.send_message(std::move(msg));
     EXPECT_EQ(message_buses.gpu_.unload_messages<SpikeMessage>(receiver_uid).size(), 1);
     EXPECT_EQ(message_buses.gpu_.unload_messages<knp_cuda::SynapticImpactMessage>(receiver_uid).size(), 0);
     EXPECT_EQ(message_buses.gpu_.unload_messages<SpikeMessage>(msg.header_.sender_uid_).size(), 0);

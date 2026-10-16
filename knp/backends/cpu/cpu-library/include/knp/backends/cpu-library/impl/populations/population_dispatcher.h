@@ -29,6 +29,7 @@
 
 #include "altai/altai_dispatcher.h"
 #include "blifat/blifat_dispatcher.h"
+#include "lif/lif_dispatcher.h"
 
 
 namespace knp::backends::cpu::populations::impl

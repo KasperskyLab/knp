@@ -27,11 +27,25 @@
 
 
 /**
- * @brief Calculate resource from weight.
- * @param weight Weight.
- * @param min_weight Minimal weight.
- * @param max_weight Maximum weight.
- * @return Calculated resource.
+ * @brief Calculate synaptic resource value from weight parameters for resource-based plasticity.
+ * 
+ * @details The transformation maps weight ranges to resource ranges while maintaining the inverse 
+ * relationship between weight and resource in resource-based models.
+ * 
+ * The mathematical formula used is:
+ * resource = (weight - min_weight) * (max_weight - min_weight) / ((max_weight - min_weight) - (weight - min_weight))
+ * 
+ * This ensures that:
+ * - Minimum weights map to low resource values
+ * - Maximum weights map to high resource values
+ * 
+ * @param weight current synaptic weight value to convert.
+ * @param min_weight minimum allowable weight value for the range.
+ * @param max_weight maximum allowable weight value for the range.
+ * 
+ * @return calculated resource value for the given weight.
+ * 
+ * @throws `std::logic_error` if weight is outside valid range or parameters are invalid.
  */
 inline float resource_from_weight(float weight, float min_weight, float max_weight)
 {

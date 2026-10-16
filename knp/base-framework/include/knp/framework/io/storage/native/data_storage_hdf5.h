@@ -51,7 +51,7 @@ namespace native
  * 
  * @return vector of messages sorted by timestamps.
  * 
- * @details For example, if `time_per_step` is set to `1`, then spike messages with timestamps
+ * @details For example, if @p time_per_step is set to `1`, then spike messages with timestamps
  * `0` and `0.5` will be a part of the same message.
  */
 KNP_DECLSPEC std::vector<core::messaging::SpikeMessage> load_messages_from_h5(
@@ -66,7 +66,7 @@ KNP_DECLSPEC std::vector<core::messaging::SpikeMessage> load_messages_from_h5(
  * @param path_to_save path to file.
  * @param time_per_step time per step.
  * 
- * @details If you use steps as a time unit by default, we recommend setting `time_per_step` to `1`.
+ * @details If you use steps as a time unit by default, we recommend setting @p time_per_step to `1`.
  * 
  * @note Passing messages by value is not an error. Messages are sorted inside the function.
  */

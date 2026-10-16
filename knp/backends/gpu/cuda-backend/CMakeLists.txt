@@ -65,13 +65,14 @@ knp_add_library("${PROJECT_NAME}"
         impl/cuda_bus/message_bus.cu
         impl/cuda_bus/subscription.cu
         impl/cuda_lib/kernels.cu
-        impl/cuda_lib/kernels.cu
-        # impl/get_network.cpp
+        impl/cuda_lib/value_index.cu
+        impl/projections_impl.cu
+        impl/populations_impl.cu
         ${${PROJECT_NAME}_headers}
         ${${PROJECT_NAME}_cuda_headers}
     ALIAS KNP::Backends::CUDA
     LINK_PRIVATE
-        Boost::headers ${Boost_LIBRARIES} spdlog::spdlog_header_only CUDA::cudart CUDA::cuda_driver CUDA::nvml
+        Boost::headers spdlog::spdlog_header_only CUDA::cudart CUDA::cuda_driver CUDA::nvml
     LINK_PUBLIC
         KNP::Core
 )
@@ -85,7 +86,7 @@ set_target_properties(
         CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
 foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
-    target_compile_options("${lib_name}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true>)
+    target_compile_options("${lib_name}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true $<$<CONFIG:Debug>:--generate-line-info> >)
     target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
     set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)
 endforeach()
@@ -111,9 +112,8 @@ if (KNP_INSTALL)
 
     knp_packaging_set_parameters("${COMPONENT_NAME}" "${PROJECT_NAME}"
             DESCRIPTION "${PROJECT_DESCRIPTION}"
-            DEPENDS "libboost-all-dev (>= ${Boost_VERSION})"
             DEPENDS "libzmq5"
-            DEPENDS "nvidia-cuda-toolkit-12-8 | cuda-toolkit-12-8"
+            DEPENDS "cuda-cudart-12-9 | cuda-runtime-12-9"
             PROVIDES "knp-backend")
 
     knp_packaging_set_parameters("${COMPONENT_NAME}-dev" "${PROJECT_NAME}"
