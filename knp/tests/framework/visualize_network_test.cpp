@@ -66,7 +66,7 @@ knp::framework::Model create_test_model()
 TEST(VisualizeNetworkSuite, NetworkGraphConstruction)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     // Check that we have correct number of nodes and edges.
     ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
@@ -101,7 +101,7 @@ TEST(VisualizeNetworkSuite, NetworkGraphConstruction)
 TEST(VisualizeNetworkSuite, ModelGraphConstruction)
 {
     knp::framework::Model model = create_test_model();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(model);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(model);
 
     ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
     ASSERT_EQ(boost::num_edges(graph.graph_), 1u);
@@ -115,7 +115,8 @@ TEST(VisualizeNetworkSuite, DynamicGraphConstruction)
     knp::framework::BackendLoader backend_loader;
     auto backend = backend_loader.load(knp::testing::get_backend_path());
 
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network, backend->get_message_endpoint());
+    knp::framework::visualizer::NetworkGraph graph =
+        knp::framework::visualizer::build_graph(network, backend->get_message_endpoint());
 
     // The network structure is always present, the bus can only extend it.
     ASSERT_TRUE(graph.is_dynamic_);
@@ -136,11 +137,11 @@ TEST(VisualizeNetworkSuite, ExternalEntitiesAreDrawn)
     const knp::core::UID population_uid =
         std::visit([](const auto& pop) { return pop.get_uid(); }, network.get_populations()[0]);
 
-    knp::framework::DynamicInfo info;
-    info.bus_ = knp::framework::get_bus_connections(backend->get_message_endpoint());
-    info.entities_.push_back(knp::framework::ExternalEntity{handler_uid, "WTA", {population_uid}});
+    knp::framework::visualizer::DynamicInfo info;
+    info.bus_ = knp::framework::visualizer::get_bus_connections(backend->get_message_endpoint());
+    info.entities_.push_back(knp::framework::visualizer::ExternalEntity{handler_uid, "WTA", {population_uid}});
 
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network, info);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network, info);
 
     auto handler_vertex = graph.find_node(handler_uid);
     ASSERT_TRUE(handler_vertex.has_value());
@@ -152,10 +153,10 @@ TEST(VisualizeNetworkSuite, ExternalEntitiesAreDrawn)
 TEST(VisualizeNetworkSuite, WriteDotToStream)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     std::ostringstream out;
-    knp::framework::write_dot(graph, out);
+    knp::framework::visualizer::write_dot(graph, out);
     const std::string dot_text = out.str();
 
     ASSERT_NE(dot_text.find("digraph G {"), std::string::npos);
@@ -172,10 +173,10 @@ TEST(VisualizeNetworkSuite, WriteDotToStream)
 TEST(VisualizeNetworkSuite, RenderGraphToStream)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     std::ostringstream out;
-    ASSERT_TRUE(knp::framework::render_graph(graph, out, "svg"));
+    ASSERT_TRUE(knp::framework::visualizer::render_graph(graph, out, "svg"));
     ASSERT_FALSE(out.str().empty());
 }
 
@@ -183,12 +184,12 @@ TEST(VisualizeNetworkSuite, RenderGraphToStream)
 TEST(VisualizeNetworkSuite, VisualizationFilesGeneration)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     const std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "knp_test_visualization";
     std::filesystem::remove_all(test_dir);
 
-    const auto image_file = knp::framework::visualize(graph, "graph_static", test_dir);
+    const auto image_file = knp::framework::visualizer::visualize(graph, "graph_static", test_dir);
 
     const auto dot_file = test_dir / "dot_files" / "graph_static.dot";
     ASSERT_TRUE(std::filesystem::exists(dot_file));
@@ -205,8 +206,9 @@ TEST(VisualizeNetworkSuite, VisualizationFilesGeneration)
 TEST(VisualizeNetworkSuite, NetworkGraphPrintFunctions)
 {
     knp::framework::Network network = create_test_network();
-    knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+    knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     // Test that print functions don't crash.
-    EXPECT_NO_THROW(knp::framework::print_network_description(graph)) << "Print functions failed with exception";
+    EXPECT_NO_THROW(knp::framework::visualizer::print_network_description(graph))
+        << "Print functions failed with exception";
 }

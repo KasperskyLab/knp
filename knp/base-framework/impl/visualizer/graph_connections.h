@@ -1,5 +1,5 @@
 /**
- * @file graph_helpers.h
+ * @file graph_connections.h
  * @brief Collecting nodes and edges of a network and of a message bus.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
@@ -21,18 +21,41 @@
 
 #pragma once
 
+#include <knp/core/uid.h>
 #include <knp/framework/network.h>
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/network_graph.h>
 
 #include <spdlog/spdlog.h>
 
 #include <any>
 #include <cstddef>
+#include <map>
+#include <set>
 #include <string>
 #include <variant>
 #include <vector>
 
-#include "graph_builder.h"
+
+/**
+ * @brief Implementation namespace of the network visualizer.
+ */
+namespace knp::framework::visualizer::impl
+{
+
+/**
+ * @brief Connections of edges: edge position in the edge vector to a set of node UIDs.
+ *
+ * @details The key is a position and not a UID, because an edge can have no meaningful UID of its own, and several
+ * entities can have the same UID. A set is needed because one projection can have several senders or several
+ * receivers on the bus.
+ */
+using EdgeConnections = std::map<size_t, std::set<knp::core::UID>>;
+
+
+/**
+ * @brief Positions of entities in a node or an edge vector, by UID.
+ */
+using UidIndex = std::map<knp::core::UID, size_t>;
 
 
 /**
@@ -67,7 +90,7 @@ std::string get_population_name(const Entity& pop)
         }
         catch (const std::bad_any_cast&)
         {
-            SPDLOG_WARN("Wrong name tag type for entity {}.", std::string(uid));
+            SPDLOG_ERROR("Wrong name tag type for entity {}.", std::string(uid));
         }
     }
     if (name.empty()) name = std::string{uid}.substr(0, uid_part_size);
@@ -85,8 +108,8 @@ std::string get_population_name(const Entity& pop)
  * @param node_dst map of edge destinations to fill.
  */
 void get_static_connections(
-    const knp::framework::Network& network, std::vector<knp::framework::Node>& nodes,
-    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst);
+    const knp::framework::Network& network, std::vector<Node>& nodes, std::vector<Edge>& edges,
+    EdgeConnections& node_src, EdgeConnections& node_dst);
 
 
 /**
@@ -102,5 +125,7 @@ void get_static_connections(
  * is not added twice.
  */
 void get_dynamic_connections(
-    const knp::framework::DynamicInfo& info, std::vector<knp::framework::Node>& nodes,
-    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst);
+    const DynamicInfo& info, std::vector<Node>& nodes, std::vector<Edge>& edges, EdgeConnections& node_src,
+    EdgeConnections& node_dst);
+
+}  // namespace knp::framework::visualizer::impl

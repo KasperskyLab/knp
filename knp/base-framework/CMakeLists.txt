@@ -82,10 +82,13 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/observer.cpp
     impl/logging.cpp
     impl/visualizer/visualize_network.cpp
-    impl/visualizer/graph_helpers.cpp
-    impl/visualizer/render_helpers.cpp
-    impl/visualizer/dot_helpers.cpp
+    impl/visualizer/network_graph.cpp
+    impl/visualizer/bus_connections.cpp
+    impl/visualizer/graph_connections.cpp
     impl/visualizer/graph_builder.cpp
+    impl/visualizer/dot_helpers.cpp
+    impl/visualizer/render_helpers.cpp
+    impl/visualizer/visualize.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE

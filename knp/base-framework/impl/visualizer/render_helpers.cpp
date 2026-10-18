@@ -21,12 +21,18 @@
 
 #include "render_helpers.h"
 
+#include <knp/framework/visualizer/visualize_network.h>
+
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
 #include <memory>
+#include <sstream>
 #include <string>
 
+
+namespace knp::framework::visualizer::impl
+{
 
 /**
  * @brief Render DOT text to a stream.
@@ -89,3 +95,23 @@ bool render_dot_to_stream(const std::string& dot_text, std::ostream& out, const 
 
     return is_written;
 }
+
+}  // namespace knp::framework::visualizer::impl
+
+
+namespace knp::framework::visualizer
+{
+
+/**
+ * @brief Render network graph to a stream as an image.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::string& format)
+{
+    std::ostringstream dot_stream;
+    write_dot(graph, dot_stream);
+    return impl::render_dot_to_stream(dot_stream.str(), out, format);
+}
+
+}  // namespace knp::framework::visualizer

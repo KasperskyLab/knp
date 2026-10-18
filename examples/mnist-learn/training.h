@@ -204,7 +204,7 @@ void train_network(
  * @return Connections taken from the message bus of the training backend.
  */
 template <typename Neuron>
-knp::framework::BusConnections train_model(
+knp::framework::visualizer::BusConnections train_model(
     const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
     knp::framework::BackendLoader& backend_loader)
 {
@@ -218,5 +218,5 @@ knp::framework::BusConnections train_model(
     prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
 
     // Subscriptions are copied here: they are needed for visualization and the backend is destroyed on return.
-    return knp::framework::get_bus_connections(training_backend->get_message_endpoint());
+    return knp::framework::visualizer::get_bus_connections(training_backend->get_message_endpoint());
 }

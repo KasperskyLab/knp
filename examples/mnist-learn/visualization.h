@@ -39,29 +39,29 @@
  * the bus as a sender, only its kind is unknown there. An annotation field that is left empty makes the
  * corresponding node an external one, nothing else changes.
  */
-inline knp::framework::DynamicInfo make_dynamic_info(
-    const AnnotatedNetwork& network, const knp::framework::BusConnections& bus)
+inline knp::framework::visualizer::DynamicInfo make_dynamic_info(
+    const AnnotatedNetwork& network, const knp::framework::visualizer::BusConnections& bus)
 {
-    knp::framework::DynamicInfo info;
+    knp::framework::visualizer::DynamicInfo info;
     info.bus_ = bus;
 
     // A WTA handler listens to the senders that were given to it when it was added.
     for (const auto& [uid, senders] : network.data_.wta_handlers_)
     {
-        info.entities_.push_back(knp::framework::ExternalEntity{uid, "WTA", senders});
+        info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, "WTA", senders});
     }
 
     // Channel names come from the annotation, where they are written next to the UIDs, so nothing is invented here.
     // An input channel sends spikes itself, so it has no senders of its own.
     for (const auto& [uid, name] : network.data_.input_channel_uids_)
     {
-        info.entities_.push_back(knp::framework::ExternalEntity{uid, name, {}});
+        info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, name, {}});
     }
 
     // An output channel listens to the populations it was connected to.
     for (const auto& [uid, name] : network.data_.output_channel_uids_)
     {
-        info.entities_.push_back(knp::framework::ExternalEntity{uid, name, network.data_.output_uids_});
+        info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, name, network.data_.output_uids_});
     }
 
     return info;
@@ -77,9 +77,9 @@ inline knp::framework::DynamicInfo make_dynamic_info(
  *
  * @details The static graph shows what the network itself describes: populations, projections, names and sizes.
  */
-inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network)
+inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwork& network)
 {
-    return knp::framework::build_graph(network.network_);
+    return knp::framework::visualizer::build_graph(network.network_);
 }
 
 
@@ -94,7 +94,7 @@ inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network)
  * @details Connections come from the bus subscriptions. What the bus does not have, that is WTA handlers and
  * channels, comes from the annotation of the network.
  */
-inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network, const knp::framework::BusConnections& bus)
+inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwork& network, const knp::framework::visualizer::BusConnections& bus)
 {
-    return knp::framework::build_graph(network.network_, make_dynamic_info(network, bus));
+    return knp::framework::visualizer::build_graph(network.network_, make_dynamic_info(network, bus));
 }

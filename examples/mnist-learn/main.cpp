@@ -95,12 +95,12 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
     const auto dynamic_graph = build_graph(network, bus_connections);
 
     // Print their descriptions to the log.
-    knp::framework::print_network_description(static_graph);
-    knp::framework::print_network_description(dynamic_graph);
+    knp::framework::visualizer::print_network_description(static_graph);
+    knp::framework::visualizer::print_network_description(dynamic_graph);
 
     // Save the DOT and the image files.
-    knp::framework::visualize(static_graph, "graph_static");
-    knp::framework::visualize(dynamic_graph, "graph_dynamic");
+    knp::framework::visualizer::visualize(static_graph, "graph_static");
+    knp::framework::visualizer::visualize(dynamic_graph, "graph_dynamic");
 
     // Upcast populations to the most generic neuron type for serialization.
     if (model_desc.type_ == SupportedModelType::BLIFAT)

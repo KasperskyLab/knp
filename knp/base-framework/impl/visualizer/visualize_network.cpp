@@ -1,6 +1,6 @@
 /**
  * @file visualize_network.cpp
- * @brief Network graph building, description and visualization.
+ * @brief Text description of a network graph.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -21,24 +21,13 @@
 
 #include <knp/framework/visualizer/visualize_network.h>
 
-#include <spdlog/spdlog.h>
-
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
+#include <ostream>
 #include <string>
-#include <vector>
 
 #include "dot_helpers.h"
-#include "graph_helpers.h"
-#include "render_helpers.h"
 
 
-namespace knp::framework
-{
-
-namespace
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -74,98 +63,11 @@ std::string get_description_title(const Edge& edge)
     return edge.edge_type_ + ": " + edge.name_;
 }
 
-}  // namespace
+}  // namespace knp::framework::visualizer::impl
 
 
-/**
- * @brief Build network graph from a network.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Network& network)
+namespace knp::framework::visualizer
 {
-    std::vector<Node> nodes;
-    std::vector<Edge> edges;
-    EdgeConnections node_src;
-    EdgeConnections node_dst;
-
-    get_static_connections(network, nodes, edges, node_src, node_dst);
-
-    return fill_graph(nodes, edges, node_src, node_dst, false);
-}
-
-
-/**
- * @brief Build network graph from a model.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Model& model)
-{
-    return build_graph(model.get_network());
-}
-
-
-/**
- * @brief Build network graph from a network and message bus subscriptions.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Network& network, knp::core::MessageEndpoint& endpoint)
-{
-    DynamicInfo info;
-    info.bus_ = get_bus_connections(endpoint);
-    return build_graph(network, info);
-}
-
-
-/**
- * @brief Build network graph from a model and message bus subscriptions.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Model& model, knp::core::MessageEndpoint& endpoint)
-{
-    return build_graph(model.get_network(), endpoint);
-}
-
-
-/**
- * @brief Build network graph from a network, bus subscriptions and entities known to the calling code.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Network& network, const DynamicInfo& info)
-{
-    std::vector<Node> nodes;
-    std::vector<Edge> edges;
-    EdgeConnections node_src;
-    EdgeConnections node_dst;
-
-    get_static_connections(network, nodes, edges, node_src, node_dst);
-
-    // Connections described by the network are not used here: a loaded model rebuilds its projections, so the
-    // presynaptic and postsynaptic UIDs of the network do not match the real connections. Sources and destinations
-    // are taken from the bus, while the network gives names, sizes and types.
-    node_src.clear();
-    node_dst.clear();
-
-    get_dynamic_connections(info, nodes, edges, node_src, node_dst);
-
-    return fill_graph(nodes, edges, node_src, node_dst, true);
-}
-
-
-/**
- * @brief Build network graph from a model, bus subscriptions and entities known to the calling code.
- *
- * @details Parameters and return value are described in the header.
- */
-NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& info)
-{
-    return build_graph(model.get_network(), info);
-}
-
 
 /**
  * @brief Print node and edge connections of a network graph.
@@ -179,7 +81,7 @@ void print_network_description(const NetworkGraph& graph, std::ostream& out)
     // The description shows exactly what is drawn: the same nodes and the same edges as the DOT text.
     for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     {
-        if (!is_node_drawn(network_graph, *vertex_it)) continue;
+        if (!impl::is_node_drawn(network_graph, *vertex_it)) continue;
 
         const Node& node = network_graph[*vertex_it];
         out << "    " << node.node_type_ << " #" << *vertex_it << " '" << node.name_ << "'";
@@ -188,85 +90,23 @@ void print_network_description(const NetworkGraph& graph, std::ostream& out)
         out << ": receive from";
         for (auto [edge_it, edge_end] = boost::in_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
-            if (!is_edge_drawn(graph, *edge_it)) continue;
+            if (!impl::is_edge_drawn(graph, *edge_it)) continue;
             auto source_id = boost::source(*edge_it, network_graph);
-            out << " #" << get_description_name(network_graph, source_id, true) << " ("
-                << get_description_title(network_graph[*edge_it]) << ");";
+            out << " #" << impl::get_description_name(network_graph, source_id, true) << " ("
+                << impl::get_description_title(network_graph[*edge_it]) << ");";
         }
 
         out << " send to";
         for (auto [edge_it, edge_end] = boost::out_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
-            if (!is_edge_drawn(graph, *edge_it)) continue;
+            if (!impl::is_edge_drawn(graph, *edge_it)) continue;
             auto target_id = boost::target(*edge_it, network_graph);
-            out << " #" << get_description_name(network_graph, target_id, false) << " ("
-                << get_description_title(network_graph[*edge_it]) << ");";
+            out << " #" << impl::get_description_name(network_graph, target_id, false) << " ("
+                << impl::get_description_title(network_graph[*edge_it]) << ");";
         }
 
         out << '\n';
     }
 }
 
-
-/**
- * @brief Write network graph to a stream in DOT format.
- *
- * @details Parameters and return value are described in the header.
- */
-void write_dot(const NetworkGraph& graph, std::ostream& out)
-{
-    write_graph_to_dot(out, graph);
-}
-
-
-/**
- * @brief Render network graph to a stream as an image.
- *
- * @details Parameters and return value are described in the header.
- */
-bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::string& format)
-{
-    std::ostringstream dot_stream;
-    write_dot(graph, dot_stream);
-    return render_dot_to_stream(dot_stream.str(), out, format);
-}
-
-
-/**
- * @brief Save DOT and image files of a network graph.
- *
- * @details Parameters and return value are described in the header.
- */
-std::filesystem::path visualize(
-    const NetworkGraph& graph, const std::string& name, const std::filesystem::path& dir, const std::string& format)
-{
-    const auto dot_dir = dir / "dot_files";
-    const auto image_dir = dir / (format + "_files");
-
-    std::filesystem::create_directories(dot_dir);
-    std::filesystem::create_directories(image_dir);
-
-    std::ostringstream dot_stream;
-    write_dot(graph, dot_stream);
-    const std::string dot_text = dot_stream.str();
-
-    const auto dot_file = dot_dir / (name + ".dot");
-    {
-        std::ofstream out(dot_file);
-        out << dot_text;
-        if (!out.good()) throw std::runtime_error("Failed to write to file " + dot_file.string() + ".");
-    }
-    SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(dot_file).string());
-
-    const auto image_file = image_dir / (name + "." + format);
-    {
-        std::ofstream out(image_file, std::ios::binary);
-        if (!render_dot_to_stream(dot_text, out, format))
-            throw std::runtime_error("Failed to render the graph to file " + image_file.string() + ".");
-    }
-    SPDLOG_INFO("The {} file is saved in: {}", format, std::filesystem::absolute(image_file).string());
-
-    return image_file;
-}
-
-}  // namespace knp::framework
+}  // namespace knp::framework::visualizer

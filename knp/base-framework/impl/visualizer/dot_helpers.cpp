@@ -28,7 +28,7 @@
 #include <string>
 
 
-namespace
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -38,9 +38,9 @@ namespace
  *
  * @return boolean indicating that the node is not an ordinary population.
  */
-bool is_dynamic_node(const knp::framework::Node& node)
+bool is_dynamic_node(const Node& node)
 {
-    return node.node_type_ != "Population";
+    return node.node_type_ != population_node_type;
 }
 
 
@@ -52,7 +52,7 @@ bool is_dynamic_node(const knp::framework::Node& node)
  *
  * @return node color.
  */
-std::string get_node_color(const knp::framework::Node& node, bool is_dynamic)
+std::string get_node_color(const Node& node, bool is_dynamic)
 {
     if (!is_dynamic) return static_color;
     return is_dynamic_node(node) ? dynamic_color : static_color;
@@ -70,7 +70,7 @@ std::string get_node_color(const knp::framework::Node& node, bool is_dynamic)
  *
  * @details An edge is dynamic if its source is dynamic or if the edge itself is not described by the network.
  */
-std::string get_edge_color(const knp::framework::Node& src_node, const knp::framework::Edge& edge, bool is_dynamic)
+std::string get_edge_color(const Node& src_node, const Edge& edge, bool is_dynamic)
 {
     if (!is_dynamic) return static_color;
     if (is_dynamic_node(src_node)) return dynamic_color;
@@ -93,15 +93,13 @@ std::string get_edge_style(bool has_invisible_node)
     return has_invisible_node ? "dotted" : "solid";
 }
 
-}  // namespace
-
 
 /**
  * @brief Check that a node is drawn.
  *
  * @details Parameters and return value are described in the header.
  */
-bool is_node_drawn(const knp::framework::BaseGraph& graph, knp::framework::BaseGraph::vertex_descriptor vertex)
+bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex)
 {
     return !graph[vertex].is_invisible_;
 }
@@ -112,9 +110,9 @@ bool is_node_drawn(const knp::framework::BaseGraph& graph, knp::framework::BaseG
  *
  * @details Parameters and return value are described in the header.
  */
-bool is_edge_drawn(const knp::framework::NetworkGraph& graph, const knp::framework::BaseGraph::edge_descriptor& edge)
+bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& edge)
 {
-    const knp::framework::BaseGraph& network_graph = graph.graph_;
+    const BaseGraph& network_graph = graph.graph_;
     const bool has_invisible_node = network_graph[boost::source(edge, network_graph)].is_invisible_ ||
                                     network_graph[boost::target(edge, network_graph)].is_invisible_;
     return graph.is_dynamic_ || !has_invisible_node;
@@ -188,7 +186,7 @@ void write_header_and_styles(std::ostream& out)
  *
  * @details Parameters and return value are described in the header.
  */
-void write_node_to_dot(std::ostream& out, size_t node_id, const knp::framework::Node& node, const std::string& color)
+void write_node_to_dot(size_t node_id, const Node& node, std::ostream& out, const std::string& color)
 {
     out << "    " << node_id << " [label=\"" << escape_dot_text(node.node_type_) << ":\\n"
         << escape_dot_text(node.name_);
@@ -202,7 +200,7 @@ void write_node_to_dot(std::ostream& out, size_t node_id, const knp::framework::
  *
  * @details Parameters and return value are described in the header.
  */
-void write_invisible_node_to_dot(std::ostream& out, size_t node_id)
+void write_invisible_node_to_dot(size_t node_id, std::ostream& out)
 {
     out << "    " << node_id << " [shape=point, style=invis];\n";
 }
@@ -214,7 +212,7 @@ void write_invisible_node_to_dot(std::ostream& out, size_t node_id)
  * @details Parameters and return value are described in the header.
  */
 void write_edge_to_dot(
-    std::ostream& out, size_t index_from, size_t index_to, const knp::framework::Edge& edge, const std::string& color,
+    size_t index_from, size_t index_to, const Edge& edge, std::ostream& out, const std::string& color,
     const std::string& style)
 {
     out << "    " << index_from << " -> " << index_to << " [label=\"" << escape_dot_text(edge.edge_type_);
@@ -230,9 +228,9 @@ void write_edge_to_dot(
  *
  * @details Parameters and return value are described in the header.
  */
-void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& graph)
+void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out)
 {
-    const knp::framework::BaseGraph& network_graph = graph.graph_;
+    const BaseGraph& network_graph = graph.graph_;
 
     write_header_and_styles(out);
 
@@ -247,15 +245,15 @@ void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& g
     for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     {
         const auto node_id = static_cast<size_t>(*vertex_it);
-        const knp::framework::Node& node = network_graph[*vertex_it];
+        const Node& node = network_graph[*vertex_it];
 
         if (!is_node_drawn(network_graph, *vertex_it))
         {
             // A static graph never contains invisible nodes and dotted edges.
-            if (graph.is_dynamic_) write_invisible_node_to_dot(out, node_id);
+            if (graph.is_dynamic_) write_invisible_node_to_dot(node_id, out);
             continue;
         }
-        write_node_to_dot(out, node_id, node, get_node_color(node, graph.is_dynamic_));
+        write_node_to_dot(node_id, node, out, get_node_color(node, graph.is_dynamic_));
     }
 
     // Write edges to dot.
@@ -263,7 +261,7 @@ void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& g
     {
         const auto source_id = boost::source(*edge_it, network_graph);
         const auto target_id = boost::target(*edge_it, network_graph);
-        const knp::framework::Edge& edge = network_graph[*edge_it];
+        const Edge& edge = network_graph[*edge_it];
 
         if (!is_edge_drawn(graph, *edge_it)) continue;
 
@@ -271,9 +269,27 @@ void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& g
             network_graph[source_id].is_invisible_ || network_graph[target_id].is_invisible_;
 
         write_edge_to_dot(
-            out, static_cast<size_t>(source_id), static_cast<size_t>(target_id), edge,
+            static_cast<size_t>(source_id), static_cast<size_t>(target_id), edge, out,
             get_edge_color(network_graph[source_id], edge, graph.is_dynamic_), get_edge_style(has_invisible_node));
     }
 
     out << "}\n";
 }
+
+}  // namespace knp::framework::visualizer::impl
+
+
+namespace knp::framework::visualizer
+{
+
+/**
+ * @brief Write network graph to a stream in DOT format.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+void write_dot(const NetworkGraph& graph, std::ostream& out)
+{
+    impl::write_graph_to_dot(graph, out);
+}
+
+}  // namespace knp::framework::visualizer

@@ -1,5 +1,5 @@
 /**
- * @file graph_helpers.cpp
+ * @file graph_connections.cpp
  * @brief Collecting nodes and edges of a network and of a message bus.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
@@ -19,24 +19,19 @@
  * limitations under the License.
  */
 
-#include "graph_helpers.h"
-
-#include <knp/framework/visualizer/visualize_network.h>
+#include "graph_connections.h"
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
 #include <cstddef>
-#include <iterator>
 #include <map>
 #include <optional>
 #include <string>
-#include <utility>
 #include <variant>
 #include <vector>
 
 
-namespace
+namespace knp::framework::visualizer::impl
 {
 
 /// Node kind of an entity that is not described by the network and is not described by the calling code.
@@ -46,8 +41,7 @@ constexpr const char* external_node_type = "External";
 constexpr const char* message_edge_type = "Spike Message";
 
 /// Entities described by the calling code, by UID.
-using KnownEntities = std::map<knp::core::UID, const knp::framework::ExternalEntity*>;
-
+using KnownEntities = std::map<knp::core::UID, const ExternalEntity*>;
 
 /**
  * @brief Make a short readable name from UID.
@@ -89,9 +83,9 @@ UidIndex make_index(const std::vector<Item>& items)
  *
  * @return edge object.
  */
-knp::framework::Edge make_bus_edge(const knp::core::UID& uid)
+Edge make_bus_edge(const knp::core::UID& uid)
 {
-    knp::framework::Edge edge(uid, get_short_name(uid), std::nullopt, std::nullopt, std::nullopt, std::nullopt, "not in network");
+    Edge edge(uid, get_short_name(uid), std::nullopt, std::nullopt, std::nullopt, std::nullopt, "not in network");
     edge.is_dynamic_ = true;
     return edge;
 }
@@ -102,70 +96,14 @@ knp::framework::Edge make_bus_edge(const knp::core::UID& uid)
  *
  * @return edge object.
  */
-knp::framework::Edge make_message_edge()
+Edge make_message_edge()
 {
-    knp::framework::Edge edge;
+    Edge edge;
     // The name is empty: a spike subscription has nothing to name, the kind is written alone.
     edge.edge_type_ = message_edge_type;
     edge.is_dynamic_ = true;
     return edge;
 }
-
-}  // namespace
-
-
-namespace knp::framework
-{
-
-/**
- * @brief Copy subscriptions of a message endpoint.
- *
- * @details Parameters and return value are described in the header.
- */
-BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint)
-{
-    const auto subs = endpoint.get_endpoint_subscriptions();
-
-    // A subscription key starts with the index of the message type, the same index the endpoint uses.
-    constexpr size_t spike_idx = knp::core::MessageEndpoint::get_type_index<
-        knp::core::messaging::MessageVariant, knp::core::messaging::SpikeMessage>;
-    constexpr size_t synaptic_impact_idx = knp::core::MessageEndpoint::get_type_index<
-        knp::core::messaging::MessageVariant, knp::core::messaging::SynapticImpactMessage>;
-
-    knp::framework::BusConnections connections;
-
-    // Take necessary messages from the bus.
-    for (const auto& [key, sub_variant] : subs)
-    {
-        const auto& type_idx = key.first;
-        const auto& receiver_uid = key.second;
-        std::visit(
-            [&](const auto& sub)
-            {
-                const auto& senders = sub.get_senders();
-                if (senders.empty()) return;
-                if (spike_idx == type_idx)
-                {
-                    // Receiver: projection or spike consumer, sender: population, handler or channel (0 -->).
-                    std::transform(
-                        senders.begin(), senders.end(), std::back_inserter(connections.spike_messages_),
-                        [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
-                }
-                else if (synaptic_impact_idx == type_idx)
-                {
-                    // Receiver: population, sender: projection (--> 0).
-                    std::transform(
-                        senders.begin(), senders.end(), std::back_inserter(connections.synaptic_messages_),
-                        [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
-                }
-            },
-            sub_variant);
-    }
-
-    return connections;
-}
-
-}  // namespace knp::framework
 
 
 /**
@@ -174,15 +112,15 @@ BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint)
  * @details Parameters and return value are described in the header.
  */
 void get_static_connections(
-    const knp::framework::Network& network, std::vector<knp::framework::Node>& nodes,
-    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst)
+    const knp::framework::Network& network, std::vector<Node>& nodes, std::vector<Edge>& edges,
+    EdgeConnections& node_src, EdgeConnections& node_dst)
 {
     // Add populations as nodes.
     for (const auto& pop : network.get_populations())
     {
         size_t pop_size = std::visit([](const auto& p) { return p.size(); }, pop);
         knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, pop);
-        nodes.push_back(knp::framework::Node{uid, get_population_name(pop), pop_size, pop.index(), std::nullopt});
+        nodes.push_back(Node{uid, get_population_name(pop), pop_size, pop.index(), std::nullopt});
     }
 
     // Add projections as edges.
@@ -193,8 +131,7 @@ void get_static_connections(
         knp::core::UID uid_from = std::visit([](const auto& p) { return p.get_presynaptic(); }, proj);
         knp::core::UID uid_to = std::visit([](const auto& p) { return p.get_postsynaptic(); }, proj);
 
-        knp::framework::Edge edge{
-            uid, get_population_name(proj), std::nullopt, std::nullopt, proj_size, proj.index(), std::nullopt};
+        Edge edge{uid, get_population_name(proj), std::nullopt, std::nullopt, proj_size, proj.index(), std::nullopt};
         edge.is_static_ = true;
         edges.push_back(edge);
 
@@ -211,8 +148,8 @@ void get_static_connections(
  * @details Parameters and return value are described in the header.
  */
 void get_dynamic_connections(
-    const knp::framework::DynamicInfo& info, std::vector<knp::framework::Node>& nodes,
-    std::vector<knp::framework::Edge>& edges, EdgeConnections& node_src, EdgeConnections& node_dst)
+    const DynamicInfo& info, std::vector<Node>& nodes, std::vector<Edge>& edges, EdgeConnections& node_src,
+    EdgeConnections& node_dst)
 {
     // Entities described by the calling code: handlers and channels.
     KnownEntities known_entities;
@@ -229,7 +166,7 @@ void get_dynamic_connections(
         auto it = node_index.find(uid);
         if (it != node_index.end()) return it->second;
 
-        knp::framework::Node node{uid, get_short_name(uid), std::nullopt, std::nullopt, "not in network"};
+        Node node{uid, get_short_name(uid), std::nullopt, std::nullopt, "not in network"};
         node.is_static_ = false;
         auto entity_it = known_entities.find(uid);
         node.node_type_ = entity_it != known_entities.end() ? entity_it->second->name_ : external_node_type;
@@ -298,3 +235,5 @@ void get_dynamic_connections(
         }
     }
 }
+
+}  // namespace knp::framework::visualizer::impl

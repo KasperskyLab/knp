@@ -1,6 +1,6 @@
 /**
  * @file graph_builder.cpp
- * @brief Building a Boost Graph from collected nodes and edges.
+ * @brief Building a network graph: a Boost Graph from collected nodes and edges.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -29,8 +29,7 @@
 #include <string>
 #include <vector>
 
-
-namespace
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -42,10 +41,10 @@ namespace
  *
  * @return vector of vertex descriptors, empty if the edge has no connections on that side.
  */
-std::vector<knp::framework::NetworkGraph::vertex_descriptor> get_connected_vertices(
-    const knp::framework::NetworkGraph& graph, const EdgeConnections& connections, size_t edge_position)
+std::vector<NetworkGraph::vertex_descriptor> get_connected_vertices(
+    const NetworkGraph& graph, const EdgeConnections& connections, size_t edge_position)
 {
-    std::vector<knp::framework::NetworkGraph::vertex_descriptor> vertices;
+    std::vector<NetworkGraph::vertex_descriptor> vertices;
 
     auto connection_it = connections.find(edge_position);
     if (connection_it == connections.end()) return vertices;
@@ -76,15 +75,14 @@ std::vector<knp::framework::NetworkGraph::vertex_descriptor> get_connected_verti
  * belongs to which receiver.
  */
 void add_edges_to_graph(
-    knp::framework::NetworkGraph& graph, const knp::framework::Edge& edge,
-    const std::vector<knp::framework::NetworkGraph::vertex_descriptor>& src_vertices,
-    const std::vector<knp::framework::NetworkGraph::vertex_descriptor>& dst_vertices)
+    NetworkGraph& graph, const Edge& edge, const std::vector<NetworkGraph::vertex_descriptor>& src_vertices,
+    const std::vector<NetworkGraph::vertex_descriptor>& dst_vertices)
 {
     for (const auto& src : src_vertices)
     {
         for (const auto& dst : dst_vertices)
         {
-            knp::framework::Edge graph_edge = edge;
+            Edge graph_edge = edge;
             if (!graph.graph_[src].is_invisible_) graph_edge.index_from_ = graph.graph_[src].uid_;
             if (!graph.graph_[dst].is_invisible_) graph_edge.index_to_ = graph.graph_[dst].uid_;
             graph.add_edge(src, dst, graph_edge);
@@ -92,26 +90,24 @@ void add_edges_to_graph(
     }
 }
 
-}  // namespace
-
 
 /**
  * @brief Build network graph from collected nodes and edges.
  *
  * @details Parameters and return value are described in the header.
  */
-knp::framework::NetworkGraph fill_graph(
-    const std::vector<knp::framework::Node>& nodes, const std::vector<knp::framework::Edge>& edges,
-    const EdgeConnections& node_src, const EdgeConnections& node_dst, bool is_dynamic)
+NetworkGraph fill_graph(
+    const std::vector<Node>& nodes, const std::vector<Edge>& edges, const EdgeConnections& node_src,
+    const EdgeConnections& node_dst, bool is_dynamic)
 {
-    knp::framework::NetworkGraph graph;
+    NetworkGraph graph;
     graph.is_dynamic_ = is_dynamic;
 
     for (const auto& node : nodes) graph.add_node(node);
 
     for (size_t edge_position = 0; edge_position < edges.size(); ++edge_position)
     {
-        const knp::framework::Edge& edge = edges[edge_position];
+        const Edge& edge = edges[edge_position];
 
         auto src_vertices = get_connected_vertices(graph, node_src, edge_position);
         auto dst_vertices = get_connected_vertices(graph, node_dst, edge_position);
@@ -148,3 +144,100 @@ knp::framework::NetworkGraph fill_graph(
 
     return graph;
 }
+
+}  // namespace knp::framework::visualizer::impl
+
+
+namespace knp::framework::visualizer
+{
+
+/**
+ * @brief Build network graph from a network.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Network& network)
+{
+    std::vector<Node> nodes;
+    std::vector<Edge> edges;
+    impl::EdgeConnections node_src;
+    impl::EdgeConnections node_dst;
+
+    impl::get_static_connections(network, nodes, edges, node_src, node_dst);
+
+    return impl::fill_graph(nodes, edges, node_src, node_dst, false);
+}
+
+
+/**
+ * @brief Build network graph from a model.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model)
+{
+    return build_graph(model.get_network());
+}
+
+
+/**
+ * @brief Build network graph from a network and message bus subscriptions.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Network& network, knp::core::MessageEndpoint& endpoint)
+{
+    DynamicInfo info;
+    info.bus_ = get_bus_connections(endpoint);
+    return build_graph(network, info);
+}
+
+
+/**
+ * @brief Build network graph from a model and message bus subscriptions.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model, knp::core::MessageEndpoint& endpoint)
+{
+    return build_graph(model.get_network(), endpoint);
+}
+
+
+/**
+ * @brief Build network graph from a network, bus subscriptions and entities known to the calling code.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Network& network, const DynamicInfo& info)
+{
+    std::vector<Node> nodes;
+    std::vector<Edge> edges;
+    impl::EdgeConnections node_src;
+    impl::EdgeConnections node_dst;
+
+    impl::get_static_connections(network, nodes, edges, node_src, node_dst);
+
+    // Connections described by the network are not used here: a loaded model rebuilds its projections, so the
+    // presynaptic and postsynaptic UIDs of the network do not match the real connections. Sources and destinations
+    // are taken from the bus, while the network gives names, sizes and types.
+    node_src.clear();
+    node_dst.clear();
+
+    impl::get_dynamic_connections(info, nodes, edges, node_src, node_dst);
+
+    return impl::fill_graph(nodes, edges, node_src, node_dst, true);
+}
+
+
+/**
+ * @brief Build network graph from a model, bus subscriptions and entities known to the calling code.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& info)
+{
+    return build_graph(model.get_network(), info);
+}
+
+}  // namespace knp::framework::visualizer

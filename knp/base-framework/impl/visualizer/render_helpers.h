@@ -30,6 +30,9 @@ extern "C"
 }
 
 
+namespace knp::framework::visualizer::impl
+{
+
 /**
  * @brief Render DOT text to a stream.
  *
@@ -43,3 +46,5 @@ extern "C"
  * created. The layout engine is taken from the `layout` attribute of the graph.
  */
 bool render_dot_to_stream(const std::string& dot_text, std::ostream& out, const std::string& format);
+
+}  // namespace knp::framework::visualizer::impl

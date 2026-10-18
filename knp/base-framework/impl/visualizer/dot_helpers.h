@@ -28,6 +28,9 @@
 #include <string>
 
 
+namespace knp::framework::visualizer::impl
+{
+
 /**
  * @brief Color of a static element.
  */
@@ -47,7 +50,7 @@ inline const std::string dynamic_color = "yellow";
  *
  * @return boolean indicating that the node is visible on a picture.
  */
-bool is_node_drawn(const knp::framework::BaseGraph& graph, knp::framework::BaseGraph::vertex_descriptor vertex);
+bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex);
 
 
 /**
@@ -61,7 +64,7 @@ bool is_node_drawn(const knp::framework::BaseGraph& graph, knp::framework::BaseG
  * @details An edge with an invisible node belongs to a dynamic graph only, a static graph shows known connections
  * only. The same check is used by a network description, so a picture and a description always match.
  */
-bool is_edge_drawn(const knp::framework::NetworkGraph& graph, const knp::framework::BaseGraph::edge_descriptor& edge);
+bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& edge);
 
 
 /**
@@ -87,36 +90,35 @@ void write_header_and_styles(std::ostream& out);
 /**
  * @brief Write node to DOT text.
  *
- * @param out output stream.
  * @param node_id node identifier in the DOT text.
  * @param node node to write.
+ * @param out output stream.
  * @param color node color.
  *
  * @details Example of a DOT line:
  * `1 [label="Population:\nOUTPUT\nsize: 10", color="lightgray"];`
  */
-void write_node_to_dot(
-    std::ostream& out, size_t node_id, const knp::framework::Node& node, const std::string& color = static_color);
+void write_node_to_dot(size_t node_id, const Node& node, std::ostream& out, const std::string& color = static_color);
 
 
 /**
  * @brief Write invisible node to DOT text.
  *
- * @param out output stream.
  * @param node_id node identifier in the DOT text.
+ * @param out output stream.
  *
  * @details A graphviz can't draw an arrow from nowhere. It is necessary to make an invisible vertex.
  */
-void write_invisible_node_to_dot(std::ostream& out, size_t node_id);
+void write_invisible_node_to_dot(size_t node_id, std::ostream& out);
 
 
 /**
  * @brief Write edge to DOT text.
  *
- * @param out output stream.
  * @param index_from source node identifier in the DOT text.
  * @param index_to target node identifier in the DOT text.
  * @param edge edge to write.
+ * @param out output stream.
  * @param color edge color.
  * @param style edge style.
  *
@@ -124,17 +126,19 @@ void write_invisible_node_to_dot(std::ostream& out, size_t node_id);
  * `0 -> 1 [label="Projection:\nfced41d5\nsize: 200", color="lightgray", style="solid"];`
  */
 void write_edge_to_dot(
-    std::ostream& out, size_t index_from, size_t index_to, const knp::framework::Edge& edge,
-    const std::string& color = static_color, const std::string& style = "solid");
+    size_t index_from, size_t index_to, const Edge& edge, std::ostream& out, const std::string& color = static_color,
+    const std::string& style = "solid");
 
 
 /**
  * @brief Write whole network graph to DOT text.
  *
- * @param out output stream.
  * @param graph network graph.
+ * @param out output stream.
  *
  * @details Colors of dynamic elements are written for a graph built with bus subscriptions only, so a static graph
  * contains static information only and has no dotted edges.
  */
-void write_graph_to_dot(std::ostream& out, const knp::framework::NetworkGraph& graph);
+void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out);
+
+}  // namespace knp::framework::visualizer::impl

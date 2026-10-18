@@ -21,30 +21,15 @@
 
 #pragma once
 
-#include <knp/core/uid.h>
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/network_graph.h>
 
-#include <cstddef>
-#include <map>
-#include <set>
 #include <vector>
 
-
-/**
- * @brief Connections of edges: edge position in the edge vector to a set of node UIDs.
- *
- * @details The key is a position and not a UID, because an edge can have no meaningful UID of its own, and several
- * entities can have the same UID. A set is needed because one projection can have several senders or several
- * receivers on the bus.
- */
-using EdgeConnections = std::map<size_t, std::set<knp::core::UID>>;
+#include "graph_connections.h"
 
 
-/**
- * @brief Positions of entities in a node or an edge vector, by UID.
- */
-using UidIndex = std::map<knp::core::UID, size_t>;
-
+namespace knp::framework::visualizer::impl
+{
 
 /**
  * @brief Build network graph from collected nodes and edges.
@@ -61,6 +46,8 @@ using UidIndex = std::map<knp::core::UID, size_t>;
  * edge without a source or without a destination is skipped. In a dynamic graph such an edge gets an invisible node
  * on that side, and an edge without any connections is skipped.
  */
-knp::framework::NetworkGraph fill_graph(
-    const std::vector<knp::framework::Node>& nodes, const std::vector<knp::framework::Edge>& edges,
-    const EdgeConnections& node_src, const EdgeConnections& node_dst, bool is_dynamic);
+NetworkGraph fill_graph(
+    const std::vector<Node>& nodes, const std::vector<Edge>& edges, const EdgeConnections& node_src,
+    const EdgeConnections& node_dst, bool is_dynamic);
+
+}  // namespace knp::framework::visualizer::impl
