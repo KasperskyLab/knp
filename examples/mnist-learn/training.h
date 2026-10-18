@@ -143,8 +143,10 @@ void train_network(
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
     std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
         model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
-    // Keep the handler UIDs: the handlers live inside the model executor and die with it.
-    network.data_.wta_uids_ = wta_uids;
+    // Keep the handlers with their senders: the handlers live inside the model executor and die with it, and
+    // wta_data_ is cleared when the network is prepared for inference. One handler is added for each wta_data_ entry.
+    for (size_t i = 0; i < wta_uids.size(); ++i)
+        network.data_.wta_handlers_.emplace_back(wta_uids[i], network.data_.wta_data_[i].first);
     
     // Register WTA populations for logging to track competitive behavior.
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";

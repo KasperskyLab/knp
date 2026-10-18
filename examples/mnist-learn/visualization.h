@@ -23,7 +23,6 @@
 
 #include <knp/framework/visualizer/visualize_network.h>
 
-#include <cstddef>
 #include <utility>
 
 #include "annotated_network.h"
@@ -48,13 +47,10 @@ inline knp::framework::DynamicInfo make_dynamic_info(
     knp::framework::DynamicInfo info;
     info.bus_ = std::move(bus);
 
-    for (size_t i = 0; i < network.data_.wta_uids_.size(); ++i)
+    // A WTA handler listens to the senders that were given to it when it was added.
+    for (const auto& [uid, senders] : network.data_.wta_handlers_)
     {
-        knp::framework::ExternalEntity handler;
-        handler.uid_ = network.data_.wta_uids_[i];
-        handler.name_ = "WTA";
-        if (i < network.data_.wta_data_.size()) handler.senders_ = network.data_.wta_data_[i].first;
-        info.entities_.push_back(handler);
+        info.entities_.push_back(knp::framework::ExternalEntity{uid, "WTA", senders});
     }
 
     // Channel names come from the annotation, where they are written next to the UIDs, so nothing is invented here.

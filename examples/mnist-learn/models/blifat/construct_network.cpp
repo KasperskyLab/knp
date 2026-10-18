@@ -88,13 +88,13 @@ static NetworkPopulations create_populations(NetworkConstructor &constructor)
 
     // Create gate population for WTA competition mechanisms.
     const auto &gate_pop =
-        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, false, "GATE");
+        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, true, "GATE");
 
     // Create raster population for channelized image processing (28x28 = 784 neurons).
     const auto &raster_pop = constructor.add_channeled_population(input_size, true);
 
     // Create target population for label processing (10 neurons for 10 digit classes).
-    const auto &target_pop = constructor.add_channeled_population(classes_amount, false);
+    const auto &target_pop = constructor.add_channeled_population(classes_amount, true);
 
     // Return organized population references for projection creation.
     return {input_pop, output_pop, gate_pop, raster_pop, target_pop};
