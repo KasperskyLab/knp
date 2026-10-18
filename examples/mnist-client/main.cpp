@@ -79,9 +79,10 @@ int main(int argc, char **argv)
         // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
         // https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
         knp::framework::Network network = knp::framework::sonata::load_network(network_path);
-
-        // knp::framework::set_saving_path("temp_test_dir");
-        // knp::framework::visualize_network(network);
+        // Builds a network graph, prints descriptions of its connections and saves the DOT and the image files.
+        const knp::framework::NetworkGraph graph = knp::framework::build_graph(network);
+        knp::framework::print_network_description(graph);
+        knp::framework::visualize(graph);
     }
 
     // If `task=infer`, the function loads a network and runs inference.

@@ -39,8 +39,6 @@
 namespace
 {
 
-constexpr size_t uid_part_size = 8;
-
 /// Node kind of an entity that is not described by the network and is not described by the calling code.
 constexpr const char* external_node_type = "External";
 
@@ -49,19 +47,6 @@ constexpr const char* message_edge_type = "Spike Message";
 
 /// Entities described by the calling code, by UID.
 using KnownEntities = std::map<knp::core::UID, const knp::framework::ExternalEntity*>;
-
-/**
- * @brief Check that UID is nil.
- *
- * @param uid UID to check.
- *
- * @return boolean indicating that the UID is not set.
- */
-bool is_nil_uid(const knp::core::UID& uid)
-{
-    // UID::operator bool() returns false for a nil UUID.
-    return !static_cast<bool>(uid);
-}
 
 
 /**
@@ -90,7 +75,7 @@ UidIndex make_index(const std::vector<Item>& items)
     UidIndex index;
     for (size_t i = 0; i < items.size(); ++i)
     {
-        if (is_nil_uid(items[i].uid_)) continue;
+        if (!items[i].uid_) continue;
         index.emplace(items[i].uid_, i);
     }
     return index;
@@ -106,8 +91,7 @@ UidIndex make_index(const std::vector<Item>& items)
  */
 knp::framework::Edge make_bus_edge(const knp::core::UID& uid)
 {
-    knp::framework::Edge edge{uid,          get_short_name(uid), std::nullopt,    std::nullopt,
-                              std::nullopt, std::nullopt,        "not in network"};
+    knp::framework::Edge edge(uid, get_short_name(uid), std::nullopt, std::nullopt, std::nullopt, std::nullopt, "not in network");
     edge.is_dynamic_ = true;
     return edge;
 }
@@ -142,8 +126,11 @@ BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint)
 {
     const auto subs = endpoint.get_endpoint_subscriptions();
 
-    constexpr size_t spike_idx = 0;            // Must be 0 (Serial number of the type).
-    constexpr size_t synaptic_impact_idx = 1;  // Must be 1 (Serial number of the type).
+    // A subscription key starts with the index of the message type, the same index the endpoint uses.
+    constexpr size_t spike_idx = knp::core::MessageEndpoint::get_type_index<
+        knp::core::messaging::MessageVariant, knp::core::messaging::SpikeMessage>;
+    constexpr size_t synaptic_impact_idx = knp::core::MessageEndpoint::get_type_index<
+        knp::core::messaging::MessageVariant, knp::core::messaging::SynapticImpactMessage>;
 
     knp::framework::BusConnections connections;
 
@@ -157,14 +144,14 @@ BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint)
             {
                 const auto& senders = sub.get_senders();
                 if (senders.empty()) return;
-                if (type_idx == spike_idx)
+                if (spike_idx == type_idx)
                 {
                     // Receiver: projection or spike consumer, sender: population, handler or channel (0 -->).
                     std::transform(
                         senders.begin(), senders.end(), std::back_inserter(connections.spike_messages_),
                         [&receiver_uid](const auto& sender) { return std::make_pair(sender, receiver_uid); });
                 }
-                else if (type_idx == synaptic_impact_idx)
+                else if (synaptic_impact_idx == type_idx)
                 {
                     // Receiver: population, sender: projection (--> 0).
                     std::transform(
@@ -212,8 +199,8 @@ void get_static_connections(
         edges.push_back(edge);
 
         const size_t edge_position = edges.size() - 1;
-        if (!is_nil_uid(uid_from)) node_src[edge_position].insert(uid_from);
-        if (!is_nil_uid(uid_to)) node_dst[edge_position].insert(uid_to);
+        if (uid_from) node_src[edge_position].insert(uid_from);
+        if (uid_to) node_dst[edge_position].insert(uid_to);
     }
 }
 

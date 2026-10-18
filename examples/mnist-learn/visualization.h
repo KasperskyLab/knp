@@ -23,8 +23,6 @@
 
 #include <knp/framework/visualizer/visualize_network.h>
 
-#include <utility>
-
 #include "annotated_network.h"
 
 
@@ -42,10 +40,10 @@
  * corresponding node an external one, nothing else changes.
  */
 inline knp::framework::DynamicInfo make_dynamic_info(
-    const AnnotatedNetwork& network, knp::framework::BusConnections bus)
+    const AnnotatedNetwork& network, const knp::framework::BusConnections& bus)
 {
     knp::framework::DynamicInfo info;
-    info.bus_ = std::move(bus);
+    info.bus_ = bus;
 
     // A WTA handler listens to the senders that were given to it when it was added.
     for (const auto& [uid, senders] : network.data_.wta_handlers_)
@@ -96,7 +94,7 @@ inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network)
  * @details Connections come from the bus subscriptions. What the bus does not have, that is WTA handlers and
  * channels, comes from the annotation of the network.
  */
-inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network, knp::framework::BusConnections bus)
+inline knp::framework::NetworkGraph build_graph(const AnnotatedNetwork& network, const knp::framework::BusConnections& bus)
 {
-    return knp::framework::build_graph(network.network_, make_dynamic_info(network, std::move(bus)));
+    return knp::framework::build_graph(network.network_, make_dynamic_info(network, bus));
 }

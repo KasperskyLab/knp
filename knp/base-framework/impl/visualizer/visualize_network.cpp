@@ -21,14 +21,13 @@
 
 #include <knp/framework/visualizer/visualize_network.h>
 
-#include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
-#include <system_error>
 #include <vector>
 
 #include "dot_helpers.h"
@@ -58,7 +57,7 @@ namespace
 std::string get_description_name(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex, bool is_source)
 {
     if (graph[vertex].is_invisible_) return is_source ? "NO_SOURCE" : "NO_DESTINATION";
-    return fmt::format("{} '{}'", graph[vertex].node_type_, graph[vertex].name_);
+    return graph[vertex].node_type_ + " '" + graph[vertex].name_ + "'";
 }
 
 
@@ -72,7 +71,7 @@ std::string get_description_name(const BaseGraph& graph, BaseGraph::vertex_descr
 std::string get_description_title(const Edge& edge)
 {
     if (edge.name_.empty()) return edge.edge_type_;
-    return fmt::format("{}: {}", edge.edge_type_, edge.name_);
+    return edge.edge_type_ + ": " + edge.name_;
 }
 
 }  // namespace
@@ -173,25 +172,9 @@ NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& 
  *
  * @details Parameters and return value are described in the header.
  */
-void print_network_description(const NetworkGraph& graph)
+void print_network_description(const NetworkGraph& graph, std::ostream& out)
 {
     const BaseGraph& network_graph = graph.graph_;
-
-    // Summary line. The counters go over the drawn nodes and edges only, so they can be compared with the picture.
-    // size_t node_count = 0;
-    // for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
-    // {
-    //     if (is_node_drawn(network_graph, *vertex_it)) ++node_count;
-    // }
-    //
-    // size_t edge_count = 0;
-    // for (auto [edge_it, edge_end] = boost::edges(network_graph); edge_it != edge_end; ++edge_it)
-    // {
-    //     if (is_edge_drawn(graph, *edge_it)) ++edge_count;
-    // }
-    //
-    // SPDLOG_INFO(
-    //     "{} network graph: {} nodes, {} edges.", graph.is_dynamic_ ? "Dynamic" : "Static", node_count, edge_count);
 
     // The description shows exactly what is drawn: the same nodes and the same edges as the DOT text.
     for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
@@ -199,30 +182,28 @@ void print_network_description(const NetworkGraph& graph)
         if (!is_node_drawn(network_graph, *vertex_it)) continue;
 
         const Node& node = network_graph[*vertex_it];
-        std::string log_msg = fmt::format("    {} #{} '{}'", node.node_type_, *vertex_it, node.name_);
-        if (node.size_.has_value()) log_msg += fmt::format(" of size {}", node.size_.value());
+        out << "    " << node.node_type_ << " #" << *vertex_it << " '" << node.name_ << "'";
+        if (node.size_.has_value()) out << " of size " << node.size_.value();
 
-        log_msg += ": receive from";
+        out << ": receive from";
         for (auto [edge_it, edge_end] = boost::in_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
             if (!is_edge_drawn(graph, *edge_it)) continue;
             auto source_id = boost::source(*edge_it, network_graph);
-            log_msg += fmt::format(
-                " #{} ({});", get_description_name(network_graph, source_id, true),
-                get_description_title(network_graph[*edge_it]));
+            out << " #" << get_description_name(network_graph, source_id, true) << " ("
+                << get_description_title(network_graph[*edge_it]) << ");";
         }
 
-        log_msg += " send to";
+        out << " send to";
         for (auto [edge_it, edge_end] = boost::out_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
             if (!is_edge_drawn(graph, *edge_it)) continue;
             auto target_id = boost::target(*edge_it, network_graph);
-            log_msg += fmt::format(
-                " #{} ({});", get_description_name(network_graph, target_id, false),
-                get_description_title(network_graph[*edge_it]));
+            out << " #" << get_description_name(network_graph, target_id, false) << " ("
+                << get_description_title(network_graph[*edge_it]) << ");";
         }
 
-        SPDLOG_INFO("{}", log_msg);
+        out << '\n';
     }
 }
 
@@ -262,14 +243,8 @@ std::filesystem::path visualize(
     const auto dot_dir = dir / "dot_files";
     const auto image_dir = dir / (format + "_files");
 
-    std::error_code error_code;
-    std::filesystem::create_directories(dot_dir, error_code);
-    std::filesystem::create_directories(image_dir, error_code);
-    if (error_code)
-    {
-        SPDLOG_ERROR("Failed to create directories: {}", error_code.message());
-        return {};
-    }
+    std::filesystem::create_directories(dot_dir);
+    std::filesystem::create_directories(image_dir);
 
     std::ostringstream dot_stream;
     write_dot(graph, dot_stream);
@@ -279,11 +254,7 @@ std::filesystem::path visualize(
     {
         std::ofstream out(dot_file);
         out << dot_text;
-        if (!out.good())
-        {
-            SPDLOG_ERROR("Failed to write to file {}", dot_file.string());
-            return {};
-        }
+        if (!out.good()) throw std::runtime_error("Failed to write to file " + dot_file.string() + ".");
     }
     SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(dot_file).string());
 
@@ -291,10 +262,7 @@ std::filesystem::path visualize(
     {
         std::ofstream out(image_file, std::ios::binary);
         if (!render_dot_to_stream(dot_text, out, format))
-        {
-            SPDLOG_ERROR("The {} file is not saved.", format);
-            return {};
-        }
+            throw std::runtime_error("Failed to render the graph to file " + image_file.string() + ".");
     }
     SPDLOG_INFO("The {} file is saved in: {}", format, std::filesystem::absolute(image_file).string());
 

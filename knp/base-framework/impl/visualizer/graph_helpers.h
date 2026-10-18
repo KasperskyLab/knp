@@ -36,6 +36,15 @@
 
 
 /**
+ * @brief Length of a short name made from UID.
+ *
+ * @details The first group of a UUID in its text form has 8 hexadecimal digits. It is enough to tell entities apart on
+ * a picture and keeps labels short.
+ */
+constexpr size_t uid_part_size = 8;
+
+
+/**
  * @brief Get entity name for any network object. If there is no name it's constructed from UID.
  *
  * @param pop population or projection object.
@@ -45,7 +54,6 @@
 template <class Entity>
 std::string get_population_name(const Entity& pop)
 {
-    const size_t uid_part_size = 8;
     // A copy: TagMap::get_tag() is not a constant method and inserts an empty value for an unknown key.
     knp::core::TagMap tags = std::visit([](const auto& p) { return p.get_tags(); }, pop);
     knp::core::UID uid = std::visit([](const auto& p) { return p.get_uid(); }, pop);

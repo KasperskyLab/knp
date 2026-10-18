@@ -28,6 +28,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <ostream>
@@ -45,6 +46,18 @@ namespace knp::framework
 {
 
 /**
+ * @brief Node kind of a population described by the network.
+ */
+constexpr char population_node_type[]{"Population"};
+
+
+/**
+ * @brief Edge kind of a projection.
+ */
+constexpr char projection_edge_type[]{"Projection"};
+
+
+/**
  * @brief Network node representation.
  *
  * @details Stores population information including size, UID, name and type.
@@ -55,13 +68,16 @@ struct Node
     knp::core::UID uid_;
     std::string name_;
     std::optional<size_t> size_;
-    std::optional<size_t> type_;  // Neuron type.
+    std::optional<size_t> type_;  // Index of the neuron type in `knp::core::AllPopulationsVariant`.
     std::optional<std::string> comment_;
 
     /**
-     * @brief Node kind as it is written to the node label: "Population", "Modificator", "Input channel" or "Output".
+     * @brief Node kind as it is written to the node label.
+     *
+     * @details `population_node_type` for a population of the network. A node that is not described by the network
+     * gets the kind given by the calling code, or "External" if the calling code does not describe it.
      */
-    std::string node_type_ = "Population";
+    std::string node_type_ = population_node_type;
 
     /**
      * @brief A flag showing a dynamic or static node.
@@ -101,13 +117,13 @@ struct Edge
     std::optional<knp::core::UID> index_from_;  // Source UID, `std::nullopt` for an invisible source.
     std::optional<knp::core::UID> index_to_;    // Target UID, `std::nullopt` for an invisible target.
     std::optional<size_t> size_;
-    std::optional<size_t> type_;  // Synapse type.
+    std::optional<size_t> type_;  // Index of the synapse type in `knp::core::AllProjectionsVariant`.
     std::optional<std::string> comment_;
 
     /**
-     * @brief Edge kind as it is written to the edge label: "Projection" or "Spike message".
+     * @brief Edge kind as it is written to the edge label: `projection_edge_type` or "Spike Message".
      */
-    std::string edge_type_ = "Projection";
+    std::string edge_type_ = projection_edge_type;
 
     /**
      * @brief A flag showing a dynamic or static edge.
@@ -359,8 +375,7 @@ KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model);
  * @details Connections are taken from the subscriptions only, because a loaded model rebuilds its projections and the
  * presynaptic and postsynaptic UIDs of the network do not match the real connections. The network gives names, sizes
  * and types. A spike message gives a projection source, a synaptic impact message gives a projection destination.
- * Entities that are not described by the network are added as nodes of type "Input channel" or "Output", a population
- * that sends spikes and receives no synaptic impacts is marked as "Modificator". A projection that has no
+ * Entities that are not described by the network are added as nodes of kind "External". A projection that has no
  * subscriptions at all is skipped.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Network& network, knp::core::MessageEndpoint& endpoint);
@@ -406,11 +421,12 @@ KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model, const 
  * @brief Print node and edge connections of a network graph.
  *
  * @param graph network graph.
+ * @param out output stream, standard output by default.
  *
- * @details The function writes a textual description of each node and its incoming and outgoing edges to the log.
- * Nodes are grouped by connected components, so independent parts of a network are printed separately.
+ * @details The function writes a line for each node and its incoming and outgoing edges. The same nodes and edges are
+ * written as in the DOT text, so a description and a picture always match.
  */
-KNP_DECLSPEC void print_network_description(const NetworkGraph& graph);
+KNP_DECLSPEC void print_network_description(const NetworkGraph& graph, std::ostream& out = std::cout);
 
 
 /**
@@ -444,9 +460,13 @@ KNP_DECLSPEC bool render_graph(const NetworkGraph& graph, std::ostream& out, con
  * @param dir directory for saving, it is created if it does not exist.
  * @param format graphviz output format ("png", "svg", "pdf" and so on).
  *
- * @return path to the image file, or an empty path if rendering failed. The DOT file is saved in any case.
+ * @return path to the image file.
  *
- * @details Files are saved as `<dir>/dot_files/<name>.dot` and `<dir>/<format>_files/<name>.<format>`.
+ * @throw std::filesystem::filesystem_error if a directory cannot be created.
+ * @throw std::runtime_error if the DOT file cannot be written or the graph cannot be rendered.
+ *
+ * @details Files are saved as `<dir>/dot_files/<name>.dot` and `<dir>/<format>_files/<name>.<format>`. 
+ * The DOT file is written before rendering, so it is kept if rendering fails.
  */
 KNP_DECLSPEC std::filesystem::path visualize(
     const NetworkGraph& graph, const std::string& name = "graph",
