@@ -37,9 +37,4 @@ add_executable(mnist-client
     process_data.cpp
 )
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
-
-target_include_directories(mnist-client PRIVATE ${GRAPHVIZ_INCLUDE_DIRS})
-target_link_libraries(mnist-client PRIVATE PkgConfig::GRAPHVIZ  )
 target_link_libraries(mnist-client PRIVATE KNP::BaseFramework::Core Boost::program_options)

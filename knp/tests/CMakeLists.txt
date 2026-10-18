@@ -74,11 +74,8 @@ if (KNP_BUILD_CUDA)
     target_link_libraries("${PROJECT_NAME}" PRIVATE knp-gpu-cuda-backend_static CUDA::cudart)  # KNP::Backends::CUDA
 endif()
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
-
 # Highfive is really used in tester.
-target_link_libraries("${PROJECT_NAME}" PRIVATE gtest gtest_main spdlog::spdlog_header_only HighFive PkgConfig::GRAPHVIZ)
+target_link_libraries("${PROJECT_NAME}" PRIVATE gtest gtest_main spdlog::spdlog_header_only HighFive)
 
 add_dependencies("${PROJECT_NAME}" knp-base-framework-core_static)
 

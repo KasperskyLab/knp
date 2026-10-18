@@ -26,7 +26,7 @@
 
 extern "C"
 {
-#include <graphviz/gvc.h>
+#include <gvc.h>
 }
 
 

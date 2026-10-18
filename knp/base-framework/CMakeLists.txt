@@ -34,6 +34,8 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
 
 include(GNUInstallDirs)
 include(knp-functions)
@@ -84,12 +86,11 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/visualizer/render_helpers.cpp
     impl/visualizer/dot_helpers.cpp
     impl/visualizer/graph_builder.cpp
-
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
-        ${GRAPHVIZ_LIBRARIES}
+        PkgConfig::GRAPHVIZ
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC
@@ -102,6 +103,13 @@ set_target_properties(
     PROPERTIES
     VERSION "${CMAKE_PROJECT_VERSION}"
     SOVERSION "${CMAKE_PROJECT_VERSION_MAJOR}")
+
+# Graphviz 9 changed the length parameter of gvRenderData() from unsigned int to size_t.
+if (GRAPHVIZ_libgvc_VERSION VERSION_LESS 9)
+    foreach(_target "${PROJECT_NAME}-core" "${PROJECT_NAME}-core_static")
+        target_compile_definitions("${_target}" PRIVATE KNP_GRAPHVIZ_LEGACY_RENDER_LENGTH)
+    endforeach()
+endif()
 
 if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")
