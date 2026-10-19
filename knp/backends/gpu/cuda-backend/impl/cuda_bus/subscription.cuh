@@ -219,6 +219,11 @@ public:
         return !(*this == other);
     }
 
+    __host__ __device__ ~Subscription()
+    {
+        printf("Calling ~Subscription\n");
+    }
+
 public:
     /**
      * @brief Restore after shallow copying from device.

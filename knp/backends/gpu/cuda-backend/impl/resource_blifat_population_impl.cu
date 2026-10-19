@@ -174,16 +174,6 @@ __global__ void calculate_neurons_post_impact(device_lib::CUDAVectorMutableView 
 }
 
 
-struct SynapsesPerNeurons
-{
-    device_lib::LongIndex offsets_size_;
-    device_lib::LongIndex *offsets_;
-
-    SynapseValue **synapses_;
-    device_lib::LongIndex synapses_size_;
-};
-
-
 __global__ void index_to_pointer(device_lib::IndexView synapse_index, SynapseValue *start, SynapseValue **output)
 {
     const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -194,7 +184,7 @@ __global__ void index_to_pointer(device_lib::IndexView synapse_index, SynapseVal
 
 __device__ device_lib::CUDAVectorMutableView<SynapseValue*>
     extract_synapses_from_index(
-        SynapsesPerNeurons &synapse_index, device_lib::LongIndex neuron_index)
+        SynapsesPerNeuronsView &synapse_index, device_lib::LongIndex neuron_index)
 {
     assert(synapse_index.offsets_size_ > 0);
     device_lib::LongIndex offset = synapse_index.offsets_[neuron_index];
@@ -317,15 +307,13 @@ __host__ SynapsesPerNeurons initialize_synapses_per_neurons(
 {
     SynapsesPerNeurons result;
     SPDLOG_DEBUG("Initializing synapses_per_neurons, index:");
-    call_and_check(cudaMalloc(&result.offsets_, sizeof(device_lib::LongIndex) * synapse_index.offsets_size_));
-    call_and_check(cudaMalloc(&result.synapses_, sizeof(void*) * synapse_index.indices_size_));
     // TODO static_assert(is_same_type(SynapsesPerNeurons::synapses_, ValueIndexView::offsets_))
-    cudaMemcpy(result.offsets_, synapse_index.offsets_ptr_, sizeof(device_lib::LongIndex) * synapse_index.offsets_size_,
-               cudaMemcpyDeviceToDevice);
-    result.offsets_size_ = synapse_index.offsets_size_;
-    result.synapses_size_ = synapse_index.indices_size_;
+    result.offsets_.resize(synapse_index.offsets_size_);
+    result.synapses_.resize(synapse_index.indices_size_);
+    cudaMemcpy(result.offsets_.data(), synapse_index.offsets_ptr_,
+               sizeof(device_lib::LongIndex) * synapse_index.offsets_size_, cudaMemcpyDeviceToDevice);
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(synapse_index.indices_size_);
-    index_to_pointer<<<num_blocks, num_threads>>>(synapse_index, start, result.synapses_);
+    index_to_pointer<<<num_blocks, num_threads>>>(synapse_index, start, result.synapses_.data());
     cudaDeviceSynchronize();
     return result;
 }
@@ -333,7 +321,7 @@ __host__ SynapsesPerNeurons initialize_synapses_per_neurons(
 
 __global__ void process_spiking_neurons_kernel(device_lib::CUDAVectorView<SpikeIndex> spikes,
                                                device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
-                                               SynapsesPerNeurons synapses,
+                                               SynapsesPerNeuronsView synapses,
                                                StepIndex step)
 {
     const device_lib::LongIndex spike_id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -353,7 +341,7 @@ __global__ void process_spiking_neurons_kernel(device_lib::CUDAVectorView<SpikeI
 }
 
 
-void process_spiking_neurons_impl(const device_lib::CUDAVector<SpikeIndex> &msg, SynapsesPerNeurons &synapse_index,
+void process_spiking_neurons_impl(const device_lib::CUDAVector<SpikeIndex> &msg, SynapsesPerNeuronsView &synapse_index,
                                   device_lib::CUDAVector<ResourceBlifatParams> &neurons, StepIndex step)
 {
     // It's very important that during this function no projection invalidates iterators.
@@ -464,7 +452,7 @@ __device__ void update_neuron_stability(ResourceBlifatParams &neuron, StepIndex 
 }
 
 
-__global__ void do_dopamine_plasticity_kernel(SynapsesPerNeurons synapse_pointer_index,
+__global__ void do_dopamine_plasticity_kernel(SynapsesPerNeuronsView synapse_pointer_index,
                                               device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
                                               StepIndex step)
 {
@@ -478,9 +466,9 @@ __global__ void do_dopamine_plasticity_kernel(SynapsesPerNeurons synapse_pointer
     if (synapse_pointer_index.offsets_size_ == 0 || neuron_id >= synapse_pointer_index.offsets_size_ - 1) return;
     if (neurons.data_[neuron_id].dopamine_value_ != 0)
     {
-        printf("Step %lu, Neuron %lu, dopamine value %f, num synapses %lu\n", step, neuron_id,
-               neurons.data_[neuron_id].dopamine_value_,
-               extract_synapses_from_index(synapse_pointer_index, neuron_id).size_);
+//        printf("Step %lu, Neuron %lu, dopamine value %f, num synapses %lu\n", step, neuron_id,
+//               neurons.data_[neuron_id].dopamine_value_,
+//               extract_synapses_from_index(synapse_pointer_index, neuron_id).size_);
 
         do_dopamine_plasticity_device<ResourceSynapseType>(
                 extract_synapses_from_index(synapse_pointer_index, neuron_id),
@@ -489,7 +477,50 @@ __global__ void do_dopamine_plasticity_kernel(SynapsesPerNeurons synapse_pointer
 }
 
 
-__global__ void update_and_renormalize(SynapsesPerNeurons synapse_pointer_index,
+template <class SynapseType, int position_index>
+device_lib::ValueIndex build_index_gpu_slow(const CUDAProjection<SynapseType> &gpu_projection)
+{
+    std::map<device_lib::LongIndex, std::vector<device_lib::LongIndex>> buffer;
+    for (size_t i = 0; i < gpu_projection.synapses_.size(); ++i)
+    {
+        const auto &synapse = gpu_projection.synapses_.copy_at(i);
+        const auto neuron_id = ::cuda::std::get<position_index>(synapse);
+        auto map_iter = buffer.find(neuron_id);
+        if (map_iter == buffer.end())
+        {
+            map_iter = buffer.insert(std::make_pair(neuron_id, std::vector<device_lib::LongIndex>{})).first;
+        }
+        map_iter->second.push_back(i);
+    }
+    device_lib::LongIndex current_offset = 0;
+    const device_lib::LongIndex last_neuron = buffer.rbegin()->first;
+
+    std::vector<device_lib::LongIndex> indices(gpu_projection.synapses_.size());
+    std::vector<device_lib::LongIndex> offsets;
+    offsets.reserve(last_neuron + 2);  // Neuron number + 1 is last_index + 2.
+    offsets.push_back(0);
+    device_lib::LongIndex first_neuron = 0;
+    for (auto iter = buffer.begin(); iter != buffer.end(); ++iter)
+    {
+        const device_lib::LongIndex current_neuron = iter->first;
+        // Filling offsets for skipped neurons: if first three are missing that would be 0, 0, 0, 0, 5...
+        for (auto i = first_neuron; i < current_neuron; ++i)
+        {
+            offsets.push_back(current_offset);
+        }
+        first_neuron = current_neuron + 1;
+        std::copy(iter->second.begin(), iter->second.end(), indices.begin() + current_offset);
+        current_offset += iter->second.size();
+        offsets.push_back(current_offset);
+    }
+    device_lib::ValueIndex index;
+    index.indices_ = indices;
+    index.offsets_ = offsets;
+    return index;
+}
+
+
+__global__ void update_and_renormalize(SynapsesPerNeuronsView synapse_pointer_index,
                                        device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons, StepIndex step)
 {
     const device_lib::LongIndex neuron_id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -533,7 +564,7 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
     {
         const auto p_name = population.tags_.exists("name") ?
                                      population.tags_.get_tag<std::string>("name") : "unnamed";
-        SPDLOG_WARN("No working projections found for a population \"{}\"", p_name.c_str());
+        // SPDLOG_WARN("No working projections found for a population \"{}\"", p_name.c_str());
     }
 
     using ResourceProjection = CUDAProjection<synapse_traits::SynapticResourceSTDPDeltaSynapse>;
@@ -564,8 +595,13 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
             SPDLOG_ERROR("Wrong projection type when extracting");
             throw std::runtime_error("Wrong type of projection extraction");
         }
-        SynapsesPerNeurons synapses = initialize_synapses_per_neurons(projection_ptr->index_by_postsynaptic_.view(),
-                                                                      projection_ptr->synapses_.data());
+        if (projection_ptr->synapses_by_postsynaptic_.synapses_.size() == 0)
+        {
+            auto index = build_index_gpu_slow<RSTDPDeltaSynapse, core::target_neuron_id>(*projection_ptr);
+            projection_ptr->synapses_by_postsynaptic_ = initialize_synapses_per_neurons(index.view(),
+                    projection_ptr->synapses_.data());
+        }
+        auto synapses = projection_ptr->synapses_by_postsynaptic_.view();
         if (result.size())
         {
             // TODO TEMP
@@ -578,17 +614,14 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
             process_spiking_neurons_impl(result, synapses, population.neurons_, step);
         }
         cudaDeviceSynchronize();
-        SPDLOG_WARN("Running do_dopamine_plasticity on {} blocks, {} threads", num_blocks, num_threads);
-        SPDLOG_WARN("projection_ptr->synapses_.data() = {}, size = {}",
-                    (void*)projection_ptr->synapses_.data(), projection_ptr->synapses_.size());
+//        SPDLOG_WARN("Running do_dopamine_plasticity on {} blocks, {} threads", num_blocks, num_threads);
+//        SPDLOG_WARN("projection_ptr->synapses_.data() = {}, size = {}",
+//                    (void*)projection_ptr->synapses_.data(), projection_ptr->synapses_.size());
         cudaDeviceSynchronize();
         do_dopamine_plasticity_kernel<<<num_blocks, num_threads>>>(synapses, population.neurons_.mut_view(), step);
         cudaDeviceSynchronize();
         update_and_renormalize<<<num_blocks, num_threads>>>(synapses, population.neurons_.mut_view(), step);
         cudaDeviceSynchronize();
-        // implicit synchronization.
-        cudaFree(synapses.offsets_);
-        cudaFree(synapses.synapses_);
     }
     return result;
 }

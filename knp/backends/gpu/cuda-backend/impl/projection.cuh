@@ -30,6 +30,7 @@
 #include "cuda_lib/vector.cuh"
 #include "cuda_lib/value_index.cuh"
 #include "cuda_bus/synaptic_impact_message.cuh"
+#include "delay_buffer.cuh"
 #include "uid.cuh"
 
 #include <vector>
@@ -82,15 +83,19 @@ struct CUDAProjectionBase
         constexpr int data_index = core::SynapseElementAccess::synapse_data;
         constexpr int source_id_index = core::SynapseElementAccess::source_neuron_id;
         constexpr int target_id_index = core::SynapseElementAccess::target_neuron_id;
+        device_lib::LongIndex max_delay = 1;
         for (auto &synapse : projection)
         {
+
             Synapse out_synapse{std::get<data_index>(synapse), std::get<source_id_index>(synapse),
                     std::get<target_id_index>(synapse)};
+            max_delay = std::max(static_cast<device_lib::LongIndex>(std::get<data_index>(synapse).delay_), max_delay);
             synapses_.push_back(out_synapse);
             SPDLOG_TRACE("Synapse: weight {} delay {}", ::cuda::std::get<data_index>(out_synapse).weight_,
                          ::cuda::std::get<data_index>(out_synapse).delay_);
         }
         index_ = device_lib::build_index<SynapseType, core::source_neuron_id>(projection);
+        impact_buffer_ = BitDelayBuffer{synapses_.size(), max_delay};
     }
 
     virtual ~CUDAProjectionBase() = default;
@@ -101,8 +106,9 @@ struct CUDAProjectionBase
     __host__ __device__ void actualize()
     {
         synapses_.actualize();
-        impact_indexes_.actualize();
-        sending_steps_.actualize();
+//        impact_indexes_.actualize();
+//        sending_steps_.actualize();
+        impact_buffer_.actualize();
         index_.actualize();
     }
 
@@ -112,24 +118,25 @@ struct CUDAProjectionBase
      * @param new_sending_steps the target step when the impact will be emitted.
      * @note pre-sort new_impacts_indexes by new_sending_steps.
      */
-    __host__ void add_impacts(const device_lib::CUDAVector<device_lib::LongIndex> &new_impacts_indexes,
-                              const device_lib::CUDAVector<device_lib::LongIndex> &new_sending_steps)
-    {
-        assert(new_impacts_indexes.size() == new_sending_steps.size());
-        if (new_impacts_indexes.size() == 0) return;
-        const auto size = new_impacts_indexes.size();
-        const auto size_before = impact_indexes_.size();
-        const auto out_size = size + size_before;
-        device_lib::LongIndex *res_steps;
-        device_lib::LongIndex *res_impacts;
-        cudaMalloc(&res_steps, sizeof(device_lib::LongIndex) * out_size);
-        cudaMalloc(&res_impacts, sizeof(device_lib::LongIndex) * out_size);
-        thrust::merge_by_key(thrust::device, new_sending_steps.data(), new_sending_steps.data() + size,
-                             sending_steps_.data(), sending_steps_.data() + sending_steps_.size(),
-                             new_impacts_indexes.data(), impact_indexes_.data(), res_steps, res_impacts);
-        impact_indexes_ = device_lib::CUDAVector<device_lib::LongIndex>{res_impacts, out_size};
-        sending_steps_ = device_lib::CUDAVector<device_lib::LongIndex>{res_steps, out_size};
-    }
+//    __host__ void add_impacts(const device_lib::CUDAVector<device_lib::LongIndex> &new_impacts_indexes,
+//                              const device_lib::CUDAVector<device_lib::LongIndex> &new_sending_steps);
+//    {
+//        assert(new_impacts_indexes.size() == new_sending_steps.size());
+//        if (new_impacts_indexes.size() == 0) return;
+//        const auto size = new_impacts_indexes.size();
+//        const auto size_before = impact_indexes_.size();
+//        const auto out_size = size + size_before;
+//        device_lib::LongIndex *res_steps;
+//        device_lib::LongIndex *res_impacts;
+//        cudaMalloc(&res_steps, sizeof(device_lib::LongIndex) * out_size);
+//        cudaMalloc(&res_impacts, sizeof(device_lib::LongIndex) * out_size);
+//        thrust::merge_by_key(thrust::device, new_sending_steps.data(), new_sending_steps.data() + size,
+//                             sending_steps_.data(), sending_steps_.data() + sending_steps_.size(),
+//                             new_impacts_indexes.data(), impact_indexes_.data(), res_steps, res_impacts);
+//        impact_indexes_ = device_lib::CUDAVector<device_lib::LongIndex>{res_impacts, out_size};
+//        sending_steps_ = device_lib::CUDAVector<device_lib::LongIndex>{res_steps, out_size};
+//    }
+
 
     /**
      * @brief Create an impact message.
@@ -137,6 +144,12 @@ struct CUDAProjectionBase
      * @return Synaptic impact message that would be sent.
      */
     __host__ void form_message(device_lib::LongIndex current_step);
+
+    /**
+     * @brief Get the number of synapses in the projection.
+     * @return the number of contained synapses.
+     */
+    __host__ __device__ auto size() { return synapses_.size(); }
 
     /**
      * @brief UID.
@@ -168,12 +181,16 @@ struct CUDAProjectionBase
      */
     cuda::device_lib::CUDAVector<Synapse> synapses_;
 
-    /**
-     * @brief Incoming impacts for the projection.
-     */
-    device_lib::CUDAVector<device_lib::LongIndex> impact_indexes_;
-    device_lib::CUDAVector<device_lib::LongIndex> sending_steps_;
+//    /**
+//     * @brief Incoming impacts for the projection.
+//     */
+//    device_lib::CUDAVector<device_lib::LongIndex> impact_indexes_;
+//    device_lib::CUDAVector<device_lib::LongIndex> sending_steps_;
 
+    /**
+     * @brief
+     */
+    BitDelayBuffer impact_buffer_;
     /**
      * @brief Message buffer.
      */

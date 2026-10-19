@@ -27,22 +27,49 @@
 namespace knp::backends::gpu::cuda
 {
 using RSTDPDeltaSynapse = synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using SynapseValue = CUDAProjectionBase<RSTDPDeltaSynapse>::Synapse;
+
+
+struct SynapsesPerNeuronsView
+{
+    device_lib::LongIndex offsets_size_;
+    device_lib::LongIndex *offsets_;
+    device_lib::LongIndex synapses_size_;
+    SynapseValue **synapses_;
+};
+
+
+struct SynapsesPerNeurons
+{
+    device_lib::CUDAVector<device_lib::LongIndex> offsets_;
+    device_lib::CUDAVector<SynapseValue *> synapses_;
+    SynapsesPerNeuronsView view() { return {offsets_.size(), offsets_.data(), synapses_.size(), synapses_.data()}; }
+};
+
 
 
 template<>
 struct CUDAProjection<RSTDPDeltaSynapse> : public CUDAProjectionBase<RSTDPDeltaSynapse>
 {
+
     CUDAProjection()
     {
         is_locked_ = false;
     }
 
+//    void update_index_by_postsynaptic()
+//    {
+//        index_by_postsynaptic_ = device_lib::build_index<RSTDPDeltaSynapse, core::target_neuron_id>(projection);
+//    }
+
     __host__ explicit CUDAProjection(const knp::core::Projection<RSTDPDeltaSynapse> &projection)
         : CUDAProjectionBase<RSTDPDeltaSynapse>(projection)
     {
-        index_by_postsynaptic_ = device_lib::build_index<RSTDPDeltaSynapse, core::target_neuron_id>(projection);
     }
 
-    device_lib::ValueIndex index_by_postsynaptic_;
+    /**
+     * @note Clear this if you are modifying projection connectivity.
+     */
+    SynapsesPerNeurons synapses_by_postsynaptic_;
 };
 } // namespace knp::backends::gpu::cuda
