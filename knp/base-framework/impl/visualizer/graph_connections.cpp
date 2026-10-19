@@ -69,8 +69,8 @@ UidIndex make_index(const std::vector<Item>& items)
     UidIndex index;
     for (size_t i = 0; i < items.size(); ++i)
     {
-        if (!items[i].uid_) continue;
-        index.emplace(items[i].uid_, i);
+        if (!items[i].get_uid()) continue;
+        index.emplace(items[i].get_uid(), i);
     }
     return index;
 }
@@ -86,7 +86,7 @@ UidIndex make_index(const std::vector<Item>& items)
 Edge make_bus_edge(const knp::core::UID& uid)
 {
     Edge edge(uid, get_short_name(uid), std::nullopt, std::nullopt, std::nullopt, std::nullopt, "not in network");
-    edge.is_dynamic_ = true;
+    edge.set_dynamic(true);
     return edge;
 }
 
@@ -100,8 +100,8 @@ Edge make_message_edge()
 {
     Edge edge;
     // The name is empty: a spike subscription has nothing to name, the kind is written alone.
-    edge.edge_type_ = message_edge_type;
-    edge.is_dynamic_ = true;
+    edge.set_edge_type(message_edge_type);
+    edge.set_dynamic(true);
     return edge;
 }
 
@@ -132,7 +132,7 @@ void get_static_connections(
         knp::core::UID uid_to = std::visit([](const auto& p) { return p.get_postsynaptic(); }, proj);
 
         Edge edge{uid, get_population_name(proj), std::nullopt, std::nullopt, proj_size, proj.index(), std::nullopt};
-        edge.is_static_ = true;
+        edge.set_static(true);
         edges.push_back(edge);
 
         const size_t edge_position = edges.size() - 1;
@@ -167,9 +167,9 @@ void get_dynamic_connections(
         if (it != node_index.end()) return it->second;
 
         Node node{uid, get_short_name(uid), std::nullopt, std::nullopt, "not in network"};
-        node.is_static_ = false;
+        node.set_static(false);
         auto entity_it = known_entities.find(uid);
-        node.node_type_ = entity_it != known_entities.end() ? entity_it->second->name_ : external_node_type;
+        node.set_node_type(entity_it != known_entities.end() ? entity_it->second->name_ : external_node_type);
 
         nodes.push_back(node);
         node_index[uid] = nodes.size() - 1;
@@ -189,7 +189,7 @@ void get_dynamic_connections(
         }
         else
         {
-            edges[it->second].is_dynamic_ = true;
+            edges[it->second].set_dynamic(true);
         }
 
         node_dst[it->second].insert(receiver);
@@ -205,7 +205,7 @@ void get_dynamic_connections(
         if (it != edge_index.end())
         {
             node_src[it->second].insert(sender);
-            edges[it->second].is_dynamic_ = true;
+            edges[it->second].set_dynamic(true);
             continue;
         }
 

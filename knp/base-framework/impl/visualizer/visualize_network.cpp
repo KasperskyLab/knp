@@ -45,8 +45,8 @@ namespace knp::framework::visualizer::impl
  */
 std::string get_description_name(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex, bool is_source)
 {
-    if (graph[vertex].is_invisible_) return is_source ? "NO_SOURCE" : "NO_DESTINATION";
-    return graph[vertex].node_type_ + " '" + graph[vertex].name_ + "'";
+    if (graph[vertex].is_invisible()) return is_source ? "NO_SOURCE" : "NO_DESTINATION";
+    return graph[vertex].get_node_type() + " '" + graph[vertex].get_name() + "'";
 }
 
 
@@ -59,8 +59,8 @@ std::string get_description_name(const BaseGraph& graph, BaseGraph::vertex_descr
  */
 std::string get_description_title(const Edge& edge)
 {
-    if (edge.name_.empty()) return edge.edge_type_;
-    return edge.edge_type_ + ": " + edge.name_;
+    if (edge.get_name().empty()) return edge.get_edge_type();
+    return edge.get_edge_type() + ": " + edge.get_name();
 }
 
 }  // namespace knp::framework::visualizer::impl
@@ -76,7 +76,7 @@ namespace knp::framework::visualizer
  */
 void print_network_description(const NetworkGraph& graph, std::ostream& out)
 {
-    const BaseGraph& network_graph = graph.graph_;
+    const BaseGraph& network_graph = graph.get_graph();
 
     // The description shows exactly what is drawn: the same nodes and the same edges as the DOT text.
     for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
@@ -84,8 +84,8 @@ void print_network_description(const NetworkGraph& graph, std::ostream& out)
         if (!impl::is_node_drawn(network_graph, *vertex_it)) continue;
 
         const Node& node = network_graph[*vertex_it];
-        out << "    " << node.node_type_ << " #" << *vertex_it << " '" << node.name_ << "'";
-        if (node.size_.has_value()) out << " of size " << node.size_.value();
+        out << "    " << node.get_node_type() << " #" << *vertex_it << " '" << node.get_name() << "'";
+        if (node.get_size().has_value()) out << " of size " << node.get_size().value();
 
         out << ": receive from";
         for (auto [edge_it, edge_end] = boost::in_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)

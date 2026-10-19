@@ -69,32 +69,32 @@ TEST(VisualizeNetworkSuite, NetworkGraphConstruction)
     knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
 
     // Check that we have correct number of nodes and edges.
-    ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
-    ASSERT_EQ(boost::num_edges(graph.graph_), 1u);
-    ASSERT_FALSE(graph.is_dynamic_);
+    ASSERT_EQ(boost::num_vertices(graph.get_graph()), 2u);
+    ASSERT_EQ(boost::num_edges(graph.get_graph()), 1u);
+    ASSERT_FALSE(graph.is_dynamic());
 
     // Check node properties.
-    auto vertex_from = graph.find_node(graph.graph_[0].uid_);
+    auto vertex_from = graph.find_node(graph.get_graph()[0].get_uid());
     ASSERT_TRUE(vertex_from.has_value());
-    ASSERT_EQ(graph.graph_[0].size_.value(), 5u);
-    ASSERT_EQ(graph.graph_[1].size_.value(), 3u);
-    ASSERT_FALSE(graph.graph_[0].name_.empty());
-    ASSERT_EQ(graph.graph_[0].node_type_, "Population");
+    ASSERT_EQ(graph.get_graph()[0].get_size().value(), 5u);
+    ASSERT_EQ(graph.get_graph()[1].get_size().value(), 3u);
+    ASSERT_FALSE(graph.get_graph()[0].get_name().empty());
+    ASSERT_EQ(graph.get_graph()[0].get_node_type(), "Population");
 
     // Check edge properties.
-    auto [edge_it, edge_end] = boost::edges(graph.graph_);
-    const auto& edge = graph.graph_[*edge_it];
-    ASSERT_EQ(edge.size_.value(), 15u);  // 5 * 3 = 15 synapses.
-    ASSERT_TRUE(edge.is_static_);
-    ASSERT_TRUE(edge.index_from_.has_value());
-    ASSERT_TRUE(edge.index_to_.has_value());
-    ASSERT_TRUE(edge.index_from_.value() == graph.graph_[0].uid_);
-    ASSERT_TRUE(edge.index_to_.value() == graph.graph_[1].uid_);
-    ASSERT_EQ(boost::source(*edge_it, graph.graph_), 0u);
-    ASSERT_EQ(boost::target(*edge_it, graph.graph_), 1u);
+    auto [edge_it, edge_end] = boost::edges(graph.get_graph());
+    const auto& edge = graph.get_graph()[*edge_it];
+    ASSERT_EQ(edge.get_size().value(), 15u);  // 5 * 3 = 15 synapses.
+    ASSERT_TRUE(edge.is_static());
+    ASSERT_TRUE(edge.get_index_from().has_value());
+    ASSERT_TRUE(edge.get_index_to().has_value());
+    ASSERT_TRUE(edge.get_index_from().value() == graph.get_graph()[0].get_uid());
+    ASSERT_TRUE(edge.get_index_to().value() == graph.get_graph()[1].get_uid());
+    ASSERT_EQ(boost::source(*edge_it, graph.get_graph()), 0u);
+    ASSERT_EQ(boost::target(*edge_it, graph.get_graph()), 1u);
 
     // Check that the projection is indexed by UID.
-    ASSERT_EQ(graph.find_edges(edge.uid_).size(), 1u);
+    ASSERT_EQ(graph.find_edges(edge.get_uid()).size(), 1u);
 }
 
 
@@ -103,8 +103,8 @@ TEST(VisualizeNetworkSuite, ModelGraphConstruction)
     knp::framework::Model model = create_test_model();
     knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(model);
 
-    ASSERT_EQ(boost::num_vertices(graph.graph_), 2u);
-    ASSERT_EQ(boost::num_edges(graph.graph_), 1u);
+    ASSERT_EQ(boost::num_vertices(graph.get_graph()), 2u);
+    ASSERT_EQ(boost::num_edges(graph.get_graph()), 1u);
 }
 
 
@@ -119,9 +119,9 @@ TEST(VisualizeNetworkSuite, DynamicGraphConstruction)
         knp::framework::visualizer::build_graph(network, backend->get_message_endpoint());
 
     // The network structure is always present, the bus can only extend it.
-    ASSERT_TRUE(graph.is_dynamic_);
-    ASSERT_GE(boost::num_vertices(graph.graph_), 2u);
-    ASSERT_GE(boost::num_edges(graph.graph_), 1u);
+    ASSERT_TRUE(graph.is_dynamic());
+    ASSERT_GE(boost::num_vertices(graph.get_graph()), 2u);
+    ASSERT_GE(boost::num_edges(graph.get_graph()), 1u);
 }
 
 
@@ -145,8 +145,8 @@ TEST(VisualizeNetworkSuite, ExternalEntitiesAreDrawn)
 
     auto handler_vertex = graph.find_node(handler_uid);
     ASSERT_TRUE(handler_vertex.has_value());
-    ASSERT_EQ(graph.graph_[handler_vertex.value()].node_type_, "WTA");
-    ASSERT_EQ(boost::in_degree(handler_vertex.value(), graph.graph_), 1u);
+    ASSERT_EQ(graph.get_graph()[handler_vertex.value()].get_node_type(), "WTA");
+    ASSERT_EQ(boost::in_degree(handler_vertex.value(), graph.get_graph()), 1u);
 }
 
 

@@ -37,7 +37,7 @@ namespace knp::framework::visualizer
 NetworkGraph::vertex_descriptor NetworkGraph::add_node(const Node& node)
 {
     auto v = boost::add_vertex(node, graph_);
-    if (!node.is_invisible_) map_uid_to_nodes_descriptor[node.uid_] = v;
+    if (!node.is_invisible()) map_uid_to_nodes_descriptor[node.get_uid()] = v;
     return v;
 }
 
@@ -50,7 +50,7 @@ NetworkGraph::vertex_descriptor NetworkGraph::add_node(const Node& node)
 NetworkGraph::edge_descriptor NetworkGraph::add_edge(vertex_descriptor from, vertex_descriptor to, const Edge& edge)
 {
     auto e = boost::add_edge(from, to, edge, graph_).first;
-    map_uid_to_edges_descriptor.emplace(edge.uid_, e);
+    map_uid_to_edges_descriptor.emplace(edge.get_uid(), e);
     return e;
 }
 
@@ -62,10 +62,10 @@ NetworkGraph::edge_descriptor NetworkGraph::add_edge(vertex_descriptor from, ver
  */
 NetworkGraph::vertex_descriptor NetworkGraph::add_placeholder_node()
 {
-    Node ghost_node;
-    ghost_node.name_ = "ghost_node_" + std::to_string(++ghost_counter_);
-    ghost_node.comment_ = "ghost";
-    ghost_node.is_invisible_ = true;
+    // A default UID is a new random one, as for a default node.
+    Node ghost_node(
+        knp::core::UID{}, "ghost_node_" + std::to_string(++ghost_counter_), std::nullopt, std::nullopt, "ghost");
+    ghost_node.set_invisible(true);
     return add_node(ghost_node);
 }
 

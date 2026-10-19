@@ -40,7 +40,7 @@ namespace knp::framework::visualizer::impl
  */
 bool is_dynamic_node(const Node& node)
 {
-    return node.node_type_ != population_node_type;
+    return node.get_node_type() != population_node_type;
 }
 
 
@@ -74,7 +74,7 @@ std::string get_edge_color(const Node& src_node, const Edge& edge, bool is_dynam
 {
     if (!is_dynamic) return static_color;
     if (is_dynamic_node(src_node)) return dynamic_color;
-    return edge.is_static_ ? static_color : dynamic_color;
+    return edge.is_static() ? static_color : dynamic_color;
 }
 
 
@@ -101,7 +101,7 @@ std::string get_edge_style(bool has_invisible_node)
  */
 bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex)
 {
-    return !graph[vertex].is_invisible_;
+    return !graph[vertex].is_invisible();
 }
 
 
@@ -112,10 +112,10 @@ bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex)
  */
 bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& edge)
 {
-    const BaseGraph& network_graph = graph.graph_;
-    const bool has_invisible_node = network_graph[boost::source(edge, network_graph)].is_invisible_ ||
-                                    network_graph[boost::target(edge, network_graph)].is_invisible_;
-    return graph.is_dynamic_ || !has_invisible_node;
+    const BaseGraph& network_graph = graph.get_graph();
+    const bool has_invisible_node = network_graph[boost::source(edge, network_graph)].is_invisible() ||
+                                    network_graph[boost::target(edge, network_graph)].is_invisible();
+    return graph.is_dynamic() || !has_invisible_node;
 }
 
 
@@ -188,9 +188,9 @@ void write_header_and_styles(std::ostream& out)
  */
 void write_node_to_dot(size_t node_id, const Node& node, std::ostream& out, const std::string& color)
 {
-    out << "    " << node_id << " [label=\"" << escape_dot_text(node.node_type_) << ":\\n"
-        << escape_dot_text(node.name_);
-    if (node.size_.has_value()) out << "\\nsize: " << node.size_.value();
+    out << "    " << node_id << " [label=\"" << escape_dot_text(node.get_node_type()) << ":\\n"
+        << escape_dot_text(node.get_name());
+    if (node.get_size().has_value()) out << "\\nsize: " << node.get_size().value();
     out << "\", color=\"" << color << "\"];\n";
 }
 
@@ -215,10 +215,10 @@ void write_edge_to_dot(
     size_t index_from, size_t index_to, const Edge& edge, std::ostream& out, const std::string& color,
     const std::string& style)
 {
-    out << "    " << index_from << " -> " << index_to << " [label=\"" << escape_dot_text(edge.edge_type_);
+    out << "    " << index_from << " -> " << index_to << " [label=\"" << escape_dot_text(edge.get_edge_type());
     // An edge without a name is labelled with its kind only.
-    if (!edge.name_.empty()) out << ":\\n" << escape_dot_text(edge.name_);
-    if (edge.size_.has_value()) out << "\\nsize: " << edge.size_.value();
+    if (!edge.get_name().empty()) out << ":\\n" << escape_dot_text(edge.get_name());
+    if (edge.get_size().has_value()) out << "\\nsize: " << edge.get_size().value();
     out << "\", color=\"" << color << "\", style=\"" << style << "\"];\n";
 }
 
@@ -230,7 +230,7 @@ void write_edge_to_dot(
  */
 void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out)
 {
-    const BaseGraph& network_graph = graph.graph_;
+    const BaseGraph& network_graph = graph.get_graph();
 
     write_header_and_styles(out);
 
@@ -250,10 +250,10 @@ void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out)
         if (!is_node_drawn(network_graph, *vertex_it))
         {
             // A static graph never contains invisible nodes and dotted edges.
-            if (graph.is_dynamic_) write_invisible_node_to_dot(node_id, out);
+            if (graph.is_dynamic()) write_invisible_node_to_dot(node_id, out);
             continue;
         }
-        write_node_to_dot(node_id, node, out, get_node_color(node, graph.is_dynamic_));
+        write_node_to_dot(node_id, node, out, get_node_color(node, graph.is_dynamic()));
     }
 
     // Write edges to dot.
@@ -266,11 +266,11 @@ void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out)
         if (!is_edge_drawn(graph, *edge_it)) continue;
 
         const bool has_invisible_node =
-            network_graph[source_id].is_invisible_ || network_graph[target_id].is_invisible_;
+            network_graph[source_id].is_invisible() || network_graph[target_id].is_invisible();
 
         write_edge_to_dot(
             static_cast<size_t>(source_id), static_cast<size_t>(target_id), edge, out,
-            get_edge_color(network_graph[source_id], edge, graph.is_dynamic_), get_edge_style(has_invisible_node));
+            get_edge_color(network_graph[source_id], edge, graph.is_dynamic()), get_edge_style(has_invisible_node));
     }
 
     out << "}\n";

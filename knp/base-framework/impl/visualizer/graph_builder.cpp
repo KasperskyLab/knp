@@ -83,8 +83,8 @@ void add_edges_to_graph(
         for (const auto& dst : dst_vertices)
         {
             Edge graph_edge = edge;
-            if (!graph.graph_[src].is_invisible_) graph_edge.index_from_ = graph.graph_[src].uid_;
-            if (!graph.graph_[dst].is_invisible_) graph_edge.index_to_ = graph.graph_[dst].uid_;
+            if (!graph.get_graph()[src].is_invisible()) graph_edge.set_index_from(graph.get_graph()[src].get_uid());
+            if (!graph.get_graph()[dst].is_invisible()) graph_edge.set_index_to(graph.get_graph()[dst].get_uid());
             graph.add_edge(src, dst, graph_edge);
         }
     }
@@ -100,8 +100,7 @@ NetworkGraph fill_graph(
     const std::vector<Node>& nodes, const std::vector<Edge>& edges, const EdgeConnections& node_src,
     const EdgeConnections& node_dst, bool is_dynamic)
 {
-    NetworkGraph graph;
-    graph.is_dynamic_ = is_dynamic;
+    NetworkGraph graph(is_dynamic);
 
     for (const auto& node : nodes) graph.add_node(node);
 
@@ -116,26 +115,26 @@ NetworkGraph fill_graph(
         // drawn at all, so no invisible node is added and nothing is written to the DOT text.
         if (!is_dynamic && (src_vertices.empty() || dst_vertices.empty()))
         {
-            SPDLOG_INFO("Edge {} has no source or no destination, it is skipped.", std::string(edge.uid_));
+            SPDLOG_INFO("Edge {} has no source or no destination, it is skipped.", std::string(edge.get_uid()));
             continue;
         }
 
         // An edge that is not on the bus at all has nothing to connect, it is not drawn either.
         if (src_vertices.empty() && dst_vertices.empty())
         {
-            SPDLOG_INFO("Edge {} has no connections on the bus, it is skipped.", std::string(edge.uid_));
+            SPDLOG_INFO("Edge {} has no connections on the bus, it is skipped.", std::string(edge.get_uid()));
             continue;
         }
 
         if (src_vertices.empty())
         {
-            SPDLOG_INFO("There is no source for this edge: {}", std::string(edge.uid_));
+            SPDLOG_INFO("There is no source for this edge: {}", std::string(edge.get_uid()));
             src_vertices.push_back(graph.add_placeholder_node());
         }
 
         if (dst_vertices.empty())
         {
-            SPDLOG_INFO("There is no destination for this edge: {}", std::string(edge.uid_));
+            SPDLOG_INFO("There is no destination for this edge: {}", std::string(edge.get_uid()));
             dst_vertices.push_back(graph.add_placeholder_node());
         }
 
