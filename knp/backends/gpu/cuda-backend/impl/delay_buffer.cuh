@@ -82,21 +82,31 @@ class BitDelayBuffer
 public:
     constexpr static int bits_per_word = sizeof(BitBufferWord) * 8;
 
+    /**
+     * @brief Default constructor.
+     */
+    BitDelayBuffer() = default;
+
+    /**
+     * @brief Construct a delay buffer.
+     * @param num_synapses number of synapses in the corresponding projection.
+     * @param max_delay max delay for the whole projection.
+     */
     __host__ BitDelayBuffer(device_lib::LongIndex num_synapses, device_lib::LongIndex max_delay)
     : num_synapses_(num_synapses)
     {
         buffer_depth_ = (max_delay + bits_per_word - 1) / bits_per_word;
         BitBufferWord *data;
         LongIndex buffer_size = buffer_depth_ * sizeof(BitBufferWord) * num_synapses;
-        device_lib::call_and_check(cudaMalloc(&data, buffer_size));
-        device_lib::call_and_check(cudaMemset(data, 0, buffer_size));
+        call_and_check(cudaMalloc(&data, buffer_size));
+        call_and_check(cudaMemset(data, 0, buffer_size));
         buffer_ = device_lib::CUDAVector(data, num_synapses * buffer_depth_);
     }
 
 
     BitDelayBufferView view()
     {
-        return BitDelayBufferView{buffer_.data_, num_synapses_, buffer_depth_};
+        return BitDelayBufferView{buffer_.data(), num_synapses_, buffer_depth_};
     }
 
     __host__ __device__ void actualize() { buffer_.actualize(); }

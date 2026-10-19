@@ -465,3 +465,10 @@ REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
+
+using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
+using ResourceSynapseValuePtr = ResourceSynapseValue*;
+
+// REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValue);
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

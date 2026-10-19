@@ -57,10 +57,6 @@ struct CUDAProjection<RSTDPDeltaSynapse> : public CUDAProjectionBase<RSTDPDeltaS
         is_locked_ = false;
     }
 
-//    void update_index_by_postsynaptic()
-//    {
-//        index_by_postsynaptic_ = device_lib::build_index<RSTDPDeltaSynapse, core::target_neuron_id>(projection);
-//    }
 
     __host__ explicit CUDAProjection(const knp::core::Projection<RSTDPDeltaSynapse> &projection)
         : CUDAProjectionBase<RSTDPDeltaSynapse>(projection)

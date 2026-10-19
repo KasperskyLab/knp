@@ -219,10 +219,10 @@ public:
         return !(*this == other);
     }
 
-    __host__ __device__ ~Subscription()
-    {
-        printf("Calling ~Subscription\n");
-    }
+//    __host__ __device__ ~Subscription()
+//    {
+//        printf("Calling ~Subscription\n");
+//    }
 
 public:
     /**

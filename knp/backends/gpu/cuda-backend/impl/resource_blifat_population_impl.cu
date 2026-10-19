@@ -39,6 +39,7 @@ using ResourceBlifatParams = knp::neuron_traits::neuron_parameters<
         knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
 using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
 using SynapseValue = typename CUDAProjection<ResourceSynapseType>::Synapse;
+using SynapseValuePtr = SynapseValue*;
 using ResourceSynapseParams = knp::synapse_traits::synapse_parameters<ResourceSynapseType>;
 
 
@@ -630,3 +631,9 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
 
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeIndex);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
+using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
+using ResourceSynapseValuePtr = ResourceSynapseValue*;
+
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValue);
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

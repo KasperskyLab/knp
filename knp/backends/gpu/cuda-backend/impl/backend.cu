@@ -349,3 +349,9 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
+
+using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
+using ResourceSynapseValuePtr = ResourceSynapseValue*;
+
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

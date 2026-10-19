@@ -56,7 +56,7 @@ __host__ void gpu_insert(const T &cpu_val, T *gpu_target)
     call_and_check(cudaMemcpy(gpu_target, &cpu_val, sizeof(T), cudaMemcpyHostToDevice));
     if constexpr (!std::is_trivially_copyable<T>::value)
         detail::actualize_kernel<<<1, 1>>>(gpu_target);
-    cudaDeviceSynchronize();
+    call_and_check(cudaDeviceSynchronize());
 }
 
 } // namespace knp::backends::gpu::cuda

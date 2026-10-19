@@ -105,13 +105,13 @@ neuron_traits::ISIPeriodType update_isi(
             neuron.first_isi_spike_ = step;
             break;
         case neuron_traits::ISIPeriodType::period_started:
-            if (neuron.last_step_ - step < neuron.isi_max_)
+            if (step - neuron.last_step_ < neuron.isi_max_)
             {
                 neuron.isi_status_ = neuron_traits::ISIPeriodType::period_continued;
             }
             break;
         case neuron_traits::ISIPeriodType::period_continued:
-            if (neuron.last_step_ - step >= neuron.isi_max_ || neuron.dopamine_value_ != 0)
+            if (step - neuron.last_step_ >= neuron.isi_max_ || neuron.dopamine_value_ != 0)
             {
                 neuron.isi_status_ = neuron_traits::ISIPeriodType::period_started;
                 neuron.first_isi_spike_ = step;

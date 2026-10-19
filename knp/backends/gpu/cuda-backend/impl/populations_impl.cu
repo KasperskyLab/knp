@@ -22,6 +22,7 @@
 #include "backend_impl.cuh"
 #include "population.cuh"
 #include "populations_impl.cuh"
+#include "cuda_lib/register_type.cuh"
 #include <knp/core/population.h>
 
 
@@ -193,3 +194,12 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
     return result;
 }
 } // namespace knp::backends::gpu::cuda
+
+using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
+using ResourceSynapseValuePtr = ResourceSynapseValue*;
+
+REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
+REGISTER_CUDA_VECTOR_TYPE(unsigned int);
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValue);
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

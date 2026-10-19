@@ -266,8 +266,8 @@ void send_host_messages_to_gpu(CUDAMessageBus &device_bus,
                                knp::core::UID receiver_uid)
 {
     using MessageType = boost::mp11::mp_at_c<knp::core::messaging::MessageVariant, type_index>;
-    std::vector <knp::core::messaging::SpikeMessage> message_buf
-            = cpu_endpoint.unload_messages<knp::core::messaging::SpikeMessage>(receiver_uid);
+    std::vector<MessageType> message_buf
+            = cpu_endpoint.unload_messages<MessageType>(receiver_uid);
     for (auto &msg : message_buf)
     {
         if (!check_if_exist_message(duplicate_counter, msg))
