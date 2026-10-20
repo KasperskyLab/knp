@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_builder.h>
 
 #include <algorithm>
 #include <cstddef>

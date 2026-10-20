@@ -1,6 +1,6 @@
 /**
- * @file visualize_network.h
- * @brief Network graph building, description and visualization.
+ * @file graph_builder.h
+ * @brief Network graph building.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -24,12 +24,8 @@
 #include <knp/core/message_endpoint.h>
 #include <knp/framework/model.h>
 #include <knp/framework/network.h>
+#include <knp/framework/visualizer/dynamic_info.h>
 #include <knp/framework/visualizer/network_graph.h>
-
-#include <filesystem>
-#include <iostream>
-#include <ostream>
-#include <string>
 
 
 /**
@@ -126,61 +122,5 @@ KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Network& network, co
  * @return network graph.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& info);
-
-
-/**
- * @brief Print node and edge connections of a network graph.
- *
- * @param graph network graph.
- * @param out output stream, standard output by default.
- *
- * @details The function writes a line for each node and its incoming and outgoing edges. The same nodes and edges are
- * written as in the DOT text, so a description and a picture always match.
- */
-KNP_DECLSPEC void print_network_description(const NetworkGraph& graph, std::ostream& out = std::cout);
-
-
-/**
- * @brief Write network graph to a stream in DOT format.
- *
- * @param graph network graph.
- * @param out output stream.
- */
-KNP_DECLSPEC void write_dot(const NetworkGraph& graph, std::ostream& out);
-
-
-/**
- * @brief Render network graph to a stream as an image.
- *
- * @param graph network graph.
- * @param out output stream.
- * @param format graphviz output format ("png", "svg", "pdf" and so on).
- *
- * @return boolean indicating success.
- *
- * @details No intermediate file is created: the DOT text and the rendered image are kept in memory.
- */
-KNP_DECLSPEC bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::string& format = "png");
-
-
-/**
- * @brief Save DOT and image files of a network graph.
- *
- * @param graph network graph.
- * @param name file name without extension.
- * @param dir directory for saving, it is created if it does not exist.
- * @param format graphviz output format ("png", "svg", "pdf" and so on).
- *
- * @return path to the image file.
- *
- * @throw std::filesystem::filesystem_error if a directory cannot be created.
- * @throw std::runtime_error if the DOT file cannot be written or the graph cannot be rendered.
- *
- * @details Files are saved as `<dir>/dot_files/<name>.dot` and `<dir>/<format>_files/<name>.<format>`. The DOT file is
- * written before rendering, so it is kept if rendering fails.
- */
-KNP_DECLSPEC std::filesystem::path visualize(
-    const NetworkGraph& graph, const std::string& name = "graph",
-    const std::filesystem::path& dir = "visualization_docs", const std::string& format = "png");
 
 }  // namespace knp::framework::visualizer

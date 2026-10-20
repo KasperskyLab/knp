@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_builder.h>
 
 #include "annotated_network.h"
 
@@ -94,7 +94,8 @@ inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwo
  * @details Connections come from the bus subscriptions. What the bus does not have, that is WTA handlers and
  * channels, comes from the annotation of the network.
  */
-inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwork& network, const knp::framework::visualizer::BusConnections& bus)
+inline knp::framework::visualizer::NetworkGraph build_graph(
+    const AnnotatedNetwork& network, const knp::framework::visualizer::BusConnections& bus)
 {
     return knp::framework::visualizer::build_graph(network.network_, make_dynamic_info(network, bus));
 }

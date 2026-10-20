@@ -1,6 +1,6 @@
 /**
- * @file dot_helpers.h
- * @brief Help functions for writing a dot text.
+ * @file dot_writer.h
+ * @brief Writing a network graph in DOT format.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/network_graph.h>
 
 #include <cstddef>
 #include <ostream>

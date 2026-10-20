@@ -25,6 +25,7 @@
 #include <knp/framework/monitoring/model.h>
 #include <knp/framework/projection/wta.h>
 #include <knp/framework/tags/name.h>
+#include <knp/framework/visualizer/graph_builder.h>
 
 #include <filesystem>
 #include <fstream>
@@ -201,7 +202,8 @@ void train_network(
  * @param dataset dataset containing training data and timing specifications.
  * @param network annotated network structure containing the network and its annotations.
  * @param backend_loader backend loader for loading the training backend.
- * @return Connections taken from the message bus of the training backend.
+ *
+ * @return connections taken from the message bus of the training backend.
  */
 template <typename Neuron>
 knp::framework::visualizer::BusConnections train_model(

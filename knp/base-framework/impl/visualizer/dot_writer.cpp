@@ -1,6 +1,6 @@
 /**
- * @file dot_helpers.cpp
- * @brief Help functions for writing a dot text.
+ * @file dot_writer.cpp
+ * @brief Writing a network graph in DOT format.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -19,12 +19,15 @@
  * limitations under the License.
  */
 
-#include "dot_helpers.h"
+#include "dot_writer.h"
 
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
+#include <fstream>
+#include <stdexcept>
 #include <string>
 
 
@@ -290,6 +293,23 @@ namespace knp::framework::visualizer
 void write_dot(const NetworkGraph& graph, std::ostream& out)
 {
     impl::write_graph_to_dot(graph, out);
+}
+
+
+/**
+ * @brief Save network graph to a DOT file.
+ *
+ * @details Parameters are described in the header.
+ */
+void save_dot(const NetworkGraph& graph, const std::filesystem::path& file)
+{
+    if (file.has_parent_path()) std::filesystem::create_directories(file.parent_path());
+
+    std::ofstream out(file);
+    write_dot(graph, out);
+    if (!out.good()) throw std::runtime_error("Failed to write to file " + file.string() + ".");
+
+    SPDLOG_INFO("The DOT file is saved in: {}", std::filesystem::absolute(file).string());
 }
 
 }  // namespace knp::framework::visualizer

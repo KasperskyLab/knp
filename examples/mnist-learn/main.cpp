@@ -23,7 +23,7 @@
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/sonata/network_io.h>
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <iostream>
 
@@ -99,8 +99,11 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
     knp::framework::visualizer::print_network_description(dynamic_graph);
 
     // Save the DOT and the image files.
-    knp::framework::visualizer::visualize(static_graph, "graph_static");
-    knp::framework::visualizer::visualize(dynamic_graph, "graph_dynamic");
+    knp::framework::visualizer::save_dot(static_graph, "visualization_docs/dot_files/graph_static.dot");
+    knp::framework::visualizer::save_image(static_graph, "visualization_docs/png_files/graph_static.png");
+    
+    knp::framework::visualizer::save_dot(dynamic_graph, "visualization_docs/dot_files/graph_dynamic.dot");
+    knp::framework::visualizer::save_image(dynamic_graph, "visualization_docs/png_files/graph_dynamic.png");
 
     // Upcast populations to the most generic neuron type for serialization.
     if (model_desc.type_ == SupportedModelType::BLIFAT)

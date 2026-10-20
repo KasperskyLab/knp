@@ -81,14 +81,13 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/inference_evaluation/classification/processor.cpp
     impl/observer.cpp
     impl/logging.cpp
-    impl/visualizer/visualize_network.cpp
     impl/visualizer/network_graph.cpp
     impl/visualizer/bus_connections.cpp
     impl/visualizer/graph_connections.cpp
     impl/visualizer/graph_builder.cpp
-    impl/visualizer/dot_helpers.cpp
-    impl/visualizer/render_helpers.cpp
-    impl/visualizer/visualize.cpp
+    impl/visualizer/dot_writer.cpp
+    impl/visualizer/graph_description.cpp
+    impl/visualizer/graph_render.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
@@ -106,13 +105,6 @@ set_target_properties(
     PROPERTIES
     VERSION "${CMAKE_PROJECT_VERSION}"
     SOVERSION "${CMAKE_PROJECT_VERSION_MAJOR}")
-
-# Graphviz 9 changed the length parameter of gvRenderData() from unsigned int to size_t.
-if (GRAPHVIZ_libgvc_VERSION VERSION_LESS 9)
-    foreach(_target "${PROJECT_NAME}-core" "${PROJECT_NAME}-core_static")
-        target_compile_definitions("${_target}" PRIVATE KNP_GRAPHVIZ_LEGACY_RENDER_LENGTH)
-    endforeach()
-endif()
 
 if (KNP_INSTALL)
     set(COMPONENT_NAME "cpp-framework")

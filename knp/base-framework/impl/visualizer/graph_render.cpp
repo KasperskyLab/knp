@@ -1,6 +1,6 @@
 /**
- * @file render_helpers.cpp
- * @brief Functions for rendering a dot text with graphviz.
+ * @file graph_render.cpp
+ * @brief Rendering a network graph with graphviz.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -19,25 +19,58 @@
  * limitations under the License.
  */
 
-#include "render_helpers.h"
-
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <filesystem>
+#include <fstream>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+
+extern "C"
+{
+#include <graphviz/gvc.h>
+}
 
 
 namespace knp::framework::visualizer::impl
 {
 
 /**
+ * @brief Get type of the length parameter of the gvRenderData() function.
+ *
+ * @tparam Length type of the length parameter.
+ *
+ * @return value of the length type. The function is used in an unevaluated context only, so it has no definition.
+ *
+ * @details Graphviz 13 changed the length parameter of gvRenderData() from unsigned int to size_t. Numeric version
+ * macros appeared in Graphviz 14 only, so the type is taken from the function declaration instead of a version check.
+ */
+template <typename Length>
+Length get_render_length_type(int (*)(GVC_t*, graph_t*, const char*, char**, Length*));
+
+
+/**
+ * @brief Type of the length parameter of the gvRenderData() function in the installed Graphviz.
+ */
+using RenderLength = decltype(get_render_length_type(&gvRenderData));
+
+
+/**
  * @brief Render DOT text to a stream.
  *
- * @details Parameters and return value are described in the header.
+ * @param dot_text DOT text of a graph.
+ * @param out output stream for the rendered image.
+ * @param format graphviz output format ("png", "svg", "pdf" and so on).
+ *
+ * @return boolean indicating success.
+ *
+ * @details The DOT text is parsed from memory and the image is rendered to memory, so no intermediate file is
+ * created. The layout engine is taken from the `layout` attribute of the graph.
  */
 bool render_dot_to_stream(const std::string& dot_text, std::ostream& out, const std::string& format)
 {
@@ -67,14 +100,7 @@ bool render_dot_to_stream(const std::string& dot_text, std::ostream& out, const 
 
     // 4. Render the layout to memory.
     char* rendered_data = nullptr;
-    // Graphviz changed the length parameter of gvRenderData() from unsigned int to size_t in version 9. The headers
-    // provide no numeric version macro, so the old type is selected by KNP_GRAPHVIZ_LEGACY_RENDER_LENGTH, which the
-    // build system defines for Graphviz 8 and older.
-#ifdef KNP_GRAPHVIZ_LEGACY_RENDER_LENGTH
-    unsigned int rendered_length = 0;
-#else
-    size_t rendered_length = 0;
-#endif
+    RenderLength rendered_length = 0;
     const int render_result = gvRenderData(gvc.get(), graph.get(), format.c_str(), &rendered_data, &rendered_length);
 
     // 5. Write the rendered image to the stream and free the graphviz buffers.
@@ -112,6 +138,23 @@ bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::strin
     std::ostringstream dot_stream;
     write_dot(graph, dot_stream);
     return impl::render_dot_to_stream(dot_stream.str(), out, format);
+}
+
+
+/**
+ * @brief Save network graph to an image file.
+ *
+ * @details Parameters are described in the header.
+ */
+void save_image(const NetworkGraph& graph, const std::filesystem::path& file, const std::string& format)
+{
+    if (file.has_parent_path()) std::filesystem::create_directories(file.parent_path());
+
+    std::ofstream out(file, std::ios::binary);
+    if (!render_graph(graph, out, format))
+        throw std::runtime_error("Failed to render the graph to file " + file.string() + ".");
+
+    SPDLOG_INFO("The {} file is saved in: {}", format, std::filesystem::absolute(file).string());
 }
 
 }  // namespace knp::framework::visualizer

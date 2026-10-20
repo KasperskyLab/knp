@@ -19,15 +19,16 @@
  * limitations under the License.
  */
 
-#include "graph_builder.h"
-
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_builder.h>
 
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
 #include <string>
 #include <vector>
+
+#include "graph_connections.h"
+
 
 namespace knp::framework::visualizer::impl
 {
@@ -92,11 +93,21 @@ void add_edges_to_graph(
 
 
 /**
- * @brief Build network graph from collected nodes and edges.
+ * @brief Make network graph from collected nodes and edges.
  *
- * @details Parameters and return value are described in the header.
+ * @param nodes vector of nodes.
+ * @param edges vector of edges.
+ * @param node_src map of edge sources.
+ * @param node_dst map of edge destinations.
+ * @param is_dynamic flag showing that bus subscriptions were used.
+ *
+ * @return network graph.
+ *
+ * @details An edge with several sources or several destinations is added once for each pair. In a static graph an
+ * edge without a source or without a destination is skipped. In a dynamic graph such an edge gets an invisible node
+ * on that side, and an edge without any connections is skipped.
  */
-NetworkGraph fill_graph(
+NetworkGraph make_graph(
     const std::vector<Node>& nodes, const std::vector<Edge>& edges, const EdgeConnections& node_src,
     const EdgeConnections& node_dst, bool is_dynamic)
 {
@@ -164,7 +175,7 @@ NetworkGraph build_graph(const knp::framework::Network& network)
 
     impl::get_static_connections(network, nodes, edges, node_src, node_dst);
 
-    return impl::fill_graph(nodes, edges, node_src, node_dst, false);
+    return impl::make_graph(nodes, edges, node_src, node_dst, false);
 }
 
 
@@ -225,7 +236,7 @@ NetworkGraph build_graph(const knp::framework::Network& network, const DynamicIn
 
     impl::get_dynamic_connections(info, nodes, edges, node_src, node_dst);
 
-    return impl::fill_graph(nodes, edges, node_src, node_dst, true);
+    return impl::make_graph(nodes, edges, node_src, node_dst, true);
 }
 
 

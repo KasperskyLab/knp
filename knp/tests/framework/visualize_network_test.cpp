@@ -23,7 +23,8 @@
 #include <knp/framework/model.h>
 #include <knp/framework/network.h>
 #include <knp/framework/population/creators.h>
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_builder.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <tests_common.h>
 
@@ -189,13 +190,13 @@ TEST(VisualizeNetworkSuite, VisualizationFilesGeneration)
     const std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "knp_test_visualization";
     std::filesystem::remove_all(test_dir);
 
-    const auto image_file = knp::framework::visualizer::visualize(graph, "graph_static", test_dir);
-
     const auto dot_file = test_dir / "dot_files" / "graph_static.dot";
+    knp::framework::visualizer::save_dot(graph, dot_file);
     ASSERT_TRUE(std::filesystem::exists(dot_file));
     ASSERT_GT(std::filesystem::file_size(dot_file), 0u);
 
-    ASSERT_FALSE(image_file.empty());
+    const auto image_file = test_dir / "png_files" / "graph_static.png";
+    knp::framework::visualizer::save_image(graph, image_file);
     ASSERT_TRUE(std::filesystem::exists(image_file));
     ASSERT_GT(std::filesystem::file_size(image_file), 0u);
 

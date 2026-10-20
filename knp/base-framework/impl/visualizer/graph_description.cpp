@@ -1,5 +1,5 @@
 /**
- * @file visualize_network.cpp
+ * @file graph_description.cpp
  * @brief Text description of a network graph.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
@@ -19,12 +19,12 @@
  * limitations under the License.
  */
 
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <ostream>
 #include <string>
 
-#include "dot_helpers.h"
+#include "dot_writer.h"
 
 
 namespace knp::framework::visualizer::impl

@@ -23,7 +23,8 @@
 #include <knp/framework/monitoring/observer.h>
 #include <knp/framework/network.h>
 #include <knp/framework/sonata/network_io.h>
-#include <knp/framework/visualizer/visualize_network.h>
+#include <knp/framework/visualizer/graph_builder.h>
+#include <knp/framework/visualizer/graph_visualization.h>
 
 #include <iostream>
 
@@ -82,7 +83,8 @@ int main(int argc, char **argv)
         // Builds a network graph, prints descriptions of its connections and saves the DOT and the image files.
         const knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
         knp::framework::visualizer::print_network_description(graph);
-        knp::framework::visualizer::visualize(graph);
+        knp::framework::visualizer::save_dot(graph, "visualization_docs/dot_files/graph.dot");
+        knp::framework::visualizer::save_image(graph, "visualization_docs/png_files/graph.png");
     }
 
     // If `task=infer`, the function loads a network and runs inference.
