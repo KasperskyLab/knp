@@ -129,6 +129,11 @@ public:
         return subscribe_gpu(receiver, senders, type_index);
     }
 
+    /**
+     * @brief Get all messages of a given type.
+     * @tparam MessageType the type of the messages.
+     * @return all messages of the given type, as a vector.
+     */
     template <typename MessageType>
     [[nodiscard]] __host__ const std::vector<MessageType>& all_messages() const
     {
@@ -150,6 +155,11 @@ public:
      */
     __host__ void remove_receiver(const cuda::UID &receiver);
 
+    /**
+     * @brief Store a message inside a bus.
+     * @tparam MessageType type of message to be stored.
+     * @param message the message object.
+     */
     template <class MessageType>
     __host__ void send_message(MessageType &&message)
     {
@@ -165,6 +175,10 @@ public:
         messages_impacts_.clear();
     }
 
+    /**
+     * @brief Delete all messages of a specified type.
+     * @tparam MessageType Type of messages to be deleted.
+     */
     template <class MessageType>
     __host__ void clear()
     {
@@ -207,6 +221,13 @@ public:
     template <class MessageType>
     __host__ void send_messages(const cuda::UID &receiver_uid, device_lib::CUDAVector<MessageType> &result_messages);
 
+    /**
+     * @brief Find indices of the messages of a given type that were sent to a specific receiver.
+     * @tparam MessageType type of the messages that need to be found.
+     * @param receiver_uid receiver UID.
+     * @return a vector of message indices that can then be used to access the messages.
+     * @note The messages are not modified by this function.
+     */
     template <class MessageType>
     __host__ std::vector<device_lib::LongIndex> unload_messages(const cuda::UID &receiver_uid) const
     {
@@ -226,6 +247,11 @@ public:
         return result;
     }
 
+    /**
+     * @brief Get the number of messages of a given type.
+     * @tparam MessageType the type of messages in question.
+     * @return number of stored messages.
+     */
     template <class MessageType>
     __host__ size_t get_num_messages() const { return all_messages<MessageType>().size(); }
 

@@ -229,6 +229,7 @@ __host__ void CUDAMessageBus::sync_with_host()
 }
 
 
+// A utility for checking that the messages from CPU don't get to be sent multiple times.
 constexpr int num_message_types = boost::mp11::mp_size<knp::core::messaging::AllMessages>::value;
 using DuplicateCounter = std::array<std::unordered_set<knp::core::UID, knp::core::uid_hash>, num_message_types>;
 
@@ -247,6 +248,7 @@ bool check_if_exist_message(const DuplicateCounter &duplicate_counter,
 }
 
 
+// Adds an existing message to the duplicate counter.
 void add_to_duplicate_counter(DuplicateCounter &duplicate_counter, const knp::core::messaging::MessageVariant &message)
 {
     size_t message_type = message.index();
@@ -263,17 +265,17 @@ template <int type_index>
 void send_host_messages_to_gpu(CUDAMessageBus &device_bus,
                                knp::core::MessageEndpoint &cpu_endpoint,
                                DuplicateCounter &duplicate_counter,
-                               knp::core::UID receiver_uid)
+                               const knp::core::UID &receiver_uid)
 {
     using MessageType = boost::mp11::mp_at_c<knp::core::messaging::MessageVariant, type_index>;
-    std::vector<MessageType> message_buf
+    const std::vector<MessageType> message_buf
             = cpu_endpoint.unload_messages<MessageType>(receiver_uid);
-    for (auto &msg : message_buf)
+    for (const auto &msg : message_buf)
     {
         if (!check_if_exist_message(duplicate_counter, msg))
             device_bus.send_message(make_gpu_message(msg));
     }
-    for (auto &msg : message_buf)
+    for (const auto &msg : message_buf)
         add_to_duplicate_counter(duplicate_counter, msg);
 }
 
@@ -281,6 +283,8 @@ void send_host_messages_to_gpu(CUDAMessageBus &device_bus,
 // TODO: Maybe template this or something.
 __host__ void CUDAMessageBus::receive_messages_from_host()
 {
+    constexpr int spikes_index = 0;
+    constexpr int impacts_index = 1;
     cpu_endpoint_.receive_all_messages();
     SPDLOG_DEBUG("CPU subscriptions: {}", cpu_endpoint_.get_endpoint_subscriptions().size());
     DuplicateCounter duplicate_counter;
@@ -291,13 +295,13 @@ __host__ void CUDAMessageBus::receive_messages_from_host()
         auto receiver_uid = to_cpu_uid(sub.get_receiver_uid());
         size_t type = sub.type();
         // TODO: do it in a proper way or rather just rework the whole mechanic.
-        if (type == 0)
+        if (type == spikes_index)
         {
-            send_host_messages_to_gpu<0>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+            send_host_messages_to_gpu<spikes_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
         }
-        else if (type == 1)
+        else if (type == impacts_index)
         {
-            send_host_messages_to_gpu<1>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+            send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
         }
     }
 }

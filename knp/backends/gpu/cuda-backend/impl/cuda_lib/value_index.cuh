@@ -124,18 +124,13 @@ __host__ CUDAVector<LongIndex> calculate_neuron_scan(const ValueIndex &index,
                                                      const CUDAVectorView<cuda::SpikeIndex> inputs);
 
 
-//__device__ CUDAVectorView<LongIndex> find_synapses_by_target(device_lib::LongIndex neuron_index,
-//                                                             const device_lib::IndexView &synaptic_index)
-//{
-//    if (synaptic_index.offsets_size_ == 0 || neuron_index >= synaptic_index.offsets_size_ - 1)
-//        return {nullptr, 0};
-//    LongIndex starting_index = synaptic_index.offsets_ptr_[neuron_index];
-//    CUDAVectorView<device_lib::LongIndex> result{synaptic_index.indices_ptr_ + starting_index,
-//                                                 synaptic_index.offsets_ptr_[neuron_index + 1] - starting_index};
-//    return result;
-//}
-
-
+/**
+ * @brief Builds the index.
+ * @tparam SynapseType synapse type, usually derived from projection type.
+ * @tparam position_index by presynaptic (core::source_neuron_id) or postsynaptic (core::target_neuron_id) neuron.
+ * @param cpu_projection projection to be indexed.
+ * @return complete index. It's up-to-date until the projection connectivity changes by adding or deleting synapses.
+ */
 template <class SynapseType, int position_index>
 __host__ ValueIndex build_index(const knp::core::Projection<SynapseType> &cpu_projection)
 {
