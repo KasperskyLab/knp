@@ -30,9 +30,9 @@
 
 
 /**
- * @brief Network visualizer namespace.
+ * @brief Implementation namespace of the network visualizer.
  */
-namespace knp::framework::visualizer
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -149,10 +149,29 @@ public:
     void set_invisible(bool is_invisible) { is_invisible_ = is_invisible; }
 
 private:
+    /**
+     * @brief Entity UID.
+     */
     knp::core::UID uid_;
+
+    /**
+     * @brief Entity name.
+     */
     std::string name_;
+
+    /**
+     * @brief Number of neurons, if known.
+     */
     std::optional<size_t> size_;
-    std::optional<size_t> type_;  // Index of the neuron type in `knp::core::AllPopulationsVariant`.
+
+    /**
+     * @brief Index of the neuron type in `knp::core::AllPopulationsVariant`, if known.
+     */
+    std::optional<size_t> type_;
+
+    /**
+     * @brief Comment written to the node.
+     */
     std::optional<std::string> comment_;
 
     /**
@@ -178,4 +197,4 @@ private:
     bool is_invisible_ = false;
 };
 
-}  // namespace knp::framework::visualizer
+}  // namespace knp::framework::visualizer::impl

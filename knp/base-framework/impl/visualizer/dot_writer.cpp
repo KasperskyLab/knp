@@ -25,6 +25,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -113,7 +114,7 @@ bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex)
  *
  * @details Parameters and return value are described in the header.
  */
-bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& edge)
+bool is_edge_drawn(const NetworkGraphImpl& graph, const BaseGraph::edge_descriptor& edge)
 {
     const BaseGraph& network_graph = graph.get_graph();
     const bool has_invisible_node = network_graph[boost::source(edge, network_graph)].is_invisible() ||
@@ -133,7 +134,9 @@ std::string escape_dot_text(const std::string& text)
     result.reserve(text.size());
     for (char symbol : text)
     {
-        if (symbol == '"' || symbol == '\\') result.push_back('\\');
+        // A control character is skipped.
+        if (0 != std::iscntrl(static_cast<unsigned char>(symbol))) continue;
+        if ('"' == symbol || '\\' == symbol) result.push_back('\\');
         result.push_back(symbol);
     }
     return result;
@@ -231,7 +234,7 @@ void write_edge_to_dot(
  *
  * @details Parameters and return value are described in the header.
  */
-void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out)
+void write_graph_to_dot(const NetworkGraphImpl& graph, std::ostream& out)
 {
     const BaseGraph& network_graph = graph.get_graph();
 
@@ -292,16 +295,16 @@ namespace knp::framework::visualizer
  */
 void write_dot(const NetworkGraph& graph, std::ostream& out)
 {
-    impl::write_graph_to_dot(graph, out);
+    impl::write_graph_to_dot(graph.get_impl(), out);
 }
 
 
 /**
- * @brief Save network graph to a DOT file.
+ * @brief Write network graph to a file in DOT format.
  *
  * @details Parameters are described in the header.
  */
-void save_dot(const NetworkGraph& graph, const std::filesystem::path& file)
+void write_dot(const NetworkGraph& graph, const std::filesystem::path& file)
 {
     if (file.has_parent_path()) std::filesystem::create_directories(file.parent_path());
 

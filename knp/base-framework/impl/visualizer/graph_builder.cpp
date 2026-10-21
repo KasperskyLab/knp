@@ -24,10 +24,13 @@
 #include <spdlog/spdlog.h>
 
 #include <cstddef>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "graph_connections.h"
+#include "network_graph_impl.h"
 
 
 namespace knp::framework::visualizer::impl
@@ -42,10 +45,10 @@ namespace knp::framework::visualizer::impl
  *
  * @return vector of vertex descriptors, empty if the edge has no connections on that side.
  */
-std::vector<NetworkGraph::vertex_descriptor> get_connected_vertices(
-    const NetworkGraph& graph, const EdgeConnections& connections, size_t edge_position)
+std::vector<NetworkGraphImpl::vertex_descriptor> get_connected_vertices(
+    const NetworkGraphImpl& graph, const EdgeConnections& connections, size_t edge_position)
 {
-    std::vector<NetworkGraph::vertex_descriptor> vertices;
+    std::vector<NetworkGraphImpl::vertex_descriptor> vertices;
 
     auto connection_it = connections.find(edge_position);
     if (connection_it == connections.end()) return vertices;
@@ -76,8 +79,8 @@ std::vector<NetworkGraph::vertex_descriptor> get_connected_vertices(
  * belongs to which receiver.
  */
 void add_edges_to_graph(
-    NetworkGraph& graph, const Edge& edge, const std::vector<NetworkGraph::vertex_descriptor>& src_vertices,
-    const std::vector<NetworkGraph::vertex_descriptor>& dst_vertices)
+    NetworkGraphImpl& graph, const Edge& edge, const std::vector<NetworkGraphImpl::vertex_descriptor>& src_vertices,
+    const std::vector<NetworkGraphImpl::vertex_descriptor>& dst_vertices)
 {
     for (const auto& src : src_vertices)
     {
@@ -111,7 +114,8 @@ NetworkGraph make_graph(
     const std::vector<Node>& nodes, const std::vector<Edge>& edges, const EdgeConnections& node_src,
     const EdgeConnections& node_dst, bool is_dynamic)
 {
-    NetworkGraph graph(is_dynamic);
+    auto graph_impl = std::make_unique<NetworkGraphImpl>(is_dynamic);
+    NetworkGraphImpl& graph = *graph_impl;
 
     for (const auto& node : nodes) graph.add_node(node);
 
@@ -152,7 +156,7 @@ NetworkGraph make_graph(
         add_edges_to_graph(graph, edge, src_vertices, dst_vertices);
     }
 
-    return graph;
+    return NetworkGraph(std::move(graph_impl));
 }
 
 }  // namespace knp::framework::visualizer::impl
@@ -168,8 +172,8 @@ namespace knp::framework::visualizer
  */
 NetworkGraph build_graph(const knp::framework::Network& network)
 {
-    std::vector<Node> nodes;
-    std::vector<Edge> edges;
+    std::vector<impl::Node> nodes;
+    std::vector<impl::Edge> edges;
     impl::EdgeConnections node_src;
     impl::EdgeConnections node_dst;
 
@@ -221,8 +225,8 @@ NetworkGraph build_graph(const knp::framework::Model& model, knp::core::MessageE
  */
 NetworkGraph build_graph(const knp::framework::Network& network, const DynamicInfo& info)
 {
-    std::vector<Node> nodes;
-    std::vector<Edge> edges;
+    std::vector<impl::Node> nodes;
+    std::vector<impl::Edge> edges;
     impl::EdgeConnections node_src;
     impl::EdgeConnections node_dst;
 

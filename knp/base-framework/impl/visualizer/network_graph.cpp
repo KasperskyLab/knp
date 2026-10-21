@@ -21,12 +21,17 @@
 
 #include <knp/framework/visualizer/network_graph.h>
 
+#include <memory>
 #include <optional>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "network_graph_impl.h"
 
-namespace knp::framework::visualizer
+
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -34,7 +39,7 @@ namespace knp::framework::visualizer
  *
  * @details Parameters and return value are described in the header.
  */
-NetworkGraph::vertex_descriptor NetworkGraph::add_node(const Node& node)
+NetworkGraphImpl::vertex_descriptor NetworkGraphImpl::add_node(const Node& node)
 {
     auto v = boost::add_vertex(node, graph_);
     if (!node.is_invisible()) map_uid_to_nodes_descriptor[node.get_uid()] = v;
@@ -47,7 +52,8 @@ NetworkGraph::vertex_descriptor NetworkGraph::add_node(const Node& node)
  *
  * @details Parameters and return value are described in the header.
  */
-NetworkGraph::edge_descriptor NetworkGraph::add_edge(vertex_descriptor from, vertex_descriptor to, const Edge& edge)
+NetworkGraphImpl::edge_descriptor NetworkGraphImpl::add_edge(
+    vertex_descriptor from, vertex_descriptor to, const Edge& edge)
 {
     auto e = boost::add_edge(from, to, edge, graph_).first;
     map_uid_to_edges_descriptor.emplace(edge.get_uid(), e);
@@ -60,7 +66,7 @@ NetworkGraph::edge_descriptor NetworkGraph::add_edge(vertex_descriptor from, ver
  *
  * @details Parameters and return value are described in the header.
  */
-NetworkGraph::vertex_descriptor NetworkGraph::add_placeholder_node()
+NetworkGraphImpl::vertex_descriptor NetworkGraphImpl::add_placeholder_node()
 {
     // A default UID is a new random one, as for a default node.
     Node ghost_node(
@@ -75,7 +81,7 @@ NetworkGraph::vertex_descriptor NetworkGraph::add_placeholder_node()
  *
  * @details Parameters and return value are described in the header.
  */
-std::optional<NetworkGraph::vertex_descriptor> NetworkGraph::find_node(const knp::core::UID& uid) const
+std::optional<NetworkGraphImpl::vertex_descriptor> NetworkGraphImpl::find_node(const knp::core::UID& uid) const
 {
     auto it = map_uid_to_nodes_descriptor.find(uid);
     if (it == map_uid_to_nodes_descriptor.end()) return std::nullopt;
@@ -88,12 +94,70 @@ std::optional<NetworkGraph::vertex_descriptor> NetworkGraph::find_node(const knp
  *
  * @details Parameters and return value are described in the header.
  */
-std::vector<NetworkGraph::edge_descriptor> NetworkGraph::find_edges(const knp::core::UID& uid) const
+std::vector<NetworkGraphImpl::edge_descriptor> NetworkGraphImpl::find_edges(const knp::core::UID& uid) const
 {
     std::vector<edge_descriptor> result;
     auto [first, last] = map_uid_to_edges_descriptor.equal_range(uid);
     for (auto it = first; it != last; ++it) result.push_back(it->second);
     return result;
+}
+
+}  // namespace knp::framework::visualizer::impl
+
+
+namespace knp::framework::visualizer
+{
+
+/**
+ * @brief Network graph constructor with an implementation.
+ *
+ * @details Parameters are described in the header.
+ */
+NetworkGraph::NetworkGraph(std::unique_ptr<impl::NetworkGraphImpl>&& impl) : impl_(std::move(impl))
+{
+    if (!impl_) throw std::invalid_argument("Network graph implementation is not set.");
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+NetworkGraph::NetworkGraph(NetworkGraph&&) noexcept = default;
+
+
+/**
+ * @brief Move assignment operator.
+ *
+ * @details Return value is described in the header.
+ */
+NetworkGraph& NetworkGraph::operator=(NetworkGraph&&) noexcept = default;
+
+
+/**
+ * @brief Destructor. It is defined here, where the implementation class is complete.
+ */
+NetworkGraph::~NetworkGraph() = default;
+
+
+/**
+ * @brief Check that the graph was built with message bus subscriptions.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+bool NetworkGraph::is_dynamic() const
+{
+    return impl_->is_dynamic();
+}
+
+
+/**
+ * @brief Get network graph implementation.
+ *
+ * @details Parameters and return value are described in the header.
+ */
+const impl::NetworkGraphImpl& NetworkGraph::get_impl() const
+{
+    return *impl_;
 }
 
 }  // namespace knp::framework::visualizer

@@ -57,6 +57,18 @@ KNP_DECLSPEC void write_dot(const NetworkGraph& graph, std::ostream& out);
 
 
 /**
+ * @brief Write network graph to a file in DOT format.
+ *
+ * @param graph network graph.
+ * @param file path to the DOT file. A parent directory is created if it does not exist.
+ *
+ * @throw std::filesystem::filesystem_error if a directory cannot be created.
+ * @throw std::runtime_error if the file cannot be written.
+ */
+KNP_DECLSPEC void write_dot(const NetworkGraph& graph, const std::filesystem::path& file);
+
+
+/**
  * @brief Render network graph to a stream as an image.
  *
  * @param graph network graph.
@@ -71,19 +83,7 @@ KNP_DECLSPEC bool render_graph(const NetworkGraph& graph, std::ostream& out, con
 
 
 /**
- * @brief Save network graph to a DOT file.
- *
- * @param graph network graph.
- * @param file path to the DOT file. A parent directory is created if it does not exist.
- *
- * @throw std::filesystem::filesystem_error if a directory cannot be created.
- * @throw std::runtime_error if the file cannot be written.
- */
-KNP_DECLSPEC void save_dot(const NetworkGraph& graph, const std::filesystem::path& file);
-
-
-/**
- * @brief Save network graph to an image file.
+ * @brief Render network graph to a file as an image.
  *
  * @param graph network graph.
  * @param file path to the image file. A parent directory is created if it does not exist.
@@ -92,7 +92,7 @@ KNP_DECLSPEC void save_dot(const NetworkGraph& graph, const std::filesystem::pat
  * @throw std::filesystem::filesystem_error if a directory cannot be created.
  * @throw std::runtime_error if the graph cannot be rendered or the file cannot be written.
  */
-KNP_DECLSPEC void save_image(
+KNP_DECLSPEC void render_graph(
     const NetworkGraph& graph, const std::filesystem::path& file, const std::string& format = "png");
 
 }  // namespace knp::framework::visualizer

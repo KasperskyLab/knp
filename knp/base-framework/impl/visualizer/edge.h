@@ -30,9 +30,9 @@
 
 
 /**
- * @brief Network visualizer namespace.
+ * @brief Implementation namespace of the network visualizer.
  */
-namespace knp::framework::visualizer
+namespace knp::framework::visualizer::impl
 {
 
 /**
@@ -186,12 +186,39 @@ public:
     void set_dynamic(bool is_dynamic) { is_dynamic_ = is_dynamic; }
 
 private:
+    /**
+     * @brief Entity UID.
+     */
     knp::core::UID uid_;
+
+    /**
+     * @brief Entity name.
+     */
     std::string name_;
-    std::optional<knp::core::UID> index_from_;  // Source UID, `std::nullopt` for an invisible source.
-    std::optional<knp::core::UID> index_to_;    // Target UID, `std::nullopt` for an invisible target.
+
+    /**
+     * @brief Source UID, `std::nullopt` for an invisible source.
+     */
+    std::optional<knp::core::UID> index_from_;
+
+    /**
+     * @brief Target UID, `std::nullopt` for an invisible target.
+     */
+    std::optional<knp::core::UID> index_to_;
+
+    /**
+     * @brief Number of synapses, if known.
+     */
     std::optional<size_t> size_;
-    std::optional<size_t> type_;  // Index of the synapse type in `knp::core::AllProjectionsVariant`.
+
+    /**
+     * @brief Index of the synapse type in `knp::core::AllProjectionsVariant`, if known.
+     */
+    std::optional<size_t> type_;
+
+    /**
+     * @brief Comment written to the edge.
+     */
     std::optional<std::string> comment_;
 
     /**
@@ -212,4 +239,4 @@ private:
     bool is_dynamic_ = false;
 };
 
-}  // namespace knp::framework::visualizer
+}  // namespace knp::framework::visualizer::impl

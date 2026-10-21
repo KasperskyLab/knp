@@ -23,12 +23,15 @@
 #include <knp/framework/model.h>
 #include <knp/framework/network.h>
 #include <knp/framework/population/creators.h>
+#include <knp/framework/tags/name.h>
 #include <knp/framework/visualizer/graph_builder.h>
 #include <knp/framework/visualizer/graph_visualization.h>
 
 #include <tests_common.h>
 
+#include <cstddef>
 #include <filesystem>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -43,6 +46,8 @@ knp::framework::Network create_test_network()
     // Create two populations.
     auto pop1 = knp::framework::population::creators::make_random<knp::neuron_traits::BLIFATNeuron>(5);
     auto pop2 = knp::framework::population::creators::make_random<knp::neuron_traits::BLIFATNeuron>(3);
+    knp::framework::tags::set_name(pop1, "first");
+    knp::framework::tags::set_name(pop2, "second");
 
     network.add_population(pop1);
     network.add_population(pop2);
@@ -64,38 +69,60 @@ knp::framework::Model create_test_model()
 }
 
 
+// Helper function to get the DOT text of a graph.
+std::string get_dot_text(const knp::framework::visualizer::NetworkGraph& graph)
+{
+    std::ostringstream out;
+    knp::framework::visualizer::write_dot(graph, out);
+    return out.str();
+}
+
+
+// Helper function to get the description of a graph.
+std::string get_description(const knp::framework::visualizer::NetworkGraph& graph)
+{
+    std::ostringstream out;
+    knp::framework::visualizer::print_network_description(graph, out);
+    return out.str();
+}
+
+
+// Helper function to count lines of a text that match a pattern.
+size_t count_lines(const std::string& text, const std::regex& pattern)
+{
+    std::istringstream in(text);
+    size_t count = 0;
+    for (std::string line; std::getline(in, line);)
+    {
+        if (std::regex_match(line, pattern)) ++count;
+    }
+    return count;
+}
+
+
+// Patterns of a node line and an edge line of a DOT text.
+const std::regex dot_node_line(R"(\s*\d+ \[.*)");
+const std::regex dot_edge_line(R"(\s*\d+ -> \d+ \[.*)");
+
+
 TEST(VisualizeNetworkSuite, NetworkGraphConstruction)
 {
     knp::framework::Network network = create_test_network();
     knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network);
+    const std::string dot_text = get_dot_text(graph);
 
     // Check that we have correct number of nodes and edges.
-    ASSERT_EQ(boost::num_vertices(graph.get_graph()), 2u);
-    ASSERT_EQ(boost::num_edges(graph.get_graph()), 1u);
+    ASSERT_EQ(count_lines(dot_text, dot_node_line), 2u);
+    ASSERT_EQ(count_lines(dot_text, dot_edge_line), 1u);
     ASSERT_FALSE(graph.is_dynamic());
 
     // Check node properties.
-    auto vertex_from = graph.find_node(graph.get_graph()[0].get_uid());
-    ASSERT_TRUE(vertex_from.has_value());
-    ASSERT_EQ(graph.get_graph()[0].get_size().value(), 5u);
-    ASSERT_EQ(graph.get_graph()[1].get_size().value(), 3u);
-    ASSERT_FALSE(graph.get_graph()[0].get_name().empty());
-    ASSERT_EQ(graph.get_graph()[0].get_node_type(), "Population");
+    ASSERT_NE(dot_text.find("0 [label=\"Population:\\nfirst\\nsize: 5\""), std::string::npos);
+    ASSERT_NE(dot_text.find("1 [label=\"Population:\\nsecond\\nsize: 3\""), std::string::npos);
 
-    // Check edge properties.
-    auto [edge_it, edge_end] = boost::edges(graph.get_graph());
-    const auto& edge = graph.get_graph()[*edge_it];
-    ASSERT_EQ(edge.get_size().value(), 15u);  // 5 * 3 = 15 synapses.
-    ASSERT_TRUE(edge.is_static());
-    ASSERT_TRUE(edge.get_index_from().has_value());
-    ASSERT_TRUE(edge.get_index_to().has_value());
-    ASSERT_TRUE(edge.get_index_from().value() == graph.get_graph()[0].get_uid());
-    ASSERT_TRUE(edge.get_index_to().value() == graph.get_graph()[1].get_uid());
-    ASSERT_EQ(boost::source(*edge_it, graph.get_graph()), 0u);
-    ASSERT_EQ(boost::target(*edge_it, graph.get_graph()), 1u);
-
-    // Check that the projection is indexed by UID.
-    ASSERT_EQ(graph.find_edges(edge.get_uid()).size(), 1u);
+    // Check edge properties: the projection goes from the first population to the second one.
+    ASSERT_NE(dot_text.find("0 -> 1 [label=\"Projection:\\n"), std::string::npos);
+    ASSERT_NE(dot_text.find("\\nsize: 15\""), std::string::npos);  // 5 * 3 = 15 synapses.
 }
 
 
@@ -103,9 +130,10 @@ TEST(VisualizeNetworkSuite, ModelGraphConstruction)
 {
     knp::framework::Model model = create_test_model();
     knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(model);
+    const std::string dot_text = get_dot_text(graph);
 
-    ASSERT_EQ(boost::num_vertices(graph.get_graph()), 2u);
-    ASSERT_EQ(boost::num_edges(graph.get_graph()), 1u);
+    ASSERT_EQ(count_lines(dot_text, dot_node_line), 2u);
+    ASSERT_EQ(count_lines(dot_text, dot_edge_line), 1u);
 }
 
 
@@ -116,13 +144,19 @@ TEST(VisualizeNetworkSuite, DynamicGraphConstruction)
     knp::framework::BackendLoader backend_loader;
     auto backend = backend_loader.load(knp::testing::get_backend_path());
 
+    // Subscriptions are created when a backend starts, so the network is loaded and the backend runs zero steps.
+    backend->load_all_populations(network.get_populations());
+    backend->load_all_projections(network.get_projections());
+    backend->start([](knp::core::Step) { return false; });
+
     knp::framework::visualizer::NetworkGraph graph =
         knp::framework::visualizer::build_graph(network, backend->get_message_endpoint());
+    const std::string dot_text = get_dot_text(graph);
 
-    // The network structure is always present, the bus can only extend it.
+    // Populations come from the network, the projection comes from the bus subscriptions.
     ASSERT_TRUE(graph.is_dynamic());
-    ASSERT_GE(boost::num_vertices(graph.get_graph()), 2u);
-    ASSERT_GE(boost::num_edges(graph.get_graph()), 1u);
+    ASSERT_EQ(count_lines(dot_text, dot_node_line), 2u);
+    ASSERT_NE(dot_text.find("0 -> 1 [label=\"Projection:\\n"), std::string::npos);
 }
 
 
@@ -143,11 +177,14 @@ TEST(VisualizeNetworkSuite, ExternalEntitiesAreDrawn)
     info.entities_.push_back(knp::framework::visualizer::ExternalEntity{handler_uid, "WTA", {population_uid}});
 
     knp::framework::visualizer::NetworkGraph graph = knp::framework::visualizer::build_graph(network, info);
+    const std::string description = get_description(graph);
 
-    auto handler_vertex = graph.find_node(handler_uid);
-    ASSERT_TRUE(handler_vertex.has_value());
-    ASSERT_EQ(graph.get_graph()[handler_vertex.value()].get_node_type(), "WTA");
-    ASSERT_EQ(boost::in_degree(handler_vertex.value(), graph.get_graph()), 1u);
+    // The handler is drawn with its own kind and receives spikes from the first population only.
+    const size_t handler_position = description.find("    WTA #");
+    ASSERT_NE(handler_position, std::string::npos);
+    const size_t handler_line_end = description.find('\n', handler_position);
+    const std::string handler_line = description.substr(handler_position, handler_line_end - handler_position);
+    ASSERT_NE(handler_line.find(": receive from #Population 'first' (Spike Message); send to"), std::string::npos);
 }
 
 
@@ -191,12 +228,12 @@ TEST(VisualizeNetworkSuite, VisualizationFilesGeneration)
     std::filesystem::remove_all(test_dir);
 
     const auto dot_file = test_dir / "dot_files" / "graph_static.dot";
-    knp::framework::visualizer::save_dot(graph, dot_file);
+    knp::framework::visualizer::write_dot(graph, dot_file);
     ASSERT_TRUE(std::filesystem::exists(dot_file));
     ASSERT_GT(std::filesystem::file_size(dot_file), 0u);
 
     const auto image_file = test_dir / "png_files" / "graph_static.png";
-    knp::framework::visualizer::save_image(graph, image_file);
+    knp::framework::visualizer::render_graph(graph, image_file);
     ASSERT_TRUE(std::filesystem::exists(image_file));
     ASSERT_GT(std::filesystem::file_size(image_file), 0u);
 
@@ -212,4 +249,9 @@ TEST(VisualizeNetworkSuite, NetworkGraphPrintFunctions)
     // Test that print functions don't crash.
     EXPECT_NO_THROW(knp::framework::visualizer::print_network_description(graph))
         << "Print functions failed with exception";
+
+    // The second population receives spikes from the first one.
+    ASSERT_NE(
+        get_description(graph).find("Population #1 'second' of size 3: receive from #Population 'first' (Projection: "),
+        std::string::npos);
 }

@@ -24,7 +24,6 @@
 #include <knp/core/uid.h>
 #include <knp/framework/network.h>
 #include <knp/framework/visualizer/dynamic_info.h>
-#include <knp/framework/visualizer/network_graph.h>
 
 #include <spdlog/spdlog.h>
 
@@ -35,6 +34,9 @@
 #include <string>
 #include <variant>
 #include <vector>
+
+#include "edge.h"
+#include "node.h"
 
 
 /**

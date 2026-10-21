@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include <knp/framework/visualizer/network_graph.h>
-
 #include <cstddef>
 #include <ostream>
 #include <string>
+
+#include "network_graph_impl.h"
 
 
 namespace knp::framework::visualizer::impl
@@ -64,7 +64,7 @@ bool is_node_drawn(const BaseGraph& graph, BaseGraph::vertex_descriptor vertex);
  * @details An edge with an invisible node belongs to a dynamic graph only, a static graph shows known connections
  * only. The same check is used by a network description, so a picture and a description always match.
  */
-bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& edge);
+bool is_edge_drawn(const NetworkGraphImpl& graph, const BaseGraph::edge_descriptor& edge);
 
 
 /**
@@ -72,7 +72,7 @@ bool is_edge_drawn(const NetworkGraph& graph, const BaseGraph::edge_descriptor& 
  *
  * @param text source text.
  *
- * @return text with escaped quotes and backslashes.
+ * @return text with escaped quotes and backslashes and without control characters.
  */
 std::string escape_dot_text(const std::string& text);
 
@@ -139,6 +139,6 @@ void write_edge_to_dot(
  * @details Colors of dynamic elements are written for a graph built with bus subscriptions only, so a static graph
  * contains static information only and has no dotted edges.
  */
-void write_graph_to_dot(const NetworkGraph& graph, std::ostream& out);
+void write_graph_to_dot(const NetworkGraphImpl& graph, std::ostream& out);
 
 }  // namespace knp::framework::visualizer::impl

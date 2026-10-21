@@ -76,21 +76,21 @@ namespace knp::framework::visualizer
  */
 void print_network_description(const NetworkGraph& graph, std::ostream& out)
 {
-    const BaseGraph& network_graph = graph.get_graph();
+    const impl::BaseGraph& network_graph = graph.get_impl().get_graph();
 
     // The description shows exactly what is drawn: the same nodes and the same edges as the DOT text.
     for (auto [vertex_it, vertex_end] = boost::vertices(network_graph); vertex_it != vertex_end; ++vertex_it)
     {
         if (!impl::is_node_drawn(network_graph, *vertex_it)) continue;
 
-        const Node& node = network_graph[*vertex_it];
+        const impl::Node& node = network_graph[*vertex_it];
         out << "    " << node.get_node_type() << " #" << *vertex_it << " '" << node.get_name() << "'";
         if (node.get_size().has_value()) out << " of size " << node.get_size().value();
 
         out << ": receive from";
         for (auto [edge_it, edge_end] = boost::in_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
-            if (!impl::is_edge_drawn(graph, *edge_it)) continue;
+            if (!impl::is_edge_drawn(graph.get_impl(), *edge_it)) continue;
             auto source_id = boost::source(*edge_it, network_graph);
             out << " #" << impl::get_description_name(network_graph, source_id, true) << " ("
                 << impl::get_description_title(network_graph[*edge_it]) << ");";
@@ -99,7 +99,7 @@ void print_network_description(const NetworkGraph& graph, std::ostream& out)
         out << " send to";
         for (auto [edge_it, edge_end] = boost::out_edges(*vertex_it, network_graph); edge_it != edge_end; ++edge_it)
         {
-            if (!impl::is_edge_drawn(graph, *edge_it)) continue;
+            if (!impl::is_edge_drawn(graph.get_impl(), *edge_it)) continue;
             auto target_id = boost::target(*edge_it, network_graph);
             out << " #" << impl::get_description_name(network_graph, target_id, false) << " ("
                 << impl::get_description_title(network_graph[*edge_it]) << ");";

@@ -142,11 +142,11 @@ bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::strin
 
 
 /**
- * @brief Save network graph to an image file.
+ * @brief Render network graph to a file as an image.
  *
  * @details Parameters are described in the header.
  */
-void save_image(const NetworkGraph& graph, const std::filesystem::path& file, const std::string& format)
+void render_graph(const NetworkGraph& graph, const std::filesystem::path& file, const std::string& format)
 {
     if (file.has_parent_path()) std::filesystem::create_directories(file.parent_path());
 
