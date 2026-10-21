@@ -258,7 +258,7 @@ __host__ void calculate_projection(
 
         if (data_size)
         {
-            device_lib::LongIndex impacts_count = count_values_by_indexes(projection.index_,
+            device_lib::LongIndex impacts_count = device_lib::count_values_by_indexes(projection.index_,
                     device_lib::CUDAVectorView<SpikeIndex>{msg_data_pointer_cpu, data_size});
             auto [num_blocks, num_threads] = device_lib::get_blocks_config(data_size);
             auto output_start_indices = device_lib::calculate_neuron_scan(projection.index_,

@@ -61,14 +61,14 @@ std::shared_ptr<CUDABackend> CUDABackend::create()
 
 std::vector<std::string> CUDABackend::get_supported_neurons() const
 {
-    return knp::meta::get_supported_type_names<knp::neuron_traits::AllNeurons, SupportedNeurons>(
+    return knp::meta::get_supported_type_names<knp::neuron_traits::AllNeurons, CUDABackend::SupportedNeurons>(
         knp::neuron_traits::neurons_names);
 }
 
 
 std::vector<std::string> CUDABackend::get_supported_synapses() const
 {
-    return knp::meta::get_supported_type_names<knp::synapse_traits::AllSynapses, SupportedSynapses>(
+    return knp::meta::get_supported_type_names<knp::synapse_traits::AllSynapses, CUDABackend::SupportedSynapses>(
         knp::synapse_traits::synapses_names);
 }
 

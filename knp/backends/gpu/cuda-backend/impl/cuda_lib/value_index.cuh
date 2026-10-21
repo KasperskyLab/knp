@@ -111,7 +111,7 @@ struct ValueIndex
  * @param inputs the impulses to be use.
  * @return total number of values for the inputs.
  */
-__host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs);
+__host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> &inputs);
 
 
 /**

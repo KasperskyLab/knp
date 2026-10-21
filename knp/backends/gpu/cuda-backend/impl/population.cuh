@@ -34,7 +34,6 @@
  */
 namespace knp::backends::gpu::cuda
 {
-
 /**
  * @brief The CUDAPopulation class is a definition of a CUDA neurons population.
  */
@@ -76,14 +75,23 @@ struct CUDAPopulation
      */
     cuda::UID uid_;
     /**
-     * @brief Neurons.
+     * @brief Neurons container.
      */
     cuda::device_lib::CUDAVector<NeuronParameters> neurons_;
 
+    /**
+     * @brief Tag map, containing descriptions and qualifiers.
+     */
     knp::core::TagMap tags_;
 };
 
 
+/**
+ * @brief Unload the population from GPU back to the core class.
+ * @tparam Neuron neuron type.
+ * @param cuda_population population to be unloaded.
+ * @return core population.
+ */
 template <class Neuron>
 knp::core::Population<Neuron> convert_to_core_population(const CUDAPopulation<Neuron> &cuda_population)
 {

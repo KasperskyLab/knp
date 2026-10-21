@@ -32,6 +32,9 @@ using BitBufferWord = unsigned int;
 constexpr int bits_per_buffer_word = sizeof(BitBufferWord) * 8;
 
 
+/**
+ * @brief Bitwise buffer POD representation for in-kernel usage inside projections.
+ */
 class BitDelayBufferView
 {
 public:
@@ -40,7 +43,12 @@ public:
     : data_(data), num_synapses_(num_synapses), buffer_depth_words_(buffer_depth_words)
     {}
 
-
+    /**
+     * @brief Add a future impact to the buffer.
+     * @param synapse_id the synapse index.
+     * @param delay synaptic delay.
+     * @param step current step.
+     */
     __device__ void add_impact(device_lib::LongIndex synapse_id,
                                device_lib::LongIndex delay,
                                device_lib::LongIndex step)
@@ -54,7 +62,12 @@ public:
         word |= BitBufferWord{1} << shift;
     }
 
-
+    /**
+     * @brief Checks if there is an impact for the current synapse on the current step.
+     * @param synapse_id the synapse index.
+     * @param step current step.
+     * @return true if there is an impact at the moment.
+     */
     __device__ bool has_impact(device_lib::LongIndex synapse_id, device_lib::LongIndex step)
     {
         const unsigned int bit_to_write = step % (buffer_depth_words_ * bits_per_buffer_word);
@@ -77,6 +90,9 @@ private:
 };
 
 
+/**
+ * @brief Bitwise impact buffer to be used inside projection classes.
+ */
 class BitDelayBuffer
 {
 public:
@@ -103,7 +119,10 @@ public:
         buffer_ = device_lib::CUDAVector(data, num_synapses * buffer_depth_);
     }
 
-
+    /**
+     * @brief Create a POD view to pass into kernels.
+     * @return a shallow representation for the object.
+     */
     BitDelayBufferView view()
     {
         return BitDelayBufferView{buffer_.data(), num_synapses_, buffer_depth_};
@@ -117,12 +136,10 @@ private:
      */
     device_lib::CUDAVector<BitBufferWord> buffer_;
 
-
     /**
      * @brief buffer length.
      */
     device_lib::LongIndex num_synapses_;
-
 
     /**
      * @brief buffer depth, in words. Equals to max delay, divided by bits_per_word and rounded up.

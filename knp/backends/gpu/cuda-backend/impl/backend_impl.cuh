@@ -198,10 +198,11 @@ public:
                                                                         bool exclude_locked) const
     {
         using ProjectionType = knp::core::Projection<SynapseType>;
-        static_assert(boost::mp11::mp_contains<SupportedSynapses, SynapseType>::value, "Unsupported synapse type.");
+        static_assert(boost::mp11::mp_contains<CUDABackend::SupportedSynapses, SynapseType>::value,
+                "Unsupported synapse type.");
         std::vector<device_lib::LongIndex> result;
         result.reserve(device_projections_.size());
-        constexpr auto type_index = boost::mp11::mp_find<SupportedSynapses, SynapseType>();
+        constexpr auto type_index = boost::mp11::mp_find<CUDABackend::SupportedSynapses, SynapseType>();
 
         for (size_t i = 0; i < device_projections_.size(); ++i)
         {

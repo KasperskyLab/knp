@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <knp/backends/gpu-cuda/backend.h>
 #include "cuda_lib/vector.cuh"
 #include "population.cuh"
 #include <boost/mp11.hpp>
@@ -34,9 +35,9 @@ namespace knp::backends::gpu::cuda
 {
 class CUDABackendImpl;
 
-using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron,
-                                              knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
-using SupportedPopulations = boost::mp11::mp_transform<CUDAPopulation, SupportedNeurons>;
+//using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron,
+//                                              knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
+using SupportedPopulations = boost::mp11::mp_transform<CUDAPopulation, CUDABackend::SupportedNeurons>;
 /**
  * @brief Population variant that contains any population type specified in `SupportedPopulations`.
  * @details `PopulationVariants` takes the value of `std::variant<PopulationType_1,..., PopulationType_n>`, where

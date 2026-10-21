@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <knp/backends/gpu-cuda/backend.h>
 #include "cuda_bus/message_bus.cuh"
 #include "projection.cuh"
 #include "resource_delta_projection.cuh"
@@ -34,16 +35,16 @@ namespace knp::backends::gpu::cuda
 {
 using StepIndex = unsigned long long;
 
-/**
- * @brief List of synapse types supported by the CUDA backend.
- */
-using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse,
-        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
+///**
+// * @brief List of synapse types supported by the CUDA backend.
+// */
+//using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse,
+//        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
 
 /**
  * @brief List of supported projection types based on synapse types specified in `SupportedSynapses`.
  */
-using SupportedProjections = boost::mp11::mp_transform<CUDAProjection, SupportedSynapses>;
+using SupportedProjections = boost::mp11::mp_transform<CUDAProjection, CUDABackend::SupportedSynapses>;
 
 
 template <class Projection>
