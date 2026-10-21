@@ -20,11 +20,16 @@
  */
 
 #include <knp/core/population.h>
+#include <knp/core/tag.h>
 #include <knp/core/uid.h>
+#include <knp/framework/tags/name.h>
 #include <knp/neuron-traits/blifat.h>
 #include <knp/neuron-traits/stdp_synaptic_resource_rule.h>
 
 #include <spdlog/spdlog.h>
+
+#include <string>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -42,6 +47,47 @@ template <>
 std::string get_neuron_type_name<neuron_traits::SynapticResourceSTDPBLIFATNeuron>()
 {
     return "knp:SynapticResourceRuleBlifatNeuron";
+}
+
+
+/**
+ * @brief Save tags of a population to HDF5.
+ * @param population population with tags.
+ * @param population_group HDF5 group of the population.
+ * @details Tags are saved as two arrays of the same length, `tags_keys` and `tags_values`. The `io_type` and the
+ * `name` tags are saved, a tag that the population does not have is skipped. If the population has none of them,
+ * the arrays are not created.
+ */
+void add_tags_to_h5(
+    const core::Population<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
+    HighFive::NodeTraits<HighFive::Group> &population_group)
+{
+    const core::TagMap &tags = population.get_tags();
+    std::vector<std::string> tags_values;
+    std::vector<std::string> tags_keys;
+
+    if (tags.exists(core::tags::io_type_tag))
+    {
+        const auto io_type = tags.get_tag<core::tags::IOType>(core::tags::io_type_tag);
+        if (core::tags::IOType::input == io_type)
+            tags_values.emplace_back("input");
+        else if (core::tags::IOType::output == io_type)
+            tags_values.emplace_back("output");
+        else
+            throw std::runtime_error("Unknown \"io_type\" tag value.");
+        tags_keys.emplace_back(core::tags::io_type_tag);
+    }
+
+    if (tags.exists(knp::framework::tags::name_tag))
+    {
+        tags_values.push_back(tags.get_tag<std::string>(knp::framework::tags::name_tag));
+        tags_keys.emplace_back(knp::framework::tags::name_tag);
+    }
+
+    if (tags_keys.empty()) return;
+
+    population_group.createDataSet("tags_values", tags_values);
+    population_group.createDataSet("tags_keys", tags_keys);
 }
 
 
@@ -70,6 +116,8 @@ void add_population_to_h5<core::Population<knp::neuron_traits::SynapticResourceS
     population_group.createDataSet(
         "node_type_id",
         std::vector<size_t>(population.size(), get_neuron_type_id<neuron_traits::SynapticResourceSTDPBLIFATNeuron>()));
+
+    add_tags_to_h5(population, population_group);
     auto group0 = population_group.createGroup("0");
 
     // TODO: Need to check if all parameters are the same. If not, then save them into h5.
@@ -142,6 +190,50 @@ using ResourceNeuron = neuron_traits::SynapticResourceSTDPBLIFATNeuron;
 using ResourceNeuronParams = neuron_traits::neuron_parameters<ResourceNeuron>;
 
 
+/**
+ * @brief Load tags of a population from HDF5.
+ *
+ * @param nodes_group HDF5 group of all populations.
+ * @param population_name name of the population group.
+ * @param population population to add the tags to.
+ *
+ * @details Tags are read from the `tags_keys` and `tags_values` arrays. A population that was saved without tags has
+ * no such arrays, then nothing is loaded.
+ */
+void load_tags_to_population(
+    const HighFive::Group &nodes_group, const std::string &population_name,
+    core::Population<ResourceNeuron> &population)
+{
+    const auto population_group = nodes_group.getGroup(population_name);
+    if (!population_group.exist("tags_keys") || !population_group.exist("tags_values")) return;
+
+    const auto tags_keys = population_group.getDataSet("tags_keys").read<std::vector<std::string>>();
+    const auto tags_values = population_group.getDataSet("tags_values").read<std::vector<std::string>>();
+    if (tags_keys.size() != tags_values.size())
+        throw std::runtime_error("Tag keys and tag values have different sizes in population " + population_name + ".");
+
+    for (size_t i = 0; i < tags_keys.size(); ++i)
+    {
+        const std::string &key = tags_keys[i];
+        const std::string &value = tags_values[i];
+
+        if (core::tags::io_type_tag != key)
+        {
+            population.get_tags()[key] = value;
+            continue;
+        }
+
+        if ("input" == value)
+            population.get_tags()[key] = core::tags::IOType::input;
+        else if ("output" == value)
+            population.get_tags()[key] = core::tags::IOType::output;
+        else
+            throw std::runtime_error(
+                "Unknown \"io_type\" tag value \"" + value + "\" in population " + population_name + ".");
+    }
+}
+
+
 template <>
 core::Population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>
 load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
@@ -205,8 +297,12 @@ load_population<neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
     LOAD_NEURONS_PARAMETER(target, neuron_traits::BLIFATNeuron, additional_threshold_, dyn_group, group_size);
 
     const knp::core::UID uid{boost::lexical_cast<boost::uuids::uuid>(population_name)};
-    return core::Population<ResourceNeuron>(
-        uid, [&target](size_t index) { return target[index]; }, group_size);
+
+    auto result = core::Population<ResourceNeuron>(uid, [&target](size_t index) { return target[index]; }, group_size);
+
+    load_tags_to_population(nodes_group, population_name, result);
+
+    return result;
 }
 
 }  // namespace knp::framework::sonata

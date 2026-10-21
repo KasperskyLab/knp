@@ -27,36 +27,11 @@
 #include <utility>
 #include <vector>
 
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-
 
 /**
  * @brief Filesystem namespace alias.
  */
 namespace fs = std::filesystem;
-
-
-/**
- * @brief Visualize data instances.
- * @param data vector of flattened images.
- * @param size output image size.
- */
-cv::Mat draw_data(const std::vector<unsigned char> &data, const cv::Size &size)
-{
-    cv::Mat out_img(size, CV_8UC1);
-    for (int y = 0; y < size.height; ++y)
-    {
-        for (int x = 0; x < size.width; ++x)
-        {
-            out_img.at<unsigned char>(cv::Point2i{x, y}) = data[size.width * y + x];
-        }
-    }
-    cv::imshow("Data", out_img);
-    std::cout << cv::sum(out_img) << std::endl;
-    cv::waitKey(0);
-    return out_img;
-}
 
 
 /**

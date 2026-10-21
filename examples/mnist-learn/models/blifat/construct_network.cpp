@@ -88,13 +88,13 @@ static NetworkPopulations create_populations(NetworkConstructor &constructor)
 
     // Create gate population for WTA competition mechanisms.
     const auto &gate_pop =
-        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, false, "GATE");
+        constructor.add_population(default_neuron, classes_amount, PopulationRole::NORMAL, true, "GATE");
 
     // Create raster population for channelized image processing (28x28 = 784 neurons).
     const auto &raster_pop = constructor.add_channeled_population(input_size, true);
 
     // Create target population for label processing (10 neurons for 10 digit classes).
-    const auto &target_pop = constructor.add_channeled_population(classes_amount, false);
+    const auto &target_pop = constructor.add_channeled_population(classes_amount, true);
 
     // Return organized population references for projection creation.
     return {input_pop, output_pop, gate_pop, raster_pop, target_pop};
@@ -103,7 +103,7 @@ static NetworkPopulations create_populations(NetworkConstructor &constructor)
 
 // Create all synaptic projections between network populations with appropriate parameters for BLIFAT.
 static void create_projections(
-    AnnotatedNetwork &network, NetworkConstructor &constructor, const NetworkPopulations &pops)
+    AnnotatedNetwork& network, NetworkConstructor& constructor, const NetworkPopulations& pops)
 {
     // Configure synapse parameters for raster to input projection with STDP plasticity.
     ResourceSynapseParams raster_to_input_synapse;
@@ -199,7 +199,7 @@ static void create_projections(
 
 // Construct BLIFAT network with multi-subnetwork architecture. Each subnetwork contains the complete population and projection structure.
 template <>
-AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription &model_desc)
+AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const ModelDescription& model_desc)
 {
     AnnotatedNetwork result;
 
@@ -215,7 +215,6 @@ AnnotatedNetwork construct_network<knp::neuron_traits::BLIFATNeuron>(const Model
 
         // Add input population as WTA sender for each subnetwork.
         result.data_.wta_data_.emplace_back().first.push_back(pops.input_pop_.uid_);
-
         create_projections(result, constructor, pops);
     }
 
