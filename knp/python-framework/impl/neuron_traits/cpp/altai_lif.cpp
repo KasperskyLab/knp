@@ -28,40 +28,42 @@ void export_altai_lif()
 
     py::class_<alif_params>("AltAILIFNeuronParameters", "Structure for AltAILIF neuron parameters")
         .def(py::init<>())
-        .add_property(
+        .def_readwrite(
             "is_diff", &alif_params::is_diff_,
             "If `is_diff` flag is set to `true` and neuron potential exceeds one of its threshold value after the "
             "neuron receives a spike, the `potential` parameter takes a value by which the potential threshold is "
             "exceeded.")
-        .add_property(
-            "is_reset", &alif_params::is_diff_,
+        .def_readwrite(
+            "is_reset", &alif_params::is_reset_,
             "If `is_reset` flag is set to `true` and neuron potential exceeds its threshold value after the neuron "
             "receives a spike, the `potential` parameter takes a value of the `potential_reset_value` parameter.")
-        .add_property(
+        .def_readwrite(
             "leak_rev", &alif_params::leak_rev_,
             "If `leak_rev` flag is set to `true`, the `potential_leak` sign automatically changes along with the "
             "change of the `potential` value sign.")
-        .add_property(
+        .def_readwrite(
             "saturate", &alif_params::saturate_,
             "If `saturate` flag is set to `true` and the neuron potential is less than a negative "
             "`negative_activation_threshold` value after the neuron receives a spike, the `potential` parameter "
             "takes the `negative_activation_threshold` value.")
-        .add_property(
+        .def_readwrite(
             "do_not_save", &alif_params::do_not_save_,
             "If `do_not_save` flag is set to `false`, the `potential` value is stored with each timestamp.")
-        .add_property("potential", &alif_params::potential_, "The parameter defines the neuron potential value.")
-        .add_property(
+        .def_readwrite(
+            "potential", &alif_params::potential_,
+            "The parameter defines the neuron potential value.")
+        .def_readwrite(
             "activation_threshold", &alif_params::activation_threshold_,
             "The parameter defines the threshold value of neuron potential, after exceeding which a positive spike can "
             "be emitted.")
-        .add_property(
+        .def_readwrite(
             "negative_activation_threshold", &alif_params::negative_activation_threshold_,
             "The parameter defines the threshold value of neuron potential, below which a negative spike can be "
             "emitted.")
-        .add_property(
+        .def_readwrite(
             "potential_leak", &alif_params::potential_leak_,
             "The parameter defines the constant leakage of the neuron potential.")
-        .add_property(
+        .def_readwrite(
             "potential_reset_value", &alif_params::potential_reset_value_,
             "The parameter defines a reset value of the neuron potential after one of the thresholds has been "
             "exceeded.");
