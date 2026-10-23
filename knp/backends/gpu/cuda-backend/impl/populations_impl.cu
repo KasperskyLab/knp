@@ -58,8 +58,10 @@ __global__ void calculate_neurons_pre_impact(device_lib::CUDAVectorMutableView<B
 }
 
 
-__global__ void calculate_neurons_impacts(device_lib::CUDAVectorMutableView<BlifatParams> neurons,
-                                          device_lib::CUDAVectorView<SynapticImpact> impacts)
+template <>
+__global__ void calculate_neurons_impacts<knp::neuron_traits::BLIFATNeuron>(
+        device_lib::CUDAVectorMutableView<BlifatParams> neurons, device_lib::CUDAVectorView<SynapticImpact> impacts,
+        bool)
 {
     const size_t impact_index = blockIdx.x * blockDim.x + threadIdx.x;
     if (impact_index >= impacts.size_) return;
@@ -83,6 +85,10 @@ __global__ void calculate_neurons_impacts(device_lib::CUDAVectorMutableView<Blif
         case knp::synapse_traits::OutputType::BLOCKING:
             neuron.total_blocking_period_ = static_cast<unsigned int>(impact.impact_value_);
             break;
+        default:
+            // Non-implemented impact type, ignoring it.
+            PRINTF_INFO("Unimlemented synapse type: %d.", static_cast<int>(impact.synapse_type_));
+
     }
 }
 

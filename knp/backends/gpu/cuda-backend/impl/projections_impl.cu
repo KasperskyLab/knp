@@ -93,7 +93,7 @@ __global__ void calculate_synaptic_impact(
     if (i >= size) return;
     const device_lib::LongIndex synapse_id = synapse_indices[i];
     if (synapse_id >= synapses.size_) return; // TODO See if we need a warning
-    auto delay = ::cuda::std::get<0>(synapses.data_[synapse_id]).delay_;
+    auto delay = ::cuda::std::get<core::synapse_data>(synapses.data_[synapse_id]).delay_;
     // send_steps[i] = delay + current_step - 1;
     buffer.add_impact(synapse_id, delay, current_step);
 }
@@ -108,10 +108,9 @@ __global__ void calculate_synaptic_impact<ResourceSynapseType>(
     if (i >= size) return;
     const device_lib::LongIndex synapse_id = synapse_indices[i];
     if (synapse_id >= synapses.size_) return; // TODO See if we need a warning
-    auto delay = ::cuda::std::get<0>(synapses.data_[synapse_id]).delay_;
+    auto delay = ::cuda::std::get<core::synapse_data>(synapses.data_[synapse_id]).delay_;
     buffer.add_impact(synapse_id, delay, current_step);
-    ::cuda::std::get<0>(synapses.data_[synapse_id]).rule_.last_spike_step_ = current_step;
-
+    ::cuda::std::get<core::synapse_data>(synapses.data_[synapse_id]).rule_.last_spike_step_ = current_step;
 }
 
 /**
@@ -140,7 +139,7 @@ __global__ void calculate_impacts_per_spike(
     const device_lib::LongIndex size = index.offsets_ptr_[neuron_id + 1] - index.offsets_ptr_[neuron_id];
     const auto [num_blocks, num_threads] = device_lib::get_blocks_config(size);
     calculate_synaptic_impact<DeltaLikeSynapse><<<num_blocks, num_threads>>>(synapses, index.indices_ptr_ + start, size,
-            current_step, buffer);
+                                                                             current_step, buffer);
 }
 
 
@@ -150,19 +149,16 @@ __global__ void buffered_spikes_to_impacts(
         BitDelayBufferView buffer, StepIndex current_step, device_lib::LongIndex *counter, SynapticImpact *impacts_out)
 {
     const device_lib::LongIndex synapse_index = blockIdx.x * blockDim.x + threadIdx.x;
-    constexpr int data_index = core::SynapseElementAccess::synapse_data;
-    constexpr int source_id_index = core::SynapseElementAccess::source_neuron_id;
-    constexpr int target_id_index = core::SynapseElementAccess::target_neuron_id;
     if (synapse_index >= synapses.size_) return;
     if (!buffer.has_impact(synapse_index, current_step)) return;
-    auto &synapse = ::cuda::std::get<data_index>(synapses.data_[synapse_index]);
+    auto &synapse = ::cuda::std::get<core::synapse_data>(synapses.data_[synapse_index]);
 
     SynapticImpact impact_out;
     impact_out.connection_index_ = synapse_index;
     impact_out.impact_value_ = synapse.weight_;
     impact_out.synapse_type_ = synapse.output_type_;
-    impact_out.presynaptic_neuron_index_ = ::cuda::std::get<source_id_index>(synapses.data_[synapse_index]);
-    impact_out.postsynaptic_neuron_index_ = ::cuda::std::get<target_id_index>(synapses.data_[synapse_index]);
+    impact_out.presynaptic_neuron_index_ = ::cuda::std::get<core::source_neuron_id>(synapses.data_[synapse_index]);
+    impact_out.postsynaptic_neuron_index_ = ::cuda::std::get<core::target_neuron_id>(synapses.data_[synapse_index]);
     impacts_out[atomicAdd(counter, 1)] = impact_out;
 }
 
@@ -284,6 +280,7 @@ __host__ void calculate_projection(
         StepIndex step_n)
 {
     using Synapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+    SPDLOG_DEBUG("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(to_cpu_uid(projection.uid_)));
     const auto &messages = device_message_bus.all_messages<SpikeMessage>();
     for (size_t i = 0; i < message_ids.size(); ++i)
     {
@@ -307,7 +304,7 @@ __host__ void calculate_projection(
             cudaDeviceSynchronize();
         }
     }
-    // Make messages
+    // Make synaptic impact message from the impacts calculated above and store it inside an internal buffer.
     projection.form_message(step_n);
 }
 
@@ -317,7 +314,8 @@ __host__ void calculate_projection(
         const std::vector<device_lib::LongIndex> &message_ids,
         StepIndex step_n)
 {
-    //SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(projection.get_uid()));
+    SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}, not implemented.",
+                 std::string(to_cpu_uid(projection.uid_)));
 }
 } // namespace knp::backends::gpu::cuda
 

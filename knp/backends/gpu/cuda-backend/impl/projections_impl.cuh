@@ -35,12 +35,6 @@ namespace knp::backends::gpu::cuda
 {
 using StepIndex = unsigned long long;
 
-///**
-// * @brief List of synapse types supported by the CUDA backend.
-// */
-//using SupportedSynapses = boost::mp11::mp_list<knp::synapse_traits::DeltaSynapse,
-//        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
-
 /**
  * @brief List of supported projection types based on synapse types specified in `SupportedSynapses`.
  */
