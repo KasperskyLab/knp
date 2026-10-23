@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "cuda_bus/message_bus.cuh"
+#include <knp/backends/gpu-cuda/backend.h>
 #include "cuda_lib/vector.cuh"
 #include "population.cuh"
 #include <boost/mp11.hpp>
@@ -33,8 +33,12 @@
  */
 namespace knp::backends::gpu::cuda
 {
-using SupportedNeurons = boost::mp11::mp_list<knp::neuron_traits::BLIFATNeuron>;
-using SupportedPopulations = boost::mp11::mp_transform<CUDAPopulation, SupportedNeurons>;
+class CUDABackendImpl;
+
+/**
+ * @brief MP-based list of supported populations.
+ */
+using SupportedPopulations = boost::mp11::mp_transform<CUDAPopulation, CUDABackend::SupportedNeurons>;
 /**
  * @brief Population variant that contains any population type specified in `SupportedPopulations`.
  * @details `PopulationVariants` takes the value of `std::variant<PopulationType_1,..., PopulationType_n>`, where
@@ -55,7 +59,7 @@ using StepIndex = unsigned long long;
  * @return set of spiked neuron indices.
  */
 device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, const CUDAMessageBus& device_message_bus,
+        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, CUDABackendImpl *this_backend,
         StepIndex step);
 
 /**
@@ -64,13 +68,42 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
  * @param step current step.
  * @return set of spiked neuron indices.
  */
-inline device_lib::CUDAVector<SpikeIndex> calculate_population(
+device_lib::CUDAVector<SpikeIndex> calculate_population(
         CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-        const CUDAMessageBus& device_message_bus,
-        StepIndex step)
+        CUDABackendImpl *this_backend,
+        StepIndex step);
+
+/**
+ * @brief A CUDA kernel for neuron-synapse interaction.
+ * @tparam Neuron the neuron type.
+ * @param neurons a list of neuron parameters.
+ * @param impacts synaptic impacts.
+ * @param is_forcing if the message is forcing.
+ */
+template <class Neuron>
+__global__ void calculate_neurons_impacts(
+        device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
+        device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing=false);
+
+/**
+ * @brief Impact all neurons in the vector.
+ * @tparam Neuron the neuron type.
+ * @param neurons a vector of neuron parameters.
+ * @param messages_all all synaptic impact messages.
+ * @param message_ids the IDs of messages directed for the current population.
+ */
+template <class Neuron>
+__host__ void calculate_neurons_impacts_all(
+        device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
+        const std::vector <SynapticImpactMessage> &messages_all, std::vector <device_lib::LongIndex> message_ids)
 {
-    SPDLOG_ERROR("The calculate_population function is not implemented for synaptic resource STDP BLIFAT neuron");
-    return device_lib::CUDAVector<SpikeIndex>{};
+    for (const auto &msg_id: message_ids)
+    {
+        const auto &msg = messages_all[msg_id];
+        auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size());
+        calculate_neurons_impacts<Neuron><<<num_blocks, num_threads>>>(neurons, msg.impacts_.view(), msg.is_forcing_);
+    }
+    cudaDeviceSynchronize();
 }
 
 } // namespace knp::backends::gpu::cuda

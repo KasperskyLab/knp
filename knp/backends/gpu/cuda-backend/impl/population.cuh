@@ -34,7 +34,6 @@
  */
 namespace knp::backends::gpu::cuda
 {
-
 /**
  * @brief The CUDAPopulation class is a definition of a CUDA neurons population.
  */
@@ -63,6 +62,7 @@ struct CUDAPopulation
      */
     __host__ explicit CUDAPopulation(const knp::core::Population<NeuronType> &population)
         : uid_{to_gpu_uid(population.get_uid())},
+          tags_{population.get_tags()},
           neurons_{population.get_neurons_parameters()}
     {
     }
@@ -75,9 +75,35 @@ struct CUDAPopulation
      */
     cuda::UID uid_;
     /**
-     * @brief Neurons.
+     * @brief Neurons container.
      */
     cuda::device_lib::CUDAVector<NeuronParameters> neurons_;
+
+    /**
+     * @brief Tag map, containing descriptions and qualifiers.
+     */
+    knp::core::TagMap tags_;
 };
+
+
+/**
+ * @brief Unload the population from GPU back to the core class.
+ * @tparam Neuron neuron type.
+ * @param cuda_population population to be unloaded.
+ * @return core population.
+ */
+template <class Neuron>
+knp::core::Population<Neuron> convert_to_core_population(const CUDAPopulation<Neuron> &cuda_population)
+{
+    const auto neurons = cuda_population.neurons_.to_std();
+    auto generator = [&neurons](size_t i) -> std::optional<typename core::Population<Neuron>::NeuronParameters>
+    {
+        if (i >= neurons.size())
+            return {};
+        return neurons[i];
+    };
+    knp::core::Population<Neuron> result{to_cpu_uid(cuda_population.uid_), generator, neurons.size()};
+    return result;
+}
 
 } // namespace knp::backends::gpu::cuda

@@ -34,10 +34,10 @@ namespace knp::framework::synchronization
 /**
  * @brief Copy network data from backend.
  * 
- * @param backend backend containing a network.
+ * @param backend backend containing a network. Non-const because it might need to sync with a device.
  * 
  * @return Network in its current state on backend.
  */
-KNP_DECLSPEC Network get_network_copy(const knp::core::Backend &backend);
+KNP_DECLSPEC Network get_network_copy(knp::core::Backend &backend);
 
 }  // namespace knp::framework::synchronization

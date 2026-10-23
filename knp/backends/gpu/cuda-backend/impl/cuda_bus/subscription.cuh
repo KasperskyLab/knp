@@ -73,8 +73,18 @@ public:
         SPDLOG_TRACE("Created a subscription with {} senders.", senders_.size());
     }
 
+    /**
+     * @brief Convert a CPU subscription to a GPU one.
+     * @param cpu_subscription CPU-based subscription.
+     */
     __host__ Subscription(const knp::core::MessageEndpoint::SubscriptionVariant &cpu_subscription);
 
+    /**
+     * @brief Create a subscription in GPU memory.
+     * @param receiver message receiver.
+     * @param senders message senders.
+     * @param type_index message type index.
+     */
     __device__ Subscription(const cuda::UID &receiver,
                             const device_lib::CUDAVector<cuda::UID> &senders,
                             int type_index) :
@@ -199,6 +209,11 @@ public:
 #endif
     }
 
+    /**
+     * @brief Check a message if it corresponds to the current subscription.
+     * @param message the message in question.
+     * @return true if the message has the correct type and its sender is in this subscription sender UID list.
+     */
     __host__ __device__ bool is_my_message(const MessageVariant &message)
     {
         int message_type = message.index();
@@ -209,9 +224,14 @@ public:
         return has_sender(message_sender);
     }
 
+    /**
+     * @brief Check if two subscriptions are equal.
+     * @param other the other subscription.
+     * @return true if the subscriptions are equal.
+     */
     __host__ __device__ bool operator==(const Subscription &other) const
     {
-        return receiver_ == other.receiver_ && senders_ == other.senders_;
+        return receiver_ == other.receiver_ && senders_ == other.senders_ && type_index_ == other.type_index_;
     }
 
     __host__ __device__ bool operator!=(const Subscription &other) const

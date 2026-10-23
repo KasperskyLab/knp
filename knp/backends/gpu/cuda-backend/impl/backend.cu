@@ -61,14 +61,14 @@ std::shared_ptr<CUDABackend> CUDABackend::create()
 
 std::vector<std::string> CUDABackend::get_supported_neurons() const
 {
-    return knp::meta::get_supported_type_names<knp::neuron_traits::AllNeurons, SupportedNeurons>(
+    return knp::meta::get_supported_type_names<knp::neuron_traits::AllNeurons, CUDABackend::SupportedNeurons>(
         knp::neuron_traits::neurons_names);
 }
 
 
 std::vector<std::string> CUDABackend::get_supported_synapses() const
 {
-    return knp::meta::get_supported_type_names<knp::synapse_traits::AllSynapses, SupportedSynapses>(
+    return knp::meta::get_supported_type_names<knp::synapse_traits::AllSynapses, CUDABackend::SupportedSynapses>(
         knp::synapse_traits::synapses_names);
 }
 
@@ -258,6 +258,16 @@ void CUDABackend::select_device(std::unique_ptr<knp::core::Device> &&device)
 }
 
 
+/**
+ * @brief Get network data from gpu back into the internal containers.
+ */
+void CUDABackend::synchronize_network_data()
+{
+    populations_ = impl_->unload_populations();
+    projections_ = impl_->unload_projections();
+}
+
+
 void CUDABackend::_init()
 {
     SPDLOG_DEBUG("Initializing CUDABackend...");
@@ -327,7 +337,11 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<
+        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<
+        knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
@@ -335,3 +349,9 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
+
+using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
+using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
+using ResourceSynapseValuePtr = ResourceSynapseValue*;
+
+REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

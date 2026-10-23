@@ -23,7 +23,7 @@
 
 namespace knp::framework::synchronization
 {
-KNP_DECLSPEC Network get_network_copy(const knp::core::Backend &backend)
+KNP_DECLSPEC Network get_network_copy(knp::core::Backend &backend)
 {
     auto data_ranges = backend.get_network_data();
     knp::framework::Network res_network;

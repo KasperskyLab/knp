@@ -122,7 +122,6 @@ inline void do_dopamine_plasticity_impl(
             // Change synapse values for both `D > 0` and `D < 0`.
             for (auto &synapse : synapse_params)
             {
-                // if ((step - synapse.get().rule_.last_spike_step_ < synapse.get().rule_.dopamine_plasticity_period_)
                 if (step - neuron.last_spike_step_ <= neuron.dopamine_plasticity_time_ &&
                     synapse.get().rule_.has_contributed_)
                 {

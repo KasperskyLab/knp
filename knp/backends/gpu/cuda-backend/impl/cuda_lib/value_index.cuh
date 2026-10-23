@@ -111,7 +111,7 @@ struct ValueIndex
  * @param inputs the impulses to be use.
  * @return total number of values for the inputs.
  */
-__host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs);
+__host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> &inputs);
 
 
 /**
@@ -124,7 +124,14 @@ __host__ CUDAVector<LongIndex> calculate_neuron_scan(const ValueIndex &index,
                                                      const CUDAVectorView<cuda::SpikeIndex> inputs);
 
 
-template <class SynapseType>
+/**
+ * @brief Builds the index.
+ * @tparam SynapseType synapse type, usually derived from projection type.
+ * @tparam position_index by presynaptic (core::source_neuron_id) or postsynaptic (core::target_neuron_id) neuron.
+ * @param cpu_projection projection to be indexed.
+ * @return complete index. It's up-to-date until the projection connectivity changes by adding or deleting synapses.
+ */
+template <class SynapseType, int position_index>
 __host__ ValueIndex build_index(const knp::core::Projection<SynapseType> &cpu_projection)
 {
     // Build map-based index
@@ -132,7 +139,7 @@ __host__ ValueIndex build_index(const knp::core::Projection<SynapseType> &cpu_pr
     for (size_t i = 0; i < cpu_projection.size(); ++i)
     {
         const auto &synapse = cpu_projection[i];
-        const auto neuron_id = std::get<core::source_neuron_id>(synapse);
+        const auto neuron_id = std::get<position_index>(synapse);
         auto map_iter = buffer.find(neuron_id);
         if (map_iter == buffer.end())
         {

@@ -20,8 +20,11 @@
  */
 
 #include <algorithm>
+#include <array>
+#include <unordered_set>
 #include <vector>
 #include <boost/mp11/algorithm.hpp>
+#include <boost/mp11.hpp>
 #include <boost/preprocessor.hpp>
 #include <cuda/std/detail/libcxx/include/algorithm>
 #include <thrust/device_ptr.h>
@@ -226,36 +229,79 @@ __host__ void CUDAMessageBus::sync_with_host()
 }
 
 
+// A utility for checking that the messages from CPU don't get to be sent multiple times.
+constexpr int num_message_types = boost::mp11::mp_size<knp::core::messaging::AllMessages>::value;
+using DuplicateCounter = std::array<std::unordered_set<knp::core::UID, knp::core::uid_hash>, num_message_types>;
+
+
+bool check_if_exist_message(const DuplicateCounter &duplicate_counter,
+                            const knp::core::messaging::MessageVariant &message)
+{
+    size_t message_type = message.index();
+    knp::core::UID sender_uid = std::visit([](const auto &msg)
+    {
+        return msg.header_.sender_uid_;
+    }, message);
+
+    if (duplicate_counter[message_type].count(sender_uid)) return true;
+    return false;
+}
+
+
+// Adds an existing message to the duplicate counter.
+void add_to_duplicate_counter(DuplicateCounter &duplicate_counter, const knp::core::messaging::MessageVariant &message)
+{
+    size_t message_type = message.index();
+    knp::core::UID sender_uid = std::visit([](const auto &msg)
+    {
+        return msg.header_.sender_uid_;
+    }, message);
+
+    duplicate_counter[message_type].insert(sender_uid);
+}
+
+
+template <int type_index>
+void send_host_messages_to_gpu(CUDAMessageBus &device_bus,
+                               knp::core::MessageEndpoint &cpu_endpoint,
+                               DuplicateCounter &duplicate_counter,
+                               const knp::core::UID &receiver_uid)
+{
+    using MessageType = boost::mp11::mp_at_c<knp::core::messaging::MessageVariant, type_index>;
+    const std::vector<MessageType> message_buf
+            = cpu_endpoint.unload_messages<MessageType>(receiver_uid);
+    for (const auto &msg : message_buf)
+    {
+        if (!check_if_exist_message(duplicate_counter, msg))
+            device_bus.send_message(make_gpu_message(msg));
+    }
+    for (const auto &msg : message_buf)
+        add_to_duplicate_counter(duplicate_counter, msg);
+}
+
+
 // TODO: Maybe template this or something.
 __host__ void CUDAMessageBus::receive_messages_from_host()
 {
+    constexpr int spikes_index = 0;
+    constexpr int impacts_index = 1;
     cpu_endpoint_.receive_all_messages();
     SPDLOG_DEBUG("CPU subscriptions: {}", cpu_endpoint_.get_endpoint_subscriptions().size());
+    DuplicateCounter duplicate_counter;
+
     for (size_t i = 0; i < subscriptions_.size(); ++i)
     {
         auto sub = subscriptions_.copy_at(i);
         auto receiver_uid = to_cpu_uid(sub.get_receiver_uid());
         size_t type = sub.type();
         // TODO: do it in a proper way or rather just rework the whole mechanic.
-        if (type == 0)
+        if (type == spikes_index)
         {
-            using MessageType = boost::mp11::mp_at_c<knp::core::messaging::MessageVariant, 0>;
-            std::vector <knp::core::messaging::SpikeMessage> message_buf
-                    = cpu_endpoint_.unload_messages<knp::core::messaging::SpikeMessage>(receiver_uid);
-            for (auto &msg : message_buf)
-            {
-                send_message(make_gpu_message(msg));
-            }
+            send_host_messages_to_gpu<spikes_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
         }
-        else if (type == 1)
+        else if (type == impacts_index)
         {
-            using MessageType = boost::mp11::mp_at_c<knp::core::messaging::MessageVariant, 1>;
-            std::vector<MessageType> message_buf
-                    = cpu_endpoint_.unload_messages<MessageType>(receiver_uid);
-            for (auto &msg : message_buf)
-            {
-                send_message(make_gpu_message(msg));
-            }
+            send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
         }
     }
 }

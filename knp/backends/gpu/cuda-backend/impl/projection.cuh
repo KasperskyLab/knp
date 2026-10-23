@@ -30,7 +30,11 @@
 #include "cuda_lib/vector.cuh"
 #include "cuda_lib/value_index.cuh"
 #include "cuda_bus/synaptic_impact_message.cuh"
+#include "delay_buffer.cuh"
 #include "uid.cuh"
+
+#include <vector>
+#include <optional>
 
 
 /**
@@ -39,10 +43,10 @@
 namespace knp::backends::gpu::cuda
 {
 /**
- * @brief The CUDAProjection class is a definition of a CUDA synapses.
+ * @brief The CUDAProjectionBase class is a definition of a CUDA synapses.
  */
 template <typename SynapseType>
-struct CUDAProjection
+struct CUDAProjectionBase
 {
     /**
      * @brief Type of the projection synapses.
@@ -51,7 +55,7 @@ struct CUDAProjection
     /**
      * @brief Projection of synapses with the specified synapse type.
      */
-    using ProjectionType = CUDAProjection<SynapseType>;
+    using ProjectionType = CUDAProjectionBase<SynapseType>;
     /**
      * @brief Parameters of the specified synapse type.
      */
@@ -63,17 +67,14 @@ struct CUDAProjection
      */
     using Synapse = ::cuda::std::tuple<SynapseParameters, device_lib::LongIndex, device_lib::LongIndex>;
 
-    __host__ __device__ CUDAProjection()
-#if !defined(__CUDA_ARCH__)
-             :  is_locked_(true)
-#endif
-    {}
+    __host__ __device__ CUDAProjectionBase() : is_locked_(true)
+     {}
 
     /**
      * @brief Constructor.
      * @param projection source projection.
      */
-    __host__ explicit CUDAProjection(const knp::core::Projection<SynapseType> &projection)
+    __host__ explicit CUDAProjectionBase(const knp::core::Projection<SynapseType> &projection)
         : uid_(to_gpu_uid(projection.get_uid())),
           presynaptic_uid_(to_gpu_uid(projection.get_presynaptic())),
           postsynaptic_uid_(to_gpu_uid(projection.get_postsynaptic())),
@@ -82,16 +83,21 @@ struct CUDAProjection
         constexpr int data_index = core::SynapseElementAccess::synapse_data;
         constexpr int source_id_index = core::SynapseElementAccess::source_neuron_id;
         constexpr int target_id_index = core::SynapseElementAccess::target_neuron_id;
+        device_lib::LongIndex max_delay = 1;
         for (auto &synapse : projection)
         {
             Synapse out_synapse{std::get<data_index>(synapse), std::get<source_id_index>(synapse),
                     std::get<target_id_index>(synapse)};
+            max_delay = std::max(static_cast<device_lib::LongIndex>(std::get<data_index>(synapse).delay_), max_delay);
             synapses_.push_back(out_synapse);
             SPDLOG_TRACE("Synapse: weight {} delay {}", ::cuda::std::get<data_index>(out_synapse).weight_,
                          ::cuda::std::get<data_index>(out_synapse).delay_);
         }
-        index_ = device_lib::build_index<SynapseType>(projection);
+        index_ = device_lib::build_index<SynapseType, core::source_neuron_id>(projection);
+        impact_buffer_ = BitDelayBuffer{synapses_.size(), max_delay};
     }
+
+    virtual ~CUDAProjectionBase() = default;
 
     __host__ __device__ void lock_weights() { is_locked_ = true; }
     __host__ __device__ void unlock_weights() { is_locked_ = false; }
@@ -99,33 +105,8 @@ struct CUDAProjection
     __host__ __device__ void actualize()
     {
         synapses_.actualize();
-        impact_indexes_.actualize();
-        sending_steps_.actualize();
+        impact_buffer_.actualize();
         index_.actualize();
-    }
-
-    /**
-     * @brief Add new impacts to the impact queue.
-     * @param new_impacts_indexes indexes of the synapses that will emit impacts.
-     * @param new_sending_steps the target step when the impact will be emitted.
-     * @note pre-sort new_impacts_indexes by new_sending_steps.
-     */
-    __host__ void add_impacts(const device_lib::CUDAVector<device_lib::LongIndex> &new_impacts_indexes,
-                              const device_lib::CUDAVector<device_lib::LongIndex> &new_sending_steps)
-    {
-        assert(new_impacts_indexes.size() == new_sending_steps.size());
-        if (new_impacts_indexes.size() == 0) return;
-        const auto size = new_impacts_indexes.size();
-        const auto out_size = new_impacts_indexes.size() + impact_indexes_.size();
-        device_lib::LongIndex *res_steps;
-        device_lib::LongIndex *res_impacts;
-        cudaMalloc(&res_steps, sizeof(device_lib::LongIndex) * out_size);
-        cudaMalloc(&res_impacts, sizeof(device_lib::LongIndex) * out_size);
-        thrust::merge_by_key(thrust::device, new_sending_steps.data(), new_sending_steps.data() + size,
-                             sending_steps_.data(), sending_steps_.data() + sending_steps_.size(),
-                             new_impacts_indexes.data(), impact_indexes_.data(), res_steps, res_impacts);
-        impact_indexes_ = device_lib::CUDAVector<device_lib::LongIndex>{res_impacts, out_size};
-        sending_steps_ = device_lib::CUDAVector<device_lib::LongIndex>{res_steps, out_size};
     }
 
     /**
@@ -134,6 +115,12 @@ struct CUDAProjection
      * @return Synaptic impact message that would be sent.
      */
     __host__ void form_message(device_lib::LongIndex current_step);
+
+    /**
+     * @brief Get the number of synapses in the projection.
+     * @return the number of contained synapses.
+     */
+    __host__ __device__ auto size() { return synapses_.size(); }
 
     /**
      * @brief UID.
@@ -156,7 +143,7 @@ struct CUDAProjection
     bool is_locked_;
 
     /**
-     * @brief Synapse index for quick neuron to synapse search.
+     * @brief Synapse index for quick presynaptic neuron to synapse search.
      */
     device_lib::ValueIndex index_;
 
@@ -166,15 +153,54 @@ struct CUDAProjection
     cuda::device_lib::CUDAVector<Synapse> synapses_;
 
     /**
-     * @brief Incoming impacts for the projection.
+     * @brief Impact delay buffer.
      */
-    device_lib::CUDAVector<device_lib::LongIndex> impact_indexes_;
-    device_lib::CUDAVector<device_lib::LongIndex> sending_steps_;
-
+    BitDelayBuffer impact_buffer_;
     /**
      * @brief Message buffer.
      */
     SynapticImpactMessage message_buf_;
 };
+
+
+template <class Synapse>
+struct CUDAProjection : public CUDAProjectionBase<Synapse>
+{
+    __host__ explicit CUDAProjection(const knp::core::Projection<Synapse> &projection)
+            : CUDAProjectionBase<Synapse>(projection)
+    {}
+
+    __host__ CUDAProjection() = default;
+};
+
+
+template <class Synapse>
+typename core::Projection<Synapse>::Synapse to_std_tuple(const typename CUDAProjection<Synapse>::Synapse &synapse)
+{
+    return std::make_tuple(
+            ::cuda::std::get<core::synapse_data>(synapse),
+            static_cast<size_t>(::cuda::std::get<core::source_neuron_id>(synapse)),
+            static_cast<size_t>(::cuda::std::get<core::target_neuron_id>(synapse))
+    );
+}
+
+
+template<class Synapse>
+knp::core::Projection<Synapse> convert_to_core_projection(const CUDAProjection<Synapse> &cuda_projection)
+{
+    std::vector<typename CUDAProjectionBase<Synapse>::Synapse> synapses = cuda_projection.synapses_.to_std();
+    auto generator = [&synapses](size_t i) -> std::optional<typename core::Projection<Synapse>::Synapse>
+    {
+        if (i >= synapses.size())
+            return {};
+        return to_std_tuple<Synapse>(synapses[i]);
+    };
+    knp::core::Projection<Synapse> result{to_cpu_uid(cuda_projection.uid_),
+                                          to_cpu_uid(cuda_projection.presynaptic_uid_),
+                                          to_cpu_uid(cuda_projection.postsynaptic_uid_),
+                                          generator, synapses.size()};
+    return result;
+
+}
 
 } // namespace knp::backends::gpu::cuda

@@ -61,6 +61,7 @@ knp_add_library("${PROJECT_NAME}"
         impl/backend_impl.cu
         impl/uid.cu
         impl/gpu_cuda_device.cu
+        impl/get_network.cu
         impl/cuda_bus/messaging.cu
         impl/cuda_bus/message_bus.cu
         impl/cuda_bus/subscription.cu
@@ -68,6 +69,7 @@ knp_add_library("${PROJECT_NAME}"
         impl/cuda_lib/value_index.cu
         impl/projections_impl.cu
         impl/populations_impl.cu
+        impl/resource_blifat_population_impl.cu
         ${${PROJECT_NAME}_headers}
         ${${PROJECT_NAME}_cuda_headers}
     ALIAS KNP::Backends::CUDA
@@ -86,7 +88,11 @@ set_target_properties(
         CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
 foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
-    target_compile_options("${lib_name}" PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr -rdc=true $<$<CONFIG:Debug>:--generate-line-info> >)
+    target_compile_options("${lib_name}"
+            PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+            --expt-relaxed-constexpr
+            -rdc=true
+            $<$<CONFIG:Debug>:-G> >)
     target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
     set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)
 endforeach()
