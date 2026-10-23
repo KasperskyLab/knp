@@ -1,27 +1,16 @@
 name: Build and push Docker image
 
 on:
-  # For the manual run.
   workflow_dispatch:
   push:
-    branches: [ "master" ]
-    paths:
-      - 'docker/base-image/**'
-      - 'docker/build-image/**'
-      - '.github/workflows/docker-build-image.yml'
+    branches: [ "master", "set-neuron-parameters" ]
   pull_request:
     branches: [ "master" ]
-    paths:
-      - 'docker/base-image/**'
-      - 'docker/build-image/**'
-      - '.github/workflows/docker-build-image.yml'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Set Images Version
-        run: echo "KNP_IMAGE_VERSION=v2.0.${{ github.run_number }}" >> $GITHUB_ENV
       - name: Set up Docker
         uses: docker/setup-docker-action@v5
         with:
@@ -41,29 +30,29 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push the base Docker image for Kaspersky Neuromorphic Platform
+
+      - name: Build and push base image
         uses: docker/build-push-action@v7
+        timeout-minutes: 180
+        continue-on-error: false
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/base-image"
-          load: true
           push: true
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:v2.0.93
             ${{ vars.DOCKERHUB_LOGIN }}/knp-base-image:latest
-          build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
-          timeout-minutes: 180
-          continue-on-error: false
-      - name: Build and push the Docker image for Kaspersky Neuromorphic Platform build
+          build-args: KNP_IMAGE_VERSION=v2.0.93
+
+      - name: Build and push build image
         uses: docker/build-push-action@v7
+        timeout-minutes: 180
+        continue-on-error: false
         with:
           platforms: linux/amd64,linux/arm64
           context: "{{defaultContext}}:docker/build-image"
-          load: true
           push: true
-          build-args: KNP_IMAGE_VERSION=${{ env.KNP_IMAGE_VERSION }}
+          build-args: KNP_IMAGE_VERSION=v2.0.93
           tags: |
-            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:${{ env.KNP_IMAGE_VERSION }}
+            ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:v2.0.93
             ${{ vars.DOCKERHUB_LOGIN }}/knp-build-image:latest
-          timeout-minutes: 180
-          continue-on-error: false
