@@ -92,7 +92,6 @@ foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
             PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
             --expt-relaxed-constexpr
             -rdc=true
-            #$<$<CONFIG:Debug>:--generate-line-info>
             $<$<CONFIG:Debug>:-G> >)
     target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
     set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)

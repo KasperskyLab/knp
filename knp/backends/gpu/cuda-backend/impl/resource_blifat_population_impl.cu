@@ -1,6 +1,6 @@
 /**
- * @file resource_blifat_population.cuh
- * @brief Contains functions for population calculation.
+ * @file resource_blifat_population_impl.cu
+ * @brief Contains functions for Resource BLIFAT population calculation.
  * @kaspersky_support A. Vartenkov
  * @date 17.08.2026
  * @license Apache 2.0
