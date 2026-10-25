@@ -77,9 +77,9 @@ private:
 };
 
 
-core::Backend::DataRanges CUDABackend::get_network_data()
+core::Backend::DataRanges CUDABackend::get_network_data() const
 {
-    synchronize_network_data();
+    unload_from_device();
     using PopIterPtr = std::unique_ptr<BaseValueIterator<core::AllPopulationsVariant>>;
     using ProjIterPtr = std::unique_ptr<BaseValueIterator<core::AllProjectionsVariant>>;
 

@@ -91,7 +91,7 @@ foreach (lib_name IN ITEMS "${PROJECT_NAME}" "${PROJECT_NAME}_static")
     target_compile_options("${lib_name}"
             PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
             --expt-relaxed-constexpr
-            -rdc=true
+            -rdc=true # Same as separate compilation for non-GPU code.
             $<$<CONFIG:Debug>:-G> >)
     target_link_options("${lib_name}" PRIVATE "-Wl,--allow-shlib-undefined")
     set_property(TARGET "${lib_name}" PROPERTY CUDA_ARCHITECTURES 60)

@@ -180,7 +180,9 @@ __device__ device_lib::CUDAVectorMutableView<SynapseValue*>
     assert(synapse_index.offsets_size_ > 0);
     device_lib::LongIndex offset = synapse_index.offsets_[neuron_index];
     device_lib::LongIndex size = synapse_index.offsets_[neuron_index + 1] - offset;
-    // printf("Returning synapses: size %llu offset %llu, total size %llu\n", size, offset, synapse_index.synapses_size_);
+#if (!defined(NDEBUG) && defined(FULL_DEBUG))
+    printf("Returning synapses: size %llu offset %llu, total size %llu\n", size, offset, synapse_index.synapses_size_);
+#endif // NDEBUG
     return device_lib::CUDAVectorMutableView<SynapseValue*>{synapse_index.synapses_ + offset, size};
 }
 

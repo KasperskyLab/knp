@@ -77,7 +77,7 @@ private:
 };
 
 
-core::Backend::DataRanges SingleThreadedCPUBackend::get_network_data()
+core::Backend::DataRanges SingleThreadedCPUBackend::get_network_data() const
 {
     using PopIterPtr = std::unique_ptr<BaseValueIterator<core::AllPopulationsVariant>>;
     using ProjIterPtr = std::unique_ptr<BaseValueIterator<core::AllProjectionsVariant>>;

@@ -341,12 +341,8 @@ public:
      * 
      * @return `DataRanges` structure containing iterators.
      */
-    [[nodiscard]] DataRanges get_network_data() override;
+    [[nodiscard]] DataRanges get_network_data() const override;
 
-    /**
-     * @brief Get network data from gpu back into the internal containers.
-     */
-     void synchronize_network_data();
 
 protected:
     /**
@@ -362,13 +358,13 @@ protected:
     /**
      * @brief Synchronizes the internal storage with backend implementation.
      */
-    void unload_from_device();
+    void unload_from_device() const;
 
 private:
     // cppcheck-suppress unusedStructMember
-    PopulationContainer populations_;
+    mutable PopulationContainer populations_;
     // cppcheck-suppress unusedStructMember
-    ProjectionContainer projections_;
+    mutable ProjectionContainer projections_;
 
     std::unique_ptr<cuda::CUDABackendImpl> impl_;
 };
