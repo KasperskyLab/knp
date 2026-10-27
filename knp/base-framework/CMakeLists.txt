@@ -34,7 +34,8 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
 
 include(GNUInstallDirs)
 include(knp-functions)
@@ -80,13 +81,18 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/inference_evaluation/classification/processor.cpp
     impl/observer.cpp
     impl/logging.cpp
-    impl/visualizer/graph_physics.cpp
-    impl/visualizer/visualize_network.cpp
+    impl/visualizer/network_graph.cpp
+    impl/visualizer/bus_connections.cpp
+    impl/visualizer/graph_connections.cpp
+    impl/visualizer/graph_builder.cpp
+    impl/visualizer/dot_writer.cpp
+    impl/visualizer/graph_description.cpp
+    impl/visualizer/graph_render.cpp
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
-        ${OpenCV_LIBS}
+        PkgConfig::GRAPHVIZ
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC

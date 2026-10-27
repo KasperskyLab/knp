@@ -19,6 +19,12 @@
  * limitations under the License.
  */
 
+#include <knp/framework/io/input_channel.h>
+#include <knp/framework/monitoring/observer.h>
+#include <knp/framework/network.h>
+#include <knp/framework/sonata/network_io.h>
+#include <knp/framework/visualizer/graph_visualization.h>
+
 #include <iostream>
 
 #include "knp/framework/transforms/upcasting.h"
@@ -30,6 +36,7 @@
 #include "parse_arguments.h"
 #include "save_network.h"
 #include "training.h"
+#include "visualization.h"
 
 
 /**
@@ -81,7 +88,22 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
     network = construct_network<Neuron>(model_desc);
 
     // Execute the training phase.
-    train_model<Neuron>(model_desc, dataset, network, backend_loader);
+    auto bus_connections = train_model<Neuron>(model_desc, dataset, network, backend_loader);
+
+    // Build the graphs.
+    const auto static_graph = build_graph(network);
+    const auto dynamic_graph = build_graph(network, bus_connections);
+
+    // Print their descriptions to the log.
+    knp::framework::visualizer::print_network_description(static_graph);
+    knp::framework::visualizer::print_network_description(dynamic_graph);
+
+    // Save the DOT and the image files.
+    knp::framework::visualizer::write_dot(static_graph, "visualization_docs/dot_files/graph_static.dot");
+    knp::framework::visualizer::render_graph(static_graph, "visualization_docs/png_files/graph_static.png");
+    
+    knp::framework::visualizer::write_dot(dynamic_graph, "visualization_docs/dot_files/graph_dynamic.dot");
+    knp::framework::visualizer::render_graph(dynamic_graph, "visualization_docs/png_files/graph_dynamic.png");
 
     // Upcast populations to the most generic neuron type for serialization.
     if (model_desc.type_ == SupportedModelType::BLIFAT)

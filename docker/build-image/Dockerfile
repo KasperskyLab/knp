@@ -47,9 +47,9 @@ RUN \
       flex \
       fonts-liberation \
       graphviz \
+      graphviz-dev \
       gsfonts \
       mypy \
-      libopencv-dev \
       pre-commit \
       protobuf-compiler \
       pylint \
