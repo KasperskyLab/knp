@@ -92,56 +92,6 @@ TypeVariant extract_by_index(const void *type_ptr)
 }
 
 
-/// TODO: Make a template, it's also used for messages.
-//
-//template<typename T>
-//__host__ __device__ void get_pop_kernel(const T *var, int *type, const void **val)
-//{
-//    int type_val = var->index();
-//    static_assert(::cuda::std::variant_size<T>() == 2, "Incorrect variant size!");
-//    switch (type_val)
-//    {
-//        case 0:
-//            *val = ::cuda::std::get_if<0>(var);
-//            break;
-//        case 1:
-//            *val = ::cuda::std::get_if<1>(var);
-//        default:
-//            *val = nullptr;
-//    }
-//    *type = type_val;
-//}
-//
-//template<typename T>
-//__host__ __device__ void get_proj_kernel(const T *var, int *type, const void **val)
-//{
-//    int type_val = var->index();
-//    static_assert(::cuda::std::variant_size<T>() == 2, "Incorrect variant size!");
-//    switch (type_val)
-//    {
-//        case 0:
-//            *val = ::cuda::std::get_if<0>(var);
-//            break;
-//        case 1:
-//            *val = ::cuda::std::get_if<1>(var);
-//        default:
-//            *val = nullptr;
-//    }
-//    *type = type_val;
-//}
-//
-//__global__ void get_population_kernel(const PopulationVariants *var, int *type, const void **pop)
-//{
-//    get_pop_kernel(var, type, pop);
-//}
-//
-//
-//__global__ void get_projection_kernel(const ProjectionVariants *var, int *type, const void **proj)
-//{
-//    get_proj_kernel(var, type, proj);
-//}
-
-
 template<>
 void gpu_insert<PopulationVariants>(const PopulationVariants &cpu_source, PopulationVariants *gpu_target)
 {

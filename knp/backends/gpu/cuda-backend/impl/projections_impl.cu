@@ -86,13 +86,19 @@ auto get_projection_uids(const ProjectionVariants *proj)
 
 template <class DeltaLikeSynapse>
 __global__ void calculate_synaptic_impact(
-        const device_lib::CUDAVectorMutableView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
-        const device_lib::LongIndex *synapse_indices, size_t size, StepIndex current_step, BitDelayBufferView buffer)
+    const device_lib::CUDAVectorMutableView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
+    const device_lib::LongIndex *synapse_indices, size_t size, StepIndex current_step, BitDelayBufferView buffer)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= size) return;
     const device_lib::LongIndex synapse_id = synapse_indices[i];
-    if (synapse_id >= synapses.size_) return; // TODO See if we need a warning
+    if (synapse_id >= synapses.size_)
+    {
+#ifndef NDEBUG
+        printf("Warning: synapse id is beyond the bounds.");
+#endif
+        return;
+    }
     auto delay = ::cuda::std::get<core::synapse_data>(synapses.data_[synapse_id]).delay_;
     // send_steps[i] = delay + current_step - 1;
     buffer.add_impact(synapse_id, delay, current_step);
@@ -101,8 +107,8 @@ __global__ void calculate_synaptic_impact(
 
 template <>
 __global__ void calculate_synaptic_impact<ResourceSynapseType>(
-        const device_lib::CUDAVectorMutableView<typename CUDAProjection<ResourceSynapseType>::Synapse> synapses,
-        const device_lib::LongIndex *synapse_indices, size_t size, StepIndex current_step, BitDelayBufferView buffer)
+    const device_lib::CUDAVectorMutableView<typename CUDAProjection<ResourceSynapseType>::Synapse> synapses,
+    const device_lib::LongIndex *synapse_indices, size_t size, StepIndex current_step, BitDelayBufferView buffer)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= size) return;
@@ -126,10 +132,9 @@ __global__ void calculate_synaptic_impact<ResourceSynapseType>(
  */
 template <class DeltaLikeSynapse>
 __global__ void calculate_impacts_per_spike(
-        const device_lib::CUDAVectorMutableView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
-        device_lib::CUDAVectorView<SpikeIndex> spike_ids, device_lib::IndexView index,
-        device_lib::CUDAVectorView<device_lib::LongIndex> start_offsets,
-        StepIndex current_step, BitDelayBufferView buffer)
+    const device_lib::CUDAVectorMutableView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
+    device_lib::CUDAVectorView<SpikeIndex> spike_ids, device_lib::IndexView index,
+    device_lib::CUDAVectorView<device_lib::LongIndex> start_offsets, StepIndex current_step, BitDelayBufferView buffer)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x; // Spike index.
     if (i >= spike_ids.size_ || i >= start_offsets.size_) return;
@@ -145,8 +150,8 @@ __global__ void calculate_impacts_per_spike(
 
 template <class DeltaLikeSynapse>
 __global__ void buffered_spikes_to_impacts(
-        device_lib::CUDAVectorView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
-        BitDelayBufferView buffer, StepIndex current_step, device_lib::LongIndex *counter, SynapticImpact *impacts_out)
+    device_lib::CUDAVectorView<typename CUDAProjection<DeltaLikeSynapse>::Synapse> synapses,
+    BitDelayBufferView buffer, StepIndex current_step, device_lib::LongIndex *counter, SynapticImpact *impacts_out)
 {
     const device_lib::LongIndex synapse_index = blockIdx.x * blockDim.x + threadIdx.x;
     if (synapse_index >= synapses.size_) return;
@@ -237,10 +242,8 @@ void CUDAProjectionBase<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::
  * @brief Calculate delta projection, host gpu-using variant.
 */
 __host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection,
-        const CUDAMessageBus &device_message_bus,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n)
+    CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection, const CUDAMessageBus &device_message_bus,
+    const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
 {
     using Synapse = knp::synapse_traits::DeltaSynapse;
     const auto &messages = device_message_bus.all_messages<SpikeMessage>();
@@ -274,10 +277,8 @@ __host__ void calculate_projection(
 
 // TODO: This functions are basically a copy of DeltaSynapse functions, we probably want to make them a template.
 __host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
-        const CUDAMessageBus &device_message_bus,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n)
+    CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
+    const CUDAMessageBus &device_message_bus, const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
 {
     using Synapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     SPDLOG_DEBUG("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(to_cpu_uid(projection.uid_)));
@@ -310,9 +311,9 @@ __host__ void calculate_projection(
 
 
 __host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n)
+    CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
+    const std::vector<device_lib::LongIndex> &message_ids,
+    StepIndex step_n)
 {
     SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}, not implemented.",
                  std::string(to_cpu_uid(projection.uid_)));

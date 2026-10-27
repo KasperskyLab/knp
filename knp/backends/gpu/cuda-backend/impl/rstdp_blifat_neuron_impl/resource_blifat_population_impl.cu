@@ -158,14 +158,6 @@ __global__ void calculate_neurons_post_impact(device_lib::CUDAVectorMutableView 
 }
 
 
-__global__ void index_to_pointer(device_lib::IndexView synapse_index, SynapseValue *start, SynapseValue **output)
-{
-    const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
-    if (synapse_id >= synapse_index.indices_size_) return;
-    output[synapse_id] = start + synapse_index.indices_ptr_[synapse_id];
-}
-
-
 template <class SynapseType, int position_index>
 device_lib::ValueIndex build_index_gpu_slow(const CUDAProjection<SynapseType> &gpu_projection)
 {
