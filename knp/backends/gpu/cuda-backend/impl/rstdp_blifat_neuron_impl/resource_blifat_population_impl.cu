@@ -201,14 +201,13 @@ device_lib::ValueIndex build_index_gpu_slow(const CUDAProjection<SynapseType> &g
 }
 
 
-device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, CUDABackendImpl *this_backend,
-        StepIndex step)
+device_lib::CUDAVector<SpikeIndex> CUDABackendImpl::calculate_population(
+        CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, StepIndex step)
 {
     auto [num_blocks_neuro, num_threads_neuro] = device_lib::get_blocks_config(population.neurons_.size());
 
     calculate_neurons_pre_impact<<<num_blocks_neuro, num_threads_neuro>>>(population.neurons_.mut_view(), step);
-    auto &device_message_bus = this_backend->get_message_bus();
+    auto &device_message_bus = get_message_bus();
     std::vector<device_lib::LongIndex> message_ids
             = device_message_bus.unload_messages<cuda::SynapticImpactMessage>(population.uid_);
 
@@ -227,7 +226,7 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
     calculate_neurons_post_impact<<<num_blocks_neuro, num_threads_neuro>>>(population.neurons_.mut_view(), output,
                                                                            counter);
 
-    std::vector<device_lib::LongIndex> working_projection_indices = this_backend->find_projections_by_postsynaptic<
+    std::vector<device_lib::LongIndex> working_projection_indices = find_projections_by_postsynaptic<
             synapse_traits::SynapticResourceSTDPDeltaSynapse>(population.uid_, true);
     if (working_projection_indices.size() == 0)
     {
@@ -244,7 +243,7 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
 
     if (working_projection_indices.size() != 0)
     {
-        auto &projection_var = this_backend->get_projection(working_projection_indices[0]);
+        auto &projection_var = get_projection(working_projection_indices[0]);
 
         constexpr int type_index = boost::mp11::mp_find<CUDABackend::SupportedSynapses, ResourceSynapseType>();
         ResourceProjection *projection_ptr = ::cuda::std::get_if<type_index>(&projection_var);

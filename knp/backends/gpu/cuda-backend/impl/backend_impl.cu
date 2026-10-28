@@ -165,7 +165,7 @@ void CUDABackendImpl::calculate_projections(StepIndex step)
     {
         ::cuda::std::visit([this, &projection_messages, step, i](auto &projection)
         {
-            calculate_projection(projection, device_message_bus_, projection_messages[i], step);
+            calculate_projection(projection, projection_messages[i], step);
         }, device_projections_[i]);
     }
     cudaDeviceSynchronize();
@@ -278,7 +278,7 @@ void CUDABackendImpl::calculate_populations(StepIndex step)
     {
         ::cuda::std::visit([this, step](auto &pop)
         {
-            auto spikes = calculate_population(pop, this, step);
+            auto spikes = calculate_population(pop, step);
             if (!spikes.empty())
             {
                 cuda::SpikeMessage message{MessageHeader{pop.uid_, step, false}, std::move(spikes)};
@@ -403,9 +403,11 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<
+        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
+REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<
+        knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

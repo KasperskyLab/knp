@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 
+#include "backend_impl.cuh"
 #include "projections_impl.cuh"
 #include "cuda_lib/register_type.cuh"
 #include "projection.cuh"
@@ -244,12 +245,12 @@ void CUDAProjectionBase<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::
 /**
  * @brief Calculate delta projection, host gpu-using variant.
 */
-__host__ void calculate_projection(
-    CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection, const CUDAMessageBus &device_message_bus,
+__host__ void CUDABackendImpl::calculate_projection(
+    CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection,
     const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
 {
     using Synapse = knp::synapse_traits::DeltaSynapse;
-    const auto &messages = device_message_bus.all_messages<SpikeMessage>();
+    const auto &messages = device_message_bus_.all_messages<SpikeMessage>();
     for (size_t i = 0; i < message_ids.size(); ++i)
     {
         const device_lib::LongIndex msg_index = message_ids[i];
@@ -273,19 +274,19 @@ __host__ void calculate_projection(
             cudaDeviceSynchronize();
         }
     }
-    // Make messages
+    // Make synaptic impact message from the impacts calculated above and store it inside an internal buffer.
     projection.form_message(step_n);
 }
 
 
 // TODO: This functions are basically a copy of DeltaSynapse functions, we probably want to make them a template.
-__host__ void calculate_projection(
+__host__ void CUDABackendImpl::calculate_projection(
     CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
-    const CUDAMessageBus &device_message_bus, const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
+    const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
 {
     using Synapse = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     SPDLOG_DEBUG("Calculate AdditiveSTDPDelta synapse projection {}.", std::string(to_cpu_uid(projection.uid_)));
-    const auto &messages = device_message_bus.all_messages<SpikeMessage>();
+    const auto &messages = device_message_bus_.all_messages<SpikeMessage>();
     for (size_t i = 0; i < message_ids.size(); ++i)
     {
         const device_lib::LongIndex msg_index = message_ids[i];
@@ -313,10 +314,9 @@ __host__ void calculate_projection(
 }
 
 
-__host__ void calculate_projection(
+__host__ void CUDABackendImpl::calculate_projection(
     CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
-    const std::vector<device_lib::LongIndex> &message_ids,
-    StepIndex step_n)
+    const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n)
 {
     SPDLOG_TRACE("Calculate AdditiveSTDPDelta synapse projection {}, not implemented.",
                  std::string(to_cpu_uid(projection.uid_)));

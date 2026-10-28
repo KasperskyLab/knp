@@ -73,28 +73,4 @@ __host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::S
  */
 using ProjectionVariants = boost::mp11::mp_rename<SupportedProjections, ::cuda::std::variant>;
 
-
-/**
- * @brief Calculate projection of delta synapses.
- * @note Projection will be changed during calculation.
- * @param projection projection to calculate.
- * @param message_queue message queue to send to projection for calculation.
- */
-__host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection,
-        const CUDAMessageBus &device_message_bus,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n);
-
-__host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
-        const CUDAMessageBus &device_message_bus,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n);
-
-__host__ void calculate_projection(
-        CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
-        const CUDAMessageBus &device_message_bus,
-        const std::vector<device_lib::LongIndex> &message_ids,
-        StepIndex step_n);
 } // namespace knp::backends::gpu::cuda

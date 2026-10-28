@@ -62,7 +62,6 @@ namespace knp::backends::gpu::cuda
 {
 using StepIndex = unsigned long long;
 
-
 /**
  * @brief The CUDABackend class is a definition of an interface to the CUDA GPU backend.
  */
@@ -281,8 +280,49 @@ public:
     void init();
 
 private:
-    // cppcheck-suppress unusedStructMember
+    /**
+     * @brief Calculate synapses for a single projection.
+     * @note Projection will be changed during calculation.
+     * @param projection projection to calculate.
+     * @param message_queue message queue to send to projection for calculation.
+     */
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids,
+        StepIndex step_n);
+
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids,
+        StepIndex step_n);
+
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids,
+        StepIndex step_n);
+
+    /**
+     * @brief Calculate population of BLIFAT neurons.
+     * @note Population will be changed during calculation.
+     * @param population population to calculate.
+     * @param step current step.
+     * @return set of spiked neuron indices.
+     */
+    device_lib::CUDAVector<SpikeIndex> calculate_population(
+        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, StepIndex step);
+
+    /**
+     * @brief Calculate population of Synaptic Resource STDP Blifat neurons.
+     * @param population population to calculate.
+     * @param step current step.
+     * @return set of spiked neuron indices.
+     */
+    device_lib::CUDAVector<SpikeIndex> calculate_population(
+        CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
+        StepIndex step);
+
     PopulationContainer device_populations_;
+
     ProjectionContainer device_projections_;
 
     knp::backends::gpu::cuda::CUDAMessageBus device_message_bus_;

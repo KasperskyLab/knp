@@ -54,28 +54,6 @@ using PopulationVariants = boost::mp11::mp_rename<SupportedPopulations, ::cuda::
 using StepIndex = unsigned long long;
 
 /**
- * @brief Calculate population of BLIFAT neurons.
- * @note Population will be changed during calculation.
- * @param population population to calculate.
- * @param step current step.
- * @return set of spiked neuron indices.
- */
-device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, CUDABackendImpl *this_backend,
-        StepIndex step);
-
-/**
- * @brief Calculate population of Synaptic Resource STDP Blifat neurons.
- * @param population population to calculate.
- * @param step current step.
- * @return set of spiked neuron indices.
- */
-device_lib::CUDAVector<SpikeIndex> calculate_population(
-        CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-        CUDABackendImpl *this_backend,
-        StepIndex step);
-
-/**
  * @brief A CUDA kernel for neuron-synapse interaction.
  * @tparam Neuron the neuron type.
  * @param neurons a list of neuron parameters.
