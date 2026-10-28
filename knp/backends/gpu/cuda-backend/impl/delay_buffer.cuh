@@ -40,7 +40,7 @@ class BitDelayBufferView
 public:
     BitDelayBufferView(BitBufferWord *data, device_lib::LongIndex num_synapses,
                        device_lib::LongIndex buffer_depth_words)
-    : data_(data), num_synapses_(num_synapses), buffer_depth_words_(buffer_depth_words)
+        : data_(data), num_synapses_(num_synapses), buffer_depth_words_(buffer_depth_words)
     {}
 
     /**
@@ -53,7 +53,7 @@ public:
                                device_lib::LongIndex delay,
                                device_lib::LongIndex step)
     {
-        // if delay is too large for the buffer, ignore it. Should never happen unless delays change and buffer doesn't.
+        // If delay is too large for the buffer, ignore it. Should never happen unless delays change and buffer doesn't.
         if (delay >= bits_per_buffer_word * buffer_depth_words_) return;
         const unsigned int bit_to_write = (step + delay - 1) % (buffer_depth_words_ * bits_per_buffer_word);
         const unsigned int row = bit_to_write / bits_per_buffer_word;

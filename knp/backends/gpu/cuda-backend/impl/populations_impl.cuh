@@ -65,6 +65,7 @@ __global__ void calculate_neurons_impacts(
         device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
         device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing = false);
 
+
 /**
  * @brief Impact all neurons in the vector.
  * @tparam Neuron the neuron type.
@@ -86,4 +87,4 @@ __host__ void calculate_neurons_impacts_all(
     cudaDeviceSynchronize();
 }
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

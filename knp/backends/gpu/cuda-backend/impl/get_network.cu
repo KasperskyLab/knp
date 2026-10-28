@@ -30,9 +30,10 @@ class PopulationValueIterator : public CUDABackend::BaseValueIterator<core::AllP
 public:
     PopulationValueIterator() = default;
     explicit PopulationValueIterator(const CUDABackend::PopulationContainer::const_iterator &iter)
-            : iter_(iter)
+        : iter_(iter)
     {
     }
+
     bool operator==(const BaseValueIterator<core::AllPopulationsVariant> &rhs) const override
     {
         if (typeid(*this) != typeid(rhs)) return false;
@@ -44,6 +45,7 @@ public:
         ++iter_;
         return *this;
     }
+
     core::AllPopulationsVariant operator*() const override { return knp::meta::variant_cast(*iter_); }
 
 private:
@@ -55,8 +57,9 @@ class ProjectionValueIterator : public CUDABackend::BaseValueIterator<core::AllP
 {
 public:
     ProjectionValueIterator() = default;
+
     explicit ProjectionValueIterator(const CUDABackend::ProjectionContainer::const_iterator &iter)
-            : iter_(iter)
+        : iter_(iter)
     {
     }
 
@@ -65,11 +68,13 @@ public:
         if (typeid(*this) != typeid(rhs)) return false;
         return dynamic_cast<const ProjectionValueIterator &>(rhs).iter_ == iter_;
     }
+
     BaseValueIterator<core::AllProjectionsVariant> &operator++() override
     {
         ++iter_;
         return *this;
     }
+
     core::AllProjectionsVariant operator*() const override { return knp::meta::variant_cast(*iter_); }
 
 private:
@@ -92,4 +97,4 @@ core::Backend::DataRanges CUDABackend::get_network_data() const
     auto proj_range = std::make_pair(std::move(proj_begin), std::move(proj_end));
     return DataRanges{std::move(proj_range), std::move(pop_range)};
 }
-} // namespace knp::backends::gpu
+}  // namespace knp::backends::gpu
