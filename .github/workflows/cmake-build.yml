@@ -207,6 +207,7 @@ jobs:
           echo "build-output-dir=build" >> "$GITHUB_OUTPUT"
 
       - name: Install Boost
+        if: runner.os != 'macOS'
         uses: MarkusJx/install-boost@v2
         id: install-boost
         with:
@@ -215,13 +216,20 @@ jobs:
             platform_version: ${{ matrix.boost_platform_version }}
             toolset: ${{ matrix.boost_toolset }}
 
+      - name: Install Boost (macOS)
+        if: runner.os == 'macOS'
+        id: brew-boost
+        run: |
+          brew install boost
+          echo "root=$(brew --prefix boost)" >> "$GITHUB_OUTPUT"
+
       - name: Install OpenCV via vcpkg
         if: matrix.c_compiler == 'cl'
         run: vcpkg install opencv:x64-windows
 
       - name: Configure CMake
         env:
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT || steps.brew-boost.outputs.root }}
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
