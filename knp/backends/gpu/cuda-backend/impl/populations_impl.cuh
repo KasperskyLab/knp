@@ -27,6 +27,8 @@
 #include <boost/mp11.hpp>
 #include <cuda_runtime.h>
 
+#include <vector>
+
 
 /**
  * @brief Namespace for CUDA backend.
@@ -83,7 +85,7 @@ device_lib::CUDAVector<SpikeIndex> calculate_population(
 template <class Neuron>
 __global__ void calculate_neurons_impacts(
         device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
-        device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing=false);
+        device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing = false);
 
 /**
  * @brief Impact all neurons in the vector.
@@ -97,7 +99,7 @@ __host__ void calculate_neurons_impacts_all(
         device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
         const std::vector <SynapticImpactMessage> &messages_all, std::vector <device_lib::LongIndex> message_ids)
 {
-    for (const auto &msg_id: message_ids)
+    for (const auto &msg_id : message_ids)
     {
         const auto &msg = messages_all[msg_id];
         auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size());

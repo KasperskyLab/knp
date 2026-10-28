@@ -27,6 +27,9 @@
 #include <thrust/binary_search.h>
 #include <thrust/sort.h>
 
+#include <string>
+#include <vector>
+
 
 /**
  * @brief Namespace for CUDA backend.

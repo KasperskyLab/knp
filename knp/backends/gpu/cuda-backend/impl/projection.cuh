@@ -33,8 +33,9 @@
 #include "delay_buffer.cuh"
 #include "uid.cuh"
 
-#include <vector>
+#include <algorithm>
 #include <optional>
+#include <vector>
 
 
 /**

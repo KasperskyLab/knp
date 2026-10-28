@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <map>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "vector.cuh"

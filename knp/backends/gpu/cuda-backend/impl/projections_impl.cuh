@@ -28,6 +28,8 @@
 #include <boost/mp11.hpp>
 #include <cuda_runtime.h>
 
+#include <vector>
+
 /**
  * @brief Namespace for CUDA backend.
  */
@@ -95,4 +97,4 @@ __host__ void calculate_projection(
         const CUDAMessageBus &device_message_bus,
         const std::vector<device_lib::LongIndex> &message_ids,
         StepIndex step_n);
-}
+} // namespace knp::backends::gpu::cuda

@@ -47,4 +47,4 @@ struct CUDAVectorMutableView
     T *const data_;
     const LongIndex size_;
 };
-}
+} // namespace knp::backends::gpu::cuda::device_lib

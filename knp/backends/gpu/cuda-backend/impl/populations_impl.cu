@@ -25,6 +25,8 @@
 #include "cuda_lib/register_type.cuh"
 #include <knp/core/population.h>
 
+#include <limits>
+
 
 /**
  * @brief Namespace for CUDA backend.
@@ -88,7 +90,6 @@ __global__ void calculate_neurons_impacts<knp::neuron_traits::BLIFATNeuron>(
         default:
             // Non-implemented impact type, ignoring it.
             PRINTF_INFO("Unimlemented synapse type: %d.", static_cast<int>(impact.synapse_type_));
-
     }
 }
 

@@ -147,4 +147,4 @@ private:
     device_lib::LongIndex buffer_depth_;
 };
 
-} // namespace knp::backends::cuda
+} // namespace knp::backends::gpu::cuda

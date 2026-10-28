@@ -47,16 +47,13 @@ struct SynapsesPerNeurons
 };
 
 
-
 template<>
 struct CUDAProjection<RSTDPDeltaSynapse> : public CUDAProjectionBase<RSTDPDeltaSynapse>
 {
-
     CUDAProjection()
     {
         is_locked_ = false;
     }
-
 
     __host__ explicit CUDAProjection(const knp::core::Projection<RSTDPDeltaSynapse> &projection)
         : CUDAProjectionBase<RSTDPDeltaSynapse>(projection)

@@ -261,6 +261,7 @@ void add_to_duplicate_counter(DuplicateCounter &duplicate_counter, const knp::co
 }
 
 
+// Send all host messages to gpu.
 template <int type_index>
 void send_host_messages_to_gpu(CUDAMessageBus &device_bus,
                                knp::core::MessageEndpoint &cpu_endpoint,

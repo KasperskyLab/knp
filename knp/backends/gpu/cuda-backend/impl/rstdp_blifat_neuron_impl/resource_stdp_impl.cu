@@ -135,6 +135,7 @@ __global__ void process_spiking_neurons_kernel(device_lib::CUDAVectorView<SpikeI
     process_synapses_per_neuron_kernel<<<num_blocks, num_threads>>>(&neuron, synapse_view, neuron_id, step);
 }
 
+
 void process_spiking_neurons_impl(const device_lib::CUDAVector<SpikeIndex> &msg, SynapsesPerNeuronsView &synapse_index,
                                   device_lib::CUDAVector<ResourceBlifatParams> &neurons, StepIndex step)
 {
