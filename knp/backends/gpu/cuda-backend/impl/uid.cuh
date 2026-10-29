@@ -22,10 +22,12 @@
 
 #pragma once
 
-#include <cuda/std/array>
-#include <cuda.h>
-#include <knp/core/uid.h>
 #include <knp/core/impexp.h>
+#include <knp/core/uid.h>
+
+#include <cuda.h>
+
+#include <cuda/std/array>
 
 
 namespace knp::backends::gpu::cuda
@@ -52,9 +54,12 @@ knp::core::UID to_cpu_uid(const cuda::UID &uid);
  * @brief Create new GPU UID.
  * @return new gpu UID.
  */
-inline cuda::UID new_uid() { return to_gpu_uid(knp::core::UID{}); }
+inline cuda::UID new_uid()
+{
+    return to_gpu_uid(knp::core::UID{});
+}
 
-inline bool empty_uid(const cuda::UID& uid)
+inline bool empty_uid(const cuda::UID &uid)
 {
     for (const auto &uid_digit : uid)
     {
@@ -65,4 +70,4 @@ inline bool empty_uid(const cuda::UID& uid)
 }
 
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

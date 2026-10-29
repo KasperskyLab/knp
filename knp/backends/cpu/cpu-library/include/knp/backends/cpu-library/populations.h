@@ -121,7 +121,7 @@ void calculate_post_impact_population_state(
  * 
  * @tparam Neuron type of neurons stored in the population.
  * @tparam Synapse type of synapses used in the connected projections.
- * 
+ *
  * @param population population to train.
  * @param projections connected projections that send synaptic impacts.
  * @param message spiking neurons in the population at the current step.

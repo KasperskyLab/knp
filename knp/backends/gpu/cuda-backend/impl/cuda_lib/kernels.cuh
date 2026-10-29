@@ -40,4 +40,4 @@ __global__ void make_variant_kernel(Variant *result, Instance *source)
 }
 
 
-} // namespace knp::backends::gpu::cuda::device_lib
+}  // namespace knp::backends::gpu::cuda::device_lib

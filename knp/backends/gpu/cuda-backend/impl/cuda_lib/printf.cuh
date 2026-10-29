@@ -27,19 +27,19 @@
 // This is for __device__ and __global__ functions; use SPDLOG macros for __host__ code.
 
 #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE
-#define PRINTF_TRACE(...) printf(__VA_ARGS__)
+#    define PRINTF_TRACE(...) printf(__VA_ARGS__)
 #else
-#define PRINTF_TRACE(...) (void)0
+#    define PRINTF_TRACE(...) (void)0
 #endif
 
 #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
-#define PRINTF_DEBUG(...) printf(__VA_ARGS__)
+#    define PRINTF_DEBUG(...) printf(__VA_ARGS__)
 #else
-#define PRINTF_DEBUG(...) (void)0
+#    define PRINTF_DEBUG(...) (void)0
 #endif
 
 #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_INFO
-#define PRINTF_INFO(...) printf(__VA_ARGS__)
+#    define PRINTF_INFO(...) printf(__VA_ARGS__)
 #else
-#define PRINTF_INFO(...) (void)0
+#    define PRINTF_INFO(...) (void)0
 #endif

@@ -22,8 +22,8 @@
 #pragma once
 
 #include <knp/backends/gpu-cuda/backend.h>
-#include <knp/core/messaging/messaging.h>
 #include <knp/core/message_bus.h>
+#include <knp/core/messaging/messaging.h>
 #include <knp/devices/gpu_cuda.h>
 
 #include <thrust/device_free.h>
@@ -32,6 +32,7 @@
 #include <thrust/host_vector.h>
 #include <thrust/tuple.h>
 
+#include <cuda/std/variant>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -45,14 +46,12 @@
 #include <boost/mp11.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <cuda/std/variant>
-
-#include "projection.cuh"
-#include "projections_impl.cuh"
-#include "population.cuh"
-#include "populations_impl.cuh"
 #include "cuda_bus/message_bus.cuh"
 #include "cuda_lib/vector.cuh"
+#include "population.cuh"
+#include "populations_impl.cuh"
+#include "projection.cuh"
+#include "projections_impl.cuh"
 
 
 /**
@@ -62,19 +61,11 @@ namespace knp::backends::gpu::cuda
 {
 using StepIndex = unsigned long long;
 
-
 /**
  * @brief The CUDABackend class is a definition of an interface to the CUDA GPU backend.
  */
 class CUDABackendImpl
 {
-public:
-
-    /**
-     * @brief Map used for message construction. It maps a message to its future output step.
-     */
-    using SynapticMessageQueue = std::unordered_map<StepIndex, core::messaging::SynapticImpactMessage>;
-
 public:
     /**
      * @brief Type of population container.
@@ -111,8 +102,10 @@ public:
      * @brief Constructor.
      * @param cpu_bus Bus to exchange backend with external world.
      */
-    __host__ explicit CUDABackendImpl(knp::core::MessageEndpoint &message_endpoint) :
-            device_message_bus_{message_endpoint} {}
+    __host__ explicit CUDABackendImpl(knp::core::MessageEndpoint &message_endpoint)
+        : device_message_bus_{message_endpoint}
+    {
+    }
 
     /**
      * @brief Destructor for  backend.
@@ -133,6 +126,18 @@ public:
      * @param populations populations to add.
      */
     __host__ void load_populations(const knp::backends::gpu::CUDABackend::PopulationContainer &populations);
+
+    /**
+     * @brief Convert CUDA projections to core projections.
+     * @return projection container.
+     */
+    knp::backends::gpu::CUDABackend::ProjectionContainer unload_projections() const;
+
+    /*
+     * @brief Convert CUDA populations to core populations.
+     * @return population container.
+     */
+    knp::backends::gpu::CUDABackend::PopulationContainer unload_populations() const;
 
 public:
     /**
@@ -183,6 +188,45 @@ public:
 
 public:
     /**
+     * @brief Find projections of a specific type that lead to a specified population.
+     * @param population_uid the UID of a postsynaptic population.
+     * @param type synapse type index.
+     * @return projection indices.
+     */
+    template <class SynapseType>
+    std::vector<device_lib::LongIndex> find_projections_by_postsynaptic(
+        const cuda::UID &post_uid, bool exclude_locked) const
+    {
+        using ProjectionType = knp::core::Projection<SynapseType>;
+        static_assert(
+            boost::mp11::mp_contains<CUDABackend::SupportedSynapses, SynapseType>::value, "Unsupported synapse type.");
+        std::vector<device_lib::LongIndex> result;
+        result.reserve(device_projections_.size());
+        constexpr auto type_index = boost::mp11::mp_find<CUDABackend::SupportedSynapses, SynapseType>();
+
+        for (size_t i = 0; i < device_projections_.size(); ++i)
+        {
+            if (device_projections_[i].index() != type_index)
+            {
+                continue;
+            }
+
+            const auto &projection = ::cuda::std::get<type_index>(device_projections_[i]);
+            if (projection.is_locked_ && exclude_locked)
+            {
+                continue;
+            }
+
+            if (projection.postsynaptic_uid_ == post_uid)
+            {
+                result.push_back(i);
+            }
+        }
+        return result;
+    }
+
+
+    /**
      * @brief Remove projections with given UIDs from the backend.
      * @param uids UIDs of projections to remove.
      */
@@ -224,11 +268,52 @@ public:
     __host__ void calculate_projections(StepIndex step);
     __host__ knp::backends::gpu::cuda::CUDAMessageBus &get_message_bus() { return device_message_bus_; }
 
+    __host__ ProjectionVariants &get_projection(device_lib::LongIndex index) { return device_projections_[index]; }
+
+    __host__ PopulationVariants &get_population(device_lib::LongIndex index) { return device_populations_[index]; }
+
     void init();
 
 private:
-    // cppcheck-suppress unusedStructMember
+    /**
+     * @brief Calculate synapses for a single projection.
+     * @note Projection will be changed during calculation.
+     * @param projection projection to calculate.
+     * @param message_queue message queue to send to projection for calculation.
+     */
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::DeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n);
+
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::AdditiveSTDPDeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n);
+
+    __host__ void calculate_projection(
+        CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse> &projection,
+        const std::vector<device_lib::LongIndex> &message_ids, StepIndex step_n);
+
+    /**
+     * @brief Calculate population of BLIFAT neurons.
+     * @note Population will be changed during calculation.
+     * @param population population to calculate.
+     * @param step current step.
+     * @return set of spiked neuron indices.
+     */
+    device_lib::CUDAVector<SpikeIndex> calculate_population(
+        CUDAPopulation<knp::neuron_traits::BLIFATNeuron> &population, StepIndex step);
+
+    /**
+     * @brief Calculate population of Synaptic Resource STDP Blifat neurons.
+     * @param population population to calculate.
+     * @param step current step.
+     * @return set of spiked neuron indices.
+     */
+    device_lib::CUDAVector<SpikeIndex> calculate_population(
+        CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, StepIndex step);
+
     PopulationContainer device_populations_;
+
     ProjectionContainer device_projections_;
 
     knp::backends::gpu::cuda::CUDAMessageBus device_message_bus_;
@@ -247,4 +332,4 @@ template <>
 template <>
 void gpu_insert<ProjectionVariants>(const ProjectionVariants &cpu_source, ProjectionVariants *gpu_target);
 
-}   // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda
