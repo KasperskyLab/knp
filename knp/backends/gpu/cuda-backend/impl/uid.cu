@@ -19,8 +19,9 @@
  * limitations under the License.
  */
 
-#include <cuda.h>
 #include <knp/core/uid.h>
+
+#include <cuda.h>
 
 #include "uid.cuh"
 
@@ -51,4 +52,4 @@ knp::core::UID to_cpu_uid(const cuda::UID &uid)
 }
 
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "projection.cuh"
 #include <knp/synapse-traits/all_traits.h>
+
+#include "projection.cuh"
 
 namespace knp::backends::gpu::cuda
 {
@@ -47,13 +48,10 @@ struct SynapsesPerNeurons
 };
 
 
-template<>
+template <>
 struct CUDAProjection<RSTDPDeltaSynapse> : public CUDAProjectionBase<RSTDPDeltaSynapse>
 {
-    CUDAProjection()
-    {
-        is_locked_ = false;
-    }
+    CUDAProjection() { is_locked_ = false; }
 
     __host__ explicit CUDAProjection(const knp::core::Projection<RSTDPDeltaSynapse> &projection)
         : CUDAProjectionBase<RSTDPDeltaSynapse>(projection)
@@ -65,4 +63,4 @@ struct CUDAProjection<RSTDPDeltaSynapse> : public CUDAProjectionBase<RSTDPDeltaS
      */
     SynapsesPerNeurons synapses_by_postsynaptic_;
 };
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

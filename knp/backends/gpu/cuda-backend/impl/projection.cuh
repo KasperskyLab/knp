@@ -21,21 +21,20 @@
 
 #pragma once
 
-#include <tuple>
-#include <utility>
-
 #include <knp/core/projection.h>
 #include <knp/synapse-traits/all_traits.h>
 
-#include "cuda_lib/vector.cuh"
-#include "cuda_lib/value_index.cuh"
-#include "cuda_bus/synaptic_impact_message.cuh"
-#include "delay_buffer.cuh"
-#include "uid.cuh"
-
 #include <algorithm>
 #include <optional>
+#include <tuple>
+#include <utility>
 #include <vector>
+
+#include "cuda_bus/synaptic_impact_message.cuh"
+#include "cuda_lib/value_index.cuh"
+#include "cuda_lib/vector.cuh"
+#include "delay_buffer.cuh"
+#include "uid.cuh"
 
 
 /**
@@ -68,8 +67,7 @@ struct CUDAProjectionBase
      */
     using Synapse = ::cuda::std::tuple<SynapseParameters, device_lib::LongIndex, device_lib::LongIndex>;
 
-    __host__ __device__ CUDAProjectionBase() : is_locked_(true)
-     {}
+    __host__ __device__ CUDAProjectionBase() : is_locked_(true) {}
 
     /**
      * @brief Constructor.
@@ -87,12 +85,13 @@ struct CUDAProjectionBase
         device_lib::LongIndex max_delay = 1;
         for (auto &synapse : projection)
         {
-            Synapse out_synapse{std::get<data_index>(synapse), std::get<source_id_index>(synapse),
-                std::get<target_id_index>(synapse)};
+            Synapse out_synapse{
+                std::get<data_index>(synapse), std::get<source_id_index>(synapse), std::get<target_id_index>(synapse)};
             max_delay = std::max(static_cast<device_lib::LongIndex>(std::get<data_index>(synapse).delay_), max_delay);
             synapses_.push_back(out_synapse);
-            SPDLOG_TRACE("Synapse: weight {} delay {}", ::cuda::std::get<data_index>(out_synapse).weight_,
-                         ::cuda::std::get<data_index>(out_synapse).delay_);
+            SPDLOG_TRACE(
+                "Synapse: weight {} delay {}", ::cuda::std::get<data_index>(out_synapse).weight_,
+                ::cuda::std::get<data_index>(out_synapse).delay_);
         }
         index_ = device_lib::build_index<SynapseType, core::source_neuron_id>(projection);
         impact_buffer_ = BitDelayBuffer{synapses_.size(), max_delay};
@@ -169,7 +168,8 @@ struct CUDAProjection : public CUDAProjectionBase<Synapse>
 {
     __host__ explicit CUDAProjection(const knp::core::Projection<Synapse> &projection)
         : CUDAProjectionBase<Synapse>(projection)
-    {}
+    {
+    }
 
     __host__ CUDAProjection() = default;
 };
@@ -181,26 +181,23 @@ typename core::Projection<Synapse>::Synapse to_std_tuple(const typename CUDAProj
     return std::make_tuple(
         ::cuda::std::get<core::synapse_data>(synapse),
         static_cast<size_t>(::cuda::std::get<core::source_neuron_id>(synapse)),
-        static_cast<size_t>(::cuda::std::get<core::target_neuron_id>(synapse))
-    );
+        static_cast<size_t>(::cuda::std::get<core::target_neuron_id>(synapse)));
 }
 
 
-template<class Synapse>
+template <class Synapse>
 knp::core::Projection<Synapse> convert_to_core_projection(const CUDAProjection<Synapse> &cuda_projection)
 {
     std::vector<typename CUDAProjectionBase<Synapse>::Synapse> synapses = cuda_projection.synapses_.to_std();
     auto generator = [&synapses](size_t i) -> std::optional<typename core::Projection<Synapse>::Synapse>
     {
-        if (i >= synapses.size())
-            return {};
+        if (i >= synapses.size()) return {};
         return to_std_tuple<Synapse>(synapses[i]);
     };
-    knp::core::Projection<Synapse> result{to_cpu_uid(cuda_projection.uid_),
-                                          to_cpu_uid(cuda_projection.presynaptic_uid_),
-                                          to_cpu_uid(cuda_projection.postsynaptic_uid_),
-                                          generator, synapses.size()};
+    knp::core::Projection<Synapse> result{
+        to_cpu_uid(cuda_projection.uid_), to_cpu_uid(cuda_projection.presynaptic_uid_),
+        to_cpu_uid(cuda_projection.postsynaptic_uid_), generator, synapses.size()};
     return result;
 }
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

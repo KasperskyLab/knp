@@ -22,13 +22,16 @@
 #pragma once
 
 #include <knp/backends/gpu-cuda/backend.h>
-#include "cuda_bus/message_bus.cuh"
-#include "projection.cuh"
-#include "resource_delta_projection.cuh"
-#include <boost/mp11.hpp>
+
 #include <cuda_runtime.h>
 
 #include <vector>
+
+#include <boost/mp11.hpp>
+
+#include "cuda_bus/message_bus.cuh"
+#include "projection.cuh"
+#include "resource_delta_projection.cuh"
 
 /**
  * @brief Namespace for CUDA backend.
@@ -52,7 +55,10 @@ __host__ __device__ inline bool is_forcing()
 
 
 template <>
-__host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::DeltaSynapse>>() { return true; }
+__host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::DeltaSynapse>>()
+{
+    return true;
+}
 
 
 template <>
@@ -73,4 +79,4 @@ __host__ __device__ inline bool is_forcing<CUDAProjection<knp::synapse_traits::S
  */
 using ProjectionVariants = boost::mp11::mp_rename<SupportedProjections, ::cuda::std::variant>;
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

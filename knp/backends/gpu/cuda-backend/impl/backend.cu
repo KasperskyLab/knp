@@ -19,23 +19,23 @@
  * limitations under the License.
  */
 
-#include "backend_impl.cuh"
-#include "cuda_bus/message_bus.cuh"
-#include "cuda_lib/fast_error_check.cuh"
-#include "cuda_lib/register_all.cuh"
-
-#include <spdlog/spdlog.h>
-
 #include <knp/backends/gpu-cuda/backend.h>
 #include <knp/devices/gpu_cuda.h>
 #include <knp/meta/assert_helpers.h>
 #include <knp/meta/stringify.h>
 #include <knp/meta/variant_helpers.h>
 
+#include <spdlog/spdlog.h>
+
 #include <limits>
 #include <vector>
 
 #include <boost/mp11.hpp>
+
+#include "backend_impl.cuh"
+#include "cuda_bus/message_bus.cuh"
+#include "cuda_lib/fast_error_check.cuh"
+#include "cuda_lib/register_all.cuh"
 
 
 namespace knp::backends::gpu
@@ -47,9 +47,7 @@ CUDABackend::CUDABackend() : impl_(std::make_unique<cuda::CUDABackendImpl>(get_m
 }
 
 
-CUDABackend::~CUDABackend()
-{
-}
+CUDABackend::~CUDABackend() {}
 
 
 std::shared_ptr<CUDABackend> CUDABackend::create()
@@ -112,47 +110,57 @@ void CUDABackend::_step()
     auto step = get_step();
     cuda::CUDAMessageBus &bus = impl_->get_message_bus();
     SPDLOG_DEBUG("Starting step #{}...", step);
-    if(!get_step())
+    if (!get_step())
     {
         bus.sync_with_host();
     }
-    SPDLOG_DEBUG("Message bus 1 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 1 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
     bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
-    SPDLOG_DEBUG("Message bus 2 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 2 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 3 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 3 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     bus.receive_messages_from_host();
-    SPDLOG_DEBUG("Message bus 4 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 4 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
 
     // Calculate populations. This is the same as inference.
     impl_->calculate_populations(step);
-    SPDLOG_DEBUG("Message bus 5 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 5 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     // impl_->route_population_messages(step);  // this is a part of calculate_populations
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 6 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 6 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     //
     // Calculate projections.
     impl_->calculate_projections(step);
-    SPDLOG_DEBUG("Message bus 7 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 7 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
-    SPDLOG_DEBUG("Message bus 8 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 8 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     get_message_bus().route_messages();
-    SPDLOG_DEBUG("Message bus 9 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 9 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     SPDLOG_DEBUG("Step {}", step);
     impl_->route_projection_messages(step);
-    SPDLOG_DEBUG("Message bus 10 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
-                 bus.get_num_messages<cuda::SynapticImpactMessage>());
+    SPDLOG_DEBUG(
+        "Message bus 10 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
+        bus.get_num_messages<cuda::SynapticImpactMessage>());
     SPDLOG_DEBUG("Step finished #{}.", get_step());
 
     step = gad_step();
@@ -187,7 +195,7 @@ void CUDABackend::load_projections(const std::vector<ProjectionVariants> &projec
 {
     SPDLOG_DEBUG("Loading projections [{}]...", projections.size());
 
-    //    projections_ = projections;
+    // projections_ = projections;
     CUDA_FAST_ERROR_CHECK("Running projections with error: {}");
     impl_->load_projections(projections);
     CUDA_FAST_ERROR_CHECK("Loaded projections with error: {}");
@@ -244,7 +252,7 @@ void CUDABackend::select_devices(const std::set<knp::core::UID> &uids)
         throw std::runtime_error("Only one GPU device can be selected");
     }
 
-    auto cuda_device_ptr = dynamic_cast<knp::devices::gpu::CUDA*>(get_current_devices()[0].get());
+    auto cuda_device_ptr = dynamic_cast<knp::devices::gpu::CUDA *>(get_current_devices()[0].get());
     cudaSetDevice(cuda_device_ptr->get_socket_number());
 }
 
@@ -252,7 +260,7 @@ void CUDABackend::select_devices(const std::set<knp::core::UID> &uids)
 void CUDABackend::select_device(std::unique_ptr<knp::core::Device> &&device)
 {
     Backend::select_device(std::move(device));
-    auto cuda_device_ptr = dynamic_cast<knp::devices::gpu::CUDA*>(get_devices()[0].get());
+    auto cuda_device_ptr = dynamic_cast<knp::devices::gpu::CUDA *>(get_devices()[0].get());
 
     cudaSetDevice(cuda_device_ptr->get_socket_number());
 }
@@ -337,11 +345,11 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<
-        knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
+REGISTER_CUDA_VECTOR_TYPE(
+    knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<
-        knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
+REGISTER_CUDA_VECTOR_TYPE(
+    knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
@@ -352,6 +360,6 @@ REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
 
 using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
 using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
-using ResourceSynapseValuePtr = ResourceSynapseValue*;
+using ResourceSynapseValuePtr = ResourceSynapseValue *;
 
 REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

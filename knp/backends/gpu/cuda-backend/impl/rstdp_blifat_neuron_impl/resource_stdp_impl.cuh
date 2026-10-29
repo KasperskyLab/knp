@@ -20,49 +20,50 @@
  */
 
 #pragma once
-#include "../backend_impl.cuh"
-#include "../cuda_lib/vector.cuh"
-#include "../cuda_lib/register_type.cuh"
-#include "../population.cuh"
-#include "../projection.cuh"
-#include "../resource_delta_projection.cuh"
-#include "../populations_impl.cuh"
-#include "resource_stdp_impl.cuh"
 #include <knp/core/population.h>
 
 #include <vector>
+
+#include "../backend_impl.cuh"
+#include "../cuda_lib/register_type.cuh"
+#include "../cuda_lib/vector.cuh"
+#include "../population.cuh"
+#include "../populations_impl.cuh"
+#include "../projection.cuh"
+#include "../resource_delta_projection.cuh"
+#include "resource_stdp_impl.cuh"
 
 /**
  * @brief Namespace for CUDA backend.
  */
 namespace knp::backends::gpu::cuda
 {
-using ResourceBlifatParams = knp::neuron_traits::neuron_parameters<
-        knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
+using ResourceBlifatParams =
+    knp::neuron_traits::neuron_parameters<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>;
 using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
 using SynapseValue = typename CUDAProjection<ResourceSynapseType>::Synapse;
-using SynapseValuePtr = SynapseValue*;
+using SynapseValuePtr = SynapseValue *;
 using ResourceSynapseParams = knp::synapse_traits::synapse_parameters<ResourceSynapseType>;
 
-__host__ SynapsesPerNeurons initialize_synapses_per_neurons(const device_lib::IndexView &synapse_index,
-                                                            SynapseValue *start);
+__host__ SynapsesPerNeurons
+initialize_synapses_per_neurons(const device_lib::IndexView &synapse_index, SynapseValue *start);
 
-inline __device__ device_lib::CUDAVectorMutableView<SynapseValue*>
-    extract_synapses_from_index(SynapsesPerNeuronsView &synapse_index, device_lib::LongIndex neuron_index)
+inline __device__ device_lib::CUDAVectorMutableView<SynapseValue *> extract_synapses_from_index(
+    SynapsesPerNeuronsView &synapse_index, device_lib::LongIndex neuron_index)
 {
     assert(synapse_index.offsets_size_ > 0);
     device_lib::LongIndex offset = synapse_index.offsets_[neuron_index];
     device_lib::LongIndex size = synapse_index.offsets_[neuron_index + 1] - offset;
 #if (!defined(NDEBUG) && defined(FULL_DEBUG))
     printf("Returning synapses: size %llu offset %llu, total size %llu\n", size, offset, synapse_index.synapses_size_);
-#endif // NDEBUG
-    return device_lib::CUDAVectorMutableView<SynapseValue*>{synapse_index.synapses_ + offset, size};
+#endif  // NDEBUG
+    return device_lib::CUDAVectorMutableView<SynapseValue *>{synapse_index.synapses_ + offset, size};
 }
 
 __device__ void recalculate_synapse_weight(ResourceSynapseParams &synapse);
 
 
-void update_rstdp_synapses(CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-                           SynapsesPerNeuronsView synapses, const device_lib::CUDAVector<SpikeIndex> &spiking_neurons,
-                           StepIndex step);
-} // namespace knp::backends::gpu::cuda
+void update_rstdp_synapses(
+    CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, SynapsesPerNeuronsView synapses,
+    const device_lib::CUDAVector<SpikeIndex> &spiking_neurons, StepIndex step);
+}  // namespace knp::backends::gpu::cuda

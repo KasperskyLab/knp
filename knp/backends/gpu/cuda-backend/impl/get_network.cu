@@ -29,10 +29,7 @@ class PopulationValueIterator : public CUDABackend::BaseValueIterator<core::AllP
 {
 public:
     PopulationValueIterator() = default;
-    explicit PopulationValueIterator(const CUDABackend::PopulationContainer::const_iterator &iter)
-        : iter_(iter)
-    {
-    }
+    explicit PopulationValueIterator(const CUDABackend::PopulationContainer::const_iterator &iter) : iter_(iter) {}
 
     bool operator==(const BaseValueIterator<core::AllPopulationsVariant> &rhs) const override
     {
@@ -58,10 +55,7 @@ class ProjectionValueIterator : public CUDABackend::BaseValueIterator<core::AllP
 public:
     ProjectionValueIterator() = default;
 
-    explicit ProjectionValueIterator(const CUDABackend::ProjectionContainer::const_iterator &iter)
-        : iter_(iter)
-    {
-    }
+    explicit ProjectionValueIterator(const CUDABackend::ProjectionContainer::const_iterator &iter) : iter_(iter) {}
 
     bool operator==(const BaseValueIterator<core::AllProjectionsVariant> &rhs) const override
     {

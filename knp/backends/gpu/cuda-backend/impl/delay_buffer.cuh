@@ -22,8 +22,9 @@
 #pragma once
 
 #include <cuda.h>
-#include "cuda_lib/vector.cuh"
+
 #include "cuda_lib/safe_call.cuh"
+#include "cuda_lib/vector.cuh"
 
 namespace knp::backends::gpu::cuda
 {
@@ -38,10 +39,11 @@ constexpr int bits_per_buffer_word = sizeof(BitBufferWord) * 8;
 class BitDelayBufferView
 {
 public:
-    BitDelayBufferView(BitBufferWord *data, device_lib::LongIndex num_synapses,
-                       device_lib::LongIndex buffer_depth_words)
+    BitDelayBufferView(
+        BitBufferWord *data, device_lib::LongIndex num_synapses, device_lib::LongIndex buffer_depth_words)
         : data_(data), num_synapses_(num_synapses), buffer_depth_words_(buffer_depth_words)
-    {}
+    {
+    }
 
     /**
      * @brief Add a future impact to the buffer.
@@ -49,9 +51,8 @@ public:
      * @param delay synaptic delay.
      * @param step current step.
      */
-    __device__ void add_impact(device_lib::LongIndex synapse_id,
-                               device_lib::LongIndex delay,
-                               device_lib::LongIndex step)
+    __device__ void add_impact(
+        device_lib::LongIndex synapse_id, device_lib::LongIndex delay, device_lib::LongIndex step)
     {
         // If delay is too large for the buffer, ignore it. Should never happen unless delays change and buffer doesn't.
         if (delay >= bits_per_buffer_word * buffer_depth_words_) return;
@@ -109,7 +110,7 @@ public:
      * @param max_delay max delay for the whole projection.
      */
     __host__ BitDelayBuffer(device_lib::LongIndex num_synapses, device_lib::LongIndex max_delay)
-    : num_synapses_(num_synapses)
+        : num_synapses_(num_synapses)
     {
         buffer_depth_ = (max_delay + bits_per_word - 1) / bits_per_word;
         BitBufferWord *data;
@@ -123,10 +124,7 @@ public:
      * @brief Create a POD view to pass into kernels.
      * @return a shallow representation for the object.
      */
-    BitDelayBufferView view()
-    {
-        return BitDelayBufferView{buffer_.data(), num_synapses_, buffer_depth_};
-    }
+    BitDelayBufferView view() { return BitDelayBufferView{buffer_.data(), num_synapses_, buffer_depth_}; }
 
     __host__ __device__ void actualize() { buffer_.actualize(); }
 
@@ -147,4 +145,4 @@ private:
     device_lib::LongIndex buffer_depth_;
 };
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

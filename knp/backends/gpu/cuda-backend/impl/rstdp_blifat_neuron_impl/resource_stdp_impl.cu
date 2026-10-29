@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
-#include "resource_stdp_impl.cuh"
 #include "../cuda_lib/vector.cuh"
+#include "resource_stdp_impl.cuh"
+
+#include <algorithm>
+#include <utility>
 
 
 namespace knp::backends::gpu::cuda
@@ -70,10 +73,9 @@ __host__ __device__ bool is_point_in_interval(Value interval_begin, Value interv
 }
 
 
-__global__ void process_synapses_per_neuron_kernel(ResourceBlifatParams *neuron,
-                                                   device_lib::CUDAVectorMutableView<SynapseValue*> synapses,
-                                                   size_t neuron_index,
-                                                   StepIndex step)
+__global__ void process_synapses_per_neuron_kernel(
+    ResourceBlifatParams *neuron, device_lib::CUDAVectorMutableView<SynapseValue *> synapses, size_t neuron_index,
+    StepIndex step)
 {
     const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (synapse_id >= synapses.size_) return;
@@ -82,9 +84,8 @@ __global__ void process_synapses_per_neuron_kernel(ResourceBlifatParams *neuron,
     // Technically a race condition, float operations are not order-independent, but oh well.
     atomicAdd(&neuron->additional_threshold_, threshold_update);
 
-    const bool had_spike = is_point_in_interval<StepIndex>(step - synapse.rule_.dopamine_plasticity_period_,
-                                                           step,
-                                                           synapse.rule_.last_spike_step_ + synapse.delay_ - 1);
+    const bool had_spike = is_point_in_interval<StepIndex>(
+        step - synapse.rule_.dopamine_plasticity_period_, step, synapse.rule_.last_spike_step_ + synapse.delay_ - 1);
     // While period continues we don't change has_contributed from true to false.
     if (neuron_traits::ISIPeriodType::period_continued != neuron->isi_status_ || had_spike)
         synapse.rule_.has_contributed_ = had_spike;
@@ -103,8 +104,8 @@ __global__ void process_synapses_per_neuron_kernel(ResourceBlifatParams *neuron,
         if (synapse.rule_.has_contributed_ && !synapse.rule_.had_hebbian_update_)
         {
             // 2. If it did, then update synaptic resource value.
-            const float d_h = neuron->d_h_ * ::cuda::std::min(static_cast<float>(
-                ::cuda::std::pow(2, -neuron->stability_)), 1.F);
+            const float d_h =
+                neuron->d_h_ * ::cuda::std::min(static_cast<float>(::cuda::std::pow(2, -neuron->stability_)), 1.F);
             atomicAdd(&synapse.rule_.synaptic_resource_, d_h);
             atomicAdd(&neuron->free_synaptic_resource_, -d_h);
             synapse.rule_.had_hebbian_update_ = true;
@@ -115,10 +116,9 @@ __global__ void process_synapses_per_neuron_kernel(ResourceBlifatParams *neuron,
 }
 
 
-__global__ void process_spiking_neurons_kernel(device_lib::CUDAVectorView<SpikeIndex> spikes,
-                                               device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
-                                               SynapsesPerNeuronsView synapses,
-                                               StepIndex step)
+__global__ void process_spiking_neurons_kernel(
+    device_lib::CUDAVectorView<SpikeIndex> spikes, device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
+    SynapsesPerNeuronsView synapses, StepIndex step)
 {
     const device_lib::LongIndex spike_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (spike_id >= spikes.size_) return;
@@ -130,14 +130,15 @@ __global__ void process_spiking_neurons_kernel(device_lib::CUDAVectorView<SpikeI
     if (knp::neuron_traits::ISIPeriodType::period_started == neuron.isi_status_)
         neuron.stability_ -= neuron.stability_change_at_isi_;
     neuron.additional_threshold_ = 0.0;
-    device_lib::CUDAVectorMutableView<SynapseValue*> synapse_view = extract_synapses_from_index(synapses, neuron_id);
+    device_lib::CUDAVectorMutableView<SynapseValue *> synapse_view = extract_synapses_from_index(synapses, neuron_id);
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(synapse_view.size_);
     process_synapses_per_neuron_kernel<<<num_blocks, num_threads>>>(&neuron, synapse_view, neuron_id, step);
 }
 
 
-void process_spiking_neurons_impl(const device_lib::CUDAVector<SpikeIndex> &msg, SynapsesPerNeuronsView &synapse_index,
-                                  device_lib::CUDAVector<ResourceBlifatParams> &neurons, StepIndex step)
+void process_spiking_neurons_impl(
+    const device_lib::CUDAVector<SpikeIndex> &msg, SynapsesPerNeuronsView &synapse_index,
+    device_lib::CUDAVector<ResourceBlifatParams> &neurons, StepIndex step)
 {
     // It's very important that during this function no projection invalidates iterators.
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.size());
@@ -151,12 +152,12 @@ __device__ void recalculate_synapse_weight(ResourceSynapseParams &synapse)
     const auto weight_diff = synapse.rule_.w_max_ - synapse.rule_.w_min_;
 #if (!defined(NDEBUG) && defined(FULL_DEBUG))
     const auto weight_before = synapse.weight_;
-#endif // !NDEBUG && FULL_DEBUG
+#endif  // !NDEBUG && FULL_DEBUG
     synapse.weight_ = synapse.rule_.w_min_ + weight_diff * syn_w / (weight_diff + syn_w);
 #if (!defined(NDEBUG) && defined(FULL_DEBUG))
     if (abs(weight_before - synapse.weight_) >= 1e-5)
         printf("Weight before %f, after %f\n", weight_before, synapse.weight_);
-#endif // !NDEBUG && FULL_DEBUG
+#endif  // !NDEBUG && FULL_DEBUG
 }
 
 
@@ -168,16 +169,16 @@ __global__ void index_to_pointer(device_lib::IndexView synapse_index, SynapseVal
 }
 
 
-__host__ SynapsesPerNeurons initialize_synapses_per_neurons(
-        const device_lib::IndexView &synapse_index,
-        SynapseValue *start)
+__host__ SynapsesPerNeurons
+initialize_synapses_per_neurons(const device_lib::IndexView &synapse_index, SynapseValue *start)
 {
     SynapsesPerNeurons result;
     SPDLOG_DEBUG("Initializing synapses_per_neurons.");
     result.offsets_.resize(synapse_index.offsets_size_);
     result.synapses_.resize(synapse_index.indices_size_);
-    cudaMemcpy(result.offsets_.data(), synapse_index.offsets_ptr_,
-               sizeof(device_lib::LongIndex) * synapse_index.offsets_size_, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(
+        result.offsets_.data(), synapse_index.offsets_ptr_, sizeof(device_lib::LongIndex) * synapse_index.offsets_size_,
+        cudaMemcpyDeviceToDevice);
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(synapse_index.indices_size_);
     index_to_pointer<<<num_blocks, num_threads>>>(synapse_index, start, result.synapses_.data());
     cudaDeviceSynchronize();
@@ -186,25 +187,24 @@ __host__ SynapsesPerNeurons initialize_synapses_per_neurons(
 // TODO: Merge synapses pointers
 
 
-__global__ void add_resource_to_synapses(device_lib::CUDAVectorMutableView<SynapseValue*> synapses,
-                                         double add_resource_value)
+__global__ void add_resource_to_synapses(
+    device_lib::CUDAVectorMutableView<SynapseValue *> synapses, double add_resource_value)
 {
     const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (synapse_id >= synapses.size_) return;
     auto &synapse = ::cuda::std::get<core::synapse_data>(*synapses.data_[synapse_id]);
 #ifndef NDEBUG
     printf("Adding to synapse resource %f value %f\n", synapse.rule_.synaptic_resource_, add_resource_value);
-#endif // NDEBUG
+#endif  // NDEBUG
     synapse.rule_.synaptic_resource_ += add_resource_value;
     recalculate_synapse_weight(synapse);
 }
 
 
-__device__ void renormalize_resource(device_lib::CUDAVectorMutableView<SynapseValue*> synapses,
-                                     ResourceBlifatParams &neuron, StepIndex step)
+__device__ void renormalize_resource(
+    device_lib::CUDAVectorMutableView<SynapseValue *> synapses, ResourceBlifatParams &neuron, StepIndex step)
 {
-    if (step - neuron.last_step_ <= neuron.isi_max_ &&
-        neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced)
+    if (step - neuron.last_step_ <= neuron.isi_max_ && neuron.isi_status_ != neuron_traits::ISIPeriodType::is_forced)
     {
         // Neuron is still in ISI period, skip it.
         return;
@@ -217,8 +217,7 @@ __device__ void renormalize_resource(device_lib::CUDAVectorMutableView<SynapseVa
     }
 
     // Divide free resource between all synapses.
-    auto add_resource_value =
-            neuron.free_synaptic_resource_ / (synapses.size_ + neuron.resource_drain_coefficient_);
+    auto add_resource_value = neuron.free_synaptic_resource_ / (synapses.size_ + neuron.resource_drain_coefficient_);
 
     neuron.free_synaptic_resource_ = 0.0F;
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(synapses.size_);
@@ -228,8 +227,7 @@ __device__ void renormalize_resource(device_lib::CUDAVectorMutableView<SynapseVa
 
 template <class Synapse>
 __global__ void do_dopamine_plasticity_synapse_kernel(
-        device_lib::CUDAVectorMutableView<SynapseValue*> synapses,
-        ResourceBlifatParams *neuron, StepIndex step)
+    device_lib::CUDAVectorMutableView<SynapseValue *> synapses, ResourceBlifatParams *neuron, StepIndex step)
 {
     const device_lib::LongIndex synapse_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (synapse_id >= synapses.size_ || neuron->dopamine_value_ == 0) return;
@@ -246,10 +244,9 @@ __global__ void do_dopamine_plasticity_synapse_kernel(
 }
 
 
-template<class Synapse>
+template <class Synapse>
 __device__ void do_dopamine_plasticity_device(
-        device_lib::CUDAVectorMutableView<SynapseValue*> synapses,
-        ResourceBlifatParams &neuron, StepIndex step)
+    device_lib::CUDAVectorMutableView<SynapseValue *> synapses, ResourceBlifatParams &neuron, StepIndex step)
 {
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(synapses.size_);
 
@@ -274,14 +271,14 @@ __device__ void update_neuron_stability(ResourceBlifatParams &neuron, StepIndex 
         const double dopamine_constant = 2.0;
         const double difference = std::fabs(step - neuron.first_isi_spike_ - neuron.isi_max_);
         neuron.stability_ += neuron.stability_change_parameter_ * neuron.dopamine_value_ *
-            std::max(dopamine_constant - difference / neuron.isi_max_, -1.0);
+                             std::max(dopamine_constant - difference / neuron.isi_max_, -1.0);
     }
 }
 
 
-__global__ void do_dopamine_plasticity_kernel(SynapsesPerNeuronsView synapse_pointer_index,
-                                              device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
-                                              StepIndex step)
+__global__ void do_dopamine_plasticity_kernel(
+    SynapsesPerNeuronsView synapse_pointer_index, device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
+    StepIndex step)
 {
     using SynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
     using SynapseParamType = knp::synapse_traits::synapse_parameters<SynapseType>;
@@ -294,14 +291,14 @@ __global__ void do_dopamine_plasticity_kernel(SynapsesPerNeuronsView synapse_poi
     if (neurons.data_[neuron_id].dopamine_value_ != 0)
     {
         do_dopamine_plasticity_device<ResourceSynapseType>(
-            extract_synapses_from_index(synapse_pointer_index, neuron_id),
-            neurons.data_[neuron_id], step);
+            extract_synapses_from_index(synapse_pointer_index, neuron_id), neurons.data_[neuron_id], step);
     }
 }
 
 
-__global__ void update_and_renormalize(SynapsesPerNeuronsView synapse_pointer_index,
-                                       device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons, StepIndex step)
+__global__ void update_and_renormalize(
+    SynapsesPerNeuronsView synapse_pointer_index, device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
+    StepIndex step)
 {
     const device_lib::LongIndex neuron_id = blockIdx.x * blockDim.x + threadIdx.x;
     if (neuron_id >= neurons.size_) return;
@@ -311,19 +308,18 @@ __global__ void update_and_renormalize(SynapsesPerNeuronsView synapse_pointer_in
 }
 
 
-void update_rstdp_synapses(CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population,
-                           SynapsesPerNeuronsView synapses, const device_lib::CUDAVector<SpikeIndex> &spiking_neurons,
-                           StepIndex step)
+void update_rstdp_synapses(
+    CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron> &population, SynapsesPerNeuronsView synapses,
+    const device_lib::CUDAVector<SpikeIndex> &spiking_neurons, StepIndex step)
 {
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(population.neurons_.size());
     if (spiking_neurons.size())
     {
 #ifndef NDEBUG
         printf("Spiked neurons ");
-        for (size_t i = 0; i < spiking_neurons.size(); ++i)
-            printf("%u ", spiking_neurons.copy_at(i));
+        for (size_t i = 0; i < spiking_neurons.size(); ++i) printf("%u ", spiking_neurons.copy_at(i));
         printf("\n");
-#endif // NDEBUG
+#endif  // NDEBUG
         process_spiking_neurons_impl(spiking_neurons, synapses, population.neurons_, step);
     }
     cudaDeviceSynchronize();
@@ -336,11 +332,11 @@ void update_rstdp_synapses(CUDAPopulation<knp::neuron_traits::SynapticResourceST
     cudaDeviceSynchronize();
     SPDLOG_DEBUG("Finished dopamine plasticity calculation.");
 }
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda
 
 using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;
 using ResourceSynapseValue = typename knp::backends::gpu::cuda::CUDAProjection<ResourceSynapseType>::Synapse;
-using ResourceSynapseValuePtr = ResourceSynapseValue*;
+using ResourceSynapseValuePtr = ResourceSynapseValue *;
 
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeIndex);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

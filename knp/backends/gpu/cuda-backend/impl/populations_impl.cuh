@@ -22,12 +22,15 @@
 #pragma once
 
 #include <knp/backends/gpu-cuda/backend.h>
-#include "cuda_lib/vector.cuh"
-#include "population.cuh"
-#include <boost/mp11.hpp>
+
 #include <cuda_runtime.h>
 
 #include <vector>
+
+#include <boost/mp11.hpp>
+
+#include "cuda_lib/vector.cuh"
+#include "population.cuh"
 
 
 /**
@@ -62,8 +65,8 @@ using StepIndex = unsigned long long;
  */
 template <class Neuron>
 __global__ void calculate_neurons_impacts(
-        device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
-        device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing = false);
+    device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
+    device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing = false);
 
 
 /**
@@ -75,8 +78,8 @@ __global__ void calculate_neurons_impacts(
  */
 template <class Neuron>
 __host__ void calculate_neurons_impacts_all(
-        device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
-        const std::vector <SynapticImpactMessage> &messages_all, std::vector <device_lib::LongIndex> message_ids)
+    device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
+    const std::vector<SynapticImpactMessage> &messages_all, std::vector<device_lib::LongIndex> message_ids)
 {
     for (const auto &msg_id : message_ids)
     {
