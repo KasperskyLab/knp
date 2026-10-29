@@ -22,14 +22,16 @@
 #pragma once
 
 #include <knp/core/messaging/message_header.h>
+
 #include <cstdint>
+
 #include "../uid.cuh"
 
 
 /**
  * @brief Messaging namespace.
  */
-namespace  knp::backends::gpu::cuda
+namespace knp::backends::gpu::cuda
 {
 /**
  * @brief Common header for messages.
@@ -62,13 +64,13 @@ namespace detail
 {
 inline cuda::MessageHeader make_gpu_message_header(const knp::core::messaging::MessageHeader &host_header)
 {
-    return {.sender_uid_ = to_gpu_uid(host_header.sender_uid_), .send_time_ = host_header.send_time_,
-            .is_external_ = true};
+    return {
+        .sender_uid_ = to_gpu_uid(host_header.sender_uid_), .send_time_ = host_header.send_time_, .is_external_ = true};
 }
 
 inline knp::core::messaging::MessageHeader make_host_message_header(const cuda::MessageHeader &gpu_header)
 {
     return {.sender_uid_ = to_cpu_uid(gpu_header.sender_uid_), .send_time_ = gpu_header.send_time_};
 }
-} // namespace detail
+}  // namespace detail
 }  // namespace knp::backends::gpu::cuda

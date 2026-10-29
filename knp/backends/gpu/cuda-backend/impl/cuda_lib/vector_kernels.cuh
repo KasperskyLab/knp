@@ -27,10 +27,10 @@
 
 #include <utility>
 
-#include "safe_call.cuh"
+#include "../uid.cuh"
 #include "cu_alloc.cuh"
 #include "extraction.cuh"
-#include "../uid.cuh"
+#include "safe_call.cuh"
 
 
 /**
@@ -41,7 +41,7 @@ namespace knp::backends::gpu::cuda::device_lib
 
 // TODO : Move kernels to a different .h file.
 template <class T, class Allocator>
-__global__ void construct_kernel(T *data, size_t num_values)
+__global__ void construct_kernel(T* data, size_t num_values)
 {
     if (0 == num_values) return;
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -90,7 +90,7 @@ __global__ void move_construct_kernel(T* data_to, size_t num_elements, T* data_f
 }
 
 
-template<class T, class Allocator>
+template <class T, class Allocator>
 __global__ void destruct_kernel(T* data, size_t num_elements)
 {
     if (0 == num_elements) return;
@@ -101,8 +101,8 @@ __global__ void destruct_kernel(T* data, size_t num_elements)
 }
 
 
-template<typename T>
-__global__ void equal_kernel(T *data_1, const T *data_2, size_t size, bool *equal)
+template <typename T>
+__global__ void equal_kernel(T* data_1, const T* data_2, size_t size, bool* equal)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (!i) *equal = true;
@@ -115,4 +115,4 @@ __global__ void equal_kernel(T *data_1, const T *data_2, size_t size, bool *equa
     }
 };
 
-} // namespace knp::backends::gpu::cuda::device_lib
+}  // namespace knp::backends::gpu::cuda::device_lib

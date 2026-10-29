@@ -21,14 +21,15 @@
 
 #pragma once
 #include <knp/core/projection.h>
+
 #include <algorithm>
 #include <map>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
-#include "vector.cuh"
 #include "../cuda_bus/messaging.cuh"
+#include "vector.cuh"
 
 
 /**
@@ -121,8 +122,8 @@ __host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVe
  * @param inputs spiked neuron indices.
  * @return a vector of "output" offsets for each neuron.
  */
-__host__ CUDAVector<LongIndex> calculate_neuron_scan(const ValueIndex &index,
-                                                     const CUDAVectorView<cuda::SpikeIndex> inputs);
+__host__ CUDAVector<LongIndex> calculate_neuron_scan(
+    const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs);
 
 
 /**

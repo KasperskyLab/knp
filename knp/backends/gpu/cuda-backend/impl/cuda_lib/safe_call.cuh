@@ -22,6 +22,8 @@
 
 #include <cuda_runtime.h>
 
+#include <cstdio>
+
 
 /**
  * @brief Namespace for CUDA message bus implementations.
@@ -29,14 +31,17 @@
 namespace knp::backends::gpu::cuda::device_lib
 {
 
-#define call_and_check(ans) { knp::backends::gpu::cuda::device_lib::cgpu_assert((ans), __FILE__, __LINE__); }
+#define call_and_check(ans)                                                           \
+    {                                                                                 \
+        knp::backends::gpu::cuda::device_lib::cgpu_assert((ans), __FILE__, __LINE__); \
+    }
 
 __host__ __device__ inline void cgpu_assert(cudaError_t code, const char *file, int line)
 {
-   if (code != cudaSuccess)
-   {
-      printf("CUDA assert: %s %s %d\n", cudaGetErrorString(code), file, line);
-   }
+    if (code != cudaSuccess)
+    {
+        printf("CUDA assert: %s %s %d\n", cudaGetErrorString(code), file, line);
+    }
 }
 
 }  // namespace knp::backends::gpu::cuda::device_lib

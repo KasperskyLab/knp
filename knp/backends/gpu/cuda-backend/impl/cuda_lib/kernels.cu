@@ -19,19 +19,18 @@
  * limitations under the License.
  */
 
-#include "kernels.cuh"
-
 #include <cuda_runtime.h>
 #include <thrust/equal.h>
 #include <thrust/execution_policy.h>
 
 #include <utility>
 
-#include "printf.cuh"
-#include "vector.cuh"
-#include "safe_call.cuh"
-#include "cu_alloc.cuh"
 #include "../uid.cuh"
+#include "cu_alloc.cuh"
+#include "kernels.cuh"
+#include "printf.cuh"
+#include "safe_call.cuh"
+#include "vector.cuh"
 
 
 /**

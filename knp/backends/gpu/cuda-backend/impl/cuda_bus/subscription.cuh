@@ -21,24 +21,26 @@
 
 #pragma once
 
-#include <boost/mp11.hpp>
-#include <cuda/std/iterator>
-#include <spdlog/spdlog.h>
-#include <thrust/logical.h>
-#include <thrust/execution_policy.h>
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
-
-#include <algorithm>
-#include <vector>
 #include <knp/core/message_endpoint.h>
 
-#include "../cuda_lib/printf.cuh"
-#include "../cuda_lib/vector.cuh"
-#include "../cuda_lib/safe_call.cuh"
-#include "../cuda_lib/kernels.cuh"
+#include <spdlog/spdlog.h>
+#include <thrust/device_vector.h>
+#include <thrust/execution_policy.h>
+#include <thrust/host_vector.h>
+#include <thrust/logical.h>
+
+#include <algorithm>
+#include <cuda/std/iterator>
+#include <vector>
+
+#include <boost/mp11.hpp>
+
 #include "../cuda_lib/extraction.cuh"
 #include "../cuda_lib/get_blocks_config.cuh"
+#include "../cuda_lib/kernels.cuh"
+#include "../cuda_lib/printf.cuh"
+#include "../cuda_lib/safe_call.cuh"
+#include "../cuda_lib/vector.cuh"
 #include "../uid.cuh"
 #include "messaging.cuh"
 
@@ -65,8 +67,8 @@ public:
      * @param receiver receiver UID.
      * @param senders list of sender UIDs.
      */
-    __host__ Subscription(const cuda::UID &receiver, const std::vector<cuda::UID> &senders, int type_index) :
-            receiver_(receiver), type_index_(type_index)
+    __host__ Subscription(const cuda::UID &receiver, const std::vector<cuda::UID> &senders, int type_index)
+        : receiver_(receiver), type_index_(type_index)
     {
         SPDLOG_TRACE("Initializing with {} senders.", senders.size());
         for (size_t i = 0; i < senders.size(); ++i) add_sender(senders[i]);
@@ -85,10 +87,8 @@ public:
      * @param senders message senders.
      * @param type_index message type index.
      */
-    __device__ Subscription(const cuda::UID &receiver,
-                            const device_lib::CUDAVector<cuda::UID> &senders,
-                            int type_index) :
-    receiver_(receiver), type_index_(type_index)
+    __device__ Subscription(const cuda::UID &receiver, const device_lib::CUDAVector<cuda::UID> &senders, int type_index)
+        : receiver_(receiver), type_index_(type_index)
     {
         for (size_t i = 0; i < senders.size(); ++i)
         {
@@ -101,8 +101,8 @@ public:
      * @param receiver receiver UID.
      * @param senders list of sender UIDs.
      */
-    __host__ Subscription(const gpu::cuda::UID &receiver, const std::vector<gpu::cuda::UID> &senders) :
-        receiver_(receiver)
+    __host__ Subscription(const gpu::cuda::UID &receiver, const std::vector<gpu::cuda::UID> &senders)
+        : receiver_(receiver)
     {
         SPDLOG_TRACE("Initializing with {} senders.", senders.size());
         for (const auto &sender : senders) add_sender(sender);
@@ -118,12 +118,12 @@ public:
     /**
      * @brief get message type for subscription.
      */
-     [[nodiscard]] __device__ __host__ int type() const { return type_index_; }
+    [[nodiscard]] __device__ __host__ int type() const { return type_index_; }
 
     /**
-      * @brief Get UID of the entity that receives messages via the subscription.
-      * @return UID.
-      */
+     * @brief Get UID of the entity that receives messages via the subscription.
+     * @return UID.
+     */
     [[nodiscard]] __device__ __host__ cuda::UID get_receiver_uid() const { return receiver_; }
 
     /**
@@ -219,8 +219,7 @@ public:
         int message_type = message.index();
         if (message_type != type_index_) return false;
 
-        UID message_sender = ::cuda::std::visit([](const auto &msg) { return msg.header_.sender_uid_; },
-                                                message);
+        UID message_sender = ::cuda::std::visit([](const auto &msg) { return msg.header_.sender_uid_; }, message);
         return has_sender(message_sender);
     }
 
@@ -245,9 +244,9 @@ public:
      */
     __host__ __device__ void actualize()
     {
-    #ifndef __CUDA_ARCH__
+#ifndef __CUDA_ARCH__
         SPDLOG_TRACE("Actualizing subscription senders");
-    #endif
+#endif
         senders_.actualize();
     }
 
@@ -268,4 +267,4 @@ private:
     int type_index_;
 };
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

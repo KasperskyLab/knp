@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include <algorithm>
-#include <utility>
-
 #include <cuda_runtime.h>
 #include <spdlog/spdlog.h>
+
+#include <algorithm>
+#include <utility>
 
 
 /**
@@ -34,11 +34,12 @@
 namespace knp::backends::gpu::cuda::device_lib
 {
 
-__host__ __device__ inline ::cuda::std::pair<size_t, size_t> get_blocks_config(size_t num_total, size_t threads_per_block = 256)
+__host__ __device__ inline ::cuda::std::pair<size_t, size_t> get_blocks_config(
+    size_t num_total, size_t threads_per_block = 256)
 {
     size_t num_threads = ::cuda::std::min(num_total, threads_per_block);
     size_t num_blocks = (num_total + threads_per_block - 1) / threads_per_block;
     return ::cuda::std::make_pair(num_blocks, num_threads);
 }
 
-} // namespace knp::backends::gpu::cuda::device_lib
+}  // namespace knp::backends::gpu::cuda::device_lib

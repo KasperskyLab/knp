@@ -21,23 +21,23 @@
 
 #pragma once
 
-#include <knp/core/uid.h>
 #include <knp/core/message_endpoint.h>
 #include <knp/core/subscription.h>
-#include <cub/config.cuh>
+#include <knp/core/uid.h>
 
 #include <cuda/std/variant>
-
 #include <functional>
 #include <memory>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "subscription.cuh"
+#include <cub/config.cuh>
+
+#include "../cuda_lib/vector.cuh"
 #include "../uid.cuh"
 #include "messaging.cuh"
-#include "../cuda_lib/vector.cuh"
+#include "subscription.cuh"
 
 
 /**
@@ -53,7 +53,7 @@ namespace knp::backends::gpu::cuda
 template <class Message>
 struct MessageBuffer
 {
-    std::vector<Message> messages_; // Owning CPU container, calls destructors
+    std::vector<Message> messages_;  // Owning CPU container, calls destructors
     std::unordered_map<knp::core::UID, std::vector<device_lib::LongIndex>, knp::core::uid_hash> message_ids_;
 
     void add_message(Message &&message_to_add)
@@ -77,8 +77,7 @@ struct MessageBuffer
     [[nodiscard]] std::vector<device_lib::LongIndex> find_message_ids(const knp::core::UID &sender) const
     {
         auto iter = message_ids_.find(sender);
-        if (iter == message_ids_.end())
-            return {};
+        if (iter == message_ids_.end()) return {};
         return iter->second;
     }
 
@@ -91,8 +90,8 @@ struct MessageBuffer
 
 
 /**
-* @brief The MessageBus class is a definition of an interface to a message bus.
-*/
+ * @brief The MessageBus class is a definition of an interface to a message bus.
+ */
 class CUDAMessageBus
 {
 public:
@@ -102,8 +101,7 @@ public:
      * @brief Construct GPU message bus.
      * @param external_endpoint message endpoint used for message exchange with host.
      */
-    explicit CUDAMessageBus(knp::core::MessageEndpoint &external_endpoint) : cpu_endpoint_{external_endpoint}
-    {}
+    explicit CUDAMessageBus(knp::core::MessageEndpoint &external_endpoint) : cpu_endpoint_{external_endpoint} {}
 
 public:
     /**
@@ -135,7 +133,7 @@ public:
      * @return all messages of the given type, as a vector.
      */
     template <typename MessageType>
-    [[nodiscard]] __host__ const std::vector<MessageType>& all_messages() const
+    [[nodiscard]] __host__ const std::vector<MessageType> &all_messages() const
     {
         return get_message_buffer<MessageType>().messages_;
     }
@@ -253,7 +251,10 @@ public:
      * @return number of stored messages.
      */
     template <class MessageType>
-    __host__ size_t get_num_messages() const { return all_messages<MessageType>().size(); }
+    __host__ size_t get_num_messages() const
+    {
+        return all_messages<MessageType>().size();
+    }
 
 public:
     /**
@@ -265,15 +266,14 @@ public:
      * @brief Get a reference of the subscription container of the endpoint.
      * @return reference to the subscription container.
      */
-    SubscriptionContainer& get_subscriptions() { return subscriptions_; }
+    SubscriptionContainer &get_subscriptions() { return subscriptions_; }
 
 private:
+    template <class MessageType>
+    MessageBuffer<MessageType> &get_message_buffer();
 
-    template<class MessageType>
-    MessageBuffer<MessageType>& get_message_buffer();
-
-    template<class MessageType>
-    const MessageBuffer<MessageType>& get_message_buffer() const;
+    template <class MessageType>
+    const MessageBuffer<MessageType> &get_message_buffer() const;
 
     /**
      * @brief Send messages to CPU endpoint.
@@ -332,30 +332,30 @@ private:
 };
 
 
-template<>
-inline MessageBuffer<SpikeMessage>& CUDAMessageBus::get_message_buffer<SpikeMessage>()
+template <>
+inline MessageBuffer<SpikeMessage> &CUDAMessageBus::get_message_buffer<SpikeMessage>()
 {
     return messages_spikes_;
 }
 
 
-template<>
-inline MessageBuffer<SynapticImpactMessage>& CUDAMessageBus::get_message_buffer<SynapticImpactMessage>()
+template <>
+inline MessageBuffer<SynapticImpactMessage> &CUDAMessageBus::get_message_buffer<SynapticImpactMessage>()
 {
     return messages_impacts_;
 }
 
-template<>
-inline const MessageBuffer<SpikeMessage>& CUDAMessageBus::get_message_buffer<SpikeMessage>() const
+template <>
+inline const MessageBuffer<SpikeMessage> &CUDAMessageBus::get_message_buffer<SpikeMessage>() const
 {
     return messages_spikes_;
 }
 
 
-template<>
-inline const MessageBuffer<SynapticImpactMessage>& CUDAMessageBus::get_message_buffer<SynapticImpactMessage>() const
+template <>
+inline const MessageBuffer<SynapticImpactMessage> &CUDAMessageBus::get_message_buffer<SynapticImpactMessage>() const
 {
     return messages_impacts_;
 }
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda

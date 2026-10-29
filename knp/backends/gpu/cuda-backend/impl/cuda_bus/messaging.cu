@@ -19,29 +19,29 @@
  * limitations under the License.
  */
 
-#include "messaging.cuh"
-#include "../cuda_lib/kernels.cuh"
-#include "subscription.cuh"
+#include <type_traits>
+
 #include "../cuda_lib/extraction.cuh"
+#include "../cuda_lib/kernels.cuh"
 #include "../cuda_lib/register_all.cuh"
 #include "../cuda_lib/vector_kernels.cuh"
-
-#include <type_traits>
+#include "messaging.cuh"
+#include "subscription.cuh"
 
 /**
  * @brief CUDA messaging namespace.
  */
 namespace knp::backends::gpu::cuda
 {
-template<size_t index>
+template <size_t index>
 MessageVariant extract_message_by_index(const void *msg_ptr)
 {
     return gpu_extract<boost::mp11::mp_at_c<AllCudaMessages, index>>(
-            reinterpret_cast<const boost::mp11::mp_at_c<AllCudaMessages, index> *>(msg_ptr));
+        reinterpret_cast<const boost::mp11::mp_at_c<AllCudaMessages, index> *>(msg_ptr));
 }
 
 
-template<size_t Index>
+template <size_t Index>
 inline void extract_dispatch(MessageVariant &result, size_t type, const void *msg_ptr)
 {
     if (Index - 1 == type)
@@ -60,7 +60,7 @@ inline void extract_dispatch(MessageVariant &result, size_t type, const void *ms
 }
 
 
-template<>
+template <>
 MessageVariant gpu_extract<MessageVariant>(const MessageVariant *message)
 {
     int *type_gpu;
@@ -84,19 +84,21 @@ MessageVariant gpu_extract<MessageVariant>(const MessageVariant *message)
 }
 
 
-template<>
+template <>
 void gpu_insert<MessageVariant>(const MessageVariant &cpu_source, MessageVariant *gpu_target)
 {
-    ::cuda::std::visit([gpu_target](const auto &val)
-    {
-        using ValueType = std::decay_t<decltype(val)>;
-        ValueType *buffer;
-        call_and_check(cudaMalloc(&buffer, sizeof(ValueType)));
-        gpu_insert(val, buffer);
-        device_lib::make_variant_kernel<<<1, 1>>>(gpu_target, buffer);
-        device_lib::destruct_kernel<ValueType, device_lib::CuMallocAllocator<ValueType>><<<1, 1>>>(buffer, 1);
-        call_and_check(cudaFree(buffer));
-    }, cpu_source);
+    ::cuda::std::visit(
+        [gpu_target](const auto &val)
+        {
+            using ValueType = std::decay_t<decltype(val)>;
+            ValueType *buffer;
+            call_and_check(cudaMalloc(&buffer, sizeof(ValueType)));
+            gpu_insert(val, buffer);
+            device_lib::make_variant_kernel<<<1, 1>>>(gpu_target, buffer);
+            device_lib::destruct_kernel<ValueType, device_lib::CuMallocAllocator<ValueType>><<<1, 1>>>(buffer, 1);
+            call_and_check(cudaFree(buffer));
+        },
+        cpu_source);
 }
 
 
@@ -109,8 +111,9 @@ cuda::SpikeMessage make_gpu_message(const knp::core::messaging::SpikeMessage &ho
     if (data_n != 0)
     {
         result.neuron_indexes_.resize(data_n);
-        call_and_check(cudaMemcpy(result.neuron_indexes_.data(), host_message.neuron_indexes_.data(),
-                                  data_n * sizeof(cuda::SpikeIndex), cudaMemcpyHostToDevice));
+        call_and_check(cudaMemcpy(
+            result.neuron_indexes_.data(), host_message.neuron_indexes_.data(), data_n * sizeof(cuda::SpikeIndex),
+            cudaMemcpyHostToDevice));
     }
     return result;
 }
@@ -125,17 +128,16 @@ knp::core::messaging::SpikeMessage make_host_message(const cuda::SpikeMessage &g
     if (data_n != 0)
     {
         result.neuron_indexes_.resize(data_n);
-        call_and_check(cudaMemcpy(result.neuron_indexes_.data(), gpu_message.neuron_indexes_.data(),
-                                  data_n * sizeof(cuda::SpikeIndex), cudaMemcpyDeviceToHost));
+        call_and_check(cudaMemcpy(
+            result.neuron_indexes_.data(), gpu_message.neuron_indexes_.data(), data_n * sizeof(cuda::SpikeIndex),
+            cudaMemcpyDeviceToHost));
     }
     return result;
 }
 
 
-
-__global__ void copy_host_impact_kernel(cuda::SynapticImpact *impacts_to,
-                                        const knp::core::messaging::SynapticImpact *impacts_from,
-                                        size_t num_impacts)
+__global__ void copy_host_impact_kernel(
+    cuda::SynapticImpact *impacts_to, const knp::core::messaging::SynapticImpact *impacts_from, size_t num_impacts)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= num_impacts) return;
@@ -143,9 +145,8 @@ __global__ void copy_host_impact_kernel(cuda::SynapticImpact *impacts_to,
 }
 
 
-__global__ void copy_gpu_impact_kernel(knp::core::messaging::SynapticImpact *impacts_to,
-                                       const cuda::SynapticImpact *impacts_from,
-                                       size_t num_impacts)
+__global__ void copy_gpu_impact_kernel(
+    knp::core::messaging::SynapticImpact *impacts_to, const cuda::SynapticImpact *impacts_from, size_t num_impacts)
 {
     const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= num_impacts) return;
@@ -207,22 +208,17 @@ knp::core::messaging::SynapticImpactMessage make_host_message(const cuda::Synapt
 
 knp::core::messaging::MessageVariant make_host_message(const cuda::MessageVariant &gpu_message)
 {
-    return ::cuda::std::visit([](const auto &msg)
-    {
-        return knp::core::messaging::MessageVariant{make_host_message(msg)};
-    }, gpu_message);
+    return ::cuda::std::visit(
+        [](const auto &msg) { return knp::core::messaging::MessageVariant{make_host_message(msg)}; }, gpu_message);
 }
 
 
 cuda::MessageVariant make_gpu_message(const knp::core::messaging::MessageVariant &host_message)
 {
-    return std::visit([](const auto &msg)
-    {
-        return cuda::MessageVariant{make_gpu_message(msg)};
-    }, host_message);
+    return std::visit([](const auto &msg) { return cuda::MessageVariant{make_gpu_message(msg)}; }, host_message);
 }
 
-} // namespace knp::backends::gpu::cuda
+}  // namespace knp::backends::gpu::cuda
 
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeMessage);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpactMessage);

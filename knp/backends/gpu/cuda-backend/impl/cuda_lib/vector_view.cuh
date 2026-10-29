@@ -29,7 +29,7 @@ using LongIndex = unsigned long long;
  * @brief Plain Old Data structure for CUDAVector, used to pass into kernels.
  * @tparam T Value type for CUDAVector.
  */
-template<class T>
+template <class T>
 struct CUDAVectorView
 {
     const T *const data_;
@@ -41,10 +41,10 @@ struct CUDAVectorView
  * @brief Plain Old Data structure for CUDAVector representation, use to pass into kernels that change the contents.
  * @tparam T value type for CUDAVector.
  */
-template<class T>
+template <class T>
 struct CUDAVectorMutableView
 {
     T *const data_;
     const LongIndex size_;
 };
-} // namespace knp::backends::gpu::cuda::device_lib
+}  // namespace knp::backends::gpu::cuda::device_lib
