@@ -234,7 +234,7 @@ jobs:
       - name: Install Graphviz
         if: matrix.c_compiler == 'cl'
         run: |
-          choco install graphviz 
+          choco install pkgconfiglite graphviz 
 
       - name: Configure CMake
         env:
