@@ -223,9 +223,19 @@ jobs:
           brew install boost
           echo "root=$(brew --prefix boost)" >> "$GITHUB_OUTPUT"
 
-      - name: Install OpenCV via vcpkg
+      - name: Install Graphviz (macOS)
+        if: runner.os == 'macOS'
+        run: brew install graphviz
+
+      # - name: Install OpenCV via vcpkg
+      #   if: matrix.c_compiler == 'cl'
+      #   run: vcpkg install opencv:x64-windows
+
+      - name: Debug graphviz availability
         if: matrix.c_compiler == 'cl'
-        run: vcpkg install opencv:x64-windows
+        run: |
+          vcpkg search graphviz
+          choco search graphviz --exact
 
       - name: Configure CMake
         env:

@@ -90,7 +90,7 @@ if (Boost_ROOT)  # WIN32?
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_ALL_DYN_LINK OFF)
 
-    if (NOT WIN32)
+    if (NOT WIN32 AND NOT APPLE)
         set(Boost_USE_STATIC_RUNTIME ON)
     endif()
 
