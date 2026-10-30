@@ -234,7 +234,8 @@ jobs:
       - name: Install Graphviz
         if: matrix.c_compiler == 'cl'
         run: |
-          choco install pkgconfiglite graphviz 
+          choco install pkgconfiglite graphviz
+          echo "PKG_CONFIG_PATH=C:\Program Files\Graphviz\lib\pkgconfig" >> $env:GITHUB_ENV
 
       - name: Configure CMake
         env:
