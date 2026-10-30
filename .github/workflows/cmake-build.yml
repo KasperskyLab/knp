@@ -231,11 +231,10 @@ jobs:
       #   if: matrix.c_compiler == 'cl'
       #   run: vcpkg install opencv:x64-windows
 
-      - name: Debug graphviz availability
+      - name: Install Graphviz
         if: matrix.c_compiler == 'cl'
         run: |
-          vcpkg search graphviz
-          choco search graphviz --exact
+          choco search graphviz 
 
       - name: Configure CMake
         env:
