@@ -76,8 +76,8 @@ using BlifatPopulation = knp::core::Population<knp::neuron_traits::BLIFATNeuron>
 TEST(SlicingGenerators, NeuronSlicing)
 {
     constexpr int num_iterations = 20;
-    constexpr float potential = 11.3F;
-    constexpr float threshold = 20.2F;
+    static constexpr float potential = 11.3F;
+    static constexpr float threshold = 20.2F;
     ResourcePopulation::NeuronGenerator generator = [](size_t step) -> std::optional<StdpBlifatParams>
     {
         StdpBlifatParams params;
