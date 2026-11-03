@@ -134,9 +134,9 @@ std::vector<InferenceResult> do_inference(
     knp::framework::Model model(std::move(network));
 
     // The largest projection is the input image projection. These are numbers for a specific MNIST model.
-    constexpr size_t img_input_size = 117600;
+    static constexpr size_t img_input_size = 117600;
     auto is_input = [](const knp::core::AllProjectionsVariant &proj)
-    { return std::visit([img_input_size](const auto &p) { return p.size(); }, proj) == img_input_size; };
+    { return std::visit([](const auto &p) { return p.size(); }, proj) == img_input_size; };
 
     std::vector<knp::core::UID> input_image_projection_uids = find_projections(model.get_network(), is_input);
     if (input_image_projection_uids.empty()) throw std::runtime_error("Wrong model file: model doesn't have inputs");

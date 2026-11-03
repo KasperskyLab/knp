@@ -33,10 +33,10 @@ using DeltaProjection = knp::core::Projection<knp::synapse_traits::DeltaSynapse>
 TEST(SlicingGenerators, SynapseSlicing)
 {
     constexpr int num_iterations = 20;
-    constexpr float weight = 0.17;
-    constexpr uint64_t delay = 4;
+    static constexpr float weight = 0.17;
+    static constexpr uint64_t delay = 4;
     ResourceProjection::SynapseGenerator generator =
-            [weight, delay](size_t step) -> std::optional<ResourceProjection::Synapse>
+            [](size_t step) -> std::optional<ResourceProjection::Synapse>
             {
                 return std::make_tuple(ResourceProjection::SynapseParameters{
                     {weight, delay, knp::synapse_traits::OutputType::EXCITATORY}
