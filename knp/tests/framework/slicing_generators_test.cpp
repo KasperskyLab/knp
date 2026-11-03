@@ -36,7 +36,7 @@ TEST(SlicingGenerators, SynapseSlicing)
     constexpr float weight = 0.17;
     constexpr uint64_t delay = 4;
     ResourceProjection::SynapseGenerator generator =
-            [](size_t step) -> std::optional<ResourceProjection::Synapse>
+            [weight, delay](size_t step) -> std::optional<ResourceProjection::Synapse>
             {
                 return std::make_tuple(ResourceProjection::SynapseParameters{
                     {weight, delay, knp::synapse_traits::OutputType::EXCITATORY}

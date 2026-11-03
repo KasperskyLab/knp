@@ -136,7 +136,7 @@ std::vector<InferenceResult> do_inference(
     // The largest projection is the input image projection. These are numbers for a specific MNIST model.
     constexpr size_t img_input_size = 117600;
     auto is_input = [](const knp::core::AllProjectionsVariant &proj)
-    { return std::visit([](const auto &p) { return p.size(); }, proj) == img_input_size; };
+    { return std::visit([img_input_size](const auto &p) { return p.size(); }, proj) == img_input_size; };
 
     std::vector<knp::core::UID> input_image_projection_uids = find_projections(model.get_network(), is_input);
     if (input_image_projection_uids.empty()) throw std::runtime_error("Wrong model file: model doesn't have inputs");
@@ -148,7 +148,7 @@ std::vector<InferenceResult> do_inference(
         model.add_input_channel(input_image_channel_uids[i], input_image_projection_uids[i]);
     }
 
-    auto spike_frames = read_spike_frames(path_to_data);
+    auto spike_frames = read_spike_frames(path_to_data.string());
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
     for (auto img_channel_uid : input_image_channel_uids)
