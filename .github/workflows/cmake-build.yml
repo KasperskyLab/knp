@@ -236,6 +236,7 @@ jobs:
         run: |
           choco install pkgconfiglite graphviz
           echo "PKG_CONFIG_PATH=C:\Program Files\Graphviz\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
 
       - name: Configure CMake
         env:
