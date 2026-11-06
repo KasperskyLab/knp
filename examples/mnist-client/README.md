@@ -87,7 +87,7 @@ _Image classification of handwritten numbers from the MNIST database consists of
         3.  Build a visual graph using the `build_graph()` function.
         4.  Prints a textual description of graph connections using the `print_network_description()` function. 
         5.  Writes the graph to a DOT file using `write_dot()` function.
-        6. Renders the pgraph to PNG using the `render_graph()` function.
+        6. Renders the graph to PNG using the `render_graph()` function.
     7. Defines the `main()` function behavior if it is called to run inference (classify images). If the function is called to run inference, the `main()` function does the following:
         1.  Defines a path to backend.
         2.  Runs model inference using the `do_inference()` function.

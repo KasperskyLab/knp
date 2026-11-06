@@ -169,7 +169,7 @@ public:
      * connection pattern. Automatically handles training flags, WTA connectivity, and inference retention management.
      * 
      * @tparam Synapse synapse type.
-     * @tparam Creator yype of callable creator of synapses.
+     * @tparam Creator type of callable creator of synapses.
      * 
      * @param synapse synapse parameters for projection construction.
      * @param creator callable creator function for synapses (typically from `knp::framework::projection::creators`).

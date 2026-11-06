@@ -224,7 +224,7 @@ knp::framework::visualizer::BusConnections train_model(
     prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
 
     // Copy the backend's subscription information before the backend object is
-    // destroyed; the copied data is later used for visualising dynamic graph
+    // destroyed; the copied data is later used for visualizing dynamic graph
     // connections.
     return knp::framework::visualizer::get_bus_connections(training_backend->get_message_endpoint());
 }

@@ -352,7 +352,7 @@ _Neural network training on image data and labels and classification of images f
     1. Builds an annotated network with appropriate populations, projections, and WTA configuration using `construct_network()`.
     2. Runs the complete training process with `train_model()`.
     3. Builds static and dynamic visual graphs with `build_graph()`.
-    4. Prints descruptions of both graphs with `print_network_description()`.
+    4. Prints descriptions of both graphs with `print_network_description()`.
     5. Writes DOT files and renders PNG images for both graphs using `write_dot()` and `render_graph()` functions.
     6. Upcasts populations to the most generic neuron type.
     7. Upcasts projections to generic `DeltaSynapse` type. 

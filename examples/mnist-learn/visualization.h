@@ -34,7 +34,7 @@
  * @param bus bus connections extracted from the training backend.
  *
  * @return `knp::framework::visualizer::DynamicInfo` object that merges runtime bus subscriptions with annotation level 
- * entities. This object produce a dynamic visualisation that shows both static network structure and runtime 
+ * entities. This object produce a dynamic visualization that shows both static network structure and runtime 
  * communication links.
  *
  * @details A handler and an output channel subscribe to their senders through their own message endpoints, so these
@@ -91,7 +91,7 @@ inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwo
  * @param network annotated network.
  * @param bus bus connections obtained from the backend after training.
  *
- * @return network graph that visualises both the static network elements and the dynamic entities, that is, WTA handlers,
+ * @return network graph that visualizes both the static network elements and the dynamic entities, that is, WTA handlers,
  * input and output channels, and bus-based subscriptions.
  *
  * @details Connections come from message bus subscriptions. What the message bus does not have, for example, WTA handlers and
