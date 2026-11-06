@@ -1,6 +1,6 @@
 /**
  * @file graph_builder.cpp
- * @brief Building a network graph: a Boost Graph from collected nodes and edges.
+ * @brief Building a network graph: a Boost Graph from obtained nodes and edges.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -96,7 +96,7 @@ void add_edges_to_graph(
 
 
 /**
- * @brief Make network graph from collected nodes and edges.
+ * @brief Make network graph from obtained nodes and edges.
  *
  * @param nodes vector of nodes.
  * @param edges vector of edges.

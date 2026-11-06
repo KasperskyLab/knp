@@ -356,7 +356,7 @@ protected:
     void _init() override;
 
     /**
-     * @brief Synchronizes the internal storage with backend implementation.
+     * @brief Synchronize the internal storage with backend implementation.
      */
     void unload_from_device() const;
 

@@ -32,7 +32,7 @@
 namespace knp::framework::visualizer::impl
 {
 /**
- * @brief The NetworkGraphImpl class is an internal implementation class for network graph.
+ * @brief The `NetworkGraphImpl` class is an internal implementation class for network graph.
  */
 class NetworkGraphImpl;
 }  // namespace knp::framework::visualizer::impl
@@ -45,7 +45,7 @@ namespace knp::framework::visualizer
 {
 
 /**
- * @brief Network graph built from a network or from message bus subscriptions.
+ * @brief The `NetworkGraph` class is a definition of a network graph built from a network or from message bus subscriptions.
  *
  * @details The graph is built by `build_graph` and passed to the description and visualization functions. Its
  * nodes and edges are internal.
@@ -54,19 +54,19 @@ class KNP_DECLSPEC NetworkGraph
 {
 public:
     /**
-     * @brief Network graph constructor with an implementation.
+     * @brief Construct a graph from a ready-made implementation.
      *
      * @param impl network graph implementation.
      */
     explicit NetworkGraph(std::unique_ptr<impl::NetworkGraphImpl> &&impl);
 
     /**
-     * @brief Move constructor.
+     * @brief Default move constructor.
      */
     NetworkGraph(NetworkGraph &&) noexcept;
 
     /**
-     * @brief Move assignment operator.
+     * @brief Default move assignment operator.
      *
      * @return reference to the graph.
      */
@@ -78,9 +78,9 @@ public:
     ~NetworkGraph();
 
     /**
-     * @brief Check that the graph was built with message bus subscriptions.
+     * @brief Check that the graph was built with dynamic bus-driven information.
      *
-     * @return `true` for a dynamic graph.
+     * @return `true` if the graph contains dynamic edges/nodes, `false` otherwise.
      */
     [[nodiscard]] bool is_dynamic() const;
 

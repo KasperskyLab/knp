@@ -1,6 +1,6 @@
 /**
  * @file all_traits.h
- * @brief Delta synapse type traits.
+ * @brief List of all synapse type traits.
  * @kaspersky_support Artiom N.
  * @date 22.03.2023
  * @license Apache 2.0

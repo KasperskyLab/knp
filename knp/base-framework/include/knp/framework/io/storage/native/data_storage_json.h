@@ -1,6 +1,6 @@
 /**
  * @file data_storage_json.h
- * @brief Load data from file.
+ * @brief Load data from JSON file.
  * @kaspersky_support Vartenkov Andrey
  * @date 16.04.2024
  * @license Apache 2.0

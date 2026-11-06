@@ -35,62 +35,72 @@
 namespace knp::framework::visualizer
 {
 
+
 /**
- * @brief Print node and edge connections of a network graph.
+ * @brief Print a human-readable description of a network graph.
  *
- * @param graph network graph.
- * @param out output stream, standard output by default.
+ * @details The description lists each visible node together with its incoming and outgoing
+ * edges, using the same naming and ordering as the DOT export. This guarantees
+ * that the textual description and the visual picture always match.
  *
- * @details The function writes a line for each node and its incoming and outgoing edges. The same nodes and edges are
- * written as in the DOT text, so a description and a picture always match.
+ * @param graph `NetworkGraph` to describe.
+ * @param out output stream; defaults to `std::cout`.
+ *
+ * @note The function does not modify the graph.
  */
 KNP_DECLSPEC void print_network_description(const NetworkGraph& graph, std::ostream& out = std::cout);
 
 
 /**
- * @brief Write network graph to a stream in DOT format.
+ * @brief Export a network graph to DOT format.
  *
- * @param graph network graph.
+ * @param graph `NetworkGraph` to export.
  * @param out output stream.
+ *
+ * @details The generated DOT text contains a header, global style settings,
+ * node definitions, edge definitions and a closing brace.
  */
 KNP_DECLSPEC void write_dot(const NetworkGraph& graph, std::ostream& out);
 
 
 /**
- * @brief Write network graph to a file in DOT format.
+ * @brief Export a network graph to a DOT file.
  *
- * @param graph network graph.
- * @param file path to the DOT file. A parent directory is created if it does not exist.
+ * @param graph `NetworkGraph` to export.
+ * @param file path to the output file. Parent directories are created if they do not exist.
  *
- * @throw std::filesystem::filesystem_error if a directory cannot be created.
- * @throw std::runtime_error if the file cannot be written.
+ * @throw std::filesystem::filesystem_error If a directory cannot be created.
+ * @throw std::runtime_error If the file cannot be opened or written.
+ *
+ * @note The function writes the same content as the stream overload.
  */
 KNP_DECLSPEC void write_dot(const NetworkGraph& graph, const std::filesystem::path& file);
 
 
 /**
- * @brief Render network graph to a stream as an image.
+ * @brief Render a network graph to an image stream using Graphviz.
  *
- * @param graph network graph.
- * @param out output stream.
- * @param format graphviz output format ("png", "svg", "pdf" and so on).
+ * @param graph `NetworkGraph` to render.
+ * @param out output stream - binary mode for PNG/SVG/etc.
+ * @param format graphviz output format, for example, "png", "svg", "pdf". Default is "png".
  *
- * @return boolean indicating success.
+ * @return `true` on successful rendering, `false` otherwise.
  *
- * @details No intermediate file is created: the DOT text and the rendered image are kept in memory.
+ * @details The function generates DOT text internally, feeds it to Graphviz and streams the
+ * rendered image back to the caller. No temporary files are created.
  */
 KNP_DECLSPEC bool render_graph(const NetworkGraph& graph, std::ostream& out, const std::string& format = "png");
 
 
 /**
- * @brief Render network graph to a file as an image.
+ * @brief Render a network graph directly to an image file.
  *
- * @param graph network graph.
- * @param file path to the image file. A parent directory is created if it does not exist.
- * @param format graphviz output format ("png", "svg", "pdf" and so on).
+ * @param graph `NetworkGraph` to render.
+ * @param file target file path. Parent directories are created if needed.
+ * @param format graphviz output format, for example, "png", "svg", "pdf". Default is "png".
  *
- * @throw std::filesystem::filesystem_error if a directory cannot be created.
- * @throw std::runtime_error if the graph cannot be rendered or the file cannot be written.
+ * @throw std::filesystem::filesystem_error If a directory cannot be created.
+ * @throw std::runtime_error If rendering fails or the file cannot be written.
  */
 KNP_DECLSPEC void render_graph(
     const NetworkGraph& graph, const std::filesystem::path& file, const std::string& format = "png");

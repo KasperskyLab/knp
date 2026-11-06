@@ -35,24 +35,34 @@ namespace knp::framework::visualizer
 {
 
 /**
- * @brief Connections taken from message endpoint subscriptions.
+ * @brief Raw bus subscriptions pairs.
  *
- * @details Plain copies of the subscriptions: [sender, receiver] pairs. The structure keeps no reference to a
- * backend, so it stays valid after the backend is destroyed and can be passed anywhere.
+ * @details The vectors contain subscriptions pairs [sender, receiver] where both elements are entity UIDs.
+ *
+ * The structure holds plain copies of the subscriptions; it does not keep any reference to the
+ * backend, therefore it remains valid after the backend is destroyed and can be safely passed
+ * across thread boundaries.
  */
 struct BusConnections
 {
-    /// Spike messages: the sender is a population, a handler or an input channel, the receiver is a projection.
+    /**
+     * @brief Spike messages: a population, a handler or an input channel, generates spikes that are received
+     * by a projection.
+     */ 
     // cppcheck-suppress unusedStructMember
     std::vector<std::pair<knp::core::UID, knp::core::UID>> spike_messages_;
-    /// Synaptic impact messages: the sender is a projection, the receiver is a population.
+    
+    /**
+     * @brief Synaptic impact messages: a projection publishes synaptic impact that is received
+     * by a population.
+     */
     // cppcheck-suppress unusedStructMember
     std::vector<std::pair<knp::core::UID, knp::core::UID>> synaptic_messages_;
 };
 
 
 /**
- * @brief Entity that is not described by the network: a message handler or a channel.
+ * @brief Description of an entity that is not defined in the static network. For example, a message handler or a channel.
  *
  * @details Some entities cannot be restored from the message bus of a backend. A message handler subscribes to its
  * senders through its own message endpoint, and an output channel does the same, so these subscriptions are not
@@ -60,25 +70,40 @@ struct BusConnections
  */
 struct ExternalEntity
 {
-    /// Entity UID.
+    /**
+     * @brief Entity UID.
+     */
     knp::core::UID uid_;
-    /// Node kind for the label, for example "WTA", "Input channel" or "Output channel".
+    
+    /**
+     * @brief Human-readable node kind for the label. For example, "WTA", "Input channel", "Output channel".
+     */
     std::string name_ = "External";
-    /// Entities the given one listens to. Leave empty if the subscriptions are visible on the bus.
+
+    /**
+     * @brief List of UIDs this entity listens to. Leave empty if the subscriptions are already visible on the bus.
+     */
     // cppcheck-suppress unusedStructMember
     std::vector<knp::core::UID> senders_;
 };
 
 
 /**
- * @brief Data for a dynamic graph.
+ * @brief Aggregated data required to build a dynamic graph.
+ * 
+ * @details It combines the raw bus connections with a list of external entities that cannot be
+ * restored from the bus alone.
  */
 struct DynamicInfo
 {
-    /// Connections taken from the backend message bus.
+    /**
+     * @brief Connections taken from the backend message bus.
+     */
     // cppcheck-suppress unusedStructMember
     BusConnections bus_;
-    /// Handlers and channels. An entity that is not listed here is drawn as "External".
+    /**
+     * @brief Handlers and channels. An entity that is not listed here is drawn as "External".
+     */
     // cppcheck-suppress unusedStructMember
     std::vector<ExternalEntity> entities_;
 };

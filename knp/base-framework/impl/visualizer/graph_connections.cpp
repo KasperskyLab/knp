@@ -1,6 +1,6 @@
 /**
  * @file graph_connections.cpp
- * @brief Collecting nodes and edges of a network and of a message bus.
+ * @brief Getting nodes and edges of a network and of a message bus.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0

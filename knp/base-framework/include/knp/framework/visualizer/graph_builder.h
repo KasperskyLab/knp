@@ -34,92 +34,110 @@
 namespace knp::framework::visualizer
 {
 
+
 /**
- * @brief Copy subscriptions of a message endpoint.
+ * @brief Extract a copy of all subscriptions from a backend message endpoint.
  *
- * @param endpoint message endpoint of a backend.
- *
- * @return connections that do not depend on the backend lifetime.
+ * @param endpoint reference to the backend's `MessageEndpoint`.
+
+ * @return `BusConnections` object that contains only the subscription pairs.
  *
  * @details Subscriptions are the wiring registered in the backend, not the message traffic. They are created when a
  * model is loaded and live as long as the backend does, so they can be copied at any moment after the loading.
+ * The returned data is independent of the backend lifetime; it can be stored,
+ * transferred across threads, or used after the backend has been destroyed.
  */
 KNP_DECLSPEC BusConnections get_bus_connections(knp::core::MessageEndpoint& endpoint);
 
 
 /**
- * @brief Build network graph from a network (static structure).
+ * @brief Build a static graph from a `Network`.
  *
- * @param network source network for a graph.
+ * @details Populations become nodes, projections become edges. Projections whose presynaptic
+ * or postsynaptic UID is unknown are omitted, so the resulting graph contains only
+ * fully described static connections.
  *
- * @return network graph.
+ * @param network source `Network` object.
  *
- * @details Populations are added as nodes and projections as edges. A projection with an unknown presynaptic or
- * postsynaptic UID is skipped, so the graph contains known static connections only.
- * Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
+ * @return a fully constructed `NetworkGraph`.
+ *
+ * @note Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235801
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Network& network);
 
 
 /**
- * @brief Build network graph from a model (static structure).
+ * @brief Build a static graph from a `Model`.
  *
- * @param model source model for a graph.
+ * @details The model's underlying network is extracted and then processed as in the overload
+ * that takes a `Network`.
  *
- * @return network graph.
+ * @param model source `Model` object.
+ *
+ * @return a `NetworkGraph` representing the static topology.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model);
 
 
 /**
- * @brief Build network graph from a network and message bus subscriptions (static and dynamic structure).
+ * @brief Build a dynamic graph from a `Network` and a backend endpoint.
  *
- * @param network source network for a graph.
- * @param endpoint message endpoint of a backend.
+ * @details The static network supplies node names, sizes and types, while the bus subscriptions
+ * provide the actual connections. Entities that are not described
+ * by the network are rendered with the node kind "External".
+ * Projections without any subscription are omitted. Spike messages give the projection as the receiver, 
+ * synaptic impact messages give the projection as the sender.
  *
- * @return network graph.
+ * @param network static `Network`.
+ * @param endpoint backend's `MessageEndpoint` providing bus subscriptions.
  *
- * @details Connections are taken from the subscriptions only, because a loaded model rebuilds its projections and the
- * presynaptic and postsynaptic UIDs of the network do not match the real connections. The network gives names, sizes
- * and types. A spike message gives a projection source, a synaptic impact message gives a projection destination.
- * Entities that are not described by the network are added as nodes of kind "External". A projection that has no
- * subscriptions at all is skipped.
+ * @return a `NetworkGraph` that mixes static information with dynamic bus-driven edges.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Network& network, knp::core::MessageEndpoint& endpoint);
 
 
 /**
- * @brief Build network graph from a model and message bus subscriptions (static and dynamic structure).
+ * @brief Build a dynamic graph from a `Model` and a backend endpoint.
  *
- * @param model source model for a graph.
- * @param endpoint message endpoint of a backend.
+ * @details Equivalent to the overload that takes a `Network`; the model's network is extracted
+ * automatically.
  *
- * @return network graph.
+ * @param model source `Model`.
+ * @param endpoint backend's `MessageEndpoint`.
+ *
+ * @return a `NetworkGraph` containing static and dynamic information.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model, knp::core::MessageEndpoint& endpoint);
 
 
 /**
- * @brief Build network graph from a network, message bus subscriptions and entities known to the calling code.
+ * @brief Build a dynamic graph from a `Network` together with explicit external entities.
  *
- * @param network source network for a graph.
- * @param info endpoint of a backend and entities that cannot be restored from the bus.
+ * @details In addition to the bus subscriptions, the caller can provide a list of entities, for example, 
+ * handlers, and channels, in @p info that are not recoverable from the bus. Each such entity
+ * receives its own node kind as defined in `DynamicInfo::entities_`.
  *
- * @return network graph.
+ * @param network static `Network`.
+ * @param info combined bus connections and external entities.
  *
- * @details Works as the overload with an endpoint. In addition, an entity from @p info gets its own node kind, and
- * the senders listed for it are drawn as incoming edges. An entity that is not listed is drawn as "External".
+ * @return a `NetworkGraph` that reflects both static topology and the supplied dynamic
+ * information.
+ *
+ * @note This overload is the most flexible: it can be used when the caller already
+ * knows the `DynamicInfo`, for example, after a custom preprocessing step.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Network& network, const DynamicInfo& info);
 
 
 /**
- * @brief Build network graph from a model, message bus subscriptions and entities known to the calling code.
+ * @brief Build a dynamic graph from a `Model` together with explicit external entities.
  *
- * @param model source model for a graph.
- * @param info endpoint of a backend and entities that cannot be restored from the bus.
+ * @details Same semantics as the previous overload, but the network is taken from the model.
  *
- * @return network graph.
+ * @param model source `Model`.
+ * @param info combined bus connections and external entities.
+ *
+ * @return a `NetworkGraph` that mixes static network data with the supplied dynamic data.
  */
 KNP_DECLSPEC NetworkGraph build_graph(const knp::framework::Model& model, const DynamicInfo& info);
 
