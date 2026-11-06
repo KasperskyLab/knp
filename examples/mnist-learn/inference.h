@@ -131,7 +131,7 @@ std::vector<knp::core::messaging::SpikeMessage> infer_network(
             // Write CSV header for raw spike data.
             raw_spikes_stream << "send_time,sender_name,sender_uid,neuron_index" << std::endl;
 
-            // Collect all sender UIDs for observer registration.
+            // Get all sender UIDs for observer registration.
             std::vector<knp::core::UID> all_senders_uids(pop_names.size());
             std::transform(
                 pop_names.begin(), pop_names.end(), all_senders_uids.begin(),

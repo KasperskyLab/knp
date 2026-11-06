@@ -56,6 +56,7 @@ Information about third-party code is provided in the `NOTICE.txt` file located 
 
 # Trademark notices
 
-Registered trademarks and service marks are the property of their respective owners.
+Registered trademarks and service marks are the property of their respective owners.\
+Apache is either a registered trademark or a trademark of the Apache Software Foundation.
 
 © 2024 AO Kaspersky Lab

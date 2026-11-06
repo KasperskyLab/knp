@@ -1,6 +1,6 @@
 /**
  * @file visualization.h
- * @brief Network graph building for the example.
+ * @brief Functions for graph visualization.
  * @kaspersky_support Kirill L.
  * @date 05.08.2026
  * @license Apache 2.0
@@ -27,12 +27,15 @@
 
 
 /**
- * @brief Collect data for a dynamic graph.
+ * @brief Assemble dynamic graph information from the annotated network and the backend message bus.
  *
- * @param network annotated network.
- * @param bus connections taken from the backend message bus.
+ * @param network annotated network that contains static topology and additional annotation data, for example, WTA handlers, 
+ * channel UIDs.
+ * @param bus bus connections extracted from the training backend.
  *
- * @return data for a dynamic graph.
+ * @return `knp::framework::visualizer::DynamicInfo` object that merges runtime bus subscriptions with annotation level 
+ * entities. This object produce a dynamic visualisation that shows both static network structure and runtime 
+ * communication links.
  *
  * @details A handler and an output channel subscribe to their senders through their own message endpoints, so these
  * subscriptions are not registered in the backend and the senders are listed here. An input channel is visible on
@@ -45,20 +48,19 @@ inline knp::framework::visualizer::DynamicInfo make_dynamic_info(
     knp::framework::visualizer::DynamicInfo info;
     info.bus_ = bus;
 
-    // A WTA handler listens to the senders that were given to it when it was added.
+    // Add WTA handlers, that is, handler UID and list of its senders.
     for (const auto& [uid, senders] : network.data_.wta_handlers_)
     {
         info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, "WTA", senders});
     }
 
-    // Channel names come from the annotation, where they are written next to the UIDs, so nothing is invented here.
-    // An input channel sends spikes itself, so it has no senders of its own.
+    // Add input channels. An input channel sends spikes itself, so it has no senders of its own.
     for (const auto& [uid, name] : network.data_.input_channel_uids_)
     {
         info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, name, {}});
     }
 
-    // An output channel listens to the populations it was connected to.
+    // Add output channels. An output channel listens to the populations it is connected to.
     for (const auto& [uid, name] : network.data_.output_channel_uids_)
     {
         info.entities_.push_back(knp::framework::visualizer::ExternalEntity{uid, name, network.data_.output_uids_});
@@ -69,13 +71,13 @@ inline knp::framework::visualizer::DynamicInfo make_dynamic_info(
 
 
 /**
- * @brief Build the static graph of an annotated network.
+ * @brief Build a static network graph.
  *
  * @param network annotated network.
  *
- * @return network graph.
+ * @return network graph representing the static view of the network. No runtime bus information is included.
  *
- * @details The static graph shows what the network itself describes: populations, projections, names and sizes.
+ * @details The static graph is useful for inspecting the design of the network before any simulation is run.
  */
 inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwork& network)
 {
@@ -84,14 +86,15 @@ inline knp::framework::visualizer::NetworkGraph build_graph(const AnnotatedNetwo
 
 
 /**
- * @brief Build the dynamic graph of an annotated network.
+ * @brief Build a dynamic network graph that combines static topology with runtime communication data.
  *
  * @param network annotated network.
- * @param bus connections taken from the backend message bus.
+ * @param bus bus connections obtained from the backend after training.
  *
- * @return network graph.
+ * @return network graph that visualises both the static network elements and the dynamic entities, that is, WTA handlers,
+ * input and output channels, and bus-based subscriptions.
  *
- * @details Connections come from the bus subscriptions. What the bus does not have, that is WTA handlers and
+ * @details Connections come from message bus subscriptions. What the message bus does not have, for example, WTA handlers and
  * channels, comes from the annotation of the network.
  */
 inline knp::framework::visualizer::NetworkGraph build_graph(

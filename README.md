@@ -63,12 +63,15 @@ You can install Kaspersky Neuromorphic Platform in one of the following ways:
 Registered trademarks and service marks are the property of their respective owners.
 
 AMD and AMD64 are trademarks or registered trademarks of Advanced Micro Devices, Inc.\
-Apache is either a registered trademark or a trademark of the Apache Software Foundation.\
-Apple, Leopard, Mac, Mac OS, macOS, OS X, Objective-C, Safari, TrueType, and Xcode are trademarks of Apple Inc.\
+Apache is a registered trademark or trademark of the Apache Software Foundation in the United States and/or other countries.\
+Apple, Geneva, Leopard, Mac, Mac OS, macOS, Monaco, OS X, Objective-C, Safari, TrueType, and Xcode are trademarks of Apple Inc.\
 Arm is a registered trademark of Arm Limited (or its subsidiaries) in the US and/or elsewhere.\
 Borland is a trademark or registered trademark of Borland Software Corporation.\
 Ubuntu and LTS are registered trademarks of Canonical Ltd.\
+IOS is a registered trademark or trademark of Cisco Systems, Inc. and/or its affiliates in the United States and certain other countries.\
+Dell Technologies, Dell, EMC, and other trademarks are trademarks of Dell Inc. or its subsidiaries.\
 Docker and the Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.\
+Dropbox is a trademark of Dropbox, Inc.\
 FreeBSD is a registered trademark of The FreeBSD Foundation.\
 GITHUB is a trademark of GitHub, Inc., registered in the United States and other countries.\
 GITLAB is a trademark of GitLab Inc. in the United States and other countries and regions.\
@@ -77,11 +80,15 @@ TensorFlow and any related marks are trademarks of Google LLC.\
 Intel, Core, and Pentium are trademarks of Intel Corporation or its subsidiaries.\
 IBM is a trademark of International Business Machines Corporation, registered in many jurisdictions worldwide.\
 Linux is the registered trademark of Linus Torvalds in the U.S. and other countries.\
-Microsoft, Consolas, Internet Explorer, OpenType, Segoe, Visual Studio, Win32, and Windows are trademarks of the Microsoft group of companies.\
-Firefox is a trademark of the Mozilla Foundation in the U.S. and other countries.\
+Microsoft, Consolas, Internet Explorer, OpenType, Segoe, Tahoma, Verdana, Visual C++, Visual Studio, Win32, and Windows are trademarks of the Microsoft group of companies.\
+Mozilla and Firefox are trademarks of the Mozilla Foundation in the United States and other countries.\
+Nokia is a trademark or registered trademark of the Nokia Corporation.\
 NVIDIA is a registered trademark of NVIDIA Corporation.\
-Java and JavaScript are registered trademarks of Oracle and/or its affiliates.\
+OpenSSL is a trademark of the OpenSSL Software Foundation.\
+Oracle, Java, and JavaScript are registered trademarks of Oracle and/or its affiliates.\
 Python is a trademark or registered trademark of the Python Software Foundation.\
+Red Hat is a trademark or registered trademark of Red Hat, Inc. or its subsidiaries in the United States and other countries.\
+OpenGL is a registered trademark of SGI.\
 Debian is a registered trademark of Software in the Public Interest, Inc.\
 QT is a trademark or registered trademark of The Qt Company Ltd.\
 UNIX is a registered trademark in the United States and other countries, licensed exclusively through X/Open Company Limited.
@@ -94,4 +101,4 @@ This is an open source project. If you are interested in making a code contribut
 
 Licensed under the Apache 2.0 License. See the `LICENSE.txt` file in the root directory for details.
 
-© 2025 AO Kaspersky Lab
+© 2026 AO Kaspersky Lab

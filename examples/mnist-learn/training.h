@@ -65,8 +65,9 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
     knp::core::UID input_image_channel_classes;
     knp::core::UID output_channel;
 
-    // Keep the channel UIDs with their names: they exist only here and cannot be restored from the message bus.
-    // The name of a channel is the name of its variable, so nothing is invented and the label follows the code.
+    // Store the generated channel UIDs together with human-readable names.
+    // These identifiers exist only locally. They are not persisted in the message
+    // bus, so we simply reuse the variable name as the channel name.
     network.data_.input_channel_uids_ = {
         {input_image_channel_raster, "input_image_channel_raster"},
         {input_image_channel_classes, "input_image_channel_classes"}};
@@ -144,8 +145,11 @@ void train_network(
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=301132
     std::vector<knp::core::UID> wta_uids = knp::framework::projection::add_wta_handlers(
         model_executor, wta_winners_amount, network.data_.wta_borders_, network.data_.wta_data_);
-    // Keep the handlers with their senders: the handlers live inside the model executor and die with it, and
-    // wta_data_ is cleared when the network is prepared for inference. One handler is added for each wta_data_ entry.
+
+    // Associate each WTA handler UID with the list of its sender UIDs.
+    // Handlers are owned by the `ModelExecutor` and are destroyed together with it;
+    // the annotation's `wta_data_` vector is cleared when the network is prepared
+    // for inference. Exactly one handler is created for every entry in `wta_data_`.
     for (size_t i = 0; i < wta_uids.size(); ++i)
         network.data_.wta_handlers_.emplace_back(wta_uids[i], network.data_.wta_data_[i].first);
     
@@ -203,7 +207,7 @@ void train_network(
  * @param network annotated network structure containing the network and its annotations.
  * @param backend_loader backend loader for loading the training backend.
  *
- * @return connections taken from the message bus of the training backend.
+ * @return set of bus connections extracted from the training backend's message endpoint.
  */
 template <typename Neuron>
 knp::framework::visualizer::BusConnections train_model(
@@ -219,6 +223,8 @@ knp::framework::visualizer::BusConnections train_model(
     // Prepare the trained network for inference operations.
     prepare_network_for_inference<Neuron>(training_backend, model_desc, network);
 
-    // Subscriptions are copied here: they are needed for visualization and the backend is destroyed on return.
+    // Copy the backend's subscription information before the backend object is
+    // destroyed; the copied data is later used for visualising dynamic graph
+    // connections.
     return knp::framework::visualizer::get_bus_connections(training_backend->get_message_endpoint());
 }

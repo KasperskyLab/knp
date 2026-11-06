@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         "net-path,p", po::value(&path_to_network), "File or directory for network storage.")(
         "data-path,d", po::value(&path_to_data), "File for data storage.")(
         "backend,b", po::value<std::string>()->default_value("knp-cpu-single-threaded-backend"), "Backend to be used.");
-    // Stores defines options in a variable map.
+    // Stores defined options in a variable map.
     po::variables_map options_map;
     po::store(po::parse_command_line(argc, argv, options), options_map);
     po::notify(options_map);
