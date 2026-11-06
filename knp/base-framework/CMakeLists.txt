@@ -34,8 +34,25 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
+if (WIN32)
+    # Without pkg-config on Window.
+    find_path(GRAPHVIZ_INCLUDE_DIR graphviz/gvc.h
+        HINTS "$ENV{ProgramFiles}/Graphviz/include"
+        REQUIRED)
+    find_library(GRAPHVIZ_GVC_LIBRARY gvc
+        HINTS "$ENV{ProgramFiles}/Graphviz/lib"
+        REQUIRED)
+    find_library(GRAPHVIZ_CGRAPH_LIBRARY cgraph
+        HINTS "$ENV{ProgramFiles}/Graphviz/lib"
+        REQUIRED)
+    add_library(PkgConfig::GRAPHVIZ INTERFACE IMPORTED)
+    set_target_properties(PkgConfig::GRAPHVIZ PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${GRAPHVIZ_INCLUDE_DIR};${GRAPHVIZ_INCLUDE_DIR}/graphviz"
+        INTERFACE_LINK_LIBRARIES "${GRAPHVIZ_GVC_LIBRARY};${GRAPHVIZ_CGRAPH_LIBRARY}")
+else ()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
+endif ()
 
 include(GNUInstallDirs)
 include(knp-functions)
