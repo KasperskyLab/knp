@@ -208,7 +208,8 @@ jobs:
 
       - name: Install Boost
         if: runner.os != 'macOS'
-        uses: MarkusJx/install-boost@v2
+        # uses: MarkusJx/install-boost@v2
+        uses: MarkusJx/install-boost@f9d34f6fe427b8f2ae424d7bf2a3ebccb0dae5a3 # v2.6.0
         id: install-boost
         with:
             boost_version: ${{ matrix.boost_version }}
@@ -223,20 +224,24 @@ jobs:
           brew install boost
           echo "root=$(brew --prefix boost)" >> "$GITHUB_OUTPUT"
 
-      - name: Install Graphviz (macOS)
-        if: runner.os == 'macOS'
-        run: brew install graphviz
+      - name: Setup Graphviz
+        # uses: ts-graphviz/setup-graphviz@v2
+        uses: ts-graphviz/setup-graphviz@b1de5da23ed0a6d14e0aeee8ed52fdd87af2363c # v2.0.2
+
+# - name: Install Graphviz (macOS)
+#   if: runner.os == 'macOS'
+#   run: brew install graphviz
 
       # - name: Install OpenCV via vcpkg
       #   if: matrix.c_compiler == 'cl'
       #   run: vcpkg install opencv:x64-windows
 
-      - name: Install Graphviz
-        if: matrix.c_compiler == 'cl'
-        run: |
-          choco install pkgconfiglite graphviz
-          echo "PKG_CONFIG_PATH=C:\Program Files\Graphviz\lib\pkgconfig" >> $env:GITHUB_ENV
-          echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
+# - name: Install Graphviz
+#   if: matrix.c_compiler == 'cl'
+#   run: |
+#     choco install pkgconfiglite graphviz
+#     echo "PKG_CONFIG_PATH=C:\Program Files\Graphviz\lib\pkgconfig" >> $env:GITHUB_ENV
+#     echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
 
       - name: Configure CMake
         env:
@@ -246,7 +251,6 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DBoost_VERBOSE=ON
           -S .
 
       - name: Build
