@@ -358,7 +358,7 @@ void upcast_populations(Network &network)
         core::AllPopulationsVariant new_population = std::visit([&is_converted](auto &pop)
             {
                 using NeuronType = typename std::remove_reference_t<decltype(pop)>::PopulationNeuronType;
-                using NeuronParams = neuron_traits::neuron_parameters<NeuronType>;
+                using NeuronParams = typename core::CellTraits<NeuronType>::Parameters;
                 if constexpr (std::is_base_of_v<BaseNeuronParams, NeuronParams>)
                 {
                     is_converted = true;
@@ -426,6 +426,19 @@ namespace nt = knp::neuron_traits;
     template KNP_DECLSPEC void Network::check_population_constraints<knp::core::Population<nt::neuron_type>>( \
         const knp::core::Population<nt::neuron_type> &) const;                                                \
     template KNP_DECLSPEC void upcast_populations<knp::neuron_traits::neuron_type>(Network& network);
+#define INSTANCE_ASTROCYTE_FUNCTIONS(n, template_for_instance, neuron_type)                                        \
+    template KNP_DECLSPEC void Network::add_population<knp::core::Population<knp::astrocyte_traits::neuron_type>>( \
+        knp::core::Population<knp::astrocyte_traits::neuron_type> &&);                                             \
+    template KNP_DECLSPEC void Network::add_population<knp::core::Population<knp::astrocyte_traits::neuron_type>>( \
+        knp::core::Population<knp::astrocyte_traits::neuron_type> &);                                              \
+    template KNP_DECLSPEC knp::core::Population<knp::astrocyte_traits::neuron_type>                                \
+        &Network::get_population<knp::astrocyte_traits::neuron_type>(const knp::core::UID &);                      \
+    template KNP_DECLSPEC const knp::core::Population<knp::astrocyte_traits::neuron_type>                          \
+        &Network::get_population<knp::astrocyte_traits::neuron_type>(const knp::core::UID &) const;                \
+    template KNP_DECLSPEC void                                                                                     \
+    Network::check_population_constraints<knp::core::Population<knp::astrocyte_traits::neuron_type>>(              \
+        const knp::core::Population<knp::astrocyte_traits::neuron_type> &) const;
+
 namespace st = knp::synapse_traits;
 
 #define INSTANCE_PROJECTION_FUNCTIONS(n, template_for_instance, synapse_type)                                       \
@@ -445,6 +458,7 @@ namespace st = knp::synapse_traits;
     template KNP_DECLSPEC void upcast_projections<st::synapse_type>(Network &network);                                                                                                                    \
 // cppcheck-suppress unknownMacro
 BOOST_PP_SEQ_FOR_EACH(INSTANCE_POPULATION_FUNCTIONS, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_NEURONS))
+BOOST_PP_SEQ_FOR_EACH(INSTANCE_ASTROCYTE_FUNCTIONS, , BOOST_PP_VARIADIC_TO_SEQ(ALL_ASTROCYTES))
 // cppcheck-suppress unknownMacro
 BOOST_PP_SEQ_FOR_EACH(INSTANCE_PROJECTION_FUNCTIONS, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_SYNAPSES))
 

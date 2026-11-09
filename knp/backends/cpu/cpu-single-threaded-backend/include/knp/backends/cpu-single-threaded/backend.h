@@ -61,6 +61,17 @@ public:
         knp::neuron_traits::LIFNeuron>;
 
     /**
+     * @brief Astrocyte models supported by this backend.
+     */
+    using SupportedAstrocytes =
+        boost::mp11::mp_list<knp::astrocyte_traits::AstrocyteSimple, knp::astrocyte_traits::AstrocyteNonlinear>;
+
+    /**
+     * @brief All supported neuron and astrocyte models.
+     */
+    using SupportedCells = boost::mp11::mp_append<SupportedNeurons, SupportedAstrocytes>;
+
+    /**
      * @brief List of synapse types supported by the single-threaded CPU backend.
      */
     using SupportedSynapses = boost::mp11::mp_list<
@@ -68,9 +79,9 @@ public:
         knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>;
 
     /**
-     * @brief List of supported population types based on neuron types specified in `SupportedNeurons`.
+     * @brief List of population types based on the neuron and astrocyte models in SupportedCells.
      */
-    using SupportedPopulations = boost::mp11::mp_transform<knp::core::Population, SupportedNeurons>;
+    using SupportedPopulations = boost::mp11::mp_transform<knp::core::Population, SupportedCells>;
 
     /**
      * @brief List of supported projection types based on synapse types specified in `SupportedSynapses`.
@@ -410,6 +421,30 @@ protected:
      */
     std::optional<core::messaging::SpikeMessage> calculate_population(
         knp::core::Population<knp::neuron_traits::LIFNeuron> &population);
+
+    /**
+     * @brief Calculate a population of `AstrocyteSimple` astrocytes.
+     *
+     * @param population population to calculate.
+     *
+     * @return spike message containing active astrocyte indices; the index list is empty if none are active.
+     *
+     * @note The population state is modified during the calculation.
+     */
+    std::optional<core::messaging::SpikeMessage> calculate_population(
+        knp::core::Population<knp::astrocyte_traits::AstrocyteSimple> &population);
+
+    /**
+     * @brief Calculate a population of `AstrocyteNonlinear` astrocytes.
+     *
+     * @param population population to calculate.
+     *
+     * @return spike message containing active astrocyte indices; the index list is empty if none are active.
+     *
+     * @note The population state is modified during the calculation.
+     */
+    std::optional<core::messaging::SpikeMessage> calculate_population(
+        knp::core::Population<knp::astrocyte_traits::AstrocyteNonlinear> &population);
 
 
     /**

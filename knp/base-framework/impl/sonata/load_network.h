@@ -50,7 +50,7 @@ core::Projection<Synapse> load_projection(const HighFive::Group &edges_group, co
     do                                                                                                             \
     {                                                                                                              \
         const auto values =                                                                                        \
-            read_parameter(h5_group, #parameter, pop_size, neuron_traits::default_values<neuron_type>::parameter); \
+            read_parameter(h5_group, #parameter, pop_size, core::CellTraits<neuron_type>::DefaultValues::parameter); \
         for (size_t i = 0; i < std::min(values.size(), target.size()); ++i) target[i].parameter = values[i];       \
     } while (false)
 

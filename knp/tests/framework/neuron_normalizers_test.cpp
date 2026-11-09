@@ -83,12 +83,16 @@ TEST(NeuronNormalizers, NormalizeNetworkPotentials)
         std::visit(
             [](const auto& pop)
             {
-                for (const auto& neuron : pop)
+                using CellType = typename std::decay_t<decltype(pop)>::PopulationNeuronType;
+                if constexpr (knp::core::is_neuron_v<CellType>)
                 {
-                    SPDLOG_DEBUG("New neuron potential: {}.", neuron.potential_);
+                    for (const auto& neuron : pop)
+                    {
+                        SPDLOG_DEBUG("New neuron potential: {}.", neuron.potential_);
 
-                    ASSERT_GE(neuron.potential_, 0);
-                    ASSERT_LE(neuron.potential_, 1);
+                        ASSERT_GE(neuron.potential_, 0);
+                        ASSERT_LE(neuron.potential_, 1);
+                    }
                 }
             },
             n_pop);

@@ -34,20 +34,20 @@ TEST(SlicingGenerators, SynapseSlicing)
 {
     constexpr int num_iterations = 20;
     constexpr float weight = 0.17;
-    constexpr uint64_t delay = 4;
-    ResourceProjection::SynapseGenerator generator =
-            [](size_t step) -> std::optional<ResourceProjection::Synapse>
-            {
-                return std::make_tuple(ResourceProjection::SynapseParameters{
-                    {weight, delay, knp::synapse_traits::OutputType::EXCITATORY}
-                    }, step, step);
-            };
+    constexpr uint32_t delay = 4;
+    ResourceProjection::SynapseGenerator generator = [weight,
+                                                      delay](size_t step) -> std::optional<ResourceProjection::Synapse>
+    {
+        return std::make_tuple(
+            ResourceProjection::SynapseParameters{{weight, delay, knp::synapse_traits::OutputType::EXCITATORY}}, step,
+            step);
+    };
     knp::core::UID mine_uid, from_uid, to_uid;
     ResourceProjection projection{mine_uid, from_uid, to_uid, generator, num_iterations};
     DeltaProjection sliced_projection = knp::framework::projection::synapse_generators::upcast_projection<
             knp::synapse_traits::DeltaSynapse, knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>(projection);
     ASSERT_EQ(sliced_projection.size(), num_iterations);
-    auto is_correct_projection = [](const DeltaProjection &projection)
+    auto is_correct_projection = [weight, delay](const DeltaProjection &projection)
     {
         for (size_t i = 0; i < projection.size(); ++i)
         {
@@ -78,7 +78,8 @@ TEST(SlicingGenerators, NeuronSlicing)
     constexpr int num_iterations = 20;
     constexpr float potential = 11.3F;
     constexpr float threshold = 20.2F;
-    ResourcePopulation::NeuronGenerator generator = [](size_t step) -> std::optional<StdpBlifatParams>
+    ResourcePopulation::NeuronGenerator generator = [potential,
+                                                     threshold](size_t step) -> std::optional<StdpBlifatParams>
     {
         StdpBlifatParams params;
         params.potential_ = potential;

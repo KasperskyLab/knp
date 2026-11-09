@@ -28,6 +28,8 @@
 #include <vector>
 
 #include "altai/altai_dispatcher.h"
+#include "astrocyte_simple/astrocyte_simple_dispatcher.h"
+#include "astrocyte_nonlinear/astrocyte_nonlinear_dispatcher.h"
 #include "blifat/blifat_dispatcher.h"
 #include "lif/lif_dispatcher.h"
 
