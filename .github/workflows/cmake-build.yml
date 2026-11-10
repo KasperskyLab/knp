@@ -229,7 +229,7 @@ jobs:
         # uses: ts-graphviz/setup-graphviz@v2
         uses: ts-graphviz/setup-graphviz@v2.0.2
         run: |
-        echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
+          echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
 
 # - name: Install Graphviz (macOS)
 #   if: runner.os == 'macOS'
