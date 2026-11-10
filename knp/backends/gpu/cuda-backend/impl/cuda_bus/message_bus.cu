@@ -45,42 +45,21 @@ template <class T>
 using DevVec = device_lib::CUDAVector<T>;
 
 
-__global__ void find_subscription_by_receiver(
-    const Subscription *subscriptions, size_t size, const UID receiver, size_t type, size_t *index_out)
-{
-    const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= size) return;
-    const Subscription &sub = subscriptions[i];
-    if (sub.type() != type) return;
-    if (sub.get_receiver_uid() == receiver) *index_out = i;  // Should only work once, so no race condition problems.
-}
-
-
 template <typename MessageType>
-__host__ size_t CUDAMessageBus::find_subscription(const cuda::UID &receiver) const
+__host__ std::optional<std::reference_wrapper<Subscription>>
+    CUDAMessageBus::find_subscription(const cuda::UID &receiver)
 {
     constexpr size_t type_index = boost::mp11::mp_find<MessageVariant, MessageType>::value;
     return find_subscription(receiver, type_index);
 }
 
 
-__host__ size_t CUDAMessageBus::find_subscription(const cuda::UID &receiver, size_t type_index) const
+__host__ std::optional<std::reference_wrapper<Subscription>>
+    CUDAMessageBus::find_subscription(const cuda::UID &receiver, const size_t type_index)
 {
-    if (!subscriptions_.size()) return 0;
-    auto [num_blocks, num_threads] = device_lib::get_blocks_config(subscriptions_.size());
-
-    size_t *index_out;
-    cudaMalloc(&index_out, sizeof(size_t));
-    size_t subscriptions_size = subscriptions_.size();
-    cudaMemcpy(index_out, &subscriptions_size, sizeof(size_t), cudaMemcpyHostToDevice);
-
-    find_subscription_by_receiver<<<num_blocks, num_threads>>>(
-        subscriptions_.data(), subscriptions_.size(), receiver, type_index, index_out);
-
-    size_t result;
-    cudaMemcpy(&result, index_out, sizeof(size_t), cudaMemcpyDeviceToHost);
-    cudaFree(index_out);
-    return result;
+    auto sub_iter = subscriptions_[type_index].find(to_cpu_uid(receiver));
+    if (sub_iter == subscriptions_[type_index].end()) return {};
+    return std::reference_wrapper(sub_iter->second);
 }
 
 
@@ -88,14 +67,10 @@ template <typename MessageType>
 __host__ bool CUDAMessageBus::unsubscribe(const cuda::UID &receiver)
 {
     SPDLOG_DEBUG("Unsubscribing");
-    size_t sub_index = find_subscription<MessageType>(receiver);
-    if (sub_index >= subscriptions_.size())
-    {
-        SPDLOG_TRACE("No subscriptions found to unsubscribe from: returned {}", sub_index);
-        return false;
-    }
-    SPDLOG_TRACE("Removing subscription #{}", sub_index);
-    subscriptions_.erase(subscriptions_.begin() + sub_index, subscriptions_.begin() + sub_index + 1);
+    constexpr size_t type_index = boost::mp11::mp_find<MessageVariant, MessageType>::value;
+    size_t num_erased = subscriptions_[type_index].erase(to_cpu_uid(receiver));
+    if (num_erased == 0)
+        SPDLOG_WARN("No subscriptions found when unsubscribing from an entity");
     SPDLOG_TRACE("Done unsubscribing");
     return true;
 }
@@ -183,36 +158,6 @@ __host__ void CUDAMessageBus::subscribe_host(
 }
 
 
-// We need to check that the messages we get from host were not previously sent there by GPU.
-__global__ void same_sender_kernel(cuda::UID uid, cuda::Subscription *subscriptions, size_t sub_size, bool *result)
-{
-    const auto i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= sub_size) return;
-    if (subscriptions[i].get_receiver_uid() == uid) *result = true;
-}
-
-
-__host__ bool same_sender(
-    const knp::core::messaging::MessageVariant &message, CUDAMessageBus::SubscriptionContainer &subs)
-{
-    if (subs.size() == 0) return false;
-
-    const knp::core::UID sender_uid = std::visit([](const auto &msg) { return msg.header_.sender_uid_; }, message);
-
-    const cuda::UID gpu_uid = to_gpu_uid(sender_uid);
-    bool result = false;
-    bool *result_ptr;
-
-    call_and_check(cudaMalloc(&result_ptr, sizeof(bool)));
-    call_and_check(cudaMemcpy(result_ptr, &result, sizeof(bool), cudaMemcpyHostToDevice));
-    const auto [num_blocks, num_threads] = device_lib::get_blocks_config(subs.size());
-    same_sender_kernel<<<num_blocks, num_threads>>>(gpu_uid, subs.data(), subs.size(), result_ptr);
-    call_and_check(cudaMemcpy(&result, result_ptr, sizeof(bool), cudaMemcpyDeviceToHost));
-    call_and_check(cudaFree(result_ptr));
-    return result;
-}
-
-
 /**
  * @brief Copy host subscriptions here.
  */
@@ -284,19 +229,20 @@ __host__ void CUDAMessageBus::receive_messages_from_host()
     SPDLOG_DEBUG("CPU subscriptions: {}", cpu_endpoint_.get_endpoint_subscriptions().size());
     DuplicateCounter duplicate_counter;
 
-    for (size_t i = 0; i < subscriptions_.size(); ++i)
+    for (size_t type_id = 0; type_id < num_message_types; ++type_id)
     {
-        auto sub = subscriptions_.copy_at(i);
-        auto receiver_uid = to_cpu_uid(sub.get_receiver_uid());
-        size_t type = sub.type();
-        // TODO: do it in a proper way or rather just rework the whole mechanic.
-        if (type == spikes_index)
+        for (auto iter = subscriptions_[type_id].begin(); iter != subscriptions_[type_id].end(); ++iter)
         {
-            send_host_messages_to_gpu<spikes_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
-        }
-        else if (type == impacts_index)
-        {
-            send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+            auto receiver_uid = to_cpu_uid(iter->second.get_receiver_uid());
+            // TODO: do it in a proper way or rather just rework the whole mechanic.
+            if (type_id == spikes_index)
+            {
+                send_host_messages_to_gpu<spikes_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+            }
+            else if (type_id == impacts_index)
+            {
+                send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+            }
         }
     }
 }

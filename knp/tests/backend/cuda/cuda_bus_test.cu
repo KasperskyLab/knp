@@ -111,28 +111,28 @@ TEST(CudaBackendSuite, BusSubscriptionsTest)
     std::vector<knp_cuda::UID> uid_vec1{uid_2, uid_3};
 
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_1, uid_vec1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 1);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 1);
     std::cout << "Number of subscriptions is 1" << std::endl;
 
     std::vector<knp_cuda::UID> uid_vec2{uid_3, uid_4};
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_2, uid_vec2);
     std::cout << "Added subscription" << std::endl;
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Number of subscriptions is 2" << std::endl;
 
     std::vector<knp_cuda::UID> uid_vec3{uid_1};
 
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_1, uid_vec3);
     // TODO check corresponding subscription size, should become 3.
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Number of subscriptions is still 2" << std::endl;
     // unsubscribing from a wrong type of messages, shouldn't change anything.
     message_buses.gpu_.unsubscribe<knp_cuda::SynapticImpactMessage>(uid_1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Shouldn't have been deleted" << std::endl;
     // now unsubscribing from the right type of messages.
     message_buses.gpu_.unsubscribe<knp_cuda::SpikeMessage>(uid_1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 1);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 1);
 }
 
 
