@@ -45,6 +45,8 @@ if (WIN32)
     find_library(GRAPHVIZ_CGRAPH_LIBRARY cgraph
         HINTS "$ENV{ProgramFiles}/Graphviz/lib"
         REQUIRED)
+    get_filename_component(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_INCLUDE_DIR}" DIRECTORY)
+    set(GRAPHVIZ_BIN_DIR "${GRAPHVIZ_ROOT_DIR}/bin" CACHE PATH "Directory with Graphviz DLLs and plugins")
     add_library(PkgConfig::GRAPHVIZ INTERFACE IMPORTED)
     set_target_properties(PkgConfig::GRAPHVIZ PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${GRAPHVIZ_INCLUDE_DIR};${GRAPHVIZ_INCLUDE_DIR}/graphviz"
