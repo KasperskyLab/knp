@@ -64,7 +64,7 @@ limitations under the License.
 
 .grid-container .kaspersky {
     text-align: center;
-    font: 400 32px/normal "KasperskySansDisplay", MuseoSans, Helvetica;
+    font: 400 32px/normal "KasperskySansDisplay", Helvetica;
 }
 
 .grid-container .buttons {
@@ -82,7 +82,7 @@ limitations under the License.
     border: 1px solid #0000002b;
     padding: 32px 40px;
     border-radius: 12px;
-    font: 500 20px "KasperskySansDisplay", MuseoSans, Helvetica;
+    font: 500 20px "KasperskySansDisplay", Helvetica;
 
     color: #000;
     transition: color .7s ease-in-out;
@@ -109,7 +109,7 @@ limitations under the License.
 
 .grid-container .copyright {
     color: #0006;
-    font: 500 14px/normal "KasperskySansDisplay", MuseoSans, Helvetica;
+    font: 500 14px/normal "KasperskySansDisplay", Helvetica;
 }
 
 /*
