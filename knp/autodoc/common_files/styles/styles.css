@@ -7,7 +7,6 @@ This file has been modified by AO Kaspersky Lab in 03.2024.
 Scope of modification:
 
 - MathJax messages hidden.
-- All fonts changed to MuseoSans.
 - Colors ajusted to LK
 - Title area typography.
 - Patch .sm-dox.
@@ -15,19 +14,17 @@ Scope of modification:
 - Footer styles.
 */
 
-@import 'museo-sans.css';
-
 #MathJax_Message {
 	display: none;
 }
 
 
 body, table, div, p, dl {
-	font: 300 14px/22px MuseoSans,sans-serif;
+	font: 300 14px/22px sans-serif;
 }
 
 p.reference, p.definition {
-	font: 300 14px/22px MuseoSans,sans-serif;
+	font: 300 14px/22px sans-serif;
 }
 
 /* @group Heading Levels */
@@ -37,7 +34,7 @@ h1.groupheader {
 }
 
 .title {
-	font: 300 14px/28px MuseoSans,sans-serif;
+	font: 300 14px/28px sans-serif;
 	font-size: 150%;
 	font-weight: bold;
 	margin: 10px 2px;
@@ -418,7 +415,6 @@ span.vhdllogic {
 }
 
 blockquote {
-	/* FIXME: should be MuseoSlab, but we don't have the files. */
 	font-weight: 300;
 	font-size: 1.25rem;
         background-color: #f6fbfd;
@@ -880,7 +876,7 @@ div.directory {
 }
 
 table.directory {
-    font: 300 14px MuseoSans,sans-serif;
+    font: 300 14px sans-serif;
 }
 
 /* @end */
@@ -1028,7 +1024,7 @@ table.fieldtable {
 	display:inline-block;
 	outline: none;
 	color: #80a3b3;
-	font-family: MuseoSans,sans-serif;
+	font-family: sans-serif;
 }
 
 .navpath li.navelem:after {
@@ -1212,7 +1208,6 @@ dl.section dd {
 
 #projectbrief
 {
-	/* FIXME: should be MuseoSlab, but we don't have the files. */
 	font-weight: 300;
 	font-size: 1.25rem;
 	margin: 0px;
@@ -1304,14 +1299,14 @@ div.toc {
 
 div.toc li {
         background: url("bdwn.png") no-repeat scroll 0 5px transparent;
-        font: 10px/1.2 MuseoSans,sans-serif;
+        font: 10px/1.2 sans-serif;
         margin-top: 5px;
         padding-left: 10px;
         padding-top: 2px;
 }
 
 div.toc h3 {
-        font: bold 12px/1.2 MuseoSans,sans-serif;
+        font: bold 12px/1.2 sans-serif;
 	color: #00594a;
         border-bottom: 0 none;
         margin: 0;
@@ -1407,7 +1402,7 @@ tr.heading h2 {
 #powerTip div {
         margin: 0px;
         padding: 0px;
-        font: 12px/16px MuseoSans,sans-serif;
+        font: 12px/16px sans-serif;
 }
 
 #powerTip:before, #powerTip:after {
