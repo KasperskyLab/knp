@@ -120,7 +120,7 @@ float CUDA::get_power() const
         SPDLOG_ERROR("{}", e.what());
         if (auto e_code = nvmlShutdown(); e_code != NVML_SUCCESS)
         {
-            SPDLOG_WARN("NVML shutdown failed: {}", e_code);
+            SPDLOG_WARN("NVML shutdown failed: {}", static_cast<int>(e_code));
         }
         throw;
     }
@@ -192,7 +192,7 @@ KNP_DECLSPEC std::vector<CUDA> list_cuda_processors()
     if (auto e_code = cudaGetDeviceCount(&device_count); e_code != cudaSuccess)
     {
         const auto err_msg = std::string("CUDA error during get device properties") + cudaGetErrorString(e_code);
-        SPDLOG_ERROR("{} [{}]", err_msg.c_str(), e_code);
+        SPDLOG_ERROR("{} [{}]", err_msg.c_str(), static_cast<int>(e_code));
         throw std::runtime_error(err_msg);
     }
 
