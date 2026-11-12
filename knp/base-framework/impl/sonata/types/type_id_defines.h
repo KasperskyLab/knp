@@ -49,7 +49,7 @@ std::string get_synapse_type_name();
 template <class Neuron>
 constexpr int get_neuron_type_id()
 {
-    return boost::mp11::mp_find<neuron_traits::AllNeurons, Neuron>() + BASE_TYPE_ID;
+    return boost::mp11::mp_find<core::AllCells, Neuron>() + BASE_TYPE_ID;
 }
 
 

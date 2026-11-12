@@ -21,11 +21,12 @@
 
 #pragma once
 
+#include <knp/core/cell_traits.h>
 #include <knp/core/messaging/synaptic_impact_message.h>
 #include <knp/core/types.h>
-#include <knp/neuron-traits/all_traits.h>
 
 #include <functional>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -36,61 +37,61 @@ namespace knp::core
 {
 
 /**
- * @brief The Population class is a container of neurons of the same model.
+ * @brief The Population class is a container of cells of the same model.
  *
- * @tparam NeuronType type of the population neurons.
+ * @tparam NeuronType neuron or astrocyte type.
  *
- * @see ALL_NEURONS.
+ * @see AllCells.
  */
 template <typename NeuronType>
 class Population final
 {
 public:
     /**
-     * @brief Type of the population neurons.
+     * @brief Type of the population cells.
      */
     using PopulationNeuronType = NeuronType;
     /**
-     * @brief Population of neurons with the specified neuron type.
+     * @brief Population of cells with the specified cell type.
      */
     using PopulationType = Population<NeuronType>;
     /**
-     * @brief Neuron parameters and their values for the specified neuron type.
+     * @brief Cell parameters selected from the neuron or astrocyte family.
      */
-    using NeuronParameters = neuron_traits::neuron_parameters<NeuronType>;
+    using NeuronParameters = typename CellTraits<NeuronType>::Parameters;
 
     /**
-     * @brief Type of the neuron generator.
+     * @brief Type of the cell generator.
      *
-     * @param index current neuron index.
+     * @param index current cell index.
      */
     using NeuronGenerator = std::function<std::optional<NeuronParameters>(size_t index)>;
 
     /**
-     * @brief Type of the container that contains neurons.
+     * @brief Type of the container that contains cells.
      */
     using NeuronsContainer = std::vector<NeuronParameters>;
 
     /**
-     * @brief Iterator for neurons.
+     * @brief Iterator for cells.
      */
     using iterator = typename NeuronsContainer::iterator;
 
 public:  // NOLINT
     /**
-     * @brief Construct a population by running a neuron generator.
+     * @brief Construct a population by running a cell generator.
      *
-     * @param generator neuron generator.
-     * @param neurons_count number of times to run the neuron generator.
+     * @param generator cell generator.
+     * @param neurons_count number of times to run the cell generator.
      */
     Population(NeuronGenerator generator, size_t neurons_count);
 
     /**
-     * @brief Construct a population by running a neuron generator.
+     * @brief Construct a population by running a cell generator.
      *
      * @param uid population UID.
-     * @param generator neuron generator.
-     * @param neurons_count number of times to run the neuron generator.
+     * @param generator cell generator.
+     * @param neurons_count number of times to run the cell generator.
      */
     Population(const knp::core::UID &uid, NeuronGenerator generator, size_t neurons_count);
 
@@ -122,42 +123,42 @@ public:  // NOLINT
 
 public:  // NOLINT
     /**
-     * @brief Get parameters of all neurons in the population.
+     * @brief Get parameters of all cells in the population.
      *
-     * @return vector of neuron parameters.
+     * @return vector of cell parameters.
      */
     [[nodiscard]] const std::vector<NeuronParameters> &get_neurons_parameters() const { return neurons_; }
 
     /**
-     * @brief Get parameters of the specific neuron in the population.
+     * @brief Get parameters of the specific cell in the population.
      *
-     * @param index index of the population neuron.
+     * @param index index of the population cell.
      *
-     * @return specific neuron parameters.
+     * @return specific cell parameters.
      */
     [[nodiscard]] const NeuronParameters &get_neuron_parameters(size_t index) const { return neurons_[index]; }
 
     /**
-     * @brief Set parameters for the specific neuron in the population.
+     * @brief Set parameters for the specific cell in the population.
      *
-     * @param index index of the population neuron.
-     * @param parameters neuron parameters.
+     * @param index index of the population cell.
+     * @param parameters cell parameters.
      */
     void set_neuron_parameters(size_t index, const NeuronParameters &parameters) { neurons_[index] = parameters; }
 
     /**
-     * @brief Set parameters for all neurons in the population.
+     * @brief Set parameters for all cells in the population.
      *
-     * @param parameters vector of neuron parameters.
+     * @param parameters vector of cell parameters.
      *
      * @note Copy method.
      */
     void set_neurons_parameters(const std::vector<NeuronParameters> &parameters) { neurons_ = parameters; }
 
     /**
-     * @brief Set parameters for all neurons in the population.
+     * @brief Set parameters for all cells in the population.
      *
-     * @param parameters vector of neuron parameters.
+     * @param parameters vector of cell parameters.
      *
      * @note Move method.
      */
@@ -165,11 +166,11 @@ public:  // NOLINT
 
 public:  // NOLINT
     /**
-     * @brief Get tags used by neuron with the specified index.
+     * @brief Get tags used by cell with the specified index.
      *
-     * @param index index of the population neuron.
+     * @param index index of the population cell.
      *
-     * @return tag map of the neuron.
+     * @return tag map of the cell.
      */
     [[nodiscard]] TagMap &get_neuron_tags(size_t index)
     {
@@ -178,10 +179,10 @@ public:  // NOLINT
 
 public:  // NOLINT
     /**
-     * @brief Add neurons to the population.
+     * @brief Add cells to the population.
      *
-     * @param generator type of the neuron generator.
-     * @param count number of times to run the neuron generator.
+     * @param generator generator of cell parameters; an empty optional skips the current index.
+     * @param count number of times to run the cell generator.
      */
     void add_neurons(NeuronGenerator generator, size_t count)
     {
@@ -201,9 +202,9 @@ public:  // NOLINT
     }
 
     /**
-     * @brief Remove neurons with given indexes from the population.
+     * @brief Remove cells with given indexes from the population.
      *
-     * @param neuron_indexes indexes of neurons to remove.
+     * @param neuron_indexes indexes of cells to remove.
      */
     void remove_neurons(const std::vector<size_t> &neuron_indexes)
     {
@@ -215,9 +216,9 @@ public:  // NOLINT
     }
 
     /**
-     * @brief Remove a specific neuron from the population.
+     * @brief Remove a specific cell from the population.
      *
-     * @param neuron_index index of the neuron to remove.
+     * @param neuron_index index of the cell to remove.
      */
     void remove_neuron(const size_t &neuron_index)
     {
@@ -228,20 +229,20 @@ public:  // NOLINT
 
 public:  // NOLINT
     /**
-     * @brief Get parameter values of a neuron with the given index.
+     * @brief Get parameter values of a cell with the given index.
      *
-     * @param index neuron index.
-     * @return neuron parameters.
+     * @param index cell index.
+     * @return cell parameters.
      *
      * @note Constant method.
      */
     const NeuronParameters &operator[](size_t index) const { return get_neuron_parameters(index); }
     /**
-     * @brief Get parameter values of a neuron with the given index.
+     * @brief Get parameter values of a cell with the given index.
      *
-     * @param index neuron index.
+     * @param index cell index.
      *
-     * @return neuron parameters.
+     * @return cell parameters.
      */
     NeuronParameters &operator[](size_t index) { return neurons_[index]; }
 
@@ -272,9 +273,9 @@ public:  // NOLINT
 
 public:  // NOLINT
     /**
-     * @brief Count number of neurons in the population.
+     * @brief Count number of cells in the population.
      *
-     * @return number of neurons.
+     * @return number of cells.
      */
     [[nodiscard]] size_t size() const { return neurons_.size(); }
 
@@ -285,25 +286,17 @@ private:
 
 
 /**
- * @brief List of population types based on neuron types specified in `knp::neuron_traits::AllNeurons`.
- *
- * @details `AllPopulations` takes the value of `Population<NeuronType_1>, Population<NeuronType_2>, ...,
- * Population<NeuronType_n>`, where `NeuronType_[1..n]` is the neuron type specified in
- * `knp::neuron_traits::AllNeurons`. \n For example, if `knp::neuron_traits::AllNeurons` contains BLIFATNeuron and
- * IzhikevichNeuron types, then `AllPopulations` = `Population<BLIFATNeuron>, Population<IzhikevichNeuron>`.
+ * @brief Population types for all registered neurons and astrocytes in AllCells.
  */
-using AllPopulations = boost::mp11::mp_transform<knp::core::Population, knp::neuron_traits::AllNeurons>;
+using AllPopulations = boost::mp11::mp_transform<knp::core::Population, AllCells>;
 
 /**
  * @brief Population variant that contains any population type specified in `AllPopulations`.
  *
- * @details `AllPopulationVariants` takes the value of `std::variant<PopulationType_1,..., PopulationType_n>`, where
- * `PopulationType_[1..n]` is the population type specified in `AllPopulations`. \n For example, if `AllPopulations`
- * contains BLIFATNeuron and IzhikevichNeuron types, then `AllPopulationVariants = std::variant<BLIFATNeuron,
- * IzhikevichNeuron>`. \n `AllPopulationVariants` retains the same order of message types as defined in
- * `AllPopulations`.
+ * @details Each alternative is a Population<Model>, following the model order in AllCells.
+ * Both neuron and astrocyte populations are included.
  *
- * @see ALL_NEURONS.
+ * @see AllCells.
  */
 using AllPopulationsVariant = boost::mp11::mp_rename<AllPopulations, std::variant>;
 

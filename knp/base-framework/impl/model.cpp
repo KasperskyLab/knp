@@ -66,6 +66,10 @@ namespace nt = knp::neuron_traits;
     template KNP_DECLSPEC void Model::connect_output_population<nt::neuron_type>( \
         const core::UID &, const core::Population<nt::neuron_type> &);
 
+#define INSTANCE_ASTROCYTE_FUNCTIONS(n, template_for_instance, neuron_type)                          \
+    template KNP_DECLSPEC void Model::connect_output_population<knp::astrocyte_traits::neuron_type>( \
+        const core::UID &, const core::Population<knp::astrocyte_traits::neuron_type> &);
+
 namespace st = knp::synapse_traits;
 
 #define INSTANCE_PROJECTION_FUNCTIONS(n, template_for_instance, synapse_type)     \
@@ -74,6 +78,7 @@ namespace st = knp::synapse_traits;
 
 // cppcheck-suppress unknownMacro
 BOOST_PP_SEQ_FOR_EACH(INSTANCE_POPULATION_FUNCTIONS, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_NEURONS))
+BOOST_PP_SEQ_FOR_EACH(INSTANCE_ASTROCYTE_FUNCTIONS, , BOOST_PP_VARIADIC_TO_SEQ(ALL_ASTROCYTES))
 // cppcheck-suppress unknownMacro
 BOOST_PP_SEQ_FOR_EACH(INSTANCE_PROJECTION_FUNCTIONS, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_SYNAPSES))
 

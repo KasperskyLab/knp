@@ -40,6 +40,7 @@ endif()
 
 add_subdirectory(meta-library)
 add_subdirectory(neuron-traits-library)
+add_subdirectory(astrocyte-traits-library)
 add_subdirectory(synapse-traits-library)
 add_subdirectory(core-library)
 add_subdirectory(backends)
