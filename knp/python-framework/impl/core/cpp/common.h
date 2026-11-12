@@ -51,6 +51,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include <boost/mpl/vector.hpp>
+
 #if defined(__GNUC__) && (__GNUC__ >= 14) && !defined(__clang__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
