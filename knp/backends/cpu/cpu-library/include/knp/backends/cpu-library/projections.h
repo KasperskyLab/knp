@@ -26,8 +26,6 @@
 #include <knp/core/projection.h>
 
 #include <spdlog/spdlog.h>
-// For fmt::join().
-#include <spdlog/fmt/ranges.h>
 
 #include <string>
 #include <unordered_map>
@@ -65,15 +63,6 @@ void calculate_projection(
     SPDLOG_DEBUG("Calculating synapse projection at step {}.", step_n);
 
     auto messages = endpoint.unload_messages<core::messaging::SpikeMessage>(projection.get_uid());
-
-#if (SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE)
-    for (const auto &message : messages)
-    {
-        SPDLOG_TRACE(
-            "Spike from {} with spiked neurons: {}", std::string(message.header_.sender_uid_),
-            fmt::join(message.neuron_indexes_, ", "));
-    }
-#endif
 
     auto out_iter = impl::calculate_projection_dispatch(projection, messages, future_messages, step_n);
     if (out_iter != future_messages.end())
