@@ -35,7 +35,7 @@ CUDA::CUDA(uint32_t gpu_num) : gpu_num_(gpu_num)
     if (const auto e_code = cudaGetDeviceProperties(&properties_, gpu_num_); e_code != cudaSuccess)
     {
         const auto err_msg = std::string("CUDA error during get device properties") + cudaGetErrorString(e_code);
-        SPDLOG_ERROR("{} [{}]", err_msg.c_str(), e_code);
+        SPDLOG_ERROR("{} [{}]", err_msg.c_str(), static_cast<int>(e_code));
         throw std::runtime_error(err_msg);
     }
 
@@ -110,7 +110,7 @@ float CUDA::get_power() const
 
         if (auto e_code = nvmlShutdown(); e_code != NVML_SUCCESS)
         {
-            SPDLOG_WARN("NVML shutdown failed: {}", e_code);
+            SPDLOG_WARN("NVML shutdown failed: {}", static_cast<int>(e_code));
         }
 
         return power_usage;
