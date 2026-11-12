@@ -26,6 +26,8 @@
 #include <knp/core/projection.h>
 
 #include <spdlog/spdlog.h>
+// For fmt::join().
+#include <spdlog/fmt/ranges.h>
 
 #include <string>
 #include <unordered_map>
@@ -50,7 +52,7 @@ namespace knp::backends::cpu::projections
  * @param step_n current simulation step number.
  *
  * @details First, the function unloads all spike messages addressed to the projection from
- * the message endpoint. Then the function processes the unloaded spike messages together with 
+ * the message endpoint. Then the function processes the unloaded spike messages together with
  * any pending @p future_messages and returns an iterator to the first impact message that should be
  *  sent immediately. If such a message exists, the function sends it via the message endpoint
  *  and removes it from @p future_messages.

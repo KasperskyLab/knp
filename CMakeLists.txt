@@ -251,7 +251,7 @@ else()
     set(ZMQ_ENABLE_PRECOMPS ON)
 endif()
 
-add_third_party("gh:gabime/spdlog@1.13.0"
+add_third_party("gh:gabime/spdlog@1.16.0"
                 OPTIONS
                     "SPDLOG_BUILD_PIC ON"
                     "SPDLOG_BUILD_SHARED OFF")
@@ -291,7 +291,7 @@ endmacro()
 
 #add_third_party("https://gitlab.dkrz.de/k202009/libaec.git@1.1.3")
 #add_third_party("gh:erdc/szip")
-add_third_party("gh:HDFGroup/hdf5#hdf5_1.14.6"
+add_third_party("gh:HDFGroup/hdf5#hdf5_2.1.0"
 			    USE_LOCAL_PACKAGES NO
                 GIT_SHALLOW ON
                 FIND_PACKAGE_ARGUMENTS "NAMES hdf5 libhdf5 hdf5-static"
@@ -342,7 +342,7 @@ add_third_party("gh:zeromq/cppzmq@4.11.0"
                 OPTIONS
                     "CPPZMQ_BUILD_TESTS OFF")
 
-add_third_party("gh:Tencent/rapidjson#ebd87cb"
+add_third_party("gh:Tencent/rapidjson#297637b"
                 OPTIONS
                     "RAPIDJSON_BUILD_DOC OFF"
                     "RAPIDJSON_BUILD_ASAN OFF"
