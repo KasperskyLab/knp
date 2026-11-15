@@ -24,6 +24,7 @@
 #include <knp/core/messaging/messaging.h>
 #include <knp/core/uid.h>
 
+#include <cstddef>
 #include <iostream>
 #include <variant>
 #include <vector>
@@ -60,10 +61,12 @@ std::vector<uint8_t> pack_to_envelope(const MessageVariant &message);
  * @brief Extract messages from envelope.
  *
  * @param buffer message buffer.
+ * @param size message buffer size in bytes.
  *
  * @return `std::variant` of message types.
+ * @throws std::runtime_error if the buffer is null or contains invalid FlatBuffer data.
  */
-MessageVariant extract_from_envelope(const void *buffer);
+MessageVariant extract_from_envelope(const void *buffer, std::size_t size);
 /**
  * @brief Extract messages from envelope.
  *
