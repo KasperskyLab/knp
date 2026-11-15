@@ -22,6 +22,10 @@
 #include <knp/core/messaging/message_envelope.h>
 #include <knp/core/types.h>
 
+#include <stdexcept>
+
+#include <flatbuffers/verifier.h>
+
 #ifdef __clang__
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdocumentation"
@@ -62,8 +66,19 @@ std::vector<uint8_t> pack_to_envelope(const MessageVariant &message)
 }
 
 
-MessageVariant extract_from_envelope(const void *buffer)
+MessageVariant extract_from_envelope(const void *buffer, std::size_t size)
 {
+    if (buffer == nullptr || size == 0)
+    {
+        throw std::runtime_error("Invalid FlatBuffer data");
+    }
+
+    ::flatbuffers::Verifier verifier(static_cast<const uint8_t *>(buffer), size);
+    if (!marshal::VerifyMessageEnvelopeBuffer(verifier))
+    {
+        throw std::runtime_error("Invalid FlatBuffer data");
+    }
+
     auto msg_ev = marshal::GetMessageEnvelope(buffer);
 
     switch (msg_ev->message_type())
@@ -82,7 +97,7 @@ MessageVariant extract_from_envelope(const void *buffer)
 
 boost::mp11::mp_rename<AllMessages, std::variant> extract_from_envelope(const std::vector<uint8_t> &buffer)
 {
-    return extract_from_envelope(buffer.data());
+    return extract_from_envelope(buffer.data(), buffer.size());
 }
 
 }  // namespace knp::core::messaging
