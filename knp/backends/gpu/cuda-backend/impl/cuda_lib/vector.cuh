@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -146,7 +147,8 @@ public:
         for (size_type i = 0; i < size_; ++i) Allocator::construct(data_ + i);
 #else
         auto [num_blocks, num_threads] = get_blocks_config(size_);
-        construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
+        if (!std::is_trivially_constructible<value_type>::value)
+            construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
         cudaDeviceSynchronize();
 #endif
     }
@@ -450,8 +452,11 @@ public:
             reserve(new_size);
             CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: reserve: {}"));
             auto [num_blocks, num_threads] = get_blocks_config(new_size - size_);
-            construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + size_, new_size - size_);
-            CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: construct_kernel {}"));
+            if (!std::is_trivially_constructible<value_type>::value)
+            {
+                construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + size_, new_size - size_);
+                CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: construct_kernel {}"));
+            }
         }
         else if (new_size < size_)
         {

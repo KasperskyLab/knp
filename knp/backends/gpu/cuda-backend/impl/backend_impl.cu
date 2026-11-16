@@ -107,32 +107,10 @@ void gpu_insert<PopulationVariants>(const PopulationVariants &cpu_source, Popula
 }
 
 
-template <class T>
-__global__ void get_uids_kernel(const T *data, size_t size, cuda::UID *result)
-{
-    const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index >= size) return;
-    result[index] = ::cuda::std::visit([](auto &v) { return v.uid_; }, data[index]);
-}
-
-
 template <class VectorData>
-device_lib::CUDAVector<cuda::UID> get_uids(const device_lib::CUDAVector<VectorData> &entities)
+std::vector<knp::core::UID> get_uids_std(const std::vector<VectorData> &entities)
 {
-    device_lib::CUDAVector<cuda::UID> result(entities.size());
-    if (entities.size() != 0)
-    {
-        auto [num_blocks, num_threads] = device_lib::get_blocks_config(entities.size());
-        get_uids_kernel<<<num_blocks, num_threads>>>(entities.data(), entities.size(), result.data());
-    }
-    return result;
-}
-
-
-template <class VectorData>
-device_lib::CUDAVector<cuda::UID> get_uids_std(const std::vector<VectorData> &entities)
-{
-    device_lib::CUDAVector<cuda::UID> result;
+    std::vector<knp::core::UID> result;
     result.reserve(entities.size());
     for (size_t i = 0; i < entities.size(); ++i)
     {
@@ -145,7 +123,7 @@ device_lib::CUDAVector<cuda::UID> get_uids_std(const std::vector<VectorData> &en
 void CUDABackendImpl::calculate_projections(StepIndex step)
 {
     // Calculate projections.
-    device_lib::CUDAVector<cuda::UID> projection_uids = get_uids_std(device_projections_);
+    std::vector<knp::core::UID> projection_uids = get_uids_std(device_projections_);
 
     if (!device_projections_.size()) return;
 
@@ -154,7 +132,7 @@ void CUDABackendImpl::calculate_projections(StepIndex step)
     for (size_t i = 0; i < device_projections_.size(); ++i)
     {
         const std::vector<device_lib::LongIndex> message_ids =
-            device_message_bus_.unload_messages<cuda::SpikeMessage>(projection_uids.copy_at(i));
+            device_message_bus_.unload_messages<cuda::SpikeMessage>(projection_uids[i]);
         projection_messages.push_back(message_ids);
     }
     assert(device_projections_.size() == projection_messages.size());
@@ -256,12 +234,10 @@ void CUDABackendImpl::init()
             [](auto &proj) { return std::make_tuple(proj.presynaptic_uid_, proj.postsynaptic_uid_, proj.uid_); },
             device_projections_[i]);
 
-        if (!cuda::empty_uid(pre_uid)) this->device_message_bus_.subscribe_gpu<cuda::SpikeMessage>(this_uid, {pre_uid});
-
-        if (!cuda::empty_uid(post_uid))
-        {
+        if (pre_uid)
+            this->device_message_bus_.subscribe_gpu<cuda::SpikeMessage>(this_uid, {pre_uid});
+        if (post_uid)
             this->device_message_bus_.subscribe_gpu<cuda::SynapticImpactMessage>(post_uid, {this_uid});
-        }
     }
 
     SPDLOG_DEBUG("Initialization finished.");
@@ -281,13 +257,13 @@ void CUDABackendImpl::calculate_populations(StepIndex step)
                 {
                     cuda::SpikeMessage message{MessageHeader{pop.uid_, step, false}, std::move(spikes)};
                     SPDLOG_DEBUG(
-                        "Population {} created a message with {} spikes on step {}", std::string(to_cpu_uid(pop.uid_)),
+                        "Population {} created a message with {} spikes on step {}", std::string(pop.uid_),
                         message.neuron_indexes_.size(), step);
                     device_message_bus_.send_message(std::move(message));
                 }
                 else
                 {
-                    SPDLOG_DEBUG("No spike messages were sent from population {}", ::std::string(to_cpu_uid(pop.uid_)));
+                    SPDLOG_DEBUG("No spike messages were sent from population {}", ::std::string(pop.uid_));
                 }
             },
             population);
@@ -297,7 +273,6 @@ void CUDABackendImpl::calculate_populations(StepIndex step)
 
 __host__ uint64_t CUDABackendImpl::route_projection_messages(StepIndex step)
 {
-    using MessageVector = device_lib::CUDAVector<cuda::MessageVariant>;
     device_lib::LongIndex sent_message_counter = 0;
     device_message_bus_.clear();
 
@@ -398,12 +373,10 @@ __global__ void get_spike_message_data(
 }  // namespace knp::backends::gpu::cuda
 
 
-// TODO: Replace with a loop macro.
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(
     knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
@@ -413,8 +386,6 @@ REGISTER_CUDA_VECTOR_TYPE(
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 
 using ResourceSynapseType = knp::synapse_traits::SynapticResourceSTDPDeltaSynapse;

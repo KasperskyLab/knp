@@ -67,16 +67,16 @@ struct CUDAProjectionBase
      */
     using Synapse = ::cuda::std::tuple<SynapseParameters, device_lib::LongIndex, device_lib::LongIndex>;
 
-    __host__ __device__ CUDAProjectionBase() : is_locked_(true) {}
+    __host__ CUDAProjectionBase() : is_locked_(true) {}
 
     /**
      * @brief Constructor.
      * @param projection source projection.
      */
     __host__ explicit CUDAProjectionBase(const knp::core::Projection<SynapseType> &projection)
-        : uid_(to_gpu_uid(projection.get_uid())),
-          presynaptic_uid_(to_gpu_uid(projection.get_presynaptic())),
-          postsynaptic_uid_(to_gpu_uid(projection.get_postsynaptic())),
+        : uid_(projection.get_uid()),
+          presynaptic_uid_(projection.get_presynaptic()),
+          postsynaptic_uid_(projection.get_postsynaptic()),
           is_locked_(projection.is_locked())
     {
         constexpr int data_index = core::SynapseElementAccess::synapse_data;
@@ -102,13 +102,6 @@ struct CUDAProjectionBase
     __host__ __device__ void lock_weights() { is_locked_ = true; }
     __host__ __device__ void unlock_weights() { is_locked_ = false; }
 
-    __host__ __device__ void actualize()
-    {
-        synapses_.actualize();
-        impact_buffer_.actualize();
-        index_.actualize();
-    }
-
     /**
      * @brief Create an impact message.
      * @param current_step current step.
@@ -125,17 +118,17 @@ struct CUDAProjectionBase
     /**
      * @brief UID.
      */
-    cuda::UID uid_;
+    knp::core::UID uid_;
 
     /**
      * @brief UID of the population that sends spikes to the projection (presynaptic population)
      */
-    cuda::UID presynaptic_uid_;
+    knp::core::UID presynaptic_uid_;
 
     /**
      * @brief UID of the population that receives synapse responses from this projection (postsynaptic population).
      */
-    cuda::UID postsynaptic_uid_;
+    knp::core::UID postsynaptic_uid_;
 
     /**
      * @brief Return `false` if the weight change for synapses is not locked.
@@ -194,9 +187,8 @@ knp::core::Projection<Synapse> convert_to_core_projection(const CUDAProjection<S
         if (i >= synapses.size()) return {};
         return to_std_tuple<Synapse>(synapses[i]);
     };
-    knp::core::Projection<Synapse> result{
-        to_cpu_uid(cuda_projection.uid_), to_cpu_uid(cuda_projection.presynaptic_uid_),
-        to_cpu_uid(cuda_projection.postsynaptic_uid_), generator, synapses.size()};
+    knp::core::Projection<Synapse> result{cuda_projection.uid_, cuda_projection.presynaptic_uid_,
+                                          cuda_projection.postsynaptic_uid_, generator, synapses.size()};
     return result;
 }
 
