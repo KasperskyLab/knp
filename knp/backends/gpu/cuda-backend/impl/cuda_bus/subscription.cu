@@ -20,6 +20,7 @@
  */
 #include <knp/core/messaging/message_envelope.h>
 
+#include <unordered_set>
 #include <variant>
 
 #include "../cuda_lib/register_all.cuh"
@@ -37,15 +38,14 @@ __host__ Subscription::Subscription(const knp::core::MessageEndpoint::Subscripti
 
     const knp::core::MessageEndpoint::SubscriptionVariant &sub = cpu_subscription;
     size_t type_index = sub.index();
-    cuda::UID receiver_uid =
-        std::visit([](const auto &sub) { return cuda::to_gpu_uid(sub.get_receiver_uid()); }, cpu_subscription);
+    core::UID receiver_uid =
+        std::visit([](const auto &sub) { return sub.get_receiver_uid(); }, cpu_subscription);
 
-    std::vector<cuda::UID> senders = std::visit(
+    std::unordered_set<core::UID, core::uid_hash> senders = std::visit(
         [](const auto &sub)
         {
-            std::vector<cuda::UID> result;
-            result.reserve(sub.get_senders().size());
-            for (const knp::core::UID &sender : sub.get_senders()) result.push_back(cuda::to_gpu_uid(sender));
+            UidSet result;
+            for (const core::UID &sender : sub.get_senders()) result.insert(sender);
             return result;
         },
         cpu_subscription);
@@ -56,8 +56,7 @@ __host__ Subscription::Subscription(const knp::core::MessageEndpoint::Subscripti
 
 }  // namespace knp::backends::gpu::cuda
 
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
+//REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

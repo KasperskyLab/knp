@@ -61,7 +61,7 @@ struct CUDAPopulation
      * @param population source population.
      */
     __host__ explicit CUDAPopulation(const knp::core::Population<NeuronType> &population)
-        : uid_{to_gpu_uid(population.get_uid())},
+        : uid_{population.get_uid()},
           tags_{population.get_tags()},
           neurons_{population.get_neurons_parameters()}
     {
@@ -73,7 +73,7 @@ struct CUDAPopulation
     /**
      * @brief UID.
      */
-    cuda::UID uid_;
+    knp::core::UID uid_;
     /**
      * @brief Neurons container.
      */
@@ -101,7 +101,7 @@ knp::core::Population<Neuron> convert_to_core_population(const CUDAPopulation<Ne
         if (i >= neurons.size()) return {};
         return neurons[i];
     };
-    knp::core::Population<Neuron> result{to_cpu_uid(cuda_population.uid_), generator, neurons.size()};
+    knp::core::Population<Neuron> result{cuda_population.uid_, generator, neurons.size()};
     return result;
 }
 

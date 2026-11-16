@@ -31,6 +31,7 @@
 #include <memory>
 #include <optional>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -64,7 +65,7 @@ struct MessageBuffer
         messages_.resize(messages_.size() + 1);
         messages_.back() = message_to_add;
         auto &msg = messages_.back();
-        knp::core::UID uid = to_cpu_uid(msg.header_.sender_uid_);
+        const knp::core::UID &uid = msg.header_.sender_uid_;
         auto map_iter = message_ids_.find(uid);
         if (map_iter == message_ids_.end())
         {
@@ -116,14 +117,14 @@ public:
      * @return true if a new subscription was created.
      */
     template <typename MessageType>
-    __host__ bool subscribe_both(const cuda::UID &receiver, const std::vector<cuda::UID> &senders)
+    __host__ bool subscribe_both(const knp::core::UID &receiver, const std::vector<knp::core::UID> &senders)
     {
         constexpr auto type_index = boost::mp11::mp_find<MessageVariant, MessageType>();
         return subscribe_both(receiver, senders, type_index);
     }
 
     template <typename MessageType>
-    __host__ bool subscribe_gpu(const cuda::UID &receiver, const std::vector<cuda::UID> &senders)
+    __host__ bool subscribe_gpu(const knp::core::UID &receiver, const std::vector<knp::core::UID> &senders)
     {
         constexpr auto type_index = boost::mp11::mp_find<MessageVariant, MessageType>();
         return subscribe_gpu(receiver, senders, type_index);
@@ -147,13 +148,13 @@ public:
      * @return true if a subscription was deleted, false otherwise.
      */
     template <typename MessageType>
-    __host__ bool unsubscribe(const cuda::UID &receiver);
+    __host__ bool unsubscribe(const knp::core::UID &receiver);
 
     /**
      * @brief Remove all subscriptions for a receiver with given UID.
      * @param receiver receiver UID.
      */
-    __host__ void remove_receiver(const cuda::UID &receiver);
+    __host__ void remove_receiver(const knp::core::UID &receiver);
 
     /**
      * @brief Store a message inside a bus.
@@ -206,20 +207,12 @@ public:
         {
             const MessageType &msg = msg_buffer.messages_[i];
             const cuda::MessageHeader &header = msg.header_;
+            // if (gpu_to_host_senders_.find(header.sender_uid_) == gpu_to_host_senders_.end()) continue;
             if (header.send_time_ != step - 1 && header.send_time_ != step || header.is_external_) continue;
             auto host_message = make_host_message(msg);
             cpu_endpoint_.send_message(host_message);
         }
     }
-
-    /**
-     * @brief Send messages of the specified type to a bus.
-     * @tparam MessageType type of messages to read.
-     * @param receiver_uid receiver UID.
-     * @return vector of messages.
-     */
-    template <class MessageType>
-    __host__ void send_messages(const cuda::UID &receiver_uid, device_lib::CUDAVector<MessageType> &result_messages);
 
     /**
      * @brief Find indices of the messages of a given type that were sent to a specific receiver.
@@ -229,16 +222,15 @@ public:
      * @note The messages are not modified by this function.
      */
     template <class MessageType>
-    __host__ std::vector<device_lib::LongIndex> unload_messages(const cuda::UID &receiver_uid)
+    __host__ std::vector<device_lib::LongIndex> unload_messages(const knp::core::UID &receiver_uid)
     {
         constexpr auto type_index = boost::mp11::mp_find<CUDAMessageVariant, MessageType>();
         auto sub_optional = find_subscription(receiver_uid, type_index);
         if (!sub_optional.has_value()) return {};
         Subscription &sub = sub_optional.value();
         std::vector<device_lib::LongIndex> result;
-        for (size_t i = 0; i < sub.get_senders().size(); ++i)
+        for (const core::UID &uid : sub.get_senders())
         {
-            knp::core::UID uid = cuda::to_cpu_uid(sub.get_senders().copy_at(i));
             auto id_buf = get_message_buffer<MessageType>().find_message_ids(uid);
             auto res_size = result.size();
             result.resize(res_size + id_buf.size());
@@ -285,9 +277,10 @@ private:
      */
     __host__ int synchronize();
 
-    __host__ void subscribe_host(const cuda::UID &receiver, const std::vector<cuda::UID> &senders, size_t type_id);
+    __host__ void subscribe_host(const core::UID &receiver, const std::vector<core::UID> &senders, size_t type_id);
 
-    __host__ bool subscribe_gpu(const cuda::UID &receiver, const std::vector<cuda::UID> &senders, size_t type_index)
+    template <class UidContainer>
+    __host__ bool subscribe_gpu(const core::UID &receiver, const UidContainer &senders, size_t type_index)
     {
         SPDLOG_DEBUG("Looking for existing subscriptions");
         auto sub_opt = find_subscription(receiver, type_index);
@@ -295,9 +288,9 @@ private:
         {
             SPDLOG_DEBUG("Updating an existing subscription.");
             Subscription &sub_upd = sub_opt.value();
-            for (size_t i = 0; i < senders.size(); ++i)
+            for (const core::UID &uid : senders)
             {
-                sub_upd.add_sender(senders[i]);
+                sub_upd.add_sender(uid);
             }
             SPDLOG_DEBUG("Done updating a subscription");
             return false;
@@ -305,13 +298,13 @@ private:
         else
         {
             SPDLOG_DEBUG("Adding new gpu subscription");
-            subscriptions_[type_index].insert({to_cpu_uid(receiver), Subscription(receiver, senders, type_index)});
+            subscriptions_[type_index].insert({receiver, Subscription(receiver, senders, type_index)});
             SPDLOG_DEBUG("Done adding new gpu subscription");
             return true;
         }
     }
 
-    __host__ bool subscribe_both(const cuda::UID &receiver, const std::vector<cuda::UID> &senders, size_t type_index)
+    __host__ bool subscribe_both(const core::UID &receiver, const std::vector<core::UID> &senders, size_t type_index)
     {
         subscribe_gpu(receiver, senders, type_index);
         subscribe_host(receiver, senders, type_index);
@@ -321,10 +314,10 @@ private:
 
     template <typename MessageType>
     [[nodiscard]] __host__ std::optional<std::reference_wrapper<Subscription>>
-        find_subscription(const cuda::UID &receiver);
+        find_subscription(const core::UID &receiver);
 
     [[nodiscard]] __host__ std::optional<std::reference_wrapper<Subscription>>
-        find_subscription(const cuda::UID &receiver, const size_t type_id);
+        find_subscription(const core::UID &receiver, const size_t type_id);
 
     template <typename MessageType>
     __host__ __device__ ::cuda::std::vector<device_lib::LongIndex> find_messages(const Subscription &subscription);
@@ -333,12 +326,11 @@ private:
      * @brief Container that stores all the subscriptions for the current endpoint.
      */
     SubscriptionContainer subscriptions_;
-    device_lib::CUDAVector<cuda::UID> gpu_senders_;
-    device_lib::CUDAVector<cuda::UID> host_senders_;
 
     MessageBuffer<SpikeMessage> messages_spikes_;
     MessageBuffer<SynapticImpactMessage> messages_impacts_;
 
+    std::unordered_set<core::UID, core::uid_hash> gpu_to_host_senders_;
     knp::core::MessageEndpoint &cpu_endpoint_;
 };
 

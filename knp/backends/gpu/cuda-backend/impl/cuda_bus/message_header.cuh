@@ -22,6 +22,7 @@
 #pragma once
 
 #include <knp/core/messaging/message_header.h>
+#include <knp/core/uid.h>
 
 #include <cstdint>
 
@@ -42,7 +43,7 @@ public:
     /**
      * @brief UID of the object that sent the message.
      */
-    cuda::UID sender_uid_;
+    core::UID sender_uid_;
     /**
      * @brief Index of the network execution step.
      */
@@ -53,7 +54,7 @@ public:
      */
     bool is_external_ = false;
 
-    __host__ __device__ bool operator==(const MessageHeader &other) const
+    __host__ bool operator==(const MessageHeader &other) const
     {
         return sender_uid_ == other.sender_uid_ && send_time_ == other.send_time_;
     }
@@ -65,12 +66,12 @@ namespace detail
 inline cuda::MessageHeader make_gpu_message_header(const knp::core::messaging::MessageHeader &host_header)
 {
     return {
-        .sender_uid_ = to_gpu_uid(host_header.sender_uid_), .send_time_ = host_header.send_time_, .is_external_ = true};
+        .sender_uid_ = host_header.sender_uid_, .send_time_ = host_header.send_time_, .is_external_ = true};
 }
 
 inline knp::core::messaging::MessageHeader make_host_message_header(const cuda::MessageHeader &gpu_header)
 {
-    return {.sender_uid_ = to_cpu_uid(gpu_header.sender_uid_), .send_time_ = gpu_header.send_time_};
+    return {.sender_uid_ = gpu_header.sender_uid_, .send_time_ = gpu_header.send_time_};
 }
 }  // namespace detail
 }  // namespace knp::backends::gpu::cuda

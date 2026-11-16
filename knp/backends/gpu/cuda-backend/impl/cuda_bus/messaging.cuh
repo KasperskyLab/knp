@@ -53,11 +53,6 @@ __host__ __device__ constexpr auto get_msg_index()
     return boost::mp11::mp_find<MessageVariant, MessageType>();
 }
 
-template <>
-MessageVariant gpu_extract<MessageVariant>(const MessageVariant *message);
-
-template <>
-void gpu_insert<MessageVariant>(const MessageVariant &cpu_source, MessageVariant *gpu_target);
 
 cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message);
 
