@@ -64,7 +64,8 @@ std::vector<uint8_t> pack_to_envelope(const MessageVariant &message);
  * @param size message buffer size in bytes.
  *
  * @return `std::variant` of message types.
- * @throws std::runtime_error if the buffer is null or contains invalid FlatBuffer data.
+ * 
+ * @throw `std::runtime_error` if buffer is null or contains invalid FlatBuffer data.
  */
 MessageVariant extract_from_envelope(const void *buffer, std::size_t size);
 /**
