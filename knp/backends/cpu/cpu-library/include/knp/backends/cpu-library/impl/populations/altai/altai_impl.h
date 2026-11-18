@@ -132,7 +132,7 @@ inline bool calculate_post_impact_single_neuron_state_impl(
     }
     if (neuron.potential_ <= -static_cast<float>(neuron.negative_activation_threshold_) && !was_reset)
     {
-        // Might probably want a negative spike, but we don't have any of the sort in KNP. Not a large problem,
+        // Might probably want a negative spike, but we don't have any of the sort in the platform. Not a large problem,
         // just requires some conversion.
         if (neuron.saturate_)
         {

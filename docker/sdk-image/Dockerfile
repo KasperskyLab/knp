@@ -1,4 +1,4 @@
-# KNP SDK image Dockerfile.
+# Dockerfile for the platform SDK image.
 #
 # © 2024-2026 AO Kaspersky Lab
 #

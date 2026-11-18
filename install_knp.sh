@@ -69,7 +69,7 @@ echo "Installing CUDA and GPU backend into the Docker image ${SDK_IMAGE_NAME}...
 #"${DOCKER_COMMAND}" image rm -f "${IMAGE_NAME}" || die "Cannot remove Docker image."
 
 echo "Commiting changes into image..."
-"${DOCKER_COMMAND}" commit -m "CUDA and KNP GPU backend installed" $(cat "${TMP_FILE}") "${SDK_IMAGE_NAME}"\
+"${DOCKER_COMMAND}" commit -m "CUDA and GPU backend installed" $(cat "${TMP_FILE}") "${SDK_IMAGE_NAME}"\
   || die "Cannot commit changes into Docker image."
 
 echo "SDK image was installed successfully."
