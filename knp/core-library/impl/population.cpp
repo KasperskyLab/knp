@@ -55,3 +55,8 @@ Population<NeuronType>::Population(
 BOOST_PP_SEQ_FOR_EACH(INSTANCE_POPULATIONS, "", BOOST_PP_VARIADIC_TO_SEQ(ALL_NEURONS))
 
 }  // namespace knp::core
+
+#define INSTANCE_ASTROCYTE_POPULATIONS(n, _, astrocyte_type) \
+    template class knp::core::Population<knp::astrocyte_traits::astrocyte_type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANCE_ASTROCYTE_POPULATIONS, , BOOST_PP_VARIADIC_TO_SEQ(ALL_ASTROCYTES))

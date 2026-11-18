@@ -113,6 +113,10 @@ std::vector<core::AllPopulationsVariant> load_populations(const fs::path &pop_h5
             result.emplace_back(load_population<neuron_traits::SynapticResourceSTDPAltAILIFNeuron>(group, pop_name));
         else if (neuron_type == get_neuron_type_id<neuron_traits::LIFNeuron>())
             result.emplace_back(load_population<neuron_traits::LIFNeuron>(group, pop_name));
+        else if (neuron_type == get_neuron_type_id<astrocyte_traits::AstrocyteSimple>())
+            result.emplace_back(load_population<astrocyte_traits::AstrocyteSimple>(group, pop_name));
+        else if (neuron_type == get_neuron_type_id<astrocyte_traits::AstrocyteNonlinear>())
+            result.emplace_back(load_population<astrocyte_traits::AstrocyteNonlinear>(group, pop_name));
 
         // TODO: Add other supported types or better use a template.
     }

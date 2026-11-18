@@ -84,10 +84,13 @@ void normalize_neurons(knp::framework::Network &network, ValueCorrector correcto
         std::visit(
             [&corrector](auto &population)
             {
-                using NeuronType = typename std::decay_t<decltype(population)>::PopulationNeuronType;
-                normalize_neurons<NeuronType, DataGetter, DataSetter>(
-                    const_cast<knp::core::Population<NeuronType> &>(population), DataGetter<NeuronType>(),
-                    DataSetter<NeuronType>(), corrector);
+                using CellType = typename std::decay_t<decltype(population)>::PopulationNeuronType;
+                if constexpr (core::is_neuron_v<CellType>)
+                {
+                    normalize_neurons<CellType, DataGetter, DataSetter>(
+                        const_cast<knp::core::Population<CellType> &>(population), DataGetter<CellType>(),
+                        DataSetter<CellType>(), corrector);
+                }
             },
             population_variant);
     }
