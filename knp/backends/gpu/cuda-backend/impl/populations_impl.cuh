@@ -66,7 +66,7 @@ using StepIndex = unsigned long long;
 template <class Neuron>
 __global__ void calculate_neurons_impacts(
     device_lib::CUDAVectorMutableView<knp::neuron_traits::neuron_parameters<Neuron>> neurons,
-    device_lib::CUDAVectorView<SynapticImpact> impacts, bool is_forcing = false);
+    device_lib::CUDAVectorMutableView<SynapticImpact> impacts, bool is_forcing = false);
 
 
 /**
@@ -84,10 +84,10 @@ __host__ void calculate_neurons_impacts_all(
     for (const auto &msg_id : message_ids)
     {
         const auto &msg = messages_all[msg_id];
-        auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size());
-        calculate_neurons_impacts<Neuron><<<num_blocks, num_threads>>>(neurons, msg.impacts_.view(), msg.is_forcing_);
+        auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size_);
+        calculate_neurons_impacts<Neuron><<<num_blocks, num_threads>>>(neurons, msg.impacts_, msg.is_forcing_);
     }
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 }
 
 }  // namespace knp::backends::gpu::cuda

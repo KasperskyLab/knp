@@ -85,28 +85,32 @@ __global__ void copy_gpu_impact_kernel(
 }
 
 
-cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message)
-{
-    cuda::SynapticImpactMessage result;
-    // Copy necessary fields.
-    result.header_ = detail::make_gpu_message_header(host_message.header_);
-    result.presynaptic_population_uid_ = host_message.presynaptic_population_uid_;
-    result.postsynaptic_population_uid_ = host_message.postsynaptic_population_uid_;
-    result.is_forcing_ = host_message.is_forcing_;
-    size_t data_n = host_message.impacts_.size();
-
-    if (!data_n) return result;
-    // Copy data if it exists.
-    size_t data_size = data_n * sizeof(knp::core::messaging::SynapticImpact);
-    knp::core::messaging::SynapticImpact *in_data;
-    call_and_check(cudaMalloc(&in_data, data_size));
-    call_and_check(cudaMemcpy(in_data, host_message.impacts_.data(), data_size, cudaMemcpyHostToDevice));
-    result.impacts_.resize(data_n);
-    auto [num_blocks, num_threads] = device_lib::get_blocks_config(data_n);
-    copy_host_impact_kernel<<<num_blocks, num_threads>>>(result.impacts_.data(), in_data, data_n);
-    call_and_check(cudaFree(in_data));
-    return result;
-}
+// TODO: Currently we don't get impact messages from CPU but that might change later.
+//cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message,
+//                                             device_lib::CUDAVector<SynapticImpact> &impacts_owner)
+//{
+//    cuda::SynapticImpactMessage result;
+//    // Copy necessary fields.
+//    result.header_ = detail::make_gpu_message_header(host_message.header_);
+//    result.presynaptic_population_uid_ = host_message.presynaptic_population_uid_;
+//    result.postsynaptic_population_uid_ = host_message.postsynaptic_population_uid_;
+//    result.is_forcing_ = host_message.is_forcing_;
+//    size_t data_n = host_message.impacts_.size();
+//
+//    // Copy data if it exists.
+//    if (data_n != 0)
+//    {
+//        size_t data_size = data_n * sizeof(knp::core::messaging::SynapticImpact);
+//        impacts_owner.resize(data_size);
+//        call_and_check(cudaMemcpy(impacts_owner.data(), host_message.impacts_.data(),
+//                                  data_size, cudaMemcpyHostToDevice));
+//        auto [num_blocks, num_threads] = device_lib::get_blocks_config(data_n);
+//        copy_host_impact_kernel<<<num_blocks, num_threads>>>(impacts_owner.data(), in_data, data_n);
+//        call_and_check(cudaFree(in_data));
+//    }
+//    result.impacts_ = impacts_owner.view();
+//    return result;
+//}
 
 
 knp::core::messaging::SynapticImpactMessage make_host_message(const cuda::SynapticImpactMessage &gpu_message)
@@ -117,7 +121,7 @@ knp::core::messaging::SynapticImpactMessage make_host_message(const cuda::Synapt
     result.presynaptic_population_uid_ = gpu_message.presynaptic_population_uid_;
     result.postsynaptic_population_uid_ = gpu_message.postsynaptic_population_uid_;
     result.is_forcing_ = gpu_message.is_forcing_;
-    size_t data_n = gpu_message.impacts_.size();
+    size_t data_n = gpu_message.impacts_.size_;
 
     if (!data_n) return result;
 
@@ -128,7 +132,7 @@ knp::core::messaging::SynapticImpactMessage make_host_message(const cuda::Synapt
 
     result.impacts_.resize(data_n);
     auto [num_blocks, num_threads] = device_lib::get_blocks_config(data_n);
-    copy_gpu_impact_kernel<<<num_blocks, num_threads>>>(in_data, gpu_message.impacts_.data(), data_n);
+    copy_gpu_impact_kernel<<<num_blocks, num_threads>>>(in_data, gpu_message.impacts_.data_, data_n);
 
     result.impacts_.resize(data_n);
     call_and_check(cudaMemcpy(result.impacts_.data(), in_data, data_size, cudaMemcpyDeviceToHost));
@@ -141,12 +145,6 @@ knp::core::messaging::MessageVariant make_host_message(const cuda::MessageVarian
 {
     return ::cuda::std::visit(
         [](const auto &msg) { return knp::core::messaging::MessageVariant{make_host_message(msg)}; }, gpu_message);
-}
-
-
-cuda::MessageVariant make_gpu_message(const knp::core::messaging::MessageVariant &host_message)
-{
-    return std::visit([](const auto &msg) { return cuda::MessageVariant{make_gpu_message(msg)}; }, host_message);
 }
 
 }  // namespace knp::backends::gpu::cuda

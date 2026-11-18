@@ -63,7 +63,8 @@ __global__ void calculate_neurons_pre_impact(
 
 template <>
 __global__ void calculate_neurons_impacts<knp::neuron_traits::BLIFATNeuron>(
-    device_lib::CUDAVectorMutableView<BlifatParams> neurons, device_lib::CUDAVectorView<SynapticImpact> impacts, bool)
+    device_lib::CUDAVectorMutableView<BlifatParams> neurons, device_lib::CUDAVectorMutableView<SynapticImpact> impacts,
+    bool)
 {
     const size_t impact_index = blockIdx.x * blockDim.x + threadIdx.x;
     if (impact_index >= impacts.size_) return;
@@ -101,10 +102,9 @@ __host__ void calculate_neurons_impacts_all(
     for (const auto &msg_id : message_ids)
     {
         const auto &msg = messages_all[msg_id];
-        auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size());
-        calculate_neurons_impacts<<<num_blocks, num_threads>>>(neurons, msg.impacts_.view());
+        auto [num_blocks, num_threads] = device_lib::get_blocks_config(msg.impacts_.size_);
+        calculate_neurons_impacts<<<num_blocks, num_threads>>>(neurons, msg.impacts_);
     }
-    cudaDeviceSynchronize();
 }
 
 
