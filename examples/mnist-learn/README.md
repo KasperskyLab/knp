@@ -190,7 +190,7 @@ The `dataset.h` header file provide interface to the `process_dataset()` functio
 
 The `evaluate_results.cpp` file contains the implementation of the `evaluate_results()` function. This function is used for processing and evaluating the results of neural network inference operations on the MNIST dataset. The `evaluate_results()` function performs the following operations:
 
-* Result processing. The function uses `InferenceResultsProcessor` from the KNP framework to analyze inference spikes.
+* Result processing. The function uses `InferenceResultsProcessor` from the platform C++ framework to analyze inference spikes.
 * Dataset integration. The function combines spike data with the original dataset for accurate evaluation.
 * CSV output. The function writes formatted evaluation results to standard output in CSV format.
 

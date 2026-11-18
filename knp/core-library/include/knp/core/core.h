@@ -1,6 +1,6 @@
 /**
  * @file core.h
- * @brief Common KNP core header to include.
+ * @brief Common core header to include.
  * @kaspersky_support Artiom N.
  * @date 04.08.2026
  * @license Apache 2.0
