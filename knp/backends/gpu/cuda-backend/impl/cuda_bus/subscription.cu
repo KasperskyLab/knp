@@ -57,6 +57,5 @@ __host__ Subscription::Subscription(const knp::core::MessageEndpoint::Subscripti
 }  // namespace knp::backends::gpu::cuda
 
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
-//REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);

@@ -90,21 +90,21 @@ TypeVariant extract_by_index(const void *type_ptr)
 }
 
 
-template <>
-void gpu_insert<PopulationVariants>(const PopulationVariants &cpu_source, PopulationVariants *gpu_target)
-{
-    ::cuda::std::visit(
-        [gpu_target](const auto &val)
-        {
-            using ValueType = std::decay_t<decltype(val)>;
-            ValueType *buffer;
-            call_and_check(cudaMalloc(&buffer, sizeof(ValueType)));
-            gpu_insert(val, buffer);
-            device_lib::make_variant_kernel<<<1, 1>>>(gpu_target, buffer);
-            call_and_check(cudaFree(buffer));
-        },
-        cpu_source);
-}
+//template <>
+//void gpu_insert<PopulationVariants>(const PopulationVariants &cpu_source, PopulationVariants *gpu_target)
+//{
+//    ::cuda::std::visit(
+//        [gpu_target](const auto &val)
+//        {
+//            using ValueType = std::decay_t<decltype(val)>;
+//            ValueType *buffer;
+//            call_and_check(cudaMalloc(&buffer, sizeof(ValueType)));
+//            gpu_insert(val, buffer);
+//            device_lib::make_variant_kernel<<<1, 1>>>(gpu_target, buffer);
+//            call_and_check(cudaFree(buffer));
+//        },
+//        cpu_source);
+//}
 
 
 template <class VectorData>
@@ -143,7 +143,7 @@ void CUDABackendImpl::calculate_projections(StepIndex step)
             { calculate_projection(projection, projection_messages[i], step); },
             device_projections_[i]);
     }
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 }
 
 
@@ -281,17 +281,15 @@ __host__ uint64_t CUDABackendImpl::route_projection_messages(StepIndex step)
         ::cuda::std::visit(
             [this, &sent_message_counter](auto &proj)
             {
-                if (proj.message_buf_.impacts_.size())
+                if (proj.message_buf_.impacts_.size_)
                 {
                     device_message_bus_.send_message(std::move(proj.message_buf_));
-                    // cudaDeviceSynchronize();
-                    proj.message_buf_.impacts_.clear();
                     ++sent_message_counter;
                 }
             },
             device_projections_[i]);
     }
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
     SPDLOG_DEBUG("Projections sent {} messages", sent_message_counter);
     return sent_message_counter;
 }
@@ -374,7 +372,6 @@ __global__ void get_spike_message_data(
 
 
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);

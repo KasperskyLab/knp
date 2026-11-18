@@ -322,15 +322,8 @@ void update_rstdp_synapses(
 #endif  // NDEBUG
         process_spiking_neurons_impl(spiking_neurons, synapses, population.neurons_, step);
     }
-    cudaDeviceSynchronize();
-    SPDLOG_DEBUG("Running do_dopamine_plasticity on {} blocks, {} threads", num_blocks, num_threads);
-    cudaDeviceSynchronize();
     do_dopamine_plasticity_kernel<<<num_blocks, num_threads>>>(synapses, population.neurons_.mut_view(), step);
-    cudaDeviceSynchronize();
-    SPDLOG_DEBUG("Running update and renormalize.");
     update_and_renormalize<<<num_blocks, num_threads>>>(synapses, population.neurons_.mut_view(), step);
-    cudaDeviceSynchronize();
-    SPDLOG_DEBUG("Finished dopamine plasticity calculation.");
 }
 }  // namespace knp::backends::gpu::cuda
 

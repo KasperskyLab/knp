@@ -149,10 +149,26 @@ struct CUDAProjectionBase
      * @brief Impact delay buffer.
      */
     BitDelayBuffer impact_buffer_;
+
+    /**
+     * @brief Impacts buffer that owns message data.
+     */
+    device_lib::CUDAVector<SynapticImpact> message_impacts_buf_;
+
     /**
      * @brief Message buffer.
      */
     SynapticImpactMessage message_buf_;
+
+    /**
+     * @brief Counter buffer.
+     */
+     device_lib::CUDAVector<LongIndex> counter_buffer_;
+
+     /**
+      * @brief Neuron scan buffer.
+      */
+      device_lib::CUDAVector<uint8_t> temporary_scan_buffer_;
 };
 
 

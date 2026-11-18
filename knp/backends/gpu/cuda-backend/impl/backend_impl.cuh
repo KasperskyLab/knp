@@ -108,7 +108,7 @@ public:
     }
 
     /**
-     * @brief Destructor for  backend.
+     * @brief Destructor for backend.
      */
     ~CUDABackendImpl() = default;
 
@@ -315,6 +315,9 @@ private:
     PopulationContainer device_populations_;
 
     ProjectionContainer device_projections_;
+
+    // Buffers
+    device_lib::CUDAVector<LongIndex> neuron_scan_buffer_;
 
     knp::backends::gpu::cuda::CUDAMessageBus device_message_bus_;
 };

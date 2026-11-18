@@ -118,7 +118,7 @@ void CUDABackend::_step()
         "Message bus 1 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
-    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    // bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
     SPDLOG_DEBUG(
         "Message bus 2 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
@@ -147,7 +147,7 @@ void CUDABackend::_step()
     SPDLOG_DEBUG(
         "Message bus 7 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
-    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    // bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
     SPDLOG_DEBUG(
         "Message bus 8 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),

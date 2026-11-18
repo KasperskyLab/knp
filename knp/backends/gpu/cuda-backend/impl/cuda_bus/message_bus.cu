@@ -211,7 +211,8 @@ __host__ void CUDAMessageBus::receive_messages_from_host()
             }
             else if (type_id == impacts_index)
             {
-                send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
+                SPDLOG_ERROR("Sending synaptic impacts from CPU bus not implemented.");
+                // send_host_messages_to_gpu<impacts_index>(*this, cpu_endpoint_, duplicate_counter, receiver_uid);
             }
         }
     }

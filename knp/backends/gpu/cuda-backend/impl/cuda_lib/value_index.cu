@@ -19,8 +19,9 @@
  * limitations under the License.
  */
 
-#include <thrust/transform.h>
+#include <cub/cub.cuh>
 
+#include "register_type.cuh"
 #include "value_index.cuh"
 
 
@@ -73,15 +74,25 @@ __global__ void gather_index_neuron_kernel(
 
 // For each neuron id in "inputs" find the total number of synapses for "previous" neurons in "inputs".
 // Output size() equals to index.size_
-__host__ CUDAVector<LongIndex> calculate_neuron_scan(
-    const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs)
+__host__ void calculate_neuron_scan(
+    const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs, CUDAVector<LongIndex> &result_buffer,
+        CUDAVector<uint8_t> &temporary_buffer)
 {
-    CuMallocAllocator<LongIndex> allocator;
-    LongIndex *buffer = allocator.allocate(inputs.size_);
+    result_buffer.resize(inputs.size_);
     auto [num_blocks, num_threads] = get_blocks_config(inputs.size_);
-    gather_index_neuron_kernel<<<num_blocks, num_threads>>>(index.view(), inputs, buffer);
+    gather_index_neuron_kernel<<<num_blocks, num_threads>>>(index.view(), inputs, result_buffer.data());
     // in-place prefix sum, for each neuron the value is the number of synapses before this, starts with 0.
-    thrust::exclusive_scan(thrust::device, buffer, buffer + inputs.size_, buffer);
-    return CUDAVector<LongIndex>{buffer, inputs.size_};  // The vector would take care of releasing
+    if (inputs.size_ > 0)
+    {
+        size_t required_bytes = 0;
+        call_and_check(cub::DeviceScan::ExclusiveSum(nullptr, required_bytes, result_buffer.data(),
+                                                     result_buffer.data(), inputs.size_));
+        if (temporary_buffer.size() == 0) temporary_buffer.resize(1);
+        temporary_buffer.reserve(required_bytes);
+        call_and_check(cub::DeviceScan::ExclusiveSum(temporary_buffer.data(), required_bytes, result_buffer.data(),
+                                                     result_buffer.data(), inputs.size_));
+    }
 }
 }  // namespace knp::backends::gpu::cuda::device_lib
+
+REGISTER_CUDA_VECTOR_TYPE(uint8_t);

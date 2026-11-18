@@ -120,10 +120,13 @@ __host__ LongIndex count_values_by_indexes(const ValueIndex &index, const CUDAVe
  * @brief Build exclusive prefix sum for number of synapses per neuron.
  * @param index the built value index.
  * @param inputs spiked neuron indices.
+ * @param result_buffer buffer for results.
+ * @param temporary_buffer internal memory buffer.
  * @return a vector of "output" offsets for each neuron.
  */
-__host__ CUDAVector<LongIndex> calculate_neuron_scan(
-    const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs);
+__host__ void calculate_neuron_scan(
+    const ValueIndex &index, const CUDAVectorView<cuda::SpikeIndex> inputs, CUDAVector<LongIndex> &result_buffer,
+    CUDAVector<uint8_t> &temporary_buffer);
 
 
 /**

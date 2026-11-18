@@ -75,7 +75,7 @@ TEST(CudaBackendSuite, MessagesTest)
     knp_cuda::SpikeMessage message_1;
     knp_cuda::SynapticImpactMessage message_2;
     ASSERT_EQ(message_1.neuron_indexes_.size(), 0);
-    ASSERT_EQ(message_2.impacts_.size(), 0);
+    ASSERT_EQ(message_2.impacts_.size_, 0);
 }
 
 
