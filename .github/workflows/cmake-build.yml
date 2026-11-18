@@ -218,33 +218,8 @@ jobs:
             toolset: ${{ matrix.boost_toolset }}
             arch: ${{ matrix.arch }}
 
-      # - name: Install Boost (macOS)
-      #   if: runner.os == 'macOS'
-      #   id: brew-boost
-      #   run: |
-      #     brew install boost
-      #     echo "root=$(brew --prefix boost)" >> "$GITHUB_OUTPUT"
-
       - name: Setup Graphviz
-        # uses: ts-graphviz/setup-graphviz@v2
         uses: ts-graphviz/setup-graphviz@v2.0.2
-        # run: |
-        #   echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
-
-# - name: Install Graphviz (macOS)
-#   if: runner.os == 'macOS'
-#   run: brew install graphviz
-
-      # - name: Install OpenCV via vcpkg
-      #   if: matrix.c_compiler == 'cl'
-      #   run: vcpkg install opencv:x64-windows
-
-# - name: Install Graphviz
-#   if: matrix.c_compiler == 'cl'
-#   run: |
-#     choco install pkgconfiglite graphviz
-#     echo "PKG_CONFIG_PATH=C:\Program Files\Graphviz\lib\pkgconfig" >> $env:GITHUB_ENV
-#     echo "C:\Program Files\Graphviz\bin" >> $env:GITHUB_PATH
 
       - name: Configure CMake
         env:
