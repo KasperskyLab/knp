@@ -27,7 +27,7 @@
 
 
 /**
- * @brief Logging utilities for the KNP framework.
+ * @brief Logging utilities for the C++ framework.
  *
  * @details The namespace provides a thin wrapper around *spdlog* that maps the framework‑specific `Level` enum 
  * to spdlog’s logging levels and offers convenient conversion functions.

@@ -1,6 +1,6 @@
 /**
  * @file knp.h
- * @brief Common KNP header to include.
+ * @brief Common header to include.
  * @kaspersky_support Artiom N.
  * @date 30.07.2026
  * @license Apache 2.0
