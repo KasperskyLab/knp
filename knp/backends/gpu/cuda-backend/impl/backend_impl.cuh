@@ -108,7 +108,7 @@ public:
     }
 
     /**
-     * @brief Destructor for  backend.
+     * @brief Destructor for backend.
      */
     ~CUDABackendImpl() = default;
 
@@ -195,7 +195,7 @@ public:
      */
     template <class SynapseType>
     std::vector<device_lib::LongIndex> find_projections_by_postsynaptic(
-        const cuda::UID &post_uid, bool exclude_locked) const
+        const core::UID &post_uid, bool exclude_locked) const
     {
         using ProjectionType = knp::core::Projection<SynapseType>;
         static_assert(
@@ -315,6 +315,9 @@ private:
     PopulationContainer device_populations_;
 
     ProjectionContainer device_projections_;
+
+    // Buffers
+    device_lib::CUDAVector<LongIndex> neuron_scan_buffer_;
 
     knp::backends::gpu::cuda::CUDAMessageBus device_message_bus_;
 };

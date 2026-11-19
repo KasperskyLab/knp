@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -118,6 +119,13 @@ public:
         }
     }
 
+    /**
+     * @brief Low-level setting size to new value, usually after manual changes to data_.
+     * @param new_size new size value.
+     * @note no additional checks, no reallocations, no constructors called. Use at your own discretion.
+     */
+    __host__ __device__ void set_size(size_type new_size) { size_ = new_size; }
+
     __host__ std::vector<value_type> to_std() const
     {
         std::vector<value_type> res;
@@ -146,8 +154,9 @@ public:
         for (size_type i = 0; i < size_; ++i) Allocator::construct(data_ + i);
 #else
         auto [num_blocks, num_threads] = get_blocks_config(size_);
-        construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
-        cudaDeviceSynchronize();
+        if (!std::is_trivially_constructible<value_type>::value)
+            construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
+        // cudaDeviceSynchronize();
 #endif
     }
 
@@ -162,7 +171,7 @@ public:
         {
             auto [num_blocks, num_threads] = get_blocks_config(size_);
             destruct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
-            cudaDeviceSynchronize();
+            // cudaDeviceSynchronize();
         }
         SPDLOG_TRACE("Deallocating memory for {} elements at {}.", capacity_, reinterpret_cast<void*>(data_));
         if (capacity_) allocator_.deallocate(data_);
@@ -188,7 +197,7 @@ public:
         {
             SPDLOG_TRACE("Call copy construct kernel with {} blocks and {} threads", num_blocks, num_threads);
             copy_construct_kernel<<<num_blocks, num_threads>>>(data_, size_, other.data_);
-            cudaDeviceSynchronize();
+            // cudaDeviceSynchronize();
         }
 #endif
     }
@@ -340,7 +349,7 @@ public:
 #else
         auto [num_blocks, num_threads] = get_blocks_config(size_);
         destruct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_, size_);
-        cudaDeviceSynchronize();
+        // cudaDeviceSynchronize();
         CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string("Clear: destruct kernel {}"));
 #endif
         size_ = 0;
@@ -353,7 +362,7 @@ public:
         data_[index] = value;
 #else
         gpu_insert<T>(value, data_ + index);
-        cudaDeviceSynchronize();
+        // cudaDeviceSynchronize();
 #endif
         return true;
     }
@@ -450,16 +459,19 @@ public:
             reserve(new_size);
             CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: reserve: {}"));
             auto [num_blocks, num_threads] = get_blocks_config(new_size - size_);
-            construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + size_, new_size - size_);
-            CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: construct_kernel {}"));
+            if (!std::is_trivially_constructible<value_type>::value)
+            {
+                construct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + size_, new_size - size_);
+                CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Resize: construct_kernel {}"));
+            }
         }
         else if (new_size < size_)
         {
             auto [num_blocks, num_threads] = get_blocks_config(size_ - new_size);
-            destruct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + new_size, size_ - new_size);
+            if (!std::is_trivially_destructible<value_type>::value)
+                destruct_kernel<T, Allocator><<<num_blocks, num_threads>>>(data_ + new_size, size_ - new_size);
             CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string("Resize: destruct_kernel     {}"));
         }
-        cudaDeviceSynchronize();
         size_ = new_size;
 #endif
     }
@@ -565,7 +577,7 @@ public:
             copy_kernel<<<num_blocks, num_threads>>>(data_, size_, source_data);
         else
             copy_construct_kernel<<<num_blocks, num_threads>>>(data_, size_, source_data);
-        cudaDeviceSynchronize();
+        // cudaDeviceSynchronize();
         CUDA_FAST_ERROR_CHECK(typeid(T).name() + std::string(" Finish actualize: {}"));
         SPDLOG_TRACE("Done actualizing vector");
 #endif

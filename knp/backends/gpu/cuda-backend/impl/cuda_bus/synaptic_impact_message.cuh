@@ -100,17 +100,17 @@ public:
     /**
      * @brief UID of the population that sends spikes to the projection.
      */
-    cuda::UID presynaptic_population_uid_;
+    core::UID presynaptic_population_uid_;
 
     /**
      * @brief UID of the population that receives impacts from the projection.
      */
-    cuda::UID postsynaptic_population_uid_;
+    core::UID postsynaptic_population_uid_;
 
     /**
      * @brief Synaptic impacts.
      */
-    device_lib::CUDAVector<SynapticImpact> impacts_;
+    device_lib::CUDAVectorMutableView<SynapticImpact> impacts_; // TODO: Change this to CUDAVectorView.
 
     /**
      * @brief Boolean value that defines whether the signal is from a projection without plasticity.
@@ -119,16 +119,14 @@ public:
      */
     bool is_forcing_ = false;
 
-    __host__ __device__ void actualize() { impacts_.actualize(); }
-
-
-    __host__ __device__ bool operator==(const SynapticImpactMessage &other)
+    __host__ bool operator==(const SynapticImpactMessage &other)
     {
         return header_ == other.header_ && presynaptic_population_uid_ == other.presynaptic_population_uid_ &&
-               postsynaptic_population_uid_ == other.postsynaptic_population_uid_ && impacts_ == other.impacts_;
+               postsynaptic_population_uid_ == other.postsynaptic_population_uid_
+               && impacts_.size_ == other.impacts_.size_ && impacts_.data_ == other.impacts_.data_;
     }
 
-    __host__ __device__ bool operator!=(const SynapticImpactMessage &other) { return !(*this == other); }
+    __host__ bool operator!=(const SynapticImpactMessage &other) { return !(*this == other); }
 };
 
 

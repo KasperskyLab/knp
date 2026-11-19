@@ -77,7 +77,7 @@ public:
         BitBufferWord &word = data_[row * num_synapses_ + synapse_id];
         const BitBufferWord mask = BitBufferWord{1} << shift;
         bool result = word & (mask);
-        word &= ~mask;
+        if (result) word &= ~mask;
 
         return result;
     }

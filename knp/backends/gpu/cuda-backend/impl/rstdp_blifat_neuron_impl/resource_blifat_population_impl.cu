@@ -65,7 +65,8 @@ __global__ void calculate_neurons_pre_impact(
 
 template <>
 __global__ void calculate_neurons_impacts<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>(
-    device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons, device_lib::CUDAVectorView<SynapticImpact> impacts,
+    device_lib::CUDAVectorMutableView<ResourceBlifatParams> neurons,
+    device_lib::CUDAVectorMutableView<SynapticImpact> impacts,
     bool is_forcing)
 {
     const size_t impact_index = blockIdx.x * blockDim.x + threadIdx.x;

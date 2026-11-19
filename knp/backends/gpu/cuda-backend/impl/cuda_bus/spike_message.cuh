@@ -73,12 +73,12 @@ public:
      */
     __host__ __device__ void actualize() { neuron_indexes_.actualize(); }
 
-    __host__ __device__ bool operator==(const SpikeMessage &other) const
+    __host__ bool operator==(const SpikeMessage &other) const
     {
         return header_ == other.header_ && neuron_indexes_ == other.neuron_indexes_;
     }
 
-    __host__ __device__ bool operator!=(const SpikeMessage &other) const { return !(*this == other); }
+    __host__ bool operator!=(const SpikeMessage &other) const { return !(*this == other); }
 };
 
 }  // namespace knp::backends::gpu::cuda

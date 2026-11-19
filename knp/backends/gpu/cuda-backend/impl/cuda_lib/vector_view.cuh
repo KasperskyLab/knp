@@ -44,7 +44,7 @@ struct CUDAVectorView
 template <class T>
 struct CUDAVectorMutableView
 {
-    T *const data_;
-    const LongIndex size_;
+    T *data_;
+    LongIndex size_;
 };
 }  // namespace knp::backends::gpu::cuda::device_lib

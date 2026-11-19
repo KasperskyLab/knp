@@ -40,7 +40,6 @@
 
 using TestPopulation = knp::backends::gpu::CUDABackend::PopulationVariants;
 using TestProjection = knp::backends::gpu::CUDABackend::ProjectionVariants;
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
 

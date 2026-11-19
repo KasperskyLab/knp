@@ -47,14 +47,8 @@ REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SpikeMessage);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpactMessage);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
 
 
@@ -81,7 +75,7 @@ TEST(CudaBackendSuite, MessagesTest)
     knp_cuda::SpikeMessage message_1;
     knp_cuda::SynapticImpactMessage message_2;
     ASSERT_EQ(message_1.neuron_indexes_.size(), 0);
-    ASSERT_EQ(message_2.impacts_.size(), 0);
+    ASSERT_EQ(message_2.impacts_.size_, 0);
 }
 
 
@@ -89,9 +83,9 @@ TEST(CudaBackendSuite, CudaHostSubscription)
 {
     namespace knp_cuda = knp::backends::gpu::cuda;
     call_and_check(cudaDeviceReset());
-    knp_cuda::UID receiver_uid = knp_cuda::to_gpu_uid(knp::core::UID{});
-    knp_cuda::UID sender_1 = knp_cuda::to_gpu_uid(knp::core::UID{}), sender_2 = knp_cuda::to_gpu_uid(knp::core::UID{});
-    knp_cuda::UID sender_3 = knp_cuda::to_gpu_uid(knp::core::UID{}), sender_4 = knp_cuda::to_gpu_uid(knp::core::UID{});
+    knp::core::UID receiver_uid = knp::core::UID{};
+    knp::core::UID sender_1 = knp::core::UID{}, sender_2 = knp::core::UID{};
+    knp::core::UID sender_3 = knp::core::UID{}, sender_4 = knp::core::UID{};
     ASSERT_NE(sender_1, sender_2);
     auto type_index = boost::mp11::mp_find<knp_cuda::MessageVariant, knp_cuda::SpikeMessage>();
     knp_cuda::Subscription subscription(receiver_uid, std::vector{sender_1, sender_2, sender_3}, type_index);
@@ -105,34 +99,34 @@ TEST(CudaBackendSuite, BusSubscriptionsTest)
 {
     namespace knp_cuda = knp::backends::gpu::cuda;
     MessageBusTandem message_buses;
-    knp_cuda::UID uid_1{knp_cuda::new_uid()}, uid_2{knp_cuda::new_uid()};
-    knp_cuda::UID uid_3{knp_cuda::new_uid()}, uid_4{knp_cuda::new_uid()};
+    knp::core::UID uid_1, uid_2;
+    knp::core::UID uid_3, uid_4;
 
-    std::vector<knp_cuda::UID> uid_vec1{uid_2, uid_3};
+    std::vector<knp::core::UID> uid_vec1{uid_2, uid_3};
 
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_1, uid_vec1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 1);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 1);
     std::cout << "Number of subscriptions is 1" << std::endl;
 
-    std::vector<knp_cuda::UID> uid_vec2{uid_3, uid_4};
+    std::vector<knp::core::UID> uid_vec2{uid_3, uid_4};
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_2, uid_vec2);
     std::cout << "Added subscription" << std::endl;
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Number of subscriptions is 2" << std::endl;
 
-    std::vector<knp_cuda::UID> uid_vec3{uid_1};
+    std::vector<knp::core::UID> uid_vec3{uid_1};
 
     message_buses.gpu_.subscribe_gpu<knp_cuda::SpikeMessage>(uid_1, uid_vec3);
     // TODO check corresponding subscription size, should become 3.
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Number of subscriptions is still 2" << std::endl;
     // unsubscribing from a wrong type of messages, shouldn't change anything.
     message_buses.gpu_.unsubscribe<knp_cuda::SynapticImpactMessage>(uid_1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 2);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 2);
     std::cout << "Shouldn't have been deleted" << std::endl;
     // now unsubscribing from the right type of messages.
     message_buses.gpu_.unsubscribe<knp_cuda::SpikeMessage>(uid_1);
-    ASSERT_EQ(message_buses.gpu_.get_subscriptions().size(), 1);
+    ASSERT_EQ(message_buses.gpu_.get_subscriptions()[0].size(), 1);
 }
 
 
@@ -142,9 +136,9 @@ TEST(CudaMessagingSuite, AddReceiveBusMessage)
     using SpikeMessage = knp_cuda::SpikeMessage;
 
     MessageBusTandem message_buses;
-    SpikeMessage msg{{knp_cuda::new_uid()}, {1, 2, 3, 4, 5}};
-    knp_cuda::UID receiver_uid = knp_cuda::new_uid();
-    std::vector<knp_cuda::UID> senders{msg.header_.sender_uid_};
+    SpikeMessage msg{{knp::core::UID{true}}, {1, 2, 3, 4, 5}};
+    knp::core::UID receiver_uid;
+    std::vector<knp::core::UID> senders{msg.header_.sender_uid_};
     message_buses.gpu_.subscribe_gpu<SpikeMessage>(receiver_uid, {msg.header_.sender_uid_});
     EXPECT_EQ(message_buses.gpu_.unload_messages<SpikeMessage>(receiver_uid).size(), 0);
     message_buses.gpu_.send_message(std::move(msg));

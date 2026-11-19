@@ -118,7 +118,7 @@ void CUDABackend::_step()
         "Message bus 1 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
-    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    // bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
     SPDLOG_DEBUG(
         "Message bus 2 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
@@ -147,7 +147,7 @@ void CUDABackend::_step()
     SPDLOG_DEBUG(
         "Message bus 7 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
         bus.get_num_messages<cuda::SynapticImpactMessage>());
-    bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
+    // bus.send_messages_to_host<cuda::SynapticImpactMessage>(step);
     bus.send_messages_to_host<cuda::SpikeMessage>(step);
     SPDLOG_DEBUG(
         "Message bus 8 spikes {} impacts {}", bus.get_num_messages<cuda::SpikeMessage>(),
@@ -343,16 +343,13 @@ BOOST_DLL_ALIAS(knp::backends::gpu::CUDABackend::create, create_knp_backend)
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::PopulationVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::ProjectionVariants);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::DeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(
     knp::backends::gpu::cuda::CUDAProjection<knp::synapse_traits::SynapticResourceSTDPDeltaSynapse>::Synapse);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::BLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(
     knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::Subscription);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::SynapticImpact);
-REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::MessageVariant);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
