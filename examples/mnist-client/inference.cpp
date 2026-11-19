@@ -99,7 +99,7 @@ std::vector<std::vector<bool>> read_spike_frames(const std::string &path_to_data
     constexpr int frames_per_image = 20;
     constexpr size_t input_size = 28 * 28;
     constexpr size_t skip = 0;
-    return read_spikes_from_grayscale_file(path_to_data, input_size, frames_per_image, intensity_levels, skip);
+    return read_spikes_from_grayscale_file(path_to_data.string(), input_size, frames_per_image, intensity_levels, skip);
 }
 
 
@@ -148,7 +148,7 @@ std::vector<InferenceResult> do_inference(
         model.add_input_channel(input_image_channel_uids[i], input_image_projection_uids[i]);
     }
 
-    auto spike_frames = read_spike_frames(path_to_data.string());
+    auto spike_frames = read_spike_frames(path_to_data);
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=276672
     knp::framework::ModelLoader::InputChannelMap channel_map;
     for (auto img_channel_uid : input_image_channel_uids)
