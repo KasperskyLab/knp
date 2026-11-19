@@ -35,7 +35,7 @@ set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
 if (WIN32)
-    # Without pkg-config on Window.
+    # Without pkg-config on Windows.
     find_path(GRAPHVIZ_INCLUDE_DIR graphviz/gvc.h
         HINTS "$ENV{ProgramFiles}/Graphviz/include"
         REQUIRED)
