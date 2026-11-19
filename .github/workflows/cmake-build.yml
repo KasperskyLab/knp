@@ -233,10 +233,8 @@ jobs:
 
       - name: Build
         # Build with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        # run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --parallel 8
-        # timeout-minutes: 180
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target knp-tester --verbose
-        timeout-minutes: 15
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --parallel 8
+        timeout-minutes: 180
 
       - name: Test
         run: ctest --build-config ${{ matrix.build_type }} -V

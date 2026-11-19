@@ -16,6 +16,8 @@ if (NOT TARGET Graphviz::Graphviz)
             REQUIRED_VARS Graphviz_INCLUDE_DIR Graphviz_GVC_LIBRARY Graphviz_CGRAPH_LIBRARY)
 
         if (Graphviz_FOUND)
+            get_filename_component(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_INCLUDE_DIR}" DIRECTORY)
+            set(GRAPHVIZ_BIN_DIR "${GRAPHVIZ_ROOT_DIR}/bin" CACHE PATH "Directory with Graphviz DLLs and plugins")
             add_library(Graphviz::Graphviz INTERFACE IMPORTED)
             set_target_properties(Graphviz::Graphviz PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${Graphviz_INCLUDE_DIR};${Graphviz_INCLUDE_DIR}/graphviz"
