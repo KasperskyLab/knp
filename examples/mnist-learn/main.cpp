@@ -87,11 +87,13 @@ std::vector<knp::core::messaging::SpikeMessage> run_model_training(const ModelDe
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     network = construct_network<Neuron>(model_desc);
 
+    // Build the static graph.
+    const auto static_graph = build_graph(network);
+
     // Execute the training phase.
     auto bus_connections = train_model<Neuron>(model_desc, dataset, network, backend_loader);
 
-    // Build the graphs.
-    const auto static_graph = build_graph(network);
+    // Build the dynamic graph.
     const auto dynamic_graph = build_graph(network, bus_connections);
 
     // Print their descriptions to the log.

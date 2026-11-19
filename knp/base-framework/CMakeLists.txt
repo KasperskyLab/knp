@@ -34,8 +34,7 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
+find_package(Graphviz REQUIRED)
 
 include(GNUInstallDirs)
 include(knp-functions)
@@ -92,7 +91,8 @@ knp_add_library("${PROJECT_NAME}-core"
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
-        PkgConfig::GRAPHVIZ
+        # PkgConfig::GRAPHVIZ
+        Graphviz::Graphviz
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC
