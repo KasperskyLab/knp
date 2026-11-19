@@ -17,6 +17,7 @@
 ARG KNP_IMAGE_VERSION=2.0.0
 ARG KNP_VERSION=2.0.0
 ARG ALTAI_PACKAGE_VERSION=1.0.3
+ARG ALTAI_BACKEND_URL
 ARG TARGETPLATFORM
 
 FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
@@ -25,6 +26,7 @@ FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
 ARG KNP_IMAGE_VERSION
 ARG KNP_VERSION
 ARG ALTAI_PACKAGE_VERSION
+ARG ALTAI_BACKEND_URL
 
 ENV KNP_VERSION=${KNP_VERSION}
 
@@ -50,15 +52,15 @@ COPY NOTICE.txt .
 COPY *.deb /knp/
 
 RUN wget \
-  https://motivnt.gitlab.yandexcloud.net/api/v4/projects/368/packages/generic/knp-altai-backend/${ALTAI_PACKAGE_VERSION}/knp-altai-backend_${ALTAI_PACKAGE_VERSION}_release_amd64.deb \
-  https://motivnt.gitlab.yandexcloud.net/api/v4/projects/368/packages/generic/knp-altai-backend/${ALTAI_PACKAGE_VERSION}/knp-altai-backend-dev_${ALTAI_PACKAGE_VERSION}_release_amd64.deb
+  ${ALTAI_BACKEND_URL}/${ALTAI_PACKAGE_VERSION}/knp-altai-backend_${ALTAI_PACKAGE_VERSION}_release_${TARGETPLATFORM}.deb \
+  ${ALTAI_BACKEND_URL}/${ALTAI_PACKAGE_VERSION}/knp-altai-backend-dev_${ALTAI_PACKAGE_VERSION}_release_${TARGETPLATFORM}.deb
 
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i \
-  /knp/knp-cpp-framework_${KNP_VERSION}_amd64.deb /knp/knp-cpp-framework-dev_${KNP_VERSION}_amd64.deb \
-  /knp/knp-documentation_${KNP_VERSION}_all.deb knp-examples_${KNP_VERSION}_amd64.deb \
-  /knp/knp-cpu-single-threaded-backend_${KNP_VERSION}_amd64.deb /knp/knp-cpu-single-threaded-backend-dev_${KNP_VERSION}_amd64.deb \
-  /knp/knp-cpu-multi-threaded-backend_${KNP_VERSION}_amd64.deb /knp/knp-cpu-multi-threaded-backend-dev_${KNP_VERSION}_amd64.deb \
-  /knp/knp-examples_${KNP_VERSION}_amd64.deb \
-  /knp/knp-python3-framework_${KNP_VERSION}_amd64.deb \
-  /knp/knp-altai-backend_${ALTAI_PACKAGE_VERSION}_release_amd64.deb \
-  /knp/knp-altai-backend-dev_${ALTAI_PACKAGE_VERSION}_release_amd64.deb
+  /knp/knp-cpp-framework_${KNP_VERSION}_${TARGETPLATFORM}.deb /knp/knp-cpp-framework-dev_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-documentation_${KNP_VERSION}_all.deb knp-examples_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-cpu-single-threaded-backend_${KNP_VERSION}_${TARGETPLATFORM}.deb /knp/knp-cpu-single-threaded-backend-dev_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-cpu-multi-threaded-backend_${KNP_VERSION}_${TARGETPLATFORM}.deb /knp/knp-cpu-multi-threaded-backend-dev_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-examples_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-python3-framework_${KNP_VERSION}_${TARGETPLATFORM}.deb \
+  /knp/knp-altai-backend_${ALTAI_PACKAGE_VERSION}_release_${TARGETPLATFORM}.deb \
+  /knp/knp-altai-backend-dev_${ALTAI_PACKAGE_VERSION}_release_${TARGETPLATFORM}.deb
