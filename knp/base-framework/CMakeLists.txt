@@ -34,27 +34,28 @@ project(knp-base-framework VERSION "${KNP_VERSION}" LANGUAGES C CXX
 set(${PROJECT_NAME}_PUBLIC_INCLUDE_DIR "knp/framework")
 
 find_package(Boost ${KNP_BOOST_MIN_VERSION} COMPONENTS filesystem REQUIRED)
-if (WIN32)
-    # Without pkg-config on Windows.
-    find_path(GRAPHVIZ_INCLUDE_DIR graphviz/gvc.h
-        HINTS "$ENV{ProgramFiles}/Graphviz/include"
-        REQUIRED)
-    find_library(GRAPHVIZ_GVC_LIBRARY gvc
-        HINTS "$ENV{ProgramFiles}/Graphviz/lib"
-        REQUIRED)
-    find_library(GRAPHVIZ_CGRAPH_LIBRARY cgraph
-        HINTS "$ENV{ProgramFiles}/Graphviz/lib"
-        REQUIRED)
-    get_filename_component(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_INCLUDE_DIR}" DIRECTORY)
-    set(GRAPHVIZ_BIN_DIR "${GRAPHVIZ_ROOT_DIR}/bin" CACHE PATH "Directory with Graphviz DLLs and plugins")
-    add_library(PkgConfig::GRAPHVIZ INTERFACE IMPORTED)
-    set_target_properties(PkgConfig::GRAPHVIZ PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${GRAPHVIZ_INCLUDE_DIR};${GRAPHVIZ_INCLUDE_DIR}/graphviz"
-        INTERFACE_LINK_LIBRARIES "${GRAPHVIZ_GVC_LIBRARY};${GRAPHVIZ_CGRAPH_LIBRARY}")
-else ()
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
-endif ()
+# if (WIN32)
+#     # Without pkg-config on Windows.
+#     find_path(GRAPHVIZ_INCLUDE_DIR graphviz/gvc.h
+#         HINTS "$ENV{ProgramFiles}/Graphviz/include"
+#         REQUIRED)
+#     find_library(GRAPHVIZ_GVC_LIBRARY gvc
+#         HINTS "$ENV{ProgramFiles}/Graphviz/lib"
+#         REQUIRED)
+#     find_library(GRAPHVIZ_CGRAPH_LIBRARY cgraph
+#         HINTS "$ENV{ProgramFiles}/Graphviz/lib"
+#         REQUIRED)
+#     get_filename_component(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_INCLUDE_DIR}" DIRECTORY)
+#     set(GRAPHVIZ_BIN_DIR "${GRAPHVIZ_ROOT_DIR}/bin" CACHE PATH "Directory with Graphviz DLLs and plugins")
+#     add_library(PkgConfig::GRAPHVIZ INTERFACE IMPORTED)
+#     set_target_properties(PkgConfig::GRAPHVIZ PROPERTIES
+#         INTERFACE_INCLUDE_DIRECTORIES "${GRAPHVIZ_INCLUDE_DIR};${GRAPHVIZ_INCLUDE_DIR}/graphviz"
+#         INTERFACE_LINK_LIBRARIES "${GRAPHVIZ_GVC_LIBRARY};${GRAPHVIZ_CGRAPH_LIBRARY}")
+# else ()
+#     find_package(PkgConfig REQUIRED)
+#     pkg_check_modules(GRAPHVIZ REQUIRED IMPORTED_TARGET libgvc libcgraph)
+# endif ()
+find_package(Graphviz REQUIRED)
 
 include(GNUInstallDirs)
 include(knp-functions)
@@ -111,7 +112,8 @@ knp_add_library("${PROJECT_NAME}-core"
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE
         spdlog::spdlog_header_only Boost::headers Boost::filesystem HighFive hdf5-static csv2
-        PkgConfig::GRAPHVIZ
+        # PkgConfig::GRAPHVIZ
+        Graphviz::Graphviz
         # Hack to build with CLang.
         ${ADD_LIBS}
     LINK_PUBLIC
