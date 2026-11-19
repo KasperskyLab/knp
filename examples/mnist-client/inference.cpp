@@ -92,14 +92,14 @@ auto make_observer_function(std::vector<InferenceResult> &result)
 
 
 // Read image dataset from a binary file and trasnform it into a vector of boolean frames.
-std::vector<std::vector<bool>> read_spike_frames(const std::string &path_to_data)
+std::vector<std::vector<bool>> read_spike_frames(const std::filesystem::path &path_to_data)
 {
     // Image-to-spikes conversion parameters.
     constexpr int intensity_levels = 10;
     constexpr int frames_per_image = 20;
     constexpr size_t input_size = 28 * 28;
     constexpr size_t skip = 0;
-    return read_spikes_from_grayscale_file(path_to_data.string(), input_size, frames_per_image, intensity_levels, skip);
+    return read_spikes_from_grayscale_file(path_to_data, input_size, frames_per_image, intensity_levels, skip);
 }
 
 
