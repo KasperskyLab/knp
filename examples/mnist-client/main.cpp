@@ -90,12 +90,10 @@ int main(int argc, char **argv)
     // If `task=infer`, the function loads a network and runs inference.
     if (task == "infer")
     {
-        // Defines path to backend, on which to run a network.
-        std::filesystem::path path_to_backend =
-            std::filesystem::path(argv[0]).parent_path() / options_map["backend"].as<std::string>();
         // Runs inference of network on the specified path.
         do_inference(
-            options_map["net-path"].as<std::string>(), options_map["data-path"].as<std::string>(), path_to_backend);
+            options_map["net-path"].as<std::string>(), options_map["data-path"].as<std::string>(),
+	    options_map["backend"].as<std::string>());
     }
 
     return EXIT_SUCCESS;

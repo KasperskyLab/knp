@@ -65,7 +65,6 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     }
 
     ModelDescription model_desc;
-    auto common_path = std::filesystem::weakly_canonical(std::filesystem::path(argv[0]).parent_path());
 
     if (vm.count("model"))
     {
@@ -138,7 +137,7 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
 
     if (vm.count("training_backend"))
     {
-        model_desc.training_backend_path_ = common_path / vm["training_backend"].as<std::string>();
+        model_desc.training_backend_name_ = vm["training_backend"].as<std::string>();
     }
     else
     {
@@ -149,11 +148,11 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
 
     if (!vm.count("inference_backend") || vm["inference_backend"].as<std::string>().empty())
     {
-        model_desc.inference_backend_path_ = model_desc.training_backend_path_;
+        model_desc.inference_backend_name_ = model_desc.training_backend_name_;
     }
     else
     {
-        model_desc.inference_backend_path_ = common_path / vm["inference_backend"].as<std::string>();
+        model_desc.inference_backend_name_ = vm["inference_backend"].as<std::string>();
     }
 
     if (vm.count("extensive_logs_path"))
