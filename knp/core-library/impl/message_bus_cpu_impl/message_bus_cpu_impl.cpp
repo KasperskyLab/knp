@@ -54,9 +54,11 @@ void MessageBusCPUImpl::update()
         }
 
         // Read all sent messages to an internal buffer.
-        messages_to_route_.insert(
-            messages_to_route_.end(), std::make_move_iterator(send_container_ptr->begin()),
-            std::make_move_iterator(send_container_ptr->end()));
+        messages_to_route_.reserve(messages_to_route_.size() + send_container_ptr->size());
+        for (auto &msg : *send_container_ptr)
+        {
+            messages_to_route_.emplace_back(std::move(msg));
+        }
         send_container_ptr->clear();
         ++iter;
     }
@@ -69,8 +71,7 @@ size_t MessageBusCPUImpl::step()
     if (messages_to_route_.empty()) return 0;  // No more messages left for endpoints to receive.
     // Sending a message to every endpoint.
     using MessageType = decltype(messages_to_route_)::value_type;
-    MessageType message;
-    std::swap(message, messages_to_route_.back());
+    MessageType message{messages_to_route_.back()};
     // Remove message from container.
     messages_to_route_.pop_back();
     const knp::core::UID sender_uid = std::visit([](const auto &msg) { return msg.header_.sender_uid_; }, message);

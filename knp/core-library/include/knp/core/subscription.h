@@ -64,11 +64,11 @@ public:
      * @param receiver receiver UID.
      * @param senders list of sender UIDs.
      */
-    Subscription(const UID &receiver, const std::vector<UID> &senders) : receiver_(receiver) { add_senders(senders); }
+    Subscription(const UID &receiver, const std::vector<UID> &senders) : receiver_(receiver.tag_) { add_senders(senders); }
 
     /**
      * @brief Get list of sender UIDs.
-     * 
+     *
      * @return senders UIDs.
      */
     [[nodiscard]] const UidSet &get_senders() const { return senders_; }

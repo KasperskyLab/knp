@@ -22,7 +22,6 @@
 #include <knp/core/uid.h>
 
 #include <atomic>
-#include <iostream>
 
 
 namespace knp::core

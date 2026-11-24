@@ -23,10 +23,9 @@
 
 #include <algorithm>
 #include <array>
-#include <functional>
+#include <istream>
 #include <sstream>
 #include <string>
-#include <utility>
 
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -89,7 +88,7 @@ struct UID
      * 
      * @todo Optimize it.
      */
-    explicit UID(bool random) : tag(random ? uid_generator()() : ::boost::uuids::nil_uuid()) {}
+    explicit UID(bool random) : tag_(random ? uid_generator()() : ::boost::uuids::nil_uuid()) {}
 
     /**
      * @brief Default UID constructor.
@@ -101,13 +100,13 @@ struct UID
      * 
      * @param guid constant value to copy to UID.
      */
-    explicit UID(const ::boost::uuids::uuid &guid) : tag(guid) {}
+    explicit UID(const ::boost::uuids::uuid &guid) : tag_(guid) {}
     /**
      * @brief Create a UID from `boost::uuids::uuid`.
      * 
      * @param guid value to store as a UID.
      */
-    explicit UID(::boost::uuids::uuid &&guid) : tag(guid) {}
+    explicit UID(::boost::uuids::uuid &&guid) : tag_(std::move(guid)) {}
 
     /**
      * @brief Create a UID from an array of 16 uint8_t integers.
@@ -116,9 +115,14 @@ struct UID
      */
     explicit UID(const std::array<
                  boost::uuids::uuid::value_type, sizeof(boost::uuids::uuid::data) / sizeof(boost::uuids::uuid::data[0])>
-                     &guid_value)
+                     &guid_value) :
+        tag_([&guid_value]()
+        {
+             ::boost::uuids::uuid tmp;
+             std::copy(guid_value.begin(), guid_value.end(), tmp.begin());
+             return tmp;
+        }())
     {
-        std::copy(guid_value.begin(), guid_value.end(), tag.begin());
     }
 
     /**
@@ -135,14 +139,7 @@ struct UID
      * 
      * @details Constant method.
      */
-    operator const ::boost::uuids::uuid &() const { return tag; }
-
-    /**
-     * @brief Convert UID to `boost::uuids::uuid`.
-     * 
-     * @return stored UID value.
-     */
-    operator ::boost::uuids::uuid &() { return tag; }
+    operator const ::boost::uuids::uuid &() const noexcept { return tag_; }
 
     /**
      * @brief Convert UID to string.
@@ -152,7 +149,7 @@ struct UID
     explicit operator ::std::string() const
     {
         std::stringstream ss;
-        ss << tag;
+        ss << tag_;
         return ss.str();
     }
 
@@ -161,7 +158,7 @@ struct UID
      * 
      * @return `true` if UID is a non-zero value.
      */
-    explicit operator bool() const { return !tag.is_nil(); }
+    explicit operator bool() const { return !tag_.is_nil(); }
 
     /**
      * @brief Check if the current UID is less than the specified UID.
@@ -170,7 +167,7 @@ struct UID
      * 
      * @return `true` if the current UID is less than the specified UID.
      */
-    bool operator<(const UID &uid) const { return uid.tag < tag; }
+    bool operator<(const UID &uid) const { return uid.tag_ < tag_; }
 
     /**
      * @brief Check if two UIDs are the same.
@@ -179,7 +176,7 @@ struct UID
      * 
      * @return `true` if both UIDs are the same.
      */
-    bool operator==(const UID &uid) const { return uid.tag == tag; }
+    bool operator==(const UID &uid) const { return uid.tag_ == tag_; }
 
     /**
      * @brief Check if two UIDs are different.
@@ -188,13 +185,31 @@ struct UID
      * 
      * @return `true` if the UIDs are different.
      */
-    bool operator!=(const UID &uid) const { return uid.tag != tag; }
+    bool operator!=(const UID &uid) const { return uid.tag_ != tag_; }
 
     /**
      * @brief UID value.
      */
-    ::boost::uuids::uuid tag;
+    ::boost::uuids::uuid tag_;
 };
+
+
+/**
+ * @brief Get UID from an input stream.
+ *
+ * @param s input stream.
+ * @param uid UID to get from the input stream.
+ *
+ * @return modified stream.
+ */
+inline ::std::istream &operator>>(std::istream &s, UID &uid)
+{
+    ::boost::uuids::uuid tag;
+    s >> tag;
+
+    uid.tag_ = tag;
+    return s;
+}
 
 
 /**
@@ -207,21 +222,7 @@ struct UID
  */
 inline ::std::ostream &operator<<(std::ostream &s, const UID &uid)
 {
-    s << uid.tag;
-    return s;
-}
-
-/**
- * @brief Get UID from an input stream.
- * 
- * @param s input stream.
- * @param uid UID to get from the input stream.
- * 
- * @return modified stream.
- */
-inline ::std::istream &operator>>(std::istream &s, UID &uid)
-{
-    s >> uid.tag;
+    s << uid.tag_;
     return s;
 }
 
@@ -238,7 +239,7 @@ struct uid_hash
      * 
      * @return UID hash value.
      */
-    auto operator()(const UID &uid) const { return boost::hash<boost::uuids::uuid>()(uid.tag); }
+    auto operator()(const UID &uid) const { return boost::hash<boost::uuids::uuid>()(uid.tag_); }
 };
 
 }  // namespace knp::core
