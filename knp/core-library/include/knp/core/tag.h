@@ -22,10 +22,8 @@
 #pragma once
 
 #include <any>
-#include <functional>
 #include <map>
 #include <string>
-#include <variant>
 
 
 /**
@@ -131,7 +129,7 @@ public:
 
 
 private:
-    std::map<std::string, std::any> tags_{};
+    std::map<std::string, std::any> tags_;
 };
 
 

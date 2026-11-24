@@ -32,6 +32,7 @@ std::istream &operator>>(std::istream &stream, MessageHeader &header)
     return stream;
 }
 
+
 std::ostream &operator<<(std::ostream &stream, const MessageHeader &header)
 {
     stream << header.sender_uid_ << " " << header.send_time_;

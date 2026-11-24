@@ -27,7 +27,7 @@ namespace knp::core::messaging
 
 inline marshal::UID get_marshaled_uid(const knp::core::UID& uid)
 {
-    return flatbuffers::span<const uint8_t, decltype(uid.tag)::static_size()>(uid.tag.data, uid.tag.size());
+    return flatbuffers::span<const uint8_t, decltype(uid.tag_)::static_size()>(uid.tag_.data, uid.tag_.size());
 }
 
 }  // namespace knp::core::messaging

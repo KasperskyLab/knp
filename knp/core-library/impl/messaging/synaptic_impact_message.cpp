@@ -145,11 +145,11 @@ SynapticImpactMessage unpack(const marshal::SynapticImpactMessage *s_msg)
     std::copy(
         s_msg_header->sender_uid().data()->begin(),  // clang_sa_ignore [core.CallAndMessage]
         s_msg_header->sender_uid().data()->end(),    // clang_sa_ignore [core.CallAndMessage]
-        sender_uid.tag.begin());
+        sender_uid.tag_.begin());
     const auto &presynaptic_data = s_msg->presynaptic_population_uid()->data();
-    std::copy(presynaptic_data->begin(), presynaptic_data->end(), presynaptic_uid.tag.begin());
+    std::copy(presynaptic_data->begin(), presynaptic_data->end(), presynaptic_uid.tag_.begin());
     const auto &postsynaptic_data = s_msg->postsynaptic_population_uid()->data();
-    std::copy(postsynaptic_data->begin(), postsynaptic_data->end(), postsynaptic_uid.tag.begin());
+    std::copy(postsynaptic_data->begin(), postsynaptic_data->end(), postsynaptic_uid.tag_.begin());
 
     std::vector<SynapticImpact> impacts;
     impacts.reserve(s_msg->impacts()->size());

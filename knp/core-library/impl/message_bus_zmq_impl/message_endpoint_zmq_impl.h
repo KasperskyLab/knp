@@ -51,7 +51,7 @@ public:
         }
 
         auto message = knp::core::messaging::extract_from_envelope(message_var->data(), message_var->size());
-        return message;
+        return std::move(message);
     }
 
     void send_message(const knp::core::messaging::MessageVariant &message) override
