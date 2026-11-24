@@ -350,13 +350,14 @@ _Neural network training on image data and labels and classification of images f
     4. Performs inference with `infer_model()` on the supplied dataset.
 3. The `run_model_training()` function is implemented that: 
     1. Builds an annotated network with appropriate populations, projections, and WTA configuration using `construct_network()`.
-    2. Runs the complete training process with `train_model()`.
-    3. Builds static and dynamic visual graphs with `build_graph()`.
-    4. Prints descriptions of both graphs with `print_network_description()`.
-    5. Writes DOT files and renders PNG images for both graphs using `write_dot()` and `render_graph()` functions.
-    6. Upcasts populations to the most generic neuron type.
-    7. Upcasts projections to generic `DeltaSynapse` type. 
-    8. Performs inference with `infer_model()`.
+    2. Builds static visual graph with `build_graph()`
+    3. Runs the complete training process with `train_model()`.
+    4. Builds dynamic visual graphs with `build_graph()`.
+    5. Prints descriptions of both graphs with `print_network_description()`.
+    6. Writes DOT files and renders PNG images for both graphs using `write_dot()` and `render_graph()` functions.
+    7. Upcasts populations to the most generic neuron type.
+    8. Upcasts projections to generic `DeltaSynapse` type. 
+    9. Performs inference with `infer_model()`.
 2. The `run_model()` function is implemented that:
     1. Calls `process_dataset()` to load and prepare MNIST data.
     2. Creates an `AnnotatedNetwork` instance.  
