@@ -215,7 +215,7 @@ knp::framework::visualizer::BusConnections train_model(
     knp::framework::BackendLoader& backend_loader)
 {
     // Load training backend for computational execution.
-    std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_path_);
+    std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_name_);
 
     // Execute the complete training process with the loaded backend.
     train_network<Neuron>(training_backend, network, model_desc, dataset);

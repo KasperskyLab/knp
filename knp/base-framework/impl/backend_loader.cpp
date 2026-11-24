@@ -137,7 +137,7 @@ std::shared_ptr<core::Backend> BackendLoader::load_by_name(
         SPDLOG_TRACE("Trying to load \"{}\" from standard paths...", lb_name.c_str());
         for (const auto &backend_path : paths)
         {
-            auto backend_lib_path = backend_path / lb_name;
+            auto backend_lib_path = std::filesystem::weakly_canonical(backend_path / lb_name);
             auto backend = load_backend_library(backend_lib_path);
 
             if (backend != nullptr)

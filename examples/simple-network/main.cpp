@@ -116,8 +116,8 @@ int main(int argc, const char *const argv[])
         return {};
     };
 
-    // Specifies the path to the required dynamic backend library on your computer.
-    auto backend_path = std::filesystem::path(argv[0]).parent_path() / "knp-cpu-single-threaded-backend";
+    // Specifies the name of the required dynamic backend library on your computer.
+    const std::string backend_name = "knp-cpu-single-threaded-backend";
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
 
@@ -126,7 +126,7 @@ int main(int argc, const char *const argv[])
     // the spike generation functor (input_gen).
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(
-        model, backend_loader.load(backend_path), {{i_channel_uid, input_gen}});
+        model, backend_loader.load_by_name(backend_name), {{i_channel_uid, input_gen}});
 
     // Receives a link to the output channel object (out_channel) from
     // the model executor (model_executor) by the output channel ID (o_channel_uid).
