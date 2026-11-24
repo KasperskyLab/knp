@@ -107,7 +107,7 @@ std::vector<std::vector<bool>> read_spike_frames(const std::filesystem::path &pa
 // See function description in `inference.h`.
 std::vector<InferenceResult> do_inference(
     const std::filesystem::path &path_to_model, const std::filesystem::path &path_to_data,
-    const std::filesystem::path &path_to_backend)
+    const std::string &backend_name)
 {
     std::vector<std::pair<knp::core::UID, size_t>> input_uids;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=274991
@@ -157,7 +157,7 @@ std::vector<InferenceResult> do_inference(
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=243548
     knp::framework::BackendLoader backend_loader;
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
-    knp::framework::ModelExecutor model_executor(model, backend_loader.load(path_to_backend), std::move(channel_map));
+    knp::framework::ModelExecutor model_executor(model, backend_loader.load_by_name(backend_name), std::move(channel_map));
     std::vector<InferenceResult> result;
 
     // Find output populations.

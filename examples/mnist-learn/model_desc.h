@@ -81,18 +81,18 @@ struct ModelDescription
     std::filesystem::path labels_file_path_;
 
     /**
-     * @brief Path to backend library for training operations.
+     * @brief Name of the backend library for training operations.
      * 
      * @note Platform specific name parts (for example, .so or .dll) should be absent from the path.
      */
-    std::filesystem::path training_backend_path_;
+    std::string training_backend_name_;
 
     /**
      * @brief Path to backend library for inference operations.
      * 
      * @note Platform specific name parts (for example, .so or .dll) should be absent from the path.
      */
-    std::filesystem::path inference_backend_path_;
+    std::string inference_backend_name_;
 
     /**
      * @brief Path to directory where detailed logs will be saved.

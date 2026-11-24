@@ -210,6 +210,6 @@ std::vector<knp::core::messaging::SpikeMessage> infer_model(
     const ModelDescription& model_desc, const Dataset& dataset, AnnotatedNetwork& network,
     knp::framework::BackendLoader& backend_loader)
 {
-    std::shared_ptr<knp::core::Backend> inference_backend = backend_loader.load(model_desc.inference_backend_path_);
+    std::shared_ptr<knp::core::Backend> inference_backend = backend_loader.load_by_name(model_desc.inference_backend_name_);
     return infer_network<Neuron>(inference_backend, network, model_desc, dataset);
 }
