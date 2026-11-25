@@ -66,12 +66,14 @@ RUN \
   && cd /azp \
   && echo "Install Doxygen..." \
   && git clone --depth 1 --branch Release_1_13_2 --single-branch https://github.com/doxygen/doxygen.git \
+  && apt-get -y --no-install-recommends --show-progress install bison flex \
   && cd doxygen \
   && cmake -G "Unix Makefiles" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . \
   && cmake --build . --parallel 4 \
   && cmake --install . \
   && cd .. \
-  && rm -rf doxygen
+  && rm -rf doxygen \
+  && apt-get purge bison flex
 
 # COPY "${OCLINT_FILE}" .
 RUN \
