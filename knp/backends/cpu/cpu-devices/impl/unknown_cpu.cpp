@@ -47,9 +47,10 @@ public:
 
 
 CPU::CPU(uint32_t cpu_num)
-    : Device(knp::core::UID(boost::uuids::name_generator(core::UID(ns_uid))((uc_prefix + std::to_string(cpu_num_)).c_str()))),
+    : Device(knp::core::UID(
+          boost::uuids::name_generator(core::UID(ns_uid))((uc_prefix + std::to_string(cpu_num)).c_str()))),
       cpu_num_(cpu_num),
-      cpu_name_{uc_prefix + std::to_string(cpu_num_)},
+      cpu_name_{uc_prefix + std::to_string(cpu_num)},
       power_meter_{std::make_unique<CpuPower>(cpu_num)}
 {
 }
