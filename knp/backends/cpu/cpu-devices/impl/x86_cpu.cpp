@@ -47,7 +47,10 @@ namespace knp::devices::cpu
 static constexpr const char* ns_uid = "0000-0000-0000-0000";
 
 
-CPU::CPU(uint32_t cpu_num) : cpu_num_(cpu_num), power_meter_{std::make_unique<CpuPower>(cpu_num)}
+CPU::CPU(uint32_t cpu_num)
+    : Device{knp::core::UID(boost::uuids::name_generator(core::UID(ns_uid))(cpu_name_.c_str()))},
+      cpu_num_(cpu_num),
+      power_meter_{std::make_unique<CpuPower>(cpu_num)}
 {
     auto pcm_instance = pcm::PCM::getInstance();
     const pcm::PCM::ErrorCode status = pcm_instance->program(pcm::PCM::DEFAULT_EVENTS, nullptr, true, ::getpid());
@@ -55,11 +58,15 @@ CPU::CPU(uint32_t cpu_num) : cpu_num_(cpu_num), power_meter_{std::make_unique<Cp
 
     cpu_name_ = pcm_instance->getCPUBrandString() + " " + pcm_instance->getCPUFamilyModelString() + " " +
                 std::to_string(cpu_num);
-    Device::base_.uid_ = knp::core::UID(boost::uuids::name_generator(core::UID(ns_uid))(cpu_name_.c_str()));
 }
 
 
-CPU::CPU(CPU&& other) : cpu_name_{std::move(other.cpu_name_)}, power_meter_{std::move(other.power_meter_)} {}
+CPU::CPU(CPU&& other)
+    : Device{std::move(other.base_.uid_)},
+      cpu_name_{std::move(other.cpu_name_)},
+      power_meter_{std::move(other.power_meter_)}
+{
+}
 
 
 CPU::~CPU() {}

@@ -58,9 +58,17 @@ class Device
 {
 public:
     /**
+     * @brief Device constructor.
+     * @param uid device UID.
+     */
+    explicit Device(const UID &uid) : base_{.uid_ = uid} {}
+
+    /**
      * @brief Device destructor.
      */
     virtual ~Device() = default;
+
+    Device(const Device &) = delete;
 
 public:
     /**

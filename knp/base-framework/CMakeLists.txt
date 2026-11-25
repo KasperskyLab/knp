@@ -40,6 +40,7 @@ include(GNUInstallDirs)
 include(knp-functions)
 
 file(GLOB_RECURSE ${PROJECT_NAME}_headers include/${${PROJECT_NAME}_PUBLIC_INCLUDE_DIR}/*.h)
+file(GLOB_RECURSE ${PROJECT_NAME}_impl_headers impl/*.h)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(ADD_LIBS "supc++")
@@ -87,6 +88,7 @@ knp_add_library("${PROJECT_NAME}-core"
     impl/visualizer/dot_writer.cpp
     impl/visualizer/graph_description.cpp
     impl/visualizer/graph_render.cpp
+    ${${PROJECT_NAME}_impl_headers}
     ${${PROJECT_NAME}_headers}
     ALIAS KNP::BaseFramework::Core
     LINK_PRIVATE

@@ -39,6 +39,7 @@ RUN \
       gdbserver \
       git \
       gnupg-agent \
+      graphviz \
       jq \
       libcurl4 \
       libunwind8 \
