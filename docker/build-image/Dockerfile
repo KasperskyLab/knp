@@ -36,7 +36,6 @@ RUN \
   apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
       bandit \
-      bison \
       cccc \
       clang \
       clang-tidy \
@@ -44,9 +43,7 @@ RUN \
       cpplint \
       cppcheck \
       flake8 \
-      flex \
       fonts-liberation \
-      graphviz \
       graphviz-dev \
       gsfonts \
       mypy \

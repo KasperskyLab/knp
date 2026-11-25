@@ -15,6 +15,7 @@ limitations under the License.
 ]]
 
 cmake_minimum_required(VERSION 3.25)
+project(mnist-client)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -30,7 +31,6 @@ if (NOT TARGET KNP::BaseFramework::Core)
     find_package(knp-base-framework REQUIRED)
 endif()
 
-project(mnist-client)
 add_executable(mnist-client
     main.cpp
     inference.cpp
