@@ -55,7 +55,10 @@ CPU::CPU(uint32_t cpu_num)
 }
 
 
-CPU::CPU(CPU&& other) : cpu_num_{std::move(other.cpu_num_)}, cpu_name_{std::move(other.cpu_name_)} {}
+CPU::CPU(CPU&& other)
+    : Device(std::move(other)), cpu_num_{std::move(other.cpu_num_)}, cpu_name_{std::move(other.cpu_name_)}
+{
+}
 
 
 CPU::~CPU() {}
