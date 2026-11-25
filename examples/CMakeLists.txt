@@ -16,6 +16,10 @@ limitations under the License.
 
 cmake_minimum_required(VERSION 3.25)
 
+project(knp-examples
+        DESCRIPTION "Kaspersky Neuromorphic Platform usage examples"
+        HOMEPAGE_URL "https://neuro.kaspersky.ru/neyromorfnye-tekhnologii/")
+
 include(GNUInstallDirs)
 
 # Check needs to build examples in the SDK container.
