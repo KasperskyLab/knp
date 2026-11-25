@@ -41,8 +41,8 @@ CUDA::CUDA(uint32_t gpu_num) : gpu_num_(gpu_num)
 
     static_assert(sizeof(boost::uuids::uuid) == sizeof(cudaUUID_t));
     std::copy_n(
-        reinterpret_cast<const char*>(&properties_.uuid), Device::base_.uid_.tag.size(),
-        Device::base_.uid_.tag.begin());
+        reinterpret_cast<const char*>(&properties_.uuid), Device::base_.uid_.tag_.size(),
+        Device::base_.uid_.tag_.begin());
 }
 
 
