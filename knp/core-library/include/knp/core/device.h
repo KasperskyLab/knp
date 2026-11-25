@@ -62,7 +62,7 @@ public:
      * @brief Device constructor.
      * @param uid device UID.
      */
-    explicit Device(const UID &uid) : base_{.uid_ = uid} {}
+    explicit Device(const UID &uid) : base_{uid, {}} {}
     /**
      * @brief Device move constructor.
      * @param device device object to move.
