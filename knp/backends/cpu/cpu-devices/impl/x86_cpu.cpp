@@ -47,17 +47,23 @@ namespace knp::devices::cpu
 static constexpr const char* ns_uid = "0000-0000-0000-0000";
 
 
-CPU::CPU(uint32_t cpu_num)
-    : Device{knp::core::UID(boost::uuids::name_generator(core::UID(ns_uid))(cpu_name_.c_str()))},
-      cpu_num_(cpu_num),
-      power_meter_{std::make_unique<CpuPower>(cpu_num)}
+std::string get_cpu_name(uint32_t cpu_num)
 {
     auto pcm_instance = pcm::PCM::getInstance();
     const pcm::PCM::ErrorCode status = pcm_instance->program(pcm::PCM::DEFAULT_EVENTS, nullptr, true, ::getpid());
     check_pcm_status(status);
+    return pcm_instance->getCPUBrandString() + " " + pcm_instance->getCPUFamilyModelString() + " " +
+           std::to_string(cpu_num);
+};
 
-    cpu_name_ = pcm_instance->getCPUBrandString() + " " + pcm_instance->getCPUFamilyModelString() + " " +
-                std::to_string(cpu_num);
+
+CPU::CPU(uint32_t cpu_num)
+    // Ugly and must be fixed.
+    : Device{knp::core::UID(boost::uuids::name_generator(core::UID(ns_uid))(get_cpu_name(cpu_num).c_str()))},
+      cpu_num_(cpu_num),
+      cpu_name_(get_cpu_name(cpu_num)),
+      power_meter_{std::make_unique<CpuPower>(cpu_num)}
+{
 }
 
 
