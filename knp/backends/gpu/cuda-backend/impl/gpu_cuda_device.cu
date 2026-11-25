@@ -30,23 +30,22 @@
 namespace knp::devices::gpu
 {
 
-CUDA::CUDA(uint32_t gpu_num) : gpu_num_(gpu_num)
+CUDA::CUDA(uint32_t gpu_num) :
+    Device(core::UID(reinterpret_cast<const char*>(&properties_.uuid))), gpu_num_(gpu_num)
 {
+    static_assert(sizeof(boost::uuids::uuid) == sizeof(cudaUUID_t));
+
     if (const auto e_code = cudaGetDeviceProperties(&properties_, gpu_num_); e_code != cudaSuccess)
     {
         const auto err_msg = std::string("CUDA error during get device properties") + cudaGetErrorString(e_code);
         SPDLOG_ERROR("{} [{}]", err_msg.c_str(), static_cast<int>(e_code));
         throw std::runtime_error(err_msg);
     }
-
-    static_assert(sizeof(boost::uuids::uuid) == sizeof(cudaUUID_t));
-    std::copy_n(
-        reinterpret_cast<const char*>(&properties_.uuid), Device::base_.uid_.tag_.size(),
-        Device::base_.uid_.tag_.begin());
 }
 
 
-CUDA::CUDA(CUDA&& other) : gpu_num_{std::move(other.gpu_num_)}, properties_{std::move(other.properties_)} {}
+CUDA::CUDA(CUDA&& other) :
+    Device(std::move(other)), gpu_num_{std::move(other.gpu_num_)}, properties_{std::move(other.properties_)} {}
 
 
 CUDA::~CUDA() {}

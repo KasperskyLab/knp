@@ -227,10 +227,10 @@ struct UID
  */
 inline ::std::istream &operator>>(std::istream &s, UID &uid)
 {
-    ::boost::uuids::uuid tag;
-    s >> tag;
-
-    *const_cast<::boost::uuids::uuid *>(&uid.tag_) = tag;
+    // ::boost::uuids::uuid tag;
+    // s >> tag;
+    // *const_cast<::boost::uuids::uuid *>(&uid.tag_) = tag;
+    s >> uid.tag_;
     return s;
 }
 
