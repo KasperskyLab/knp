@@ -23,7 +23,6 @@ set(KNP_BASE_FRAMEWORK_FOUND TRUE)
 # ------------------------------------------------------------------
 
 include("${CMAKE_CURRENT_LIST_DIR}/knp-base-framework-devTargets.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/knp-base-framework-devTargets-debug.cmake")
 
 block(SCOPE_FOR VARIABLES PROPAGATE knp-base-framework_FOUND knp-base-framework_NOT_FOUND_MESSAGE)
     get_target_property(_knp_core KNP::knp-base-framework-core LOCATION)
