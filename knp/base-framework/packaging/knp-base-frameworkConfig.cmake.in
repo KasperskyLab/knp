@@ -13,6 +13,12 @@ include(CMakeFindDependencyMacro)
 find_package(Boost @KNP_BOOST_MIN_VERSION@ REQUIRED)
 
 # ------------------------------------------------------------------
+# Package information
+# ------------------------------------------------------------------
+
+set(KNP_BASE_FRAMEWORK_FOUND TRUE)
+
+# ------------------------------------------------------------------
 # Imported targets
 # ------------------------------------------------------------------
 
@@ -26,9 +32,6 @@ block(SCOPE_FOR VARIABLES PROPAGATE knp-base-framework_FOUND knp-base-framework_
     list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
     find_dependency(Graphviz MODULE COMPONENTS Runtime)
 endblock()
-
-# Package information
-set(KNP_BASE_FRAMEWORK_FOUND TRUE)
 
 add_library(KNP::BaseFramework::Core ALIAS KNP::knp-base-framework-core)
 add_library(KNP::BaseFramework::CoreStatic ALIAS KNP::knp-base-framework-core_static)
