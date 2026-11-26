@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     // If `task=infer`, the function loads a network and runs inference.
     if (task == "infer")
     {
-        // Runs inference of network on the specified backend.
+        // Runs inference of network on the specified path.
         do_inference(
             options_map["net-path"].as<std::string>(), options_map["data-path"].as<std::string>(),
 	    options_map["backend"].as<std::string>());
