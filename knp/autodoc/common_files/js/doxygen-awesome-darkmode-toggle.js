@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: MIT
 /**
-
 Doxygen Awesome
 https://github.com/jothepro/doxygen-awesome-css
 
-MIT License
+Copyright (c) 2021 - 2025 jothepro
 
-Copyright (c) 2021 - 2023 jothepro
+MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,29 +56,48 @@ class DoxygenAwesomeDarkModeToggle extends HTMLElement {
     }()
 
     static init() {
-        $(function() {
-            $(document).ready(function() {
-                const toggleButton = document.createElement('doxygen-awesome-dark-mode-toggle')
-                toggleButton.title = DoxygenAwesomeDarkModeToggle.title
+        const toggleSelector = 'doxygen-awesome-dark-mode-toggle'
+        const existingToggle = document.querySelector(toggleSelector)
+        const toggleButton = existingToggle || document.createElement(toggleSelector)
+        if (!existingToggle) {
+            toggleButton.title = DoxygenAwesomeDarkModeToggle.title
+            toggleButton.updateIcon()
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                 toggleButton.updateIcon()
-
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-                    toggleButton.updateIcon()
-                })
-                document.addEventListener("visibilitychange", visibilityState => {
-                    if (document.visibilityState === 'visible') {
-                        toggleButton.updateIcon()
-                    }
-                });
-
-                $(document).ready(function(){
-                    document.getElementById("MSearchBox").parentNode.appendChild(toggleButton)
-                })
-                $(window).resize(function(){
-                    document.getElementById("MSearchBox").parentNode.appendChild(toggleButton)
-                })
             })
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === 'visible') {
+                    toggleButton.updateIcon()
+                }
+            });
+        }
+
+        const moveToggle = () => {
+            const searchBox = document.getElementById("MSearchBox")
+            const toggle = document.querySelector(toggleSelector) || toggleButton
+            if (searchBox && searchBox.parentNode !== toggle.parentNode) {
+                searchBox.parentNode.appendChild(toggle)
+            }
+        }
+
+        const containsSearchBox = node => {
+            return node.nodeType === Node.ELEMENT_NODE &&
+                (node.id === "MSearchBox" || node.querySelector("#MSearchBox") !== null)
+        }
+
+        const observer = new MutationObserver(mutations => {
+            const searchBoxChanged = mutations.some(mutation =>
+                [...mutation.addedNodes, ...mutation.removedNodes]
+                    .some(containsSearchBox)
+            )
+
+            if (searchBoxChanged) {
+                moveToggle()
+            }
         })
+        observer.observe(document.documentElement, { childList: true, subtree: true })
+        moveToggle()
     }
 
     constructor() {
