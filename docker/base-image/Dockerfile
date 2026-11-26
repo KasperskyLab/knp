@@ -19,6 +19,7 @@ ARG TARGETPLATFORM
 FROM gcc:14.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV LD_LIBRARY_PATH=/usr/local/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/cuda-12.9/lib64
 
 COPY debian-backports.sources /etc/apt/sources.list.d/
 COPY backports.pref /etc/apt/preferences.d/
