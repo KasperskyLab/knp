@@ -12,6 +12,17 @@ include(CMakeFindDependencyMacro)
 
 find_package(Boost @KNP_BOOST_MIN_VERSION@ REQUIRED)
 
+if (NOT WIN32)
+    find_dependency(PkgConfig)
+    pkg_check_modules(KNP_GRAPHVIZ QUIET libgvc libcgraph)
+    if (NOT KNP_GRAPHVIZ_FOUND)
+        set(knp-base-framework_FOUND FALSE)
+        set(knp-base-framework_NOT_FOUND_MESSAGE
+            "KNP requires Graphviz. Install libgraphviz-dev and pkg-config on Debian.")
+        return()
+    endif ()
+endif ()
+
 # ------------------------------------------------------------------
 # Package information
 # ------------------------------------------------------------------

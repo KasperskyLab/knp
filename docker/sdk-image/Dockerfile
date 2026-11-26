@@ -36,6 +36,8 @@ WORKDIR /knp
 RUN \
   apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
+    libgraphviz-dev \
+    pkg-config \
     python3-dev \
     python3-build \
     python3-mypy \
