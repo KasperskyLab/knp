@@ -147,10 +147,22 @@ if (KNP_INSTALL)
         COMPONENT "${COMPONENT_NAME}-dev"
         FILES_MATCHING PATTERN "*.h")
 
+    set(graphviz_module_dir "${CMAKE_CURRENT_LIST_DIR}/../../cmake")
+    set(graphviz_manifest "${CMAKE_CURRENT_BINARY_DIR}/packaging/$<CONFIG>/GraphvizRuntime.txt")
+
+    install(CODE "
+        set(knp_core [[$<TARGET_FILE:${PROJECT_NAME}-core>]])
+        set(graphviz_bin [[${GRAPHVIZ_BIN_DIR}]])
+        set(runtime_manifest [[${graphviz_manifest}]])
+        include([[${graphviz_module_dir}/CollectGraphvizRuntime.cmake]])
+    " COMPONENT "${COMPONENT_NAME}-dev")
+
     install(
         FILES
             "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/packaging/${PROJECT_NAME}ConfigVersion.cmake"
+            "${graphviz_module_dir}/FindGraphviz.cmake"
+            "${graphviz_manifest}"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
         COMPONENT "${COMPONENT_NAME}-dev")
 

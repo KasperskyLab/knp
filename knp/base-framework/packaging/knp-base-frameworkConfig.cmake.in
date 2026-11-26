@@ -12,29 +12,23 @@ include(CMakeFindDependencyMacro)
 
 find_package(Boost @KNP_BOOST_MIN_VERSION@ REQUIRED)
 
-if (NOT WIN32)
-    find_dependency(PkgConfig)
-    pkg_check_modules(KNP_GRAPHVIZ QUIET libgvc libcgraph)
-    if (NOT KNP_GRAPHVIZ_FOUND)
-        set(knp-base-framework_FOUND FALSE)
-        set(knp-base-framework_NOT_FOUND_MESSAGE
-            "KNP requires Graphviz. Install libgraphviz-dev and pkg-config on Debian.")
-        return()
-    endif ()
-endif ()
-
-# ------------------------------------------------------------------
-# Package information
-# ------------------------------------------------------------------
-
-set(KNP_BASE_FRAMEWORK_FOUND TRUE)
-
 # ------------------------------------------------------------------
 # Imported targets
 # ------------------------------------------------------------------
 
 include("${CMAKE_CURRENT_LIST_DIR}/knp-base-framework-devTargets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/knp-base-framework-devTargets-debug.cmake")
+
+block(SCOPE_FOR VARIABLES PROPAGATE knp-base-framework_FOUND knp-base-framework_NOT_FOUND_MESSAGE)
+    get_target_property(_knp_core KNP::knp-base-framework-core LOCATION)
+    get_filename_component(Graphviz_RUNTIME_DIR "${_knp_core}" DIRECTORY)
+
+    list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+    find_dependency(Graphviz MODULE COMPONENTS Runtime)
+endblock()
+
+# Package information
+set(KNP_BASE_FRAMEWORK_FOUND TRUE)
 
 add_library(KNP::BaseFramework::Core ALIAS KNP::knp-base-framework-core)
 add_library(KNP::BaseFramework::CoreStatic ALIAS KNP::knp-base-framework-core_static)
