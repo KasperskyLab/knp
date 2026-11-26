@@ -65,9 +65,18 @@ public:
 
     /**
      * @brief Device destructor.
+     *
+     * @details The default destructor is virtual to allow proper cleanup of
+     * derived classes.
      */
     virtual ~Device() = default;
 
+    /**
+     * @brief Avoid copy of Device.
+     *
+     * @details Copying a `Device` could duplicate internal resources and lead to
+     * undefined behavior, so the copy constructor is explicitly deleted.
+     */
     Device(const Device &) = delete;
 
 public:

@@ -122,7 +122,7 @@ int main(int argc, const char *const argv[])
     knp::framework::BackendLoader backend_loader;
 
     // Creates the model executor object (model_executor). Passes to the model_executor object the model object,
-    // the path to the backend (backend_path), the input channel ID (i_channel_uid), and
+    // the name of the backend (backend_name), the input channel ID (i_channel_uid), and
     // the spike generation functor (input_gen).
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=251296
     knp::framework::ModelExecutor model_executor(

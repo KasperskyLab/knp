@@ -249,7 +249,8 @@ The `model_desc.h` file defines the configuration structure and streaming interf
 * `ModelDescription` — structure that contains all configurable parameters that can be modified via command line or configuration files:
     * Model type selection
     * Training and inference dataset sizes
-    * File paths for images, labels, and backend libraries
+    * File paths for images and labels
+    * Names of backend libraries
     * Logging and model saving paths
     * Flag that determines if training is skipped
 * `operator<<` — stream output operator that provides human-readable formatting of model configuration. The operator is defined in the `model_desc.cpp` file.

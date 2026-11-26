@@ -28,8 +28,8 @@ _Implementation of a neural network automatic upload to the backend and executio
     5.  Defines the IDs of the input and output channels.
     6.  Creates a model object using the neural network object, channel IDs, population IDs, and input projection IDs.
     7.  Creates a spike generation functor.
-    8.  Specifies the path to the backend instance that executes the neural network.
-    9.  Creates a model executor object using the model object, the path to the backend, the input channel ID, and the spike generation functor. 
+    8.  Specifies the name of the backend instance that executes the neural network.
+    9.  Creates a model executor object using the model object, the name of the backend, the input channel ID, and the spike generation functor. 
     10. Runs the model execution.
 6.  A vector is created that contains the indices of the steps at which spikes are received by the output channel.
 

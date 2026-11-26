@@ -112,7 +112,7 @@ struct UID
     /**
      * @brief Create a UID from an array of 16 uint8_t integers.
      *
-     * @param guid_value value to store as a UID.
+     * @param guid_value array containing the UUID bytes.
      */
     explicit UID(const std::array<
                  boost::uuids::uuid::value_type, sizeof(boost::uuids::uuid::data) / sizeof(boost::uuids::uuid::data[0])>
@@ -128,12 +128,13 @@ struct UID
     }
 
     /**
-     * @brief Create a UID from iterators of 16 uint8_t integers.
-     *
-     * @tparam InputIt input iterators type.
-     * @param uid_begin start iterator.
-     * @param uid_end end iterator.
-     */
+      * @brief Create a UID from iterators of 16 uint8_t integers.
+      *
+      * @tparam InputIt iterator type.
+      *
+      * @param uid_begin start iterator of a 16-byte range.
+      * @param uid_end end iterator of the range.
+      */
     template <typename InputIt>
     UID(InputIt uid_begin, InputIt uid_end)
         : tag_(

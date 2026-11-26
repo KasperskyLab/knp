@@ -141,7 +141,7 @@ std::optional<ModelDescription> parse_arguments(int argc, char** argv)
     }
     else
     {
-        std::cout << "Training backend path not specified." << std::endl;
+        std::cout << "Training backend name not specified." << std::endl;
         std::cout << desc << std::endl;
         return std::nullopt;
     }

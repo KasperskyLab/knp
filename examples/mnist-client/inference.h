@@ -44,7 +44,7 @@ struct InferenceResult
  * @brief Run inference for MNIST model.
  * @param path_to_model path to SONATA model directory.
  * @param path_to_data path to binary data file.
- * @param path_to_backend path to backend.
+ * @param backend_name backend name.
  * @return vector of inference results.
  */
 std::vector<InferenceResult> do_inference(

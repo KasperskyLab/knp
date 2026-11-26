@@ -88,7 +88,7 @@ struct ModelDescription
     std::string training_backend_name_;
 
     /**
-     * @brief Path to backend library for inference operations.
+     * @brief Name of the backend library for inference operations.
      * 
      * @note Platform specific name parts (for example, .so or .dll) should be absent from the path.
      */
