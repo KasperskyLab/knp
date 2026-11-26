@@ -1,11 +1,7 @@
+// SPDX-License-Identifier: MIT
 /**
 
-Doxygen Awesome
-https://github.com/jothepro/doxygen-awesome-css
-
 MIT License
-
-Copyright (c) 2022 - 2023 jothepro
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +20,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Doxygen Awesome
+https://github.com/jothepro/doxygen-awesome-css
+
+Copyright (c) 2022 - 2025 jothepro
 
 */
 
@@ -55,9 +56,7 @@ class DoxygenAwesomeInteractiveToc {
                         headerNode: document.getElementById(id)
                     })
 
-                    document.getElementById("doc-content")?.addEventListener("scroll", () => {
-                        DoxygenAwesomeInteractiveToc.update()
-                    })
+                    document.getElementById("doc-content")?.addEventListener("scroll",this.throttle(DoxygenAwesomeInteractiveToc.update, 100))
                 })
                 DoxygenAwesomeInteractiveToc.update()
             }
@@ -77,5 +76,17 @@ class DoxygenAwesomeInteractiveToc {
         })
         active?.classList.add("active")
         active?.classList.remove("aboveActive")
+    }
+
+    static throttle(func, delay) {
+        let lastCall = 0;
+        return function (...args) {
+            const now = new Date().getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return setTimeout(() => {func(...args)}, delay);
+        };
     }
 }
