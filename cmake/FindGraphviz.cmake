@@ -2,6 +2,37 @@
 
 include(FindPackageHandleStandardArgs)
 
+if ("Runtime" IN_LIST Graphviz_FIND_COMPONENTS)
+    file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/GraphvizRuntime.txt" _graphviz_names)
+
+    set(Graphviz_Runtime_FOUND TRUE)
+    set(_graphviz_missing "")
+
+    foreach(_name IN LISTS _graphviz_names)
+        unset(_graphviz_file)
+
+        if (WIN32)
+            find_file(_graphviz_file NAMES "${_name}"
+                HINTS "${Graphviz_RUNTIME_DIR}" ENV PATH
+                NO_CACHE)
+        else ()
+            find_library(_graphviz_file NAMES "${_name}"
+                HINTS "${Graphviz_RUNTIME_DIR}" ENV LD_LIBRARY_PATH ENV DYLD_LIBRARY_PATH
+                NO_CACHE)
+        endif ()
+
+        if (NOT _graphviz_file)
+            set(Graphviz_Runtime_FOUND FALSE)
+            list(APPEND _graphviz_missing "${_name}")
+        endif ()
+    endforeach ()
+
+    list(JOIN _graphviz_missing ", " _graphviz_reason)
+    find_package_handle_standard_args(Graphviz HANDLE_COMPONENTS
+        REASON_FAILURE_MESSAGE "Missing Graphviz runtime libraries: ${_graphviz_reason}")
+    return()
+endif ()
+
 if (NOT TARGET Graphviz::Graphviz)
     if (WIN32)
         # Without pkg-config on Windows.
