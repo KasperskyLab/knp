@@ -264,5 +264,6 @@ using ResourceSynapseValuePtr = ResourceSynapseValue *;
 
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
+REGISTER_CUDA_VECTOR_TYPE(uint8_t);
 REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValue);
 REGISTER_CUDA_VECTOR_TYPE(ResourceSynapseValuePtr);

@@ -19,14 +19,16 @@
  * limitations under the License.
  */
 
-#include <type_traits>
-
 #include "../cuda_lib/extraction.cuh"
 #include "../cuda_lib/kernels.cuh"
 #include "../cuda_lib/register_all.cuh"
 #include "../cuda_lib/vector_kernels.cuh"
 #include "messaging.cuh"
 #include "subscription.cuh"
+
+#include <spdlog/spdlog.h>
+#include <type_traits>
+
 
 /**
  * @brief CUDA messaging namespace.
@@ -86,6 +88,18 @@ __global__ void copy_gpu_impact_kernel(
 
 
 // TODO: Currently we don't get impact messages from CPU but that might change later.
+cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message)
+{
+    cuda::SynapticImpactMessage result;
+    result.header_ = detail::make_gpu_message_header(host_message.header_);
+    result.presynaptic_population_uid_ = host_message.presynaptic_population_uid_;
+    result.postsynaptic_population_uid_ = host_message.postsynaptic_population_uid_;
+    result.is_forcing_ = host_message.is_forcing_;
+    SPDLOG_ERROR("Sending synaptic impacts to GPU is not currently implemented.");
+    return result;
+}
+
+
 //cuda::SynapticImpactMessage make_gpu_message(const knp::core::messaging::SynapticImpactMessage &host_message,
 //                                             device_lib::CUDAVector<SynapticImpact> &impacts_owner)
 //{

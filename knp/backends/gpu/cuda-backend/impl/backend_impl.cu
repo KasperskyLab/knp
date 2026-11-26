@@ -381,6 +381,7 @@ REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_t
 REGISTER_CUDA_VECTOR_TYPE(
     knp::backends::gpu::cuda::CUDAPopulation<knp::neuron_traits::SynapticResourceSTDPBLIFATNeuron>::NeuronParameters);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::device_lib::CUDAVector<unsigned long long>);
+REGISTER_CUDA_VECTOR_TYPE(uint8_t);
 REGISTER_CUDA_VECTOR_TYPE(unsigned int);
 REGISTER_CUDA_VECTOR_TYPE(unsigned long long);
 REGISTER_CUDA_VECTOR_TYPE(knp::backends::gpu::cuda::UID);
