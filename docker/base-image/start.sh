@@ -46,6 +46,14 @@ function install_cuda_debian() {
     && echo "/usr/local/cuda-${CUDA_MAJOR_VERSION}/targets/x86_64-linux/lib/stubs" > /etc/ld.so.conf.d/988_cuda-${MAJOR_VERSION}-stubs.conf \
     && ldconfig
 
+    if [ -f knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb ]; then
+		dpkg -i knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb
+	fi
+
+    if [ -f knp-gpu-cuda-backend-dev_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb ]; then
+		dpkg -i knp-gpu-cuda-backend-dev_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb
+	fi
+
     echo "[INFO] CUDA installation complete."
 }
 
@@ -58,16 +66,15 @@ if [ "x$(uname -m)" = "xx86_64" ]; then
 
     if command -v nvcc >/dev/null 2>&1; then
         echo "[OK] CUDA already installed:"
-        nvcc --version
     else
-        echo "[WARN] CUDA not found. Installing..."
+        echo "[!] CUDA not found. Installing..."
         install_cuda_debian
     fi
 
     if command -v nvcc >/dev/null 2>&1; then
         nvcc --version
     else
-        echo "[ERROR] CUDA installation failed"
+        echo "[ERROR] CUDA testing failed"
         exit 1
     fi
 else

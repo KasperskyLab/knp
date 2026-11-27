@@ -18,6 +18,9 @@ ARG KNP_IMAGE_VERSION=2.0.0
 ARG TARGETPLATFORM
 FROM gcc:14.2.0
 
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LD_LIBRARY_PATH=/usr/local/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/cuda-12.9/lib64
 

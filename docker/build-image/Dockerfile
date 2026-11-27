@@ -18,13 +18,16 @@ ARG KNP_IMAGE_VERSION=2.0.0
 ARG TARGETPLATFORM
 FROM kasperskydh/knp-base-image:${KNP_IMAGE_VERSION}
 
+ARG KNP_IMAGE_VERSION=2.0.0
+ARG TARGETPLATFORM
+
 ENV OCLINT_FILE=oclint-22.02-llvm-13.0.1-x86_64-linux-ubuntu-20.04.tar.gz \
     DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /azp
 
 RUN \
-  if [ "x$TARGETPLATFORM" = "xlinux/amd64" ]; then \
+  if [ "x${TARGETPLATFORM}" = "xlinux/amd64" ]; then \
     wget -qO- https://files.pvs-studio.com/etc/pubkey.txt | \
     gpg --dearmor -o /etc/apt/trusted.gpg.d/viva64.gpg \
     && wget -O /etc/apt/sources.list.d/viva64.list \
@@ -65,7 +68,7 @@ RUN \
   && apt-get clean \
   && cd /azp \
   && echo "Install Doxygen..." \
-  && git clone --depth 1 --branch Release_1_13_2 --single-branch https://github.com/doxygen/doxygen.git \
+  && git clone --depth 1 --branch Release_1_16_1 --single-branch https://github.com/doxygen/doxygen.git \
   && apt-get -y --no-install-recommends --show-progress install bison flex \
   && cd doxygen \
   && cmake -G "Unix Makefiles" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . \
