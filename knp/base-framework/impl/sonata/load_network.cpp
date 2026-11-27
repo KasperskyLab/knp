@@ -64,6 +64,8 @@ std::vector<core::AllProjectionsVariant> load_projections(const fs::path &proj_h
 {
     if (!fs::is_regular_file(proj_h5_file))
         throw std::runtime_error("Could not open file \"" + proj_h5_file.string() + "\".");
+
+    hdf5_unregister_filter_scaleoffset();
     HighFive::File storage{proj_h5_file.string()};
     auto group = storage.getGroup("edges");
     size_t num_projections = group.getNumberObjects();
@@ -92,6 +94,7 @@ std::vector<core::AllPopulationsVariant> load_populations(const fs::path &pop_h5
         throw std::runtime_error("Could not open file \"" + pop_h5_file.string() + "\".");
     }
 
+    hdf5_unregister_filter_scaleoffset();
     const HighFive::File storage{pop_h5_file.string()};
     auto group = storage.getGroup("nodes");
     const size_t num_populations = group.getNumberObjects();
@@ -144,6 +147,7 @@ NetworkConfig read_config_file(const fs::path &config_path)
 
 core::UID get_network_uid(const fs::path &nodes_path)
 {
+    hdf5_unregister_filter_scaleoffset();
     const HighFive::File h5_file(nodes_path.string());
     if (h5_file.hasAttribute("network_uid"))
     {
