@@ -68,7 +68,7 @@ RUN \
   && apt-get clean \
   && cd /azp \
   && echo "Install Doxygen..." \
-  && git clone --depth 1 --branch Release_1_13_2 --single-branch https://github.com/doxygen/doxygen.git \
+  && git clone --depth 1 --branch Release_1_16_1 --single-branch https://github.com/doxygen/doxygen.git \
   && apt-get -y --no-install-recommends --show-progress install bison flex \
   && cd doxygen \
   && cmake -G "Unix Makefiles" -DCMAKE_POSITION_INDEPENDENT_CODE=ON . \
