@@ -28,3 +28,21 @@
 #ifdef __clang__
 #    pragma clang diagnostic pop
 #endif
+
+// Block CVE-2026-120754.
+#include <hdf5.h>
+
+#include <highfive/H5File.hpp>
+// /Block CVE-2026-120754.
+
+
+inline void hdf5_unregister_filter_scaleoffset()
+{
+    // Block CVE-2026-120754.
+    H5open();
+    if (H5Zfilter_avail(H5Z_FILTER_SCALEOFFSET) > 0)
+    {
+        H5Zunregister(H5Z_FILTER_SCALEOFFSET);
+    }
+    // /Block CVE-2026-120754.
+}

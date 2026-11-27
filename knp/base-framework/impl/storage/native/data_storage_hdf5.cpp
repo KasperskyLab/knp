@@ -83,6 +83,8 @@ void check_format(const HighFive::File &h5_file, bool is_throw)
 KNP_DECLSPEC std::vector<core::messaging::SpikeMessage> load_messages_from_h5(
     const fs::path &path_to_h5, const knp::core::UID &uid, float time_per_step, bool strict_format)
 {
+    hdf5_unregister_filter_scaleoffset();
+
     HighFive::File h5_file(path_to_h5.string());
 
     check_format(h5_file, strict_format);

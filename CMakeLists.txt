@@ -291,8 +291,8 @@ endmacro()
 
 #add_third_party("https://gitlab.dkrz.de/k202009/libaec.git@1.1.3")
 #add_third_party("gh:erdc/szip")
-add_third_party("gh:HDFGroup/hdf5#hdf5_2.1.0"
-			    USE_LOCAL_PACKAGES NO
+add_third_party("gh:HDFGroup/hdf5#2.3.0"
+                USE_LOCAL_PACKAGES NO
                 GIT_SHALLOW ON
                 FIND_PACKAGE_ARGUMENTS "NAMES hdf5 libhdf5 hdf5-static"
                 OPTIONS
