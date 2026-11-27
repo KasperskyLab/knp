@@ -44,16 +44,16 @@
 
 /**
  * @brief Build input channel map for training operations.
- * 
- * @details This function configures the input and output channels required for training by setting up spike generators 
+ *
+ * @details This function configures the input and output channels required for training by setting up spike generators
  * for image data and labels, and establishing the necessary connections between network components.
- * 
+ *
  * @tparam Neuron neuron type for neuron model specification.
- * 
+ *
  * @param network annotated network structure containing network and annotations.
  * @param model model.
  * @param dataset dataset containing training data and configuration.
- * 
+ *
  * @return channel map containing configured input channels for training.
  */
 template <typename Neuron>
@@ -96,13 +96,13 @@ knp::framework::ModelLoader::InputChannelMap build_channel_map_train(
 
 /**
  * @brief Train neural network on the provided dataset.
- * 
- * @details This function executes the complete training process for a neural network, including model initialization, 
- * training execution, and comprehensive monitoring. It handles the configuration of input and output channels, 
+ *
+ * @details This function executes the complete training process for a neural network, including model initialization,
+ * training execution, and comprehensive monitoring. It handles the configuration of input and output channels,
  * logging, and progress tracking.
- * 
+ *
  * @tparam Neuron neuron type for neuron model specification.
- * 
+ *
  * @param backend shared pointer to the computational backend for training execution.
  * @param network annotated network structure containing the network and its annotations.
  * @param model_desc model description containing configuration parameters and paths.
@@ -119,7 +119,7 @@ void train_network(
         std::visit(
             [&pop_names](const auto& pop) { pop_names[pop.get_uid()] = knp::framework::tags::get_name(pop); }, pop);
 
-    
+
     // Create model from annotated network structure.
     // Online Help link: https://click.kaspersky.com/?hl=en-US&version=2.0&pid=KNP&link=online_help&helpid=235849
     knp::framework::Model model(std::move(network.network_));
@@ -138,7 +138,6 @@ void train_network(
     // Initialize logging streams and accumulators for detailed monitoring.
     // All these variables should have the same lifetime as model_executor.
     std::ofstream log_stream, weight_stream;
-    // cppcheck-suppress variableScope
     std::map<std::string, size_t> spike_accumulator;
 
     // Configure WTA (Winner-Take-All) handlers for competitive learning mechanisms.
@@ -152,7 +151,7 @@ void train_network(
     // for inference. Exactly one handler is created for every entry in `wta_data_`.
     for (size_t i = 0; i < wta_uids.size(); ++i)
         network.data_.wta_handlers_.emplace_back(wta_uids[i], network.data_.wta_data_[i].first);
-    
+
     // Register WTA populations for logging to track competitive behavior.
     for (auto const& uid : wta_uids) pop_names[uid] = "WTA";
 
@@ -195,13 +194,13 @@ void train_network(
 
 /**
  * @brief Train neural network model and prepare for inference.
- * 
- * @details This function orchestrates the complete training workflow, including backend loading, network training, and 
- * post-training preparation for inference operations. It provides a high-level interface for executing the full training 
- * pipeline.
- * 
+ *
+ * @details This function orchestrates the complete training workflow, including backend loading, network training, and
+ * post-training preparation for inference operations. It provides a high-level interface for executing the full
+ * training pipeline.
+ *
  * @tparam Neuron neuron type for neuron model specification.
- * 
+ *
  * @param model_desc model description containing configuration parameters and paths.
  * @param dataset dataset containing training data and timing specifications.
  * @param network annotated network structure containing the network and its annotations.
@@ -215,7 +214,8 @@ knp::framework::visualizer::BusConnections train_model(
     knp::framework::BackendLoader& backend_loader)
 {
     // Load training backend for computational execution.
-    std::shared_ptr<knp::core::Backend> training_backend = backend_loader.load(model_desc.training_backend_name_);
+    std::shared_ptr<knp::core::Backend> training_backend =
+        backend_loader.load_by_name(model_desc.training_backend_name_);
 
     // Execute the complete training process with the loaded backend.
     train_network<Neuron>(training_backend, network, model_desc, dataset);
