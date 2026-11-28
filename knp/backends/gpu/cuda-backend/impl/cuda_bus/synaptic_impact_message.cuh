@@ -127,6 +127,15 @@ public:
     }
 
     __host__ bool operator!=(const SynapticImpactMessage &other) { return !(*this == other); }
+
+    /**
+     * @brief Default constructor.
+     */
+    SynapticImpactMessage() : presynaptic_population_uid_{false}, postsynaptic_population_uid_{false}
+    {
+        impacts_.data_ = nullptr;
+        impacts_.size_ = 0;
+    }
 };
 
 

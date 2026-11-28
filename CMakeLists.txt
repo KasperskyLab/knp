@@ -66,10 +66,20 @@ project(knp VERSION "${KNP_VERSION}"
 set(KNP_BOOST_MIN_VERSION "1.74.0")
 set(KNP_ROOT_DIR "${PROJECT_SOURCE_DIR}" CACHE STRING "Kaspersky Neuromorphic Platform root directory")
 
+if (UNIX AND NOT APPLE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+endif()
+
 if (MSVC)
     add_compile_options(/EHsc /MP /MDd)
+    add_link_options(/NXCOMPAT /DYNAMICBASE /HIGHENTROPYVA)
     # add_link_options(/LTCG:INCREMENTAL)  # /NODEFAULTLIB:LIBCMTD
     add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1 _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS=1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_definitions($<$<NOT:$<CONFIG:Debug>>:_FORTIFY_SOURCE=2>)
+    add_link_options(-Wl,-z,relro,-z,now,--enable-new-dtags)
 endif()
 
 foreach (boost_ver RANGE 81 89)
