@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG KNP_IMAGE_VERSION=2.0.0
-ARG TARGETPLATFORM
 FROM gcc:14.2.0
 
+ARG KNP_IMAGE_VERSION=2.0.0
+ARG TARGETPLATFORM
+
+ENV KNP_VERSION=${KNP_IMAGE_VERSION}
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
