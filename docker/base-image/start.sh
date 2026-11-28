@@ -38,7 +38,6 @@ function install_cuda_debian() {
         dpkg -i "${KNP_HOME}/knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb"
     fi
 
-    return
     # cuda-keyring package adds correct repository.
     curl -fS https://developer.download.nvidia.com/compute/cuda/repos/${DEBIAN_VERSION}/x86_64/cuda-keyring_1.1-1_all.deb -o cuda-keyring_1.1-1_all.deb \
     && DEBIAN_FRONTEND=noninteractive dpkg -i cuda-keyring_1.1-1_all.deb \
