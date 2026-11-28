@@ -73,4 +73,4 @@ echo "Commiting changes into image..."
   || die "Cannot commit changes into Docker image."
 
 echo "SDK image was installed successfully."
-echo "You can run shell in the image, using following command: 'docker run -ti --rm ${SDK_IMAGE_NAME} bash'"
+echo "You can run shell in the image, using following command: 'docker run --gpus all -ti --rm ${SDK_IMAGE_NAME} bash'"

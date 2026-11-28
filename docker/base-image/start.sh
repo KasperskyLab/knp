@@ -5,7 +5,7 @@
 # @kaspersky_support Artiom N.
 # @date 22.04.2026
 # @license Apache 2.0
-# @copyright © 2026 AO Kaspersky Lab
+# @copyright © 2026 AO Kaspersky Lab.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ set -e
 CUDA_MAJOR_VERSION="12"
 CUDA_MINOR_VERSION="9"
 CUDA_VERSION="${CUDA_MAJOR_VERSION}.${CUDA_MINOR_VERSION}"
+KNP_HOME=/knp
 
 
 function install_cuda_debian() {
@@ -33,7 +34,11 @@ function install_cuda_debian() {
     echo "[INFO] Installing CUDA for ${DEBIAN_VERSION}..."
 
     CUDA_PKG_VERSION=$(echo ${CUDA_VERSION}|tr '.' '-')
+    if [ -f "${KNP_HOME}/knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb" ]; then
+        dpkg -i "${KNP_HOME}/knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb"
+    fi
 
+    return
     # cuda-keyring package adds correct repository.
     curl -fS https://developer.download.nvidia.com/compute/cuda/repos/${DEBIAN_VERSION}/x86_64/cuda-keyring_1.1-1_all.deb -o cuda-keyring_1.1-1_all.deb \
     && DEBIAN_FRONTEND=noninteractive dpkg -i cuda-keyring_1.1-1_all.deb \
@@ -46,13 +51,13 @@ function install_cuda_debian() {
     && echo "/usr/local/cuda-${CUDA_MAJOR_VERSION}/targets/x86_64-linux/lib/stubs" > /etc/ld.so.conf.d/988_cuda-${MAJOR_VERSION}-stubs.conf \
     && ldconfig
 
-    if [ -f knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb ]; then
-		dpkg -i knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb
-	fi
+    if [ -f "${KNP_HOME}/knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb" ]; then
+        dpkg -i "${KNP_HOME}/knp-gpu-cuda-backend_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb"
+    fi
 
     if [ -f knp-gpu-cuda-backend-dev_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb ]; then
-		dpkg -i knp-gpu-cuda-backend-dev_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb
-	fi
+        dpkg -i "${KNP_HOME}/knp-gpu-cuda-backend-dev_${KNP_IMAGE_VERSION}_${TARGETPLATFORM}.deb"
+    fi
 
     echo "[INFO] CUDA installation complete."
 }
@@ -61,6 +66,7 @@ function install_cuda_debian() {
 if [ "x$(uname -m)" = "xx86_64" ]; then
     echo "[INFO] Checking for CUDA..."
 
+    export TARGETPLATFORM=${TARGETPLATFORM:-amd64}
     export PATH=/usr/local/cuda-${CUDA_VERSION}/bin${PATH:+:${PATH}}
     export LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_VERSION}/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
