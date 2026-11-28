@@ -59,7 +59,6 @@ RUN \
       python3-setuptools \
       python3-types-requests \
       python3-wheel \
-      rapidjson-dev \
   && \
   if [ "x$TARGETPLATFORM" = "xlinux/amd64" ]; then \
     echo "Installing PVS Studio..."; \
